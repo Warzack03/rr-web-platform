@@ -1,0 +1,565 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  SUPERADMIN
+  MANAGER
+  COACH
+}
+
+enum SeasonStatus {
+  DRAFT
+  CURRENT
+  ARCHIVED
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  PLAYED
+  POSTPONED
+}
+
+enum PlayerStatRole {
+  FIELD_PLAYER
+  GOALKEEPER
+}
+
+enum NewsStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ImportStatus {
+  UPLOADED
+  VALIDATED
+  APPLIED
+  FAILED
+  CANCELLED
+}
+
+enum ImportAction {
+  CREATE
+  UPDATE
+  INACTIVATE
+  SKIP
+  CONFLICT
+  ERROR
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO_LINK
+  DOCUMENT
+}
+
+enum MediaUsage {
+  PLAYER_PHOTO
+  PLAYER_CARD
+  TEAM_LOGO
+  TEAM_BANNER
+  NEWS_COVER
+  OPPONENT_LOGO
+  OTHER
+}
+
+model User {
+  id                BigInt                @id @default(autoincrement())
+  email             String                @unique @db.VarChar(190)
+  username          String                @unique @db.VarChar(80)
+  passwordHash      String                @db.VarChar(255)
+  displayName       String                @db.VarChar(150)
+  role              UserRole
+  active            Boolean               @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  coachPermissions  CoachTeamPermission[]
+  visibleCoachRows  TeamCoach[]           @relation("TeamCoachAccount")
+  uploadedMedia     MediaAsset[]          @relation("MediaUploadedBy")
+  authoredNews      NewsPost[]            @relation("NewsAuthor")
+
+  @@map("users")
+}
+
+model SiteSettings {
+  id             BigInt   @id @default(autoincrement())
+  activeSeasonId BigInt?
+  publicSiteName String   @default("Rising Raimon") @db.VarChar(150)
+  shopUrl        String?  @db.VarChar(255)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  activeSeason   Season?  @relation("SiteSettingsActiveSeason", fields: [activeSeasonId], references: [id], onDelete: SetNull)
+
+  @@map("site_settings")
+}
+
+model Season {
+  id                BigInt                 @id @default(autoincrement())
+  name              String                 @unique @db.VarChar(100)
+  slug              String                 @unique @db.VarChar(120)
+  startDate         DateTime               @db.Date
+  endDate           DateTime               @db.Date
+  status            SeasonStatus           @default(DRAFT)
+  activeKey         String?                @unique @db.VarChar(20)
+  sourceSystem      String?                @db.VarChar(80)
+  sourceExternalId  String?                @db.VarChar(80)
+  lastImportBatchId BigInt?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  deletedAt         DateTime?
+  lastImportBatch   ImportBatch?           @relation("SeasonLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+  seasonTeams       SeasonTeam[]
+  playerProfiles    PlayerSeasonProfile[]
+  assignments       TeamPlayerAssignment[]
+  competitions      Competition[]
+  matches           Match[]
+  standingTables    StandingTable[]
+  stats             PlayerMatchStats[]
+  siteSettings      SiteSettings[]         @relation("SiteSettingsActiveSeason")
+  importBatches     ImportBatch[]
+
+  @@index([sourceSystem, sourceExternalId])
+  @@map("seasons")
+}
+
+model Team {
+  id                BigInt       @id @default(autoincrement())
+  code              String       @unique @db.VarChar(50)
+  name              String       @db.VarChar(150)
+  slug              String       @unique @db.VarChar(160)
+  branch            String?      @db.VarChar(50)
+  displayOrder      Int          @default(0)
+  active            Boolean      @default(true)
+  isFirstTeam       Boolean      @default(false)
+  sourceSystem      String?      @db.VarChar(80)
+  sourceExternalId  String?      @db.VarChar(80)
+  lastImportBatchId BigInt?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?
+  lastImportBatch   ImportBatch? @relation("TeamLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+  seasonTeams       SeasonTeam[]
+
+  @@index([sourceSystem, sourceExternalId])
+  @@map("teams")
+}
+
+model SeasonTeam {
+  id                BigInt                  @id @default(autoincrement())
+  seasonId          BigInt
+  teamId            BigInt
+  competitionId     BigInt?
+  publicName        String                  @db.VarChar(150)
+  publicSlug        String                  @db.VarChar(160)
+  category          String?                 @db.VarChar(100)
+  competitionName   String?                 @db.VarChar(150)
+  description       String?                 @db.Text
+  publicVisible     Boolean                 @default(true)
+  logoMediaId       BigInt?
+  bannerMediaId     BigInt?
+  displayOrder      Int                     @default(0)
+  active            Boolean                 @default(true)
+  sourceSystem      String?                 @db.VarChar(80)
+  sourceExternalId  String?                 @db.VarChar(80)
+  lastImportBatchId BigInt?
+  createdById       BigInt?
+  updatedById       BigInt?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  deletedAt         DateTime?
+  season            Season                  @relation(fields: [seasonId], references: [id])
+  team              Team                    @relation(fields: [teamId], references: [id])
+  competition       Competition?            @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  logoMedia         MediaAsset?             @relation("SeasonTeamLogo", fields: [logoMediaId], references: [id], onDelete: SetNull)
+  bannerMedia       MediaAsset?             @relation("SeasonTeamBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
+  lastImportBatch   ImportBatch?            @relation("SeasonTeamLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+  assignments       TeamPlayerAssignment[]
+  coaches           TeamCoach[]
+  matches           Match[]
+  standingTables    StandingTable[]
+  stats             PlayerMatchStats[]
+  coachPermissions  CoachTeamPermission[]
+  newsLinks         NewsPostTeam[]
+
+  @@unique([seasonId, teamId])
+  @@unique([seasonId, publicSlug])
+  @@index([publicVisible, active])
+  @@index([sourceSystem, sourceExternalId])
+  @@map("season_teams")
+}
+
+model Player {
+  id                 BigInt                  @id @default(autoincrement())
+  firstName          String                  @db.VarChar(150)
+  lastName           String                  @db.VarChar(200)
+  publicName         String?                 @db.VarChar(180)
+  slug               String                  @unique @db.VarChar(190)
+  birthDate          DateTime?               @db.Date
+  countryCode        String?                 @db.VarChar(2)
+  preferredFoot      String?                 @db.VarChar(20)
+  active             Boolean                 @default(true)
+  publicVisible      Boolean                 @default(true)
+  photoMediaId       BigInt?
+  premiumCardMediaId BigInt?
+  sourceSystem       String?                 @db.VarChar(80)
+  sourceExternalId   String?                 @db.VarChar(80)
+  lastImportBatchId  BigInt?
+  createdById        BigInt?
+  updatedById        BigInt?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  deletedAt          DateTime?
+  photoMedia         MediaAsset?             @relation("PlayerPhoto", fields: [photoMediaId], references: [id], onDelete: SetNull)
+  premiumCardMedia   MediaAsset?             @relation("PlayerPremiumCard", fields: [premiumCardMediaId], references: [id], onDelete: SetNull)
+  lastImportBatch    ImportBatch?            @relation("PlayerLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+  seasonProfiles     PlayerSeasonProfile[]
+  assignments        TeamPlayerAssignment[]
+  stats              PlayerMatchStats[]
+
+  @@index([sourceSystem, sourceExternalId])
+  @@index([publicVisible, active])
+  @@map("players")
+}
+
+model PlayerSeasonProfile {
+  id                BigInt       @id @default(autoincrement())
+  playerId          BigInt
+  seasonId          BigInt
+  primaryPosition   String?      @db.VarChar(50)
+  secondaryPosition String?      @db.VarChar(50)
+  tertiaryPosition  String?      @db.VarChar(50)
+  publicPosition    String?      @db.VarChar(80)
+  level             Int?
+  sourceSystem      String?      @db.VarChar(80)
+  sourceExternalId  String?      @db.VarChar(80)
+  lastImportBatchId BigInt?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  player            Player       @relation(fields: [playerId], references: [id])
+  season            Season       @relation(fields: [seasonId], references: [id])
+  lastImportBatch   ImportBatch? @relation("PlayerSeasonProfileLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+
+  @@unique([playerId, seasonId])
+  @@index([sourceSystem, sourceExternalId])
+  @@map("player_season_profiles")
+}
+
+model TeamPlayerAssignment {
+  id                BigInt       @id @default(autoincrement())
+  playerId          BigInt
+  seasonTeamId      BigInt
+  seasonId          BigInt
+  shirtNumber       Int?
+  position          String?      @db.VarChar(80)
+  isPrimary         Boolean      @default(true)
+  isManualException Boolean      @default(false)
+  isCaptain         Boolean      @default(false)
+  displayOrder      Int          @default(0)
+  active            Boolean      @default(true)
+  joinedAt          DateTime?    @db.Date
+  leftAt            DateTime?    @db.Date
+  sourceSystem      String?      @db.VarChar(80)
+  sourceExternalId  String?      @db.VarChar(80)
+  lastImportBatchId BigInt?
+  createdById       BigInt?
+  updatedById       BigInt?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?
+  player            Player       @relation(fields: [playerId], references: [id])
+  seasonTeam        SeasonTeam   @relation(fields: [seasonTeamId], references: [id])
+  season            Season       @relation(fields: [seasonId], references: [id])
+  lastImportBatch   ImportBatch? @relation("TeamPlayerAssignmentLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+
+  @@index([playerId, seasonId])
+  @@index([seasonTeamId, active])
+  @@index([seasonId, active])
+  @@index([sourceSystem, sourceExternalId])
+  @@map("team_player_assignments")
+}
+
+model TeamCoach {
+  id            BigInt      @id @default(autoincrement())
+  seasonTeamId  BigInt
+  userId        BigInt?
+  name          String      @db.VarChar(150)
+  roleLabel     String      @db.VarChar(100)
+  photoMediaId  BigInt?
+  publicVisible Boolean     @default(true)
+  displayOrder  Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  seasonTeam    SeasonTeam  @relation(fields: [seasonTeamId], references: [id])
+  user          User?       @relation("TeamCoachAccount", fields: [userId], references: [id], onDelete: SetNull)
+  photoMedia    MediaAsset? @relation("TeamCoachPhoto", fields: [photoMediaId], references: [id], onDelete: SetNull)
+
+  @@index([seasonTeamId, publicVisible])
+  @@map("team_coaches")
+}
+
+model CoachTeamPermission {
+  id           BigInt     @id @default(autoincrement())
+  userId       BigInt
+  seasonTeamId BigInt
+  active       Boolean    @default(true)
+  createdById  BigInt?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [userId], references: [id])
+  seasonTeam   SeasonTeam @relation(fields: [seasonTeamId], references: [id])
+
+  @@unique([userId, seasonTeamId])
+  @@index([seasonTeamId, active])
+  @@map("coach_team_permissions")
+}
+
+model Competition {
+  id          BigInt         @id @default(autoincrement())
+  seasonId    BigInt
+  name        String         @db.VarChar(150)
+  slug        String         @db.VarChar(160)
+  organizer   String?        @db.VarChar(100)
+  groupName   String?        @db.VarChar(100)
+  active      Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  season      Season         @relation(fields: [seasonId], references: [id])
+  seasonTeams SeasonTeam[]
+  matches     Match[]
+  standings   StandingTable[]
+
+  @@unique([seasonId, slug])
+  @@map("competitions")
+}
+
+model Match {
+  id                  BigInt            @id @default(autoincrement())
+  seasonId            BigInt
+  seasonTeamId        BigInt
+  competitionId       BigInt?
+  matchday            Int?
+  dateTime            DateTime?
+  venue               String?           @db.VarChar(180)
+  isHome              Boolean           @default(true)
+  opponentName        String            @db.VarChar(150)
+  opponentLogoMediaId BigInt?
+  status              MatchStatus       @default(SCHEDULED)
+  homeScore           Int?
+  awayScore           Int?
+  summary             String?           @db.Text
+  videoUrl            String?           @db.VarChar(500)
+  videoLabel          String?           @db.VarChar(120)
+  liveUrl             String?           @db.VarChar(500)
+  publicVisible       Boolean           @default(true)
+  createdById         BigInt?
+  updatedById         BigInt?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  deletedAt           DateTime?
+  season              Season            @relation(fields: [seasonId], references: [id])
+  seasonTeam          SeasonTeam        @relation(fields: [seasonTeamId], references: [id])
+  competition         Competition?      @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  opponentLogo        MediaAsset?       @relation("OpponentLogo", fields: [opponentLogoMediaId], references: [id], onDelete: SetNull)
+  stats               PlayerMatchStats[]
+
+  @@index([seasonTeamId, status])
+  @@index([seasonTeamId, dateTime])
+  @@index([seasonId, dateTime])
+  @@map("matches")
+}
+
+model StandingTable {
+  id            BigInt       @id @default(autoincrement())
+  seasonId      BigInt
+  seasonTeamId  BigInt
+  competitionId BigInt?
+  title         String       @db.VarChar(150)
+  sourceLabel   String?      @db.VarChar(150)
+  updatedLabel  String?      @db.VarChar(150)
+  publicVisible Boolean      @default(true)
+  createdById   BigInt?
+  updatedById   BigInt?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+  season        Season       @relation(fields: [seasonId], references: [id])
+  seasonTeam    SeasonTeam   @relation(fields: [seasonTeamId], references: [id])
+  competition   Competition? @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  rows          StandingRow[]
+
+  @@index([seasonTeamId, publicVisible])
+  @@map("standing_tables")
+}
+
+model StandingRow {
+  id              BigInt        @id @default(autoincrement())
+  standingTableId BigInt
+  position        Int
+  teamName        String        @db.VarChar(150)
+  played          Int           @default(0)
+  won             Int           @default(0)
+  drawn           Int           @default(0)
+  lost            Int           @default(0)
+  goalsFor        Int           @default(0)
+  goalsAgainst    Int           @default(0)
+  goalDifference  Int           @default(0)
+  points          Int           @default(0)
+  isOwnTeam       Boolean       @default(false)
+  displayOrder    Int           @default(0)
+  standingTable   StandingTable @relation(fields: [standingTableId], references: [id])
+
+  @@index([standingTableId, displayOrder])
+  @@map("standing_rows")
+}
+
+model PlayerMatchStats {
+  id                   BigInt         @id @default(autoincrement())
+  matchId              BigInt
+  seasonId             BigInt
+  seasonTeamId         BigInt
+  playerId             BigInt
+  statRole             PlayerStatRole @default(FIELD_PLAYER)
+  played               Boolean        @default(false)
+  goals                Int            @default(0)
+  assists              Int            @default(0)
+  yellowCards          Int            @default(0)
+  redCards             Int            @default(0)
+  recoveries           Int            @default(0)
+  shots                Int            @default(0)
+  shotsOnTarget        Int            @default(0)
+  ownGoals             Int            @default(0)
+  saves                Int            @default(0)
+  goalsAgainst         Int            @default(0)
+  cleanSheets          Int            @default(0)
+  shotsOnTargetAgainst Int            @default(0)
+  createdById          BigInt?
+  updatedById          BigInt?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  match                Match          @relation(fields: [matchId], references: [id])
+  season               Season         @relation(fields: [seasonId], references: [id])
+  seasonTeam           SeasonTeam     @relation(fields: [seasonTeamId], references: [id])
+  player               Player         @relation(fields: [playerId], references: [id])
+
+  @@unique([matchId, playerId])
+  @@index([playerId, seasonId])
+  @@index([seasonTeamId, seasonId])
+  @@map("player_match_stats")
+}
+
+model NewsPost {
+  id               BigInt       @id @default(autoincrement())
+  title            String       @db.VarChar(180)
+  slug             String       @unique @db.VarChar(190)
+  excerpt          String?      @db.VarChar(300)
+  bodyMarkdown     String       @db.Text
+  coverMediaId     BigInt?
+  externalVideoUrl String?      @db.VarChar(500)
+  status           NewsStatus   @default(DRAFT)
+  featured         Boolean      @default(false)
+  publishedAt      DateTime?
+  authorId         BigInt?
+  createdById      BigInt?
+  updatedById      BigInt?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  deletedAt        DateTime?
+  coverMedia       MediaAsset?  @relation("NewsCover", fields: [coverMediaId], references: [id], onDelete: SetNull)
+  author           User?        @relation("NewsAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  teams            NewsPostTeam[]
+
+  @@index([status, publishedAt])
+  @@map("news_posts")
+}
+
+model NewsPostTeam {
+  newsPostId   BigInt
+  seasonTeamId BigInt
+  newsPost     NewsPost   @relation(fields: [newsPostId], references: [id])
+  seasonTeam   SeasonTeam @relation(fields: [seasonTeamId], references: [id])
+
+  @@id([newsPostId, seasonTeamId])
+  @@map("news_post_teams")
+}
+
+model MediaAsset {
+  id                 BigInt       @id @default(autoincrement())
+  type               MediaType    @default(IMAGE)
+  usage              MediaUsage   @default(OTHER)
+  storagePath        String?      @db.VarChar(500)
+  publicUrl          String       @db.VarChar(500)
+  externalUrl        String?      @db.VarChar(500)
+  altText            String?      @db.VarChar(255)
+  mimeType           String?      @db.VarChar(100)
+  sizeBytes          Int?
+  width              Int?
+  height             Int?
+  uploadedById       BigInt?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
+  uploadedBy         User?        @relation("MediaUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+  playerPhotos       Player[]     @relation("PlayerPhoto")
+  playerPremiumCards Player[]     @relation("PlayerPremiumCard")
+  seasonTeamLogos    SeasonTeam[] @relation("SeasonTeamLogo")
+  seasonTeamBanners  SeasonTeam[] @relation("SeasonTeamBanner")
+  teamCoachPhotos    TeamCoach[]  @relation("TeamCoachPhoto")
+  opponentLogos      Match[]      @relation("OpponentLogo")
+  newsCovers         NewsPost[]   @relation("NewsCover")
+
+  @@index([usage])
+  @@map("media_assets")
+}
+
+model ImportBatch {
+  id                           BigInt                 @id @default(autoincrement())
+  sourceSystem                 String                 @default("rr-management") @db.VarChar(80)
+  seasonId                     BigInt?
+  status                       ImportStatus           @default(UPLOADED)
+  fileName                     String?                @db.VarChar(255)
+  fileHash                     String?                @db.VarChar(128)
+  summaryJson                  Json?
+  createdById                  BigInt?
+  validatedAt                  DateTime?
+  appliedAt                    DateTime?
+  createdAt                    DateTime               @default(now())
+  updatedAt                    DateTime               @updatedAt
+  season                       Season?                @relation(fields: [seasonId], references: [id], onDelete: SetNull)
+  items                        ImportBatchItem[]
+  importedSeasons              Season[]               @relation("SeasonLastImportBatch")
+  importedTeams                Team[]                 @relation("TeamLastImportBatch")
+  importedSeasonTeams          SeasonTeam[]           @relation("SeasonTeamLastImportBatch")
+  importedPlayers              Player[]               @relation("PlayerLastImportBatch")
+  importedPlayerSeasonProfiles PlayerSeasonProfile[]  @relation("PlayerSeasonProfileLastImportBatch")
+  importedAssignments          TeamPlayerAssignment[] @relation("TeamPlayerAssignmentLastImportBatch")
+
+  @@index([sourceSystem, status])
+  @@map("import_batches")
+}
+
+model ImportBatchItem {
+  id               BigInt       @id @default(autoincrement())
+  importBatchId    BigInt
+  entityType       String       @db.VarChar(80)
+  sourceExternalId String?      @db.VarChar(80)
+  action           ImportAction
+  status           String       @default("PENDING") @db.VarChar(30)
+  message          String?      @db.VarChar(500)
+  beforeJson       Json?
+  afterJson        Json?
+  errorJson        Json?
+  createdAt        DateTime     @default(now())
+  appliedAt        DateTime?
+  importBatch      ImportBatch  @relation(fields: [importBatchId], references: [id])
+
+  @@index([importBatchId, entityType])
+  @@index([sourceExternalId])
+  @@map("import_batch_items")
+}
