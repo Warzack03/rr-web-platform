@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Equipos - Rising Raimon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow+Condensed:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-tint": "#f0c04e",
+                      "primary-fixed-dim": "#f0c04e",
+                      "active-glow": "rgba(253, 203, 88, 0.25)",
+                      "inverse-surface": "#e2e2e2",
+                      "tertiary-fixed": "#d6e3ff",
+                      "on-tertiary-fixed": "#0c1c33",
+                      "pitch-deep": "#0B1B32",
+                      "on-tertiary-container": "#4c5a74",
+                      "outline": "#9b8f7c",
+                      "inverse-primary": "#785900",
+                      "surface-container-highest": "#333535",
+                      "on-surface": "#e2e2e2",
+                      "tertiary": "#e7eeff",
+                      "on-secondary-fixed": "#091c33",
+                      "bolt-gold": "#FDCB58",
+                      "on-secondary": "#203149",
+                      "tertiary-container": "#c3d2f1",
+                      "secondary": "#b6c7e6",
+                      "surface-container-low": "#1a1c1c",
+                      "secondary-container": "#374761",
+                      "surface-container-high": "#282a2b",
+                      "outline-variant": "#4e4635",
+                      "background": "#121414",
+                      "surface-dim": "#121414",
+                      "on-tertiary": "#223149",
+                      "inverse-on-surface": "#2f3131",
+                      "surface-variant": "#333535",
+                      "on-secondary-container": "#a5b6d4",
+                      "error": "#ffb4ab",
+                      "surface-container-lowest": "#0c0f0f",
+                      "on-error": "#690005",
+                      "surface": "#121414",
+                      "primary": "#ffeccb",
+                      "secondary-fixed": "#d4e3ff",
+                      "on-tertiary-fixed-variant": "#394760",
+                      "secondary-fixed-dim": "#b6c7e6",
+                      "on-background": "#e2e2e2",
+                      "on-error-container": "#ffdad6",
+                      "on-surface-variant": "#d2c5b0",
+                      "on-primary-container": "#735500",
+                      "on-primary-fixed-variant": "#5b4300",
+                      "surface-bright": "#37393a",
+                      "tertiary-fixed-dim": "#b8c7e5",
+                      "primary-fixed": "#ffdf9d",
+                      "surface-container": "#1e2020",
+                      "on-primary-fixed": "#251a00",
+                      "primary-container": "#fdcb58",
+                      "on-secondary-fixed-variant": "#374761",
+                      "on-primary": "#3f2e00",
+                      "stadium-blue": "#1E2F47",
+                      "error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "margin-mobile": "20px",
+                      "gutter": "24px",
+                      "margin-desktop": "64px",
+                      "stack-lg": "32px",
+                      "section-gap": "80px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Bebas Neue"
+                      ],
+                      "body-lg": [
+                              "Barlow Condensed"
+                      ],
+                      "body-md": [
+                              "Barlow Condensed"
+                      ],
+                      "label-caps": [
+                              "Barlow Condensed"
+                      ],
+                      "headline-md": [
+                              "Bebas Neue"
+                      ],
+                      "headline-lg-mobile": [
+                              "Bebas Neue"
+                      ],
+                      "stat-value": [
+                              "Bebas Neue"
+                      ],
+                      "display-xl": [
+                              "Bebas Neue"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "stat-value": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-xl": [
+                              "72px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-pitch-deep text-on-surface font-body-md text-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="w-64 h-screen fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-low bg-pitch-deep shadow-lg shadow-md flex flex-col py-stack-lg z-40 hidden md:flex">
+<div class="px-gutter mb-stack-lg">
+<h1 class="font-headline-md text-headline-md text-bolt-gold tracking-wider mb-1">RISING RAIMON</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Backoffice Principal</p>
+</div>
+<nav class="flex-1 overflow-y-auto px-2 space-y-2">
+<a class="flex items-center px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4">calendar_today</span>
+<span class="font-body-lg text-body-lg">Temporadas</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-bolt-gold font-bold bg-secondary-container mx-2 transition-transform scale-95" href="#">
+<span class="material-symbols-outlined mr-4" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-body-lg text-body-lg">Equipos</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4">person_filled</span>
+<span class="font-body-lg text-body-lg">Jugadores</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4">sports_soccer</span>
+<span class="font-body-lg text-body-lg">Partidos</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4">leaderboard</span>
+<span class="font-body-lg text-body-lg">Clasificaciones</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4">analytics</span>
+<span class="font-body-lg text-body-lg">Estadísticas</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4">newspaper</span>
+<span class="font-body-lg text-body-lg">Noticias</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4">perm_media</span>
+<span class="font-body-lg text-body-lg">Media</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4">upload_file</span>
+<span class="font-body-lg text-body-lg">Importaciones</span>
+</a>
+</nav>
+<div class="px-gutter mt-auto">
+<button class="w-full py-3 bg-bolt-gold text-pitch-deep font-label-caps text-label-caps uppercase rounded-DEFAULT hover:shadow-[0_0_15px_rgba(253,203,88,0.25)] hover:-translate-y-0.5 transition-all mb-4">
+                Nuevo Registro
+            </button>
+<div class="space-y-1">
+<a class="flex items-center px-4 py-2 text-on-surface-variant hover:text-bolt-gold transition-colors" href="#">
+<span class="material-symbols-outlined mr-4 text-sm">settings</span>
+                    Ajustes
+                </a>
+<a class="flex items-center px-4 py-2 text-on-surface-variant hover:text-bolt-gold transition-colors" href="#">
+<span class="material-symbols-outlined mr-4 text-sm">logout</span>
+                    Cerrar Sesión
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-pitch-deep/80 backdrop-blur-md font-label-caps text-label-caps docked full-width top-0 sticky z-50 shadow-sm flex justify-between items-center h-16 px-gutter">
+<div class="flex items-center">
+<span class="font-headline-md text-headline-md text-bolt-gold mr-8 hidden md:block">Backoffice v1.0</span>
+</div>
+<div class="flex items-center space-x-6">
+<nav class="hidden md:flex space-x-6">
+<a class="text-on-surface-variant hover:text-bolt-gold transition-colors hover:active-glow duration-300" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-bolt-gold transition-colors hover:active-glow duration-300" href="#">Soporte</a>
+</nav>
+<div class="flex items-center space-x-4 border-l border-surface-container pl-6">
+<button class="text-on-surface-variant hover:text-bolt-gold transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-bolt-gold transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<button class="flex items-center space-x-2 text-bolt-gold">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full border border-bolt-gold object-cover" data-alt="A close-up studio portrait of a professional athletic administrator in a dimly lit stadium environment. High contrast lighting accentuates their features. They are wearing a dark modern corporate suit. The background is a blurred dark navy stadium seating area, creating a premium sports management aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArDjI8W0gcfegmE1E0k6pEBox3v4KdLDZZsQ2IXCJE2vZh5h8aVQt-UIsjggsFCj-4sghPuDv0zlwix4mSR-F_8qgSc3ErSkLSXCwRnPVMyg0uuEOWYW6Z5Zwjkib5zJmxcynC5McyJpVJYCCHwke3fq-hvqFPDQfMSNlzs77xWCeZQygE4eknGJ4nQL5I0TDxN98zMeuP2JiY3AyeBj1i8dz5rSW9E_AaxlOUBwNCZHe-xEhIx8iVJjN5YisHlAIINyYyVQqG-K4"/>
+<span class="hidden md:block">Perfil</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<main class="flex-1 p-gutter md:p-margin-desktop overflow-y-auto">
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-section-gap gap-6">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">GESTIÓN DE EQUIPOS</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Administra el roster de equipos, categorías y estados para la temporada actual.</p>
+</div>
+<button class="bg-bolt-gold text-pitch-deep px-6 py-3 font-label-caps text-label-caps uppercase rounded-DEFAULT flex items-center shadow-[0_0_15px_rgba(253,203,88,0.25)] hover:-translate-y-0.5 transition-all whitespace-nowrap">
+<span class="material-symbols-outlined mr-2 text-sm">add_circle</span>
+                    Crear Nuevo Equipo
+                </button>
+</div>
+<!-- Filters Section -->
+<div class="bg-stadium-blue border border-secondary-container rounded-lg p-stack-md mb-stack-lg flex flex-wrap gap-4 items-end">
+<div class="flex-1 min-w-[200px]">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">TEMPORADA</label>
+<select class="w-full bg-surface-container-low border border-surface-container text-on-surface font-body-md text-body-md rounded-DEFAULT p-2 focus:border-bolt-gold focus:ring-1 focus:ring-bolt-gold outline-none">
+<option>2023/2024</option>
+<option>2022/2023</option>
+</select>
+</div>
+<div class="flex-1 min-w-[200px]">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">CATEGORÍA</label>
+<select class="w-full bg-surface-container-low border border-surface-container text-on-surface font-body-md text-body-md rounded-DEFAULT p-2 focus:border-bolt-gold focus:ring-1 focus:ring-bolt-gold outline-none">
+<option>Todas</option>
+<option>Senior</option>
+<option>Juvenil</option>
+<option>Cadete</option>
+</select>
+</div>
+<div class="flex-1 min-w-[200px]">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">ESTADO</label>
+<select class="w-full bg-surface-container-low border border-surface-container text-on-surface font-body-md text-body-md rounded-DEFAULT p-2 focus:border-bolt-gold focus:ring-1 focus:ring-bolt-gold outline-none">
+<option>Todos</option>
+<option>Activo</option>
+<option>Inactivo</option>
+</select>
+</div>
+<button class="bg-transparent border border-bolt-gold text-bolt-gold px-6 py-2 h-[42px] font-label-caps text-label-caps uppercase rounded-DEFAULT flex items-center hover:bg-bolt-gold/10 transition-colors">
+<span class="material-symbols-outlined mr-2 text-sm">filter_list</span>
+                    Filtrar
+                </button>
+</div>
+<!-- Data Table -->
+<div class="bg-stadium-blue rounded-lg border border-secondary-container overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead>
+<tr class="bg-surface-container-highest border-b border-surface-container">
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant w-16">LOGO</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant">EQUIPO</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant">CATEGORÍA</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant">COMPETICIÓN</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant">TEMPORADA</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant text-center">VISIBILIDAD</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant text-right">ACCIONES</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Row 1: Primer Equipo (Special Treatment) -->
+<tr class="hover:bg-surface-container-high transition-colors bg-pitch-deep/40 relative">
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-bolt-gold shadow-[0_0_8px_rgba(253,203,88,0.5)]"></div>
+<div class="w-10 h-10 bg-surface-container rounded-full flex items-center justify-center border border-bolt-gold">
+<span class="material-symbols-outlined text-bolt-gold">shield</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-bolt-gold font-bold">Raimon A</span>
+<span class="text-xs text-on-surface-variant mt-1 px-2 py-0.5 bg-bolt-gold/20 rounded inline-block w-max border border-bolt-gold/30">PRIMER EQUIPO</span>
+</div>
+</td>
+<td class="p-4 font-body-md text-body-md">Senior Masculino</td>
+<td class="p-4 font-body-md text-body-md">1ª División Regional</td>
+<td class="p-4 font-body-md text-body-md">2023/2024</td>
+<td class="p-4 text-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">visibility</span>
+</td>
+<td class="p-4">
+<div class="flex justify-end space-x-2">
+<button class="p-2 text-on-surface-variant hover:text-bolt-gold bg-surface-container rounded transition-colors" title="Gestionar Plantilla">
+<span class="material-symbols-outlined text-sm">groups</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-bolt-gold bg-surface-container rounded transition-colors" title="Editar">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="p-4">
+<div class="w-10 h-10 bg-surface-container rounded-full flex items-center justify-center border border-secondary-container">
+<span class="material-symbols-outlined text-on-surface-variant">shield</span>
+</div>
+</td>
+<td class="p-4 font-body-lg text-body-lg">Raimon B</td>
+<td class="p-4 font-body-md text-body-md">Senior Masculino B</td>
+<td class="p-4 font-body-md text-body-md">2ª División Regional</td>
+<td class="p-4 font-body-md text-body-md">2023/2024</td>
+<td class="p-4 text-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">visibility</span>
+</td>
+<td class="p-4">
+<div class="flex justify-end space-x-2">
+<button class="p-2 text-on-surface-variant hover:text-bolt-gold bg-surface-container rounded transition-colors" title="Gestionar Plantilla">
+<span class="material-symbols-outlined text-sm">groups</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-bolt-gold bg-surface-container rounded transition-colors" title="Editar">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="p-4">
+<div class="w-10 h-10 bg-surface-container rounded-full flex items-center justify-center border border-secondary-container">
+<span class="material-symbols-outlined text-on-surface-variant">shield</span>
+</div>
+</td>
+<td class="p-4 font-body-lg text-body-lg">Juvenil A</td>
+<td class="p-4 font-body-md text-body-md">Juvenil</td>
+<td class="p-4 font-body-md text-body-md">Liga Nacional Juvenil</td>
+<td class="p-4 font-body-md text-body-md">2023/2024</td>
+<td class="p-4 text-center">
+<span class="material-symbols-outlined text-surface-variant">visibility_off</span>
+</td>
+<td class="p-4">
+<div class="flex justify-end space-x-2">
+<button class="p-2 text-on-surface-variant hover:text-bolt-gold bg-surface-container rounded transition-colors" title="Gestionar Plantilla">
+<span class="material-symbols-outlined text-sm">groups</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-bolt-gold bg-surface-container rounded transition-colors" title="Editar">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="p-4">
+<div class="w-10 h-10 bg-surface-container rounded-full flex items-center justify-center border border-secondary-container">
+<span class="material-symbols-outlined text-on-surface-variant">shield</span>
+</div>
+</td>
+<td class="p-4 font-body-lg text-body-lg">Femenino A</td>
+<td class="p-4 font-body-md text-body-md">Senior Femenino</td>
+<td class="p-4 font-body-md text-body-md">Liga Regional Femenina</td>
+<td class="p-4 font-body-md text-body-md">2023/2024</td>
+<td class="p-4 text-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">visibility</span>
+</td>
+<td class="p-4">
+<div class="flex justify-end space-x-2">
+<button class="p-2 text-on-surface-variant hover:text-bolt-gold bg-surface-container rounded transition-colors" title="Gestionar Plantilla">
+<span class="material-symbols-outlined text-sm">groups</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-bolt-gold bg-surface-container rounded transition-colors" title="Editar">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Pagination (Decorative) -->
+<div class="flex justify-between items-center mt-stack-md text-on-surface-variant font-body-md text-body-md">
+<span>Mostrando 1 a 4 de 12 equipos</span>
+<div class="flex space-x-1">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container hover:bg-surface-container-high transition-colors disabled:opacity-50"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-bolt-gold text-pitch-deep font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container hover:bg-surface-container-high transition-colors">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container hover:bg-surface-container-high transition-colors">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

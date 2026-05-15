@@ -1,56 +1,63 @@
 # DESIGN_TOKENS.md
 
-## Referencia visual
+## Purpose
 
-Basado en la landing `inscripciones` existente.
+Centralize design tokens so Codex does not hardcode visual decisions in individual components.
 
-## Tokens base modo oscuro
+## Dark-first tokens
 
-- bg: `#071629`.
-- bgSoft: `#0c2341`.
-- surface: `rgba(8, 23, 43, 0.85)`.
-- surfaceStrong: `rgba(7, 19, 34, 0.92)`.
-- surfaceLight: `rgba(255, 255, 255, 0.08)`.
-- text: `#eef4ff`.
-- muted: `#bfd0e8`.
-- accent: `#f3cb45`.
-- accentBlue: `#3470c8`.
-- accentRed: `#d64045`.
-- border: `rgba(255, 255, 255, 0.12)`.
-- radiusXl: `32px`.
-- radiusLg: `22px`.
-- radiusMd: `16px`.
-- radiusSm: `12px`.
-- fontDisplay: `Bebas Neue`.
-- fontBody: `Barlow`.
-- maxWidth: `1180px`.
+```css
+:root {
+  --rr-bg: #0B1B32;
+  --rr-bg-alt: #071629;
+  --rr-bg-soft: #0c2341;
+  --rr-surface: #1E2F47;
+  --rr-surface-glass: rgba(8, 23, 43, 0.85);
+  --rr-surface-strong: rgba(7, 19, 34, 0.92);
+  --rr-surface-light: rgba(255, 255, 255, 0.08);
+  --rr-text: #eef4ff;
+  --rr-muted: #bfd0e8;
+  --rr-gold: #FDCB58;
+  --rr-accent: #f3cb45;
+  --rr-accent-blue: #3470c8;
+  --rr-danger: #d64045;
+  --rr-border: rgba(255, 255, 255, 0.12);
+  --rr-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  --rr-radius-xl: 32px;
+  --rr-radius-lg: 22px;
+  --rr-radius-md: 16px;
+  --rr-radius-sm: 12px;
+  --rr-font-display: "Bebas Neue", sans-serif;
+  --rr-font-body: "Barlow Condensed", "Barlow", sans-serif;
+  --rr-max-width: 1180px;
+}
+```
 
-## Tema claro
+## Typography
 
-La app debe disenarse primero en modo oscuro. El modo claro se implementara al final, cuando el modo oscuro este estable.
+- Display headings: `Bebas Neue`.
+- Body/interface: `Barlow Condensed` or `Barlow`.
+- Use large condensed headings for public sports pages.
+- Admin can use calmer sizing but should remain visually connected to the brand.
 
-Requisitos:
+## Components should use tokens
 
-- Usar CSS variables o sistema de tokens desde el inicio.
-- No hardcodear colores en componentes.
-- Preparar `dark` y `light`, pero priorizar `dark`.
-- No dedicar esfuerzo visual al modo claro hasta cerrar la version oscura.
+Do not hardcode colors repeatedly in JSX. Prefer CSS variables and Tailwind theme mappings.
 
-## Componentes visuales esperados
+## Light mode
 
-- glass cards.
-- hero sections con gradientes.
-- botones tipo pastilla.
-- tarjetas de equipo.
-- cromos de jugador.
-- cromo premium Primer Equipo.
-- fixture/match cards.
-- standings tables.
-- stat cards.
-- news cards.
+Light mode is not the first implementation target. However, components must use tokens so a future light theme can redefine variables without rewriting the app.
 
-## No hacer
+## Visual components
 
-- No usar una UI admin generica para la web publica.
-- No copiar CSS literalmente si no encaja con Tailwind/Next.
-- No crear colores ad hoc por componente.
+- Glass cards.
+- Technical bordered cards.
+- Pill buttons.
+- Match cards.
+- Stat chips.
+- Standings tables.
+- Player cards.
+- Generated card/cromo.
+- Premium uploaded card image container.
+- Admin dashboard cards.
+- Empty/loading/error states.

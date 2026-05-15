@@ -1,108 +1,74 @@
 # ROLES_PERMISSIONS.md
 
-## Roles iniciales
+## Roles
 
-La plataforma tendra tres roles principales:
+### Superadmin
 
-- `superadmin`.
-- `manager`.
-- `coach` / entrenador.
+Only owner-level role. Has full access.
 
-## Superadmin
+Can:
 
-Uso esperado: Aaron / administrador tecnico principal.
+- Manage users.
+- Manage roles.
+- Manage permissions.
+- Import from `rr-management`.
+- Manage all sports/public content.
+- Manage media.
+- Manage settings.
 
-Permisos:
+### Manager
 
-- Acceso total.
-- Gestionar usuarios internos.
-- Gestionar roles.
-- Gestionar temporadas.
-- Crear, editar, activar e inactivar equipos.
-- Asignar entrenadores a equipos.
-- Gestionar jugadores publicables.
-- Gestionar asignaciones.
-- Gestionar partidos.
-- Gestionar clasificaciones.
-- Gestionar estadisticas.
-- Gestionar noticias/contenido.
-- Ejecutar importaciones desde rr-management.
-- Configurar parametros generales.
+Operational content role.
 
-## Manager
+Can:
 
-Uso esperado: staff del club con permisos amplios.
+- Manage seasons, teams, players, assignments, matches, standings, stats, news and media.
+- Assign existing coach users to teams if the user already exists.
+- Upload images/cards/logos/banners/news media.
 
-Permisos:
+Cannot:
 
-- Crear y editar equipos.
-- Asignar entrenadores a equipos.
-- Gestionar jugadores publicables.
-- Gestionar asignaciones.
-- Gestionar partidos.
-- Gestionar clasificaciones.
-- Gestionar estadisticas.
-- Gestionar noticias/contenido.
-- Ejecutar importaciones si se habilita explicitamente.
+- Manage users globally.
+- Create/change roles.
+- Import from `rr-management`.
+- Manage ecommerce.
 
-Restricciones:
+### Entrenador
 
-- No puede gestionar usuarios superadmin.
-- No puede modificar configuracion sensible.
-- No puede cambiar permisos de superadmin.
+Team-limited role.
 
-## Entrenador
+Can only access assigned teams and edit allowed sports data:
 
-Uso esperado: entrenador de uno o varios equipos concretos.
+- Next match.
+- Match results/status.
+- Standings.
+- Goals/assists.
+- Allowed stats for assigned team players.
 
-Permisos permitidos solo sobre sus equipos asignados:
+Cannot:
 
-- Ver su equipo asignado.
-- Actualizar proximo partido.
-- Actualizar resultados de partidos.
-- Cambiar estado de partido dentro de lo permitido.
-- Actualizar goles y asistencias.
-- Actualizar clasificacion manual del equipo.
+- Create/edit teams.
+- Create/edit player profile structure.
+- Upload images/media/cards.
+- Manage news.
+- Manage users.
+- Import data.
+- Edit unrelated teams.
 
-Restricciones:
+## Coach accounts
 
-- No puede crear equipos.
-- No puede borrar equipos.
-- No puede asignar permisos a otros usuarios.
-- No puede crear temporadas.
-- No puede crear usuarios.
-- No puede editar otros equipos.
-- No puede ejecutar importaciones.
-- No puede acceder a datos internos no publicables.
-- No puede modificar configuracion general.
+A team can show multiple public coaches. MVP expects only one coach account per team.
 
-## Asignacion entrenador-equipo
+Naming convention:
 
-Solo `superadmin` y `manager` pueden conceder permisos de entrenador sobre un equipo.
+```text
+entrenador_<team_slug>
+```
 
-Tabla recomendada:
+Visible coaches may exist as plain public names even if they do not have user accounts.
 
-- `user_team_permissions`.
+## Team assignment permissions
 
-Campos sugeridos:
+Coach permissions must be scoped by team and usually by season.
 
-- userId.
-- teamId.
-- seasonId.
-- canEditMatches.
-- canEditStats.
-- canEditStandings.
-- canEditNextMatch.
-
-## Reglas de UI
-
-- Ocultar acciones no permitidas.
-- Validar permisos tambien en servidor.
-- Nunca confiar solo en el frontend.
-- Mostrar al entrenador solo sus equipos o una vista filtrada por defecto.
-
-## Permisos MVP
-
-- Superadmin: todo.
-- Manager: todo excepto configuracion sensible y superadmins.
-- Entrenador: actualizar proximo partido, resultados, goles/asistencias y clasificacion solo de sus equipos asignados.
+A user with coach role must only see allowed admin data for assigned teams.

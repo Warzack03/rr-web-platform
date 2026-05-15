@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Raimon B - Calendario</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#b8c7e5",
+                        "on-primary": "#3f2e00",
+                        "surface": "#121414",
+                        "on-tertiary-fixed-variant": "#394760",
+                        "outline-variant": "#4e4635",
+                        "active-glow": "rgba(253, 203, 88, 0.25)",
+                        "on-tertiary-fixed": "#0c1c33",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#c3d2f1",
+                        "secondary-container": "#374761",
+                        "on-surface-variant": "#d2c5b0",
+                        "on-secondary-fixed": "#091c33",
+                        "on-primary-container": "#735500",
+                        "primary-fixed-dim": "#f0c04e",
+                        "pitch-deep": "#0B1B32",
+                        "bolt-gold": "#FDCB58",
+                        "surface-tint": "#f0c04e",
+                        "on-secondary-fixed-variant": "#374761",
+                        "surface-container-high": "#282a2b",
+                        "error-container": "#93000a",
+                        "surface-container": "#1e2020",
+                        "on-tertiary-container": "#4c5a74",
+                        "secondary": "#b6c7e6",
+                        "inverse-surface": "#e2e2e2",
+                        "inverse-on-surface": "#2f3131",
+                        "surface-bright": "#37393a",
+                        "inverse-primary": "#785900",
+                        "primary-container": "#fdcb58",
+                        "outline": "#9b8f7c",
+                        "on-primary-fixed-variant": "#5b4300",
+                        "surface-variant": "#333535",
+                        "stadium-blue": "#1E2F47",
+                        "primary": "#ffeccb",
+                        "surface-dim": "#121414",
+                        "on-surface": "#e2e2e2",
+                        "surface-container-highest": "#333535",
+                        "on-primary-fixed": "#251a00",
+                        "background": "#121414",
+                        "secondary-fixed": "#d4e3ff",
+                        "on-background": "#e2e2e2",
+                        "surface-container-low": "#1a1c1c",
+                        "on-tertiary": "#223149",
+                        "on-secondary-container": "#a5b6d4",
+                        "surface-container-lowest": "#0c0f0f",
+                        "primary-fixed": "#ffdf9d",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-secondary": "#203149",
+                        "secondary-fixed-dim": "#b6c7e6",
+                        "tertiary": "#e7eeff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "section-gap": "80px",
+                        "margin-mobile": "20px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "stack-md": "16px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "body-md": ["Barlow Condensed"],
+                        "headline-lg-mobile": ["Bebas Neue"],
+                        "headline-lg": ["Bebas Neue"],
+                        "stat-value": ["Bebas Neue"],
+                        "body-lg": ["Barlow Condensed"],
+                        "label-caps": ["Barlow Condensed"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "stat-value": ["24px", { "lineHeight": "1.0", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "label-caps": ["14px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-pitch-deep text-on-surface font-body-md text-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar Shared Component -->
+<header class="fixed top-0 w-full z-50 bg-pitch-deep/80 backdrop-blur-xl border-b border-white/10">
+<nav class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Brand Logo -->
+<div class="font-display-xl text-bolt-gold text-[32px] tracking-tight">
+                Rising Raimon
+            </div>
+<!-- Desktop Navigation Links -->
+<ul class="hidden md:flex items-center gap-8">
+<li>
+<a class="font-headline-md text-headline-md text-on-surface-variant hover:text-bolt-gold transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded active:scale-95 transition-transform block" href="#">
+                        Home
+                    </a>
+</li>
+<li>
+<a class="font-headline-md text-headline-md text-on-surface-variant hover:text-bolt-gold transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded active:scale-95 transition-transform block" href="#">
+                        Primer Equipo
+                    </a>
+</li>
+<!-- Active Item Logic applied here due to specific academy team context -->
+<li>
+<a class="font-headline-md text-headline-md text-bolt-gold border-b-2 border-bolt-gold pb-1 px-3 py-2 hover:bg-white/5 transition-all duration-300 active:scale-95 block" href="#">
+                        Equipos
+                    </a>
+</li>
+<li>
+<a class="font-headline-md text-headline-md text-on-surface-variant hover:text-bolt-gold transition-colors hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded active:scale-95 transition-transform block" href="#">
+                        Noticias
+                    </a>
+</li>
+</ul>
+<!-- Actions -->
+<div class="hidden md:flex items-center gap-4">
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors hover:bg-white/5 px-4 py-2 rounded active:scale-95 transition-transform">
+                    Login
+                </button>
+<button class="font-label-caps text-label-caps bg-bolt-gold text-pitch-deep px-6 py-2 rounded shadow-[0_0_15px_rgba(253,203,88,0.25)] hover:-translate-y-0.5 transition-transform active:scale-95 font-bold uppercase">
+                    Unirse
+                </button>
+</div>
+<!-- Mobile Menu Trigger (Visual only for structural completeness) -->
+<button class="md:hidden text-bolt-gold p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</nav>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-[120px] pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full flex flex-col gap-stack-lg">
+<!-- Page Header -->
+<section class="flex flex-col gap-stack-sm">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface uppercase tracking-wide">
+                Raimon B <span class="text-bolt-gold">/</span> Calendario 23-24
+            </h1>
+<!-- Bolt Divider -->
+<div class="w-full h-px bg-outline-variant flex items-center mt-2">
+<div class="w-12 h-0.5 bg-bolt-gold rotate-45 transform origin-left"></div>
+</div>
+</section>
+<!-- Filters / Season Selector -->
+<section class="flex flex-wrap gap-stack-sm items-center border-b border-white/5 pb-4">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase mr-4">Filtrar por Mes:</span>
+<button class="font-label-caps text-label-caps bg-bolt-gold text-pitch-deep px-4 py-1.5 rounded-full font-bold uppercase shadow-[0_0_10px_rgba(253,203,88,0.2)]">Octubre</button>
+<button class="font-label-caps text-label-caps border border-outline-variant text-on-surface-variant hover:border-bolt-gold hover:text-bolt-gold transition-colors px-4 py-1.5 rounded-full uppercase">Noviembre</button>
+<button class="font-label-caps text-label-caps border border-outline-variant text-on-surface-variant hover:border-bolt-gold hover:text-bolt-gold transition-colors px-4 py-1.5 rounded-full uppercase">Diciembre</button>
+<button class="font-label-caps text-label-caps border border-outline-variant text-on-surface-variant hover:border-bolt-gold hover:text-bolt-gold transition-colors px-4 py-1.5 rounded-full uppercase">Todos</button>
+</section>
+<!-- Matchdays List -->
+<div class="flex flex-col gap-section-gap">
+<!-- Jornada Group 1 -->
+<section class="flex flex-col gap-stack-md">
+<h2 class="font-headline-md text-headline-md text-surface-tint border-l-4 border-bolt-gold pl-3 uppercase">Jornada 5</h2>
+<!-- Match Card: Played -->
+<article class="bg-stadium-blue border border-outline-variant rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-[0_0_20px_rgba(253,203,88,0.1)] transition-shadow">
+<!-- Match Info (Left) -->
+<div class="flex flex-col gap-1 w-full md:w-1/4">
+<div class="flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant uppercase">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                            Sáb, 14 Oct
+                        </div>
+<div class="flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant uppercase">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                            16:00
+                        </div>
+<div class="flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant uppercase mt-2">
+<span class="material-symbols-outlined text-[16px]">stadium</span>
+                            Campo Anexo 1
+                        </div>
+</div>
+<!-- Teams (Center) -->
+<div class="flex items-center justify-start md:justify-center w-full md:w-2/4 gap-4">
+<div class="flex flex-col items-end w-2/5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold truncate w-full text-right">Raimon B</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] uppercase">Local</span>
+</div>
+<div class="font-headline-md text-headline-md text-surface-tint w-1/5 text-center flex justify-center items-center gap-2">
+<span class="font-stat-value text-stat-value">2</span>
+<span class="text-outline-variant">-</span>
+<span class="font-stat-value text-stat-value">0</span>
+</div>
+<div class="flex flex-col items-start w-2/5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold truncate w-full text-left">Inazuma FC C</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] uppercase">Visitante</span>
+</div>
+</div>
+<!-- Status (Right) -->
+<div class="w-full md:w-1/4 flex justify-end">
+<span class="font-label-caps text-label-caps border border-surface-tint text-surface-tint px-3 py-1 rounded-sm uppercase tracking-widest bg-bolt-gold/10">Jugado</span>
+</div>
+</article>
+</section>
+<!-- Jornada Group 2 -->
+<section class="flex flex-col gap-stack-md">
+<h2 class="font-headline-md text-headline-md text-surface-tint border-l-4 border-bolt-gold pl-3 uppercase">Jornada 6</h2>
+<!-- Match Card: Pending -->
+<article class="bg-stadium-blue border-l-2 border-l-bolt-gold border-y border-r border-outline-variant rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-[0_0_20px_rgba(253,203,88,0.1)] transition-shadow">
+<!-- Match Info (Left) -->
+<div class="flex flex-col gap-1 w-full md:w-1/4">
+<div class="flex items-center gap-2 font-label-caps text-label-caps text-bolt-gold uppercase">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                            Dom, 22 Oct
+                        </div>
+<div class="flex items-center gap-2 font-label-caps text-label-caps text-bolt-gold uppercase">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                            10:30
+                        </div>
+<div class="flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant uppercase mt-2">
+<span class="material-symbols-outlined text-[16px]">stadium</span>
+                            Estadio Municipal Sur
+                        </div>
+</div>
+<!-- Teams (Center) -->
+<div class="flex items-center justify-start md:justify-center w-full md:w-2/4 gap-4">
+<div class="flex flex-col items-end w-2/5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold truncate w-full text-right">Zeus Academy B</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] uppercase">Local</span>
+</div>
+<div class="font-headline-md text-headline-md text-outline-variant w-1/5 text-center">
+                            VS
+                        </div>
+<div class="flex flex-col items-start w-2/5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold truncate w-full text-left">Raimon B</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] uppercase">Visitante</span>
+</div>
+</div>
+<!-- Status (Right) -->
+<div class="w-full md:w-1/4 flex justify-end">
+<span class="font-label-caps text-label-caps border border-outline-variant text-on-surface-variant px-3 py-1 rounded-sm uppercase tracking-widest">Pendiente</span>
+</div>
+</article>
+</section>
+<!-- Jornada Group 3 -->
+<section class="flex flex-col gap-stack-md">
+<h2 class="font-headline-md text-headline-md text-surface-tint border-l-4 border-bolt-gold pl-3 uppercase">Jornada 7</h2>
+<!-- Match Card: Postponed -->
+<article class="bg-stadium-blue border border-error/30 rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 opacity-75">
+<!-- Match Info (Left) -->
+<div class="flex flex-col gap-1 w-full md:w-1/4">
+<div class="flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant uppercase line-through">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                            Sáb, 28 Oct
+                        </div>
+<div class="flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant uppercase mt-2">
+<span class="material-symbols-outlined text-[16px]">stadium</span>
+                            Campo Anexo 2
+                        </div>
+</div>
+<!-- Teams (Center) -->
+<div class="flex items-center justify-start md:justify-center w-full md:w-2/4 gap-4">
+<div class="flex flex-col items-end w-2/5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold truncate w-full text-right">Raimon B</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] uppercase">Local</span>
+</div>
+<div class="font-headline-md text-headline-md text-outline-variant w-1/5 text-center">
+                            VS
+                        </div>
+<div class="flex flex-col items-start w-2/5">
+<span class="font-body-lg text-body-lg text-on-surface font-bold truncate w-full text-left">Royal Academy C</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] uppercase">Visitante</span>
+</div>
+</div>
+<!-- Status (Right) -->
+<div class="w-full md:w-1/4 flex justify-end">
+<span class="font-label-caps text-label-caps bg-error-container text-on-error-container border border-error px-3 py-1 rounded-sm uppercase tracking-widest">Aplazado</span>
+</div>
+</article>
+</section>
+</div>
+</main>
+<!-- Footer Shared Component -->
+<footer class="bg-pitch-deep border-t border-white/5 w-full py-stack-lg mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-stack-md">
+<div class="font-headline-md text-headline-md text-bolt-gold">
+                Rising Raimon
+            </div>
+<div class="flex items-center gap-4">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors cursor-pointer uppercase" href="#">Privacidad</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors cursor-pointer uppercase" href="#">Términos</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors cursor-pointer uppercase" href="#">Contacto</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors cursor-pointer uppercase" href="#">Socios</a>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">
+                © 2024 Rising Raimon Football Club. All Rights Reserved.
+            </div>
+</div>
+</footer>
+</body></html>

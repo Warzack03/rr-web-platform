@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Panel del Entrenador - Rising Raimon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#d6e3ff",
+                        "primary-fixed-dim": "#f0c04e",
+                        "tertiary": "#e7eeff",
+                        "on-secondary": "#203149",
+                        "surface": "#121414",
+                        "secondary": "#b6c7e6",
+                        "tertiary-fixed-dim": "#b8c7e5",
+                        "primary-container": "#fdcb58",
+                        "on-primary": "#3f2e00",
+                        "on-primary-fixed-variant": "#5b4300",
+                        "outline-variant": "#4e4635",
+                        "on-error": "#690005",
+                        "primary-fixed": "#ffdf9d",
+                        "on-surface-variant": "#d2c5b0",
+                        "stadium-blue": "#1E2F47",
+                        "secondary-container": "#374761",
+                        "surface-dim": "#121414",
+                        "on-secondary-fixed": "#091c33",
+                        "on-background": "#e2e2e2",
+                        "inverse-surface": "#e2e2e2",
+                        "secondary-fixed-dim": "#b6c7e6",
+                        "secondary-fixed": "#d4e3ff",
+                        "outline": "#9b8f7c",
+                        "on-error-container": "#ffdad6",
+                        "background": "#121414",
+                        "tertiary-container": "#c3d2f1",
+                        "on-secondary-fixed-variant": "#374761",
+                        "surface-variant": "#333535",
+                        "on-tertiary-container": "#4c5a74",
+                        "surface-container-low": "#1a1c1c",
+                        "inverse-primary": "#785900",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed": "#0c1c33",
+                        "surface-bright": "#37393a",
+                        "pitch-deep": "#0B1B32",
+                        "surface-container-high": "#282a2b",
+                        "active-glow": "rgba(253, 203, 88, 0.25)",
+                        "surface-container-highest": "#333535",
+                        "primary": "#ffeccb",
+                        "on-tertiary-fixed-variant": "#394760",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0c0f0f",
+                        "on-tertiary": "#223149",
+                        "surface-tint": "#f0c04e",
+                        "on-primary-container": "#735500",
+                        "surface-container": "#1e2020",
+                        "inverse-on-surface": "#2f3131",
+                        "bolt-gold": "#FDCB58",
+                        "on-primary-fixed": "#251a00",
+                        "on-secondary-container": "#a5b6d4",
+                        "on-surface": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "margin-desktop": "64px",
+                        "section-gap": "80px",
+                        "stack-lg": "32px",
+                        "stack-md": "16px",
+                        "container-max": "1280px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Barlow Condensed"],
+                        "label-caps": ["Barlow Condensed"],
+                        "headline-lg": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "headline-lg-mobile": ["Bebas Neue"],
+                        "body-lg": ["Barlow Condensed"],
+                        "stat-value": ["Bebas Neue"],
+                        "headline-md": ["Bebas Neue"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["14px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "stat-value": ["24px", { "lineHeight": "1.0", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .icon-fill { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="bg-pitch-deep text-on-surface font-body-md text-body-md antialiased selection:bg-bolt-gold selection:text-pitch-deep">
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar (Web Only) -->
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 z-40 bg-stadium-blue border-r border-outline-variant py-stack-lg">
+<!-- Header/Brand -->
+<div class="px-gutter mb-section-gap flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-bolt-gold bg-pitch-deep flex-shrink-0">
+<img alt="Coach Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a mature male football coach with a determined expression, wearing a dark track jacket. The lighting is dramatic, high-contrast, set against a dark stadium background. Professional athletic photography style with deep blue and gold undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAE7CXTumsuPfvV12HprpP_dPSvZGK7aZ1UD8fyF4Xu7w4ZPwz6kg6YLNl_vgXhy5tVW9Ad7v5Y6MlaDIZoABxUUHN_Q8oIjf33PP8Hsy7MCx7NW2neusRvWF-kK8tfWzHeT8T4ZcFjmx88LKoIgErup9a6LxsrUk9cuoEl7wcqRVX4li-gaLQ4xH4aYhu_3jvo1g-6VwnmFDNPpp_2pZW50GG5YOZAvtSqs5oQvbHxCMjKkXsZU8YSjj1ocYFFDFdXXBlofHV5pUw"/>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-bolt-gold">Coach Portal</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Technical Staff</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<ul class="flex-1 flex flex-col gap-2 px-4">
+<!-- Active Item -->
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-secondary-container text-bolt-gold border-l-4 border-bolt-gold font-bold font-label-caps text-label-caps transition-transform active:translate-x-1 shadow-[0_0_15px_rgba(253,203,88,0.15)]" href="#">
+<span class="material-symbols-outlined icon-fill">groups</span>
+                        Equipos
+                    </a>
+</li>
+<!-- Inactive Items -->
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-active-glow hover:text-bolt-gold transition-all duration-300 font-label-caps text-label-caps active:translate-x-1" href="#">
+<span class="material-symbols-outlined">person</span>
+                        Jugadores
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-active-glow hover:text-bolt-gold transition-all duration-300 font-label-caps text-label-caps active:translate-x-1" href="#">
+<span class="material-symbols-outlined">sports_soccer</span>
+                        Partidos
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-active-glow hover:text-bolt-gold transition-all duration-300 font-label-caps text-label-caps active:translate-x-1" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+                        Clasificaciones
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-active-glow hover:text-bolt-gold transition-all duration-300 font-label-caps text-label-caps active:translate-x-1" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+                        Estadísticas
+                    </a>
+</li>
+</ul>
+<!-- Footer Action -->
+<div class="px-4 mt-auto">
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-all duration-300 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">logout</span>
+                    Cerrar Sesión
+                </a>
+</div>
+</nav>
+<!-- Main Canvas -->
+<div class="flex-1 ml-0 md:ml-64 flex flex-col h-screen relative">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-gutter h-16 bg-pitch-deep/80 backdrop-blur-md full-width top-0 sticky z-50 border-b border-stadium-blue shadow-sm">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Trigger (Visible only on mobile) -->
+<button class="md:hidden text-on-surface-variant hover:text-bolt-gold">
+<span class="material-symbols-outlined text-[28px]">menu</span>
+</button>
+<span class="font-headline-md text-headline-md text-bolt-gold tracking-wider hidden md:block">Rising Raimon Academy</span>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-bolt-gold transition-colors duration-200 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-bolt-gold transition-colors duration-200 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Coach Profile Picture" class="w-full h-full object-cover" data-alt="A professional headshot of a mature male football coach with a determined expression, wearing a dark track jacket. The lighting is dramatic, high-contrast, set against a dark stadium background. Professional athletic photography style with deep blue and gold undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwGx0pXFJHc_mVYOTgTqwQFpebRDZwutCqYQhF8mpF4Mm9H1FAmuKlUwzs2sC5GTKUk6mwHUq9qaynHbM6Nd1rY9PTIlTG286r6dqpQQrKBNQMbriQ2Frr76yqbLjgstKeDEHwFKs_5fCmElWEPDMUf7PAzewbPjrzID584LPPwJy-JxRwu4CJ0zLam7MglMqKk_pGPGwsiaoViSzSM6B76HRE_zMOPDpH6sMGH2SPAZE2TR5EnkyZiLgG7NEZGtbvvzgaS6sc1B4"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<main class="flex-1 overflow-y-auto p-gutter lg:p-margin-desktop">
+<div class="max-w-[1280px] mx-auto">
+<!-- Page Header -->
+<header class="mb-stack-lg flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+<div>
+<h1 class="font-display-xl text-display-xl text-on-surface">Panel del Entrenador</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-bolt-gold text-[20px]">shield</span>
+                                Gestionando: <strong class="text-bolt-gold">Raimon B</strong> (2ª División Regional)
+                            </p>
+</div>
+<button class="bg-bolt-gold text-pitch-deep font-label-caps text-label-caps px-6 py-3 rounded hover:-translate-y-1 hover:shadow-[0_4px_15px_rgba(253,203,88,0.4)] transition-all duration-300 flex items-center gap-2 uppercase tracking-wider">
+<span class="material-symbols-outlined">edit_document</span>
+                            Generar Informe
+                        </button>
+</header>
+<!-- Bolt Divider -->
+<div class="w-full h-px bg-outline-variant relative mb-section-gap flex items-center justify-center">
+<div class="bg-pitch-deep px-2 text-bolt-gold">
+<span class="material-symbols-outlined text-[18px] block rotate-45">bolt</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+<!-- Main Team Overview Card (Spans 8 cols on large screens) -->
+<article class="col-span-1 lg:col-span-8 bg-stadium-blue rounded-xl border border-secondary-container p-8 relative overflow-hidden group">
+<!-- Background accent -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-bolt-gold/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none group-hover:bg-bolt-gold/10 transition-colors duration-500"></div>
+<div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
+<div class="w-32 h-32 rounded-full border-4 border-pitch-deep shadow-[0_0_20px_rgba(253,203,88,0.2)] overflow-hidden bg-pitch-deep flex-shrink-0">
+<img alt="Raimon B Crest" class="w-full h-full object-cover opacity-80 mix-blend-screen" data-alt="A stylized, glowing lightning bolt emblem against a dark, textured steel background. The emblem glows with a vibrant gold aura, reflecting an intense athletic and competitive spirit. High contrast, sharp details, dark mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3kJ1ZI2ta6LsozmZMIqhG3_DLl7ndr6ticNyO0sukTjr1dz1lcHyZfa83PtfnsUnd_uo1JteJ84slE4_HyM_-xF8tN3dGBQ20hfhX2Oo4suOpfjhNx5ikRWG_1YJW7R6kjBq0O2DdariMI6lwwHi5DWdmF9bua295xzP7PQX_IyAsqjiAyyWYcfv7LjdLUoQI19blV4H-IGJ0xH-Lj5-Gvm6gmtxSFwYRJcFrJ7UKrXXkp_cT4zQrZahL8kgAC-h4dFinitcZIII"/>
+</div>
+<div class="text-center md:text-left flex-1">
+<h3 class="font-headline-lg text-headline-lg text-bolt-gold">Raimon B</h3>
+<div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4">
+<div class="bg-pitch-deep border-l-2 border-bolt-gold px-4 py-2 rounded">
+<span class="block font-label-caps text-label-caps text-on-surface-variant">Posición Actual</span>
+<span class="font-stat-value text-stat-value text-on-surface">4º Lugar</span>
+</div>
+<div class="bg-pitch-deep border-l-2 border-bolt-gold px-4 py-2 rounded">
+<span class="block font-label-caps text-label-caps text-on-surface-variant">Puntos</span>
+<span class="font-stat-value text-stat-value text-on-surface">28 pts</span>
+</div>
+<div class="bg-pitch-deep border-l-2 border-bolt-gold px-4 py-2 rounded">
+<span class="block font-label-caps text-label-caps text-on-surface-variant">Racha</span>
+<span class="font-stat-value text-stat-value text-bolt-gold">V-E-V-D-V</span>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Roster Summary Card (Spans 4 cols) -->
+<article class="col-span-1 lg:col-span-4 bg-stadium-blue rounded-xl border border-secondary-container p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface">Plantilla</h3>
+<span class="material-symbols-outlined text-bolt-gold text-[28px]">groups</span>
+</div>
+<div class="text-center py-4">
+<span class="font-display-xl text-display-xl text-bolt-gold block leading-none">22</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mt-2 block">Jugadores Activos</span>
+</div>
+<div class="flex justify-between mt-4 border-t border-outline-variant pt-4">
+<div class="text-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Lesionados</span>
+<span class="font-stat-value text-stat-value text-error block mt-1">2</span>
+</div>
+<div class="text-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Sancionados</span>
+<span class="font-stat-value text-stat-value text-primary-fixed-dim block mt-1">0</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 border border-bolt-gold text-bolt-gold bg-transparent font-label-caps text-label-caps px-4 py-3 rounded hover:bg-active-glow transition-colors duration-300 uppercase">
+                                Gestionar Jugadores
+                            </button>
+</article>
+<!-- Next Match Card (Spans 6 cols) -->
+<article class="col-span-1 lg:col-span-6 bg-stadium-blue rounded-xl border border-secondary-container p-6 relative">
+<div class="absolute top-0 right-0 px-3 py-1 bg-bolt-gold text-pitch-deep font-label-caps text-[12px] font-bold rounded-bl-lg uppercase tracking-wider">
+                                Próximo Partido
+                            </div>
+<div class="mt-4 flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-4">Sábado, 15:00 - Estadio Raimon Sur</span>
+<div class="flex items-center justify-center gap-6 w-full">
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-16 h-16 rounded-full bg-pitch-deep border border-outline-variant flex items-center justify-center text-bolt-gold font-headline-md">RB</div>
+<span class="font-body-lg text-body-lg text-on-surface font-bold text-center">Raimon B</span>
+</div>
+<div class="flex flex-col items-center justify-center px-4">
+<span class="font-headline-lg text-headline-lg text-on-surface-variant opacity-50">VS</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-16 h-16 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-inverse-surface font-headline-md">ZE</div>
+<span class="font-body-lg text-body-lg text-on-surface font-bold text-center">Zeu</span>
+</div>
+</div>
+</div>
+<div class="mt-8 flex gap-4">
+<button class="flex-1 bg-bolt-gold text-pitch-deep font-label-caps text-label-caps px-4 py-3 rounded hover:-translate-y-1 hover:shadow-[0_4px_15px_rgba(253,203,88,0.4)] transition-all duration-300 uppercase tracking-wider text-center">
+                                    Preparar Táctica
+                                </button>
+</div>
+</article>
+<!-- Last Match Result Card (Spans 6 cols) -->
+<article class="col-span-1 lg:col-span-6 bg-stadium-blue rounded-xl border border-secondary-container p-6 relative">
+<div class="absolute top-0 right-0 px-3 py-1 bg-surface-variant text-on-surface-variant font-label-caps text-[12px] font-bold rounded-bl-lg uppercase tracking-wider">
+                                Último Resultado
+                            </div>
+<div class="mt-4 flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-4">Jornada Anterior - Visitante</span>
+<div class="flex items-center justify-center gap-8 w-full">
+<div class="flex flex-col items-center gap-2">
+<span class="font-body-lg text-body-lg text-on-surface font-bold">Raimon B</span>
+</div>
+<div class="flex items-center gap-4 bg-pitch-deep px-6 py-2 rounded-lg border border-outline-variant">
+<span class="font-stat-value text-[32px] text-on-surface">1</span>
+<span class="font-headline-md text-headline-md text-bolt-gold">-</span>
+<span class="font-stat-value text-[32px] text-on-surface">1</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<span class="font-body-lg text-body-lg text-on-surface font-bold">Kirkwood</span>
+</div>
+</div>
+</div>
+<div class="mt-8 flex gap-4">
+<button class="flex-1 border border-bolt-gold text-bolt-gold bg-transparent font-label-caps text-label-caps px-4 py-3 rounded hover:bg-active-glow transition-colors duration-300 uppercase text-center">
+                                    Actualizar Datos
+                                </button>
+<button class="flex-1 bg-surface-variant text-on-surface font-label-caps text-label-caps px-4 py-3 rounded hover:bg-surface-bright transition-colors duration-300 uppercase text-center">
+                                    Ver Estadísticas
+                                </button>
+</div>
+</article>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

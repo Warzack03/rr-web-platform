@@ -1,57 +1,72 @@
-# Permissions matrix
+# PERMISSIONS_MATRIX.md
 
 ## Roles
 
-- `superadmin`: only Aaron initially. Owns platform configuration, imports, users and permissions.
-- `manager`: club staff with operational permissions over sport/public content.
-- `coach`: one login per team, named `entrenador_<team_code_or_slug>`. A team can show several coaches publicly, but only one coach account is granted editing access for that team.
+- `superadmin`
+- `manager`
+- `entrenador`
 
-## Account and permission management
+## Core decisions
 
-Only `superadmin` can:
+- Only `superadmin` manages users, roles, global permissions and imports.
+- `manager` manages sport/public content, but not users and not imports.
+- `entrenador` only edits allowed data for assigned teams.
+- Coaches cannot upload media.
+- Coaches cannot manage news.
+- Coaches cannot create teams or players.
 
-- Create, edit, deactivate or delete users.
-- Assign roles.
-- Assign coach accounts to teams.
-- Import data from `rr-management`.
-- Run destructive or high-impact admin operations.
+## Matrix
 
-Managers cannot manage users or permissions.
-
-## Action matrix
-
-| Action | Superadmin | Manager | Coach |
+| Action | Superadmin | Manager | Entrenador |
 |---|---:|---:|---:|
-| Create teams | Yes | Yes | No |
-| Edit team master data | Yes | Yes | No |
-| Set team visibility/public slug/banner | Yes | Yes | No |
-| Assign public coaches to team | Yes | Yes | No |
-| Assign coach account permissions | Yes | No | No |
+| View admin dashboard | Yes | Yes | Assigned teams only |
+| Manage users | Yes | No | No |
+| Manage roles | Yes | No | No |
+| Manage global permissions | Yes | No | No |
+| Import from rr-management | Yes | No | No |
+| View import history | Yes | No | No |
+| Create/edit seasons | Yes | Yes | No |
+| Activate season | Yes | Yes | No |
+| Create/edit teams | Yes | Yes | No |
+| Set First Team flag | Yes | Yes | No |
+| Set team public visibility | Yes | Yes | No |
+| Upload team logo/banner | Yes | Yes | No |
+| Add visible team coaches | Yes | Yes | No |
+| Assign existing coach to team | Yes | Yes | No |
 | Create/edit players | Yes | Yes | No |
 | Upload player photos | Yes | Yes | No |
-| Upload first-team premium card images | Yes | Yes | No |
-| Edit own-team next match | Yes | Yes | Yes, only assigned teams |
-| Edit own-team match result/status | Yes | Yes | Yes, only assigned teams |
-| Edit goals/assists/statistics | Yes | Yes | Yes, only assigned teams and allowed fields |
-| Edit own-team standings | Yes | Yes | Yes, only assigned teams |
-| Create/edit news | Yes | Yes | No |
-| Publish/unpublish news | Yes | Yes | No |
-| Import from rr-management | Yes | No | No |
-| Manage users/roles | Yes | No | No |
-| Configure environments/platform settings | Yes | No | No |
+| Create/edit assignments | Yes | Yes | No |
+| Create/edit matches | Yes | Yes | Assigned teams only, allowed fields |
+| Update next match | Yes | Yes | Assigned teams only |
+| Update match status/result | Yes | Yes | Assigned teams only |
+| Add played First Team video URL | Yes | Yes | No unless explicitly allowed |
+| Manage standings | Yes | Yes | Assigned teams only |
+| Edit match stats | Yes | Yes | Assigned teams only, allowed fields |
+| Manage news | Yes | Yes | No |
+| Upload news media | Yes | Yes | No |
+| Manage media library | Yes | Yes | No |
+| View public website | Yes | Yes | Yes |
 
-## Coach restrictions
+## Coach allowed fields
 
-A coach can only edit teams explicitly assigned to their coach account.
+For assigned teams only, coach may edit:
 
-A coach must not:
+- Next match date/time/venue/opponent if configured as allowed.
+- Match status/result.
+- Manual standings.
+- Goals and assists.
+- Allowed player stats for the team type.
 
-- Create or delete teams.
-- Edit player master data.
-- Upload photos or cards.
-- Change public slugs or visibility.
-- Create users.
-- Assign permissions.
-- Import from `rr-management`.
-- Publish news.
+Coach may not edit:
 
+- Team identity/slug/visibility.
+- Player identity/profile/fotos/cards.
+- Users or permissions.
+- Imports.
+- News.
+- Global settings.
+- Data for non-assigned teams.
+
+## Server-side enforcement
+
+All permissions must be checked server-side in actions/API routes/services. Hiding buttons in UI is not enough.

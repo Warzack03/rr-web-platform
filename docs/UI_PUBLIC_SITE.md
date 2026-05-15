@@ -1,190 +1,151 @@
 # UI_PUBLIC_SITE.md
 
-## Objetivo visual
+## Goal
 
-La web publica de Rising Raimon debe transmitir un aspecto profesional, moderno y juvenil. La referencia principal de estilo es la landing `inscripciones` ya existente, especialmente por su uso de fondos oscuros con gradientes, tarjetas glassmorphism, titulares grandes, botones redondeados y acentos amarillo/azul.
+The public website must feel like a premium football club website: professional, youthful, fast and mobile-first.
 
-## Referencia de estilo
+It must not look like a generic SaaS dashboard. Public pages should prioritize emotion, hierarchy, match context, teams, players, statistics and news.
 
-La referencia CSS existente define estos tokens visuales base:
+## Visual references
+
+Use the Stitch/reference ZIPs as visual/structural references when provided. Treat them as design input, not production code.
+
+Expected reference pages may include:
+
+- Public home.
+- First Team detail.
+- First Team squad and calendar.
+- Player/goalkeeper MVP cards.
+- Team listing.
+- Standard team detail.
+- Standard team squad/calendar/standings.
+- Backoffice login and dashboards.
+
+## Dark-first design
+
+Design and implement dark mode first. Prepare CSS variables/tokens so light mode can be added later without rewriting components.
+
+## Core visual tokens
+
+Use these as a basis, adapted to Tailwind/CSS variables:
 
 ```css
---bg: #071629;
---bg-soft: #0c2341;
---surface: rgba(8, 23, 43, 0.85);
---surface-strong: rgba(7, 19, 34, 0.92);
---surface-light: rgba(255, 255, 255, 0.08);
---text: #eef4ff;
---muted: #bfd0e8;
---accent: #f3cb45;
---accent-2: #3470c8;
---accent-3: #d64045;
---border: rgba(255, 255, 255, 0.12);
---radius-xl: 32px;
---radius-lg: 22px;
---radius-md: 16px;
---radius-sm: 12px;
---font-display: "Bebas Neue", sans-serif;
---font-body: "Barlow", sans-serif;
---max-width: 1180px;
+--rr-bg: #0B1B32;
+--rr-surface: #1E2F47;
+--rr-gold: #FDCB58;
+--rr-bg-alt: #071629;
+--rr-bg-soft: #0c2341;
+--rr-text: #eef4ff;
+--rr-muted: #bfd0e8;
+--rr-accent-blue: #3470c8;
+--rr-danger: #d64045;
+--rr-border: rgba(255, 255, 255, 0.12);
+--rr-radius-xl: 32px;
+--rr-radius-lg: 22px;
+--rr-radius-md: 16px;
+--rr-font-display: "Bebas Neue", sans-serif;
+--rr-font-body: "Barlow Condensed", "Barlow", sans-serif;
+--rr-max-width: 1180px;
 ```
 
-Codex debe traducir estos tokens a Tailwind/theme CSS variables o a una capa global `app/globals.css`.
+## UI copy rule
 
-## Personalidad visual
+Keep on-screen text short and clear. Avoid long explanatory paragraphs, implementation details or process explanations.
 
-- Profesional, pero no corporativa/fria.
-- Juvenil, deportiva y dinamica.
-- Mobile-first.
-- Alto contraste.
-- Fondos oscuros con brillos radiales y acentos en amarillo.
-- Tarjetas con bordes suaves, sombras y fondos translucidos.
-- Titulares grandes, condensados y con personalidad.
-- CTAs tipo pastilla, con radio completo.
-- No usar estetica generica de dashboard para la web publica.
+## Public routes
 
-## Estructura publica esperada
+- `/` - Home.
+- `/primer-equipo` - Premium First Team page.
+- `/equipos` - Team listing.
+- `/equipos/[teamSlug]` - Team detail.
+- `/jugadores/[playerSlug]` - Player detail/card when enabled.
+- `/partidos` - Calendar/results.
+- `/clasificacion` - First Team standings or classification hub.
+- `/noticias` - News listing.
+- `/noticias/[slug]` - News detail.
+- `/tienda` - Link/redirect to `https://tienda.risingraimon.es`.
 
-### Home
+## Public home requirements
 
-Debe incluir, como minimo:
+The home must include:
 
-1. Hero principal.
-   - Mensaje de club.
-   - CTA a Primer Equipo.
-   - CTA a Mis equipos.
-   - CTA a Tienda.
-2. Bloque destacado del Primer Equipo.
-   - Proximo partido.
-   - Ultimo resultado.
-   - Posicion/clasificacion resumida si existe.
-3. Bloque de ultimas noticias o comunicados.
-4. Acceso visual a todos los equipos.
-5. Bloque de tienda/enlace a WooCommerce.
-6. Redes/contacto.
+1. Club hero.
+2. First Team next match.
+3. Latest results.
+4. First Team standings summary.
+5. Recent news.
+6. Access to First Team page.
+7. Access to all teams.
+8. External shop link.
+9. Social/contact area if available.
 
-### Primer Equipo
+## First Team page
 
-Debe ser la seccion mas completa y cuidada.
+The First Team is the most important public sports page. It has a premium variant.
 
-Debe incluir:
+It must include:
 
-- Cabecera hero propia.
-- Datos del equipo.
-- Proximo partido.
-- Ultimos resultados.
-- Clasificacion.
-- Plantilla.
-- Cromos especiales de jugadores.
-- Estadisticas detalladas.
-- Fichas de jugador con detalle mas completo.
+- Premium header.
+- Team information.
+- Visible coaches.
+- Next match.
+- Latest results.
+- Manual standings.
+- Squad.
+- Uploaded premium card images.
+- Advanced statistics.
+- Played match video links when available.
+- Related news.
 
-### Mis equipos
+## Standard team detail
 
-Pagina de listado de todos los equipos del club.
+Every non-first-team page must still be complete and useful, but simpler than the First Team.
 
-Debe incluir:
+It must include:
 
-- Filtros o agrupacion por categoria si hay muchos equipos.
-- Tarjeta por equipo.
-- Enlace al detalle de cada equipo.
-- Indicar temporada y competicion si aplica.
+- Team name.
+- Category.
+- Active season.
+- Competition.
+- Visible coaches.
+- Next match.
+- Latest results.
+- Manual standings.
+- Squad.
+- Web-generated cards.
+- Basic stats.
+- Related news if any.
 
-### Detalle de equipo
+## Team listing
 
-Para todos los equipos.
+The team listing should show all public teams in the active season.
 
-Debe incluir:
+Useful grouping/filtering:
 
-- Hero o cabecera del equipo.
-- Plantilla.
-- Cromos sencillos.
-- Partidos/resultados.
-- Clasificacion.
-- Estadisticas basicas.
+- Category.
+- Branch/group if available.
+- Active season.
 
-El Primer Equipo puede usar una variante visual mas especial y avanzada.
+## Public component priorities
 
-### Cromos
-
-Hay dos niveles:
-
-1. Cromo especial del Primer Equipo.
-   - Mas visual.
-   - Mejor jerarquia.
-   - Estadisticas ampliadas.
-   - Foto protagonista.
-   - Posibilidad de estilo coleccionable.
-
-2. Cromo normal del resto de equipos.
-   - Mas simple.
-   - Nombre, dorsal, posicion, foto y stats basicas.
-
-## Navegacion publica inicial
-
-- Inicio
-- Primer Equipo
-- Mis equipos
-- Noticias
-- Tienda
-- Contacto / Redes
-
-La tienda inicialmente puede enlazar a WooCommerce, no debe reconstruirse en la nueva plataforma.
-
-## Componentes UI prioritarios
-
-- SiteHeader responsive.
-- Mobile navigation.
-- HeroSection.
-- SectionHeading.
-- SportCard.
+- PublicSiteHeader.
+- PublicMobileNav.
+- HeroBlock.
+- SectionHeader.
 - TeamCard.
-- PlayerCard.
-- SpecialFirstTeamPlayerCard.
 - MatchCard.
-- StandingTable.
-- StatsTable.
+- StandingsTable.
+- PlayerCard.
+- GeneratedPlayerCromo.
+- PremiumCardImage.
+- StatsStrip.
 - NewsCard.
-- CTAButton.
 - EmptyState.
-- LoadingState.
 
-## Responsive
+## Empty states
 
-La web debe estar pensada primero para movil.
-
-Reglas:
-
-- No tablas horizontales rotas en movil; usar scroll controlado o tarjetas resumidas.
-- Cromos en grid responsive.
-- Header movil limpio.
-- CTAs a ancho completo en pantallas pequenas.
-- Evitar layouts de tres columnas en movil.
-
-## Tipografia
-
-Usar preferentemente:
-
-- Display: Bebas Neue o equivalente si se decide no cargar fuente externa.
-- Body: Barlow o equivalente.
-
-Si las fuentes externas comprometen rendimiento o simplicidad, se debe documentar la alternativa.
-
-## Colores
-
-Base:
-
-- Fondo principal: azul noche oscuro.
-- Superficies: azul/negro translucido.
-- Texto principal: blanco azulado.
-- Texto secundario: azul claro apagado.
-- Acento principal: amarillo.
-- Acento secundario: azul.
-- Acento de alerta/derrota/error: rojo.
-
-## No hacer
-
-- No copiar el CSS literalmente sin adaptarlo al stack.
-- No usar una plantilla generica de club sin personalidad.
-- No priorizar escritorio sobre movil.
-- No usar el estilo del panel admin para la web publica.
+- No squad: "Plantilla pendiente de publicar".
+- No standings: hide section or "Clasificacion pendiente".
+- No next match: show latest result or neutral message.
+- No player photo: use placeholder.
+- No opponent logo: use generic opponent placeholder.

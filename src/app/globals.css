@@ -1,0 +1,116 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --rr-bg: #0b1b32;
+  --rr-bg-muted: #10233d;
+  --rr-surface: rgba(18, 20, 20, 0.9);
+  --rr-surface-strong: rgba(12, 15, 15, 0.94);
+  --rr-surface-card: rgba(30, 47, 71, 0.88);
+  --rr-surface-card-strong: rgba(16, 35, 61, 0.94);
+  --rr-surface-soft: rgba(255, 255, 255, 0.06);
+  --rr-border: rgba(155, 143, 124, 0.3);
+  --rr-border-strong: rgba(253, 203, 88, 0.32);
+  --rr-text: #e2e2e2;
+  --rr-text-muted: #d2c5b0;
+  --rr-text-soft: #a5b6d4;
+  --rr-accent: #fdcb58;
+  --rr-accent-blue: #1e2f47;
+  --rr-danger: #ffb4ab;
+  --rr-success: #86efac;
+  --rr-shadow: 0 0 24px rgba(253, 203, 88, 0.12);
+  --rr-radius-sm: 0.25rem;
+  --rr-radius-md: 0.5rem;
+  --rr-radius-lg: 0.75rem;
+  --rr-radius-xl: 1rem;
+  --rr-radius-pill: 999px;
+  --rr-container: 1280px;
+  --rr-gutter: 24px;
+  --rr-section-gap: clamp(4rem, 7vw, 5rem);
+  --background: var(--rr-bg);
+  --foreground: var(--rr-text);
+  --font-display: "Bebas Neue";
+  --font-body: "Barlow Condensed";
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(253, 203, 88, 0.12), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(30, 47, 71, 0.4), transparent 30%),
+    linear-gradient(180deg, #081426 0%, #0b1b32 45%, #09111d 100%);
+  color: var(--rr-text);
+  font-family: var(--font-body), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(253, 203, 88, 0.28);
+  color: var(--rr-text);
+}
+
+.rr-page-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.rr-page-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(8, 20, 38, 0.86), rgba(8, 17, 29, 0.94)),
+    url("https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1600&q=80")
+      center top / cover no-repeat;
+  opacity: 0.14;
+  pointer-events: none;
+}
+
+.rr-page-shell::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent);
+  pointer-events: none;
+}
+
+.rr-stadium-surface {
+  background:
+    linear-gradient(180deg, rgba(8, 20, 38, 0.88), rgba(8, 17, 29, 0.94)),
+    url("https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?auto=format&fit=crop&w=1600&q=80")
+      center / cover no-repeat;
+}

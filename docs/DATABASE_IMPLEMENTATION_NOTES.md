@@ -82,3 +82,45 @@ Possible future optimization:
 - add a `PlayerSeasonStatsSnapshot` table;
 - recalculate via cron after match stats update;
 - still keep `PlayerMatchStats` as source of truth.
+
+
+## Prisma 7+ MySQL adapter note
+
+If the installed Prisma version requires a runtime driver adapter, use `@prisma/adapter-mariadb` with MySQL/MariaDB.
+
+Keep `DATABASE_URL` for Prisma CLI and migrations.
+
+For runtime client/seed, use separate environment variables when required:
+
+```env
+DB_HOST="localhost"
+DB_PORT="3306"
+DB_USER="root"
+DB_PASSWORD="password-without-url-escaping"
+DB_NAME="rr_web_platform_db"
+DB_CONNECTION_LIMIT="5"
+```
+
+Do not instantiate Prisma 7 runtime with an empty `new PrismaClient()` if the project requires an adapter.
+
+Do not pass `connectionString` to `PrismaMariaDb`; use `host`, `port`, `user`, `password`, `database`, `connectionLimit`.
+
+Example pattern:
+
+```ts
+import { PrismaClient } from "@prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+
+const adapter = new PrismaMariaDb({
+  host: process.env.DB_HOST ?? "localhost",
+  port: Number(process.env.DB_PORT ?? "3306"),
+  user: process.env.DB_USER ?? "root",
+  password: process.env.DB_PASSWORD ?? "",
+  database: process.env.DB_NAME ?? "rr_web_platform_db",
+  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT ?? "5"),
+});
+
+export const prisma = new PrismaClient({ adapter });
+```
+
+Use a singleton global in development to avoid creating multiple pools.
