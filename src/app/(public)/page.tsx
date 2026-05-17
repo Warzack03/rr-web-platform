@@ -4,11 +4,13 @@ import { CTAButton } from "@/src/components/shared/cta-button";
 import { MatchCard } from "@/src/components/shared/match-card";
 import { SectionHeader } from "@/src/components/shared/section-header";
 import { StatChip } from "@/src/components/shared/stat-chip";
+import { AcademyHighlightCard } from "@/src/components/public/academy-highlight-card";
 import { NewsCard } from "@/src/components/public/news-card";
 import { TeamCard } from "@/src/components/public/team-card";
 import { PageHero } from "@/src/components/public/page-hero";
 import { StandingsTable } from "@/src/components/public/standings-table";
 import {
+  getClubPlayerCount,
   getLatestResults,
   getRelatedNews,
   getStandings,
@@ -17,9 +19,11 @@ import {
 } from "@/src/lib/demo-data";
 
 const firstTeam = publicTeams[0];
+const academyTeams = publicTeams.filter((team) => !team.isFirstTeam).slice(0, 3);
 const featuredMatch = getUpcomingMatch("primer-equipo");
 const recentResults = getLatestResults("primer-equipo").slice(0, 3);
 const recentNews = getRelatedNews("primer-equipo").slice(0, 3);
+const clubPlayerCount = getClubPlayerCount();
 
 export default function HomePage() {
   return (
@@ -45,7 +49,7 @@ export default function HomePage() {
             <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
               <StatChip label="Temporada" value="2026/27" />
               <StatChip label="Equipos" value="12" />
-              <StatChip label="Academia" value="Activa" />
+              <StatChip label="Jugadores" value={`+${clubPlayerCount}`} />
             </div>
           </div>
         }
@@ -59,7 +63,7 @@ export default function HomePage() {
             description="La home resume el punto mas relevante del fin de semana y manda al resto del calendario a su ruta propia."
             action={
               <Link
-                href="/partidos"
+                href="/primer-equipo/calendario"
                 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-[var(--rr-accent)]"
               >
                 Ver calendario
@@ -93,8 +97,8 @@ export default function HomePage() {
                 Entrar al Primer Equipo
                 <ArrowRight className="h-4 w-4" />
               </CTAButton>
-              <CTAButton href="/clasificaciones" variant="ghost">
-                Ver clasificaciones
+              <CTAButton href="/primer-equipo/clasificacion" variant="ghost">
+                Ver clasificacion
               </CTAButton>
             </div>
           </div>
@@ -124,19 +128,21 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="rounded-[24px] border border-[var(--rr-border)] bg-[linear-gradient(145deg,rgba(29,46,72,0.94),rgba(10,18,30,0.98))] p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--rr-accent)]">
-            Comunidad y club
-          </p>
-          <h3 className="mt-3 font-display text-5xl uppercase text-white">Centro de alto rendimiento</h3>
-          <p className="mt-4 max-w-2xl text-lg leading-7 text-[var(--rr-text-muted)]">
-            La nueva home mantiene el tono premium, pero ordena la informacion para que cada pantalla tenga una funcion clara.
-          </p>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            <StatChip label="Campos" value="4" />
-            <StatChip label="Equipos" value="12" />
-            <StatChip label="Atletas" value="300+" />
+        <div className="space-y-5">
+          <SectionHeader
+            eyebrow="Cantera destacada"
+            title="Resumen rapido de academia"
+            description="La home da visibilidad a varios equipos de cantera sin meter toda la estructura en una sola pagina."
+          />
+          <div className="grid gap-4">
+            {academyTeams.map((team) => (
+              <AcademyHighlightCard
+                key={team.slug}
+                team={team}
+                nextMatch={getUpcomingMatch(team.slug)}
+                lastResult={getLatestResults(team.slug)[0] ?? null}
+              />
+            ))}
           </div>
         </div>
       </section>

@@ -33,7 +33,7 @@ export function PublicHeader() {
         <Link href="/" className="flex items-center gap-3">
           <ClubMark />
           <div>
-            <p className="font-display text-2xl uppercase tracking-[0.06em] text-[var(--rr-accent)]">
+            <p className="font-display text-xl uppercase tracking-[0.06em] text-[var(--rr-accent)] sm:text-2xl">
               Rising Raimon
             </p>
             <p className="text-sm uppercase tracking-[0.18em] text-[var(--rr-text-soft)]">

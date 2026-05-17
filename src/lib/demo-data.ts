@@ -61,6 +61,8 @@ export type DemoPlayer = {
   premium: boolean;
   isGoalkeeper?: boolean;
   summary: string;
+  goals: number;
+  assists: number;
   headlineStats: { label: string; value: string }[];
 };
 
@@ -240,6 +242,17 @@ export const publicMatches: DemoMatch[] = [
     location: "Anexo Norte",
   },
   {
+    id: "m9",
+    teamSlug: "juvenil-a",
+    teamName: "Juvenil A",
+    opponentName: "Genesis",
+    competition: "Liga Nacional Juvenil",
+    status: "Jugado",
+    dateLabel: "J10",
+    location: "Visitante",
+    score: "1 - 1",
+  },
+  {
     id: "m8",
     teamSlug: "cadete-a",
     teamName: "Cadete A",
@@ -248,6 +261,17 @@ export const publicMatches: DemoMatch[] = [
     status: "Aplazado",
     dateLabel: "Nueva fecha pendiente",
     location: "Campo Municipal",
+  },
+  {
+    id: "m10",
+    teamSlug: "cadete-a",
+    teamName: "Cadete A",
+    opponentName: "Occult",
+    competition: "Division Autonomica",
+    status: "Jugado",
+    dateLabel: "J9",
+    location: "Casa",
+    score: "2 - 0",
   },
 ];
 
@@ -288,6 +312,8 @@ export const publicPlayers: DemoPlayer[] = [
     foot: "Derecho",
     premium: true,
     summary: "Referencia ofensiva del Primer Equipo y foco principal del ataque posicional.",
+    goals: 18,
+    assists: 9,
     headlineStats: [
       { label: "Partidos jugados", value: "142" },
       { label: "Goles", value: "118" },
@@ -309,6 +335,8 @@ export const publicPlayers: DemoPlayer[] = [
     premium: true,
     isGoalkeeper: true,
     summary: "Portero de alto rendimiento, liderazgo competitivo y lectura avanzada de area.",
+    goals: 0,
+    assists: 2,
     headlineStats: [
       { label: "MVPs", value: "5" },
       { label: "Tiros recibidos", value: "173" },
@@ -329,11 +357,53 @@ export const publicPlayers: DemoPlayer[] = [
     foot: "Derecho",
     premium: false,
     summary: "Ataque vertical y remate rapido en el ultimo tercio.",
+    goals: 5,
+    assists: 2,
     headlineStats: [
       { label: "Goles", value: "5" },
       { label: "Asistencias", value: "2" },
       { label: "Partidos", value: "7" },
       { label: "Tiros", value: "21" },
+    ],
+  },
+  {
+    slug: "jude-sharp",
+    teamSlug: "primer-equipo",
+    teamName: "Primer Equipo",
+    name: "Jude Sharp",
+    number: 8,
+    position: "Centrocampista",
+    country: "Espana",
+    foot: "Derecho",
+    premium: true,
+    summary: "Control de ritmo, lectura de ventaja y liderazgo en la zona de creacion.",
+    goals: 7,
+    assists: 11,
+    headlineStats: [
+      { label: "Partidos jugados", value: "138" },
+      { label: "Asistencias", value: "41" },
+      { label: "Pases clave", value: "206" },
+      { label: "Recuperaciones", value: "119" },
+    ],
+  },
+  {
+    slug: "victor-balde",
+    teamSlug: "primer-equipo",
+    teamName: "Primer Equipo",
+    name: "Victor Balde",
+    number: 4,
+    position: "Defensa",
+    country: "Portugal",
+    foot: "Izquierdo",
+    premium: true,
+    summary: "Defensor de duelos largos, agresivo en anticipacion y fiable en salida.",
+    goals: 2,
+    assists: 3,
+    headlineStats: [
+      { label: "Partidos jugados", value: "121" },
+      { label: "Duelos ganados", value: "188" },
+      { label: "Intercepciones", value: "73" },
+      { label: "Porterias a cero", value: "16" },
     ],
   },
   {
@@ -348,11 +418,134 @@ export const publicPlayers: DemoPlayer[] = [
     premium: false,
     isGoalkeeper: true,
     summary: "Portero de academia con buen juego aereo y salida limpia.",
+    goals: 0,
+    assists: 0,
     headlineStats: [
       { label: "Paradas", value: "19" },
       { label: "Porterias a cero", value: "3" },
       { label: "Partidos", value: "6" },
       { label: "Goles en contra", value: "6" },
+    ],
+  },
+  {
+    slug: "leo-stone",
+    teamSlug: "raimon-b",
+    teamName: "Raimon B",
+    name: "Leo Stone",
+    number: 6,
+    position: "Centrocampista",
+    country: "Espana",
+    foot: "Derecho",
+    premium: false,
+    summary: "Interior de academia con buen pie, ida y vuelta y pausa en tres cuartos.",
+    goals: 2,
+    assists: 4,
+    headlineStats: [
+      { label: "Partidos", value: "7" },
+      { label: "Asistencias", value: "4" },
+      { label: "Pases clave", value: "14" },
+      { label: "Recuperaciones", value: "17" },
+    ],
+  },
+  {
+    slug: "nate-river",
+    teamSlug: "raimon-b",
+    teamName: "Raimon B",
+    name: "Nate River",
+    number: 3,
+    position: "Defensa",
+    country: "Japon",
+    foot: "Izquierdo",
+    premium: false,
+    summary: "Lateral de gran zancada, con profundidad y retorno rapido tras perdida.",
+    goals: 1,
+    assists: 3,
+    headlineStats: [
+      { label: "Partidos", value: "7" },
+      { label: "Centros", value: "19" },
+      { label: "Asistencias", value: "3" },
+      { label: "Recuperaciones", value: "15" },
+    ],
+  },
+  {
+    slug: "akira-frost",
+    teamSlug: "juvenil-a",
+    teamName: "Juvenil A",
+    name: "Akira Frost",
+    number: 11,
+    position: "Extremo",
+    country: "Espana",
+    foot: "Derecho",
+    premium: false,
+    summary: "Extremo con desborde corto, amenaza al espacio y uno contra uno agresivo.",
+    goals: 6,
+    assists: 5,
+    headlineStats: [
+      { label: "Partidos", value: "10" },
+      { label: "Goles", value: "6" },
+      { label: "Asistencias", value: "5" },
+      { label: "Regates", value: "28" },
+    ],
+  },
+  {
+    slug: "noah-vale",
+    teamSlug: "juvenil-a",
+    teamName: "Juvenil A",
+    name: "Noah Vale",
+    number: 5,
+    position: "Defensa",
+    country: "Francia",
+    foot: "Izquierdo",
+    premium: false,
+    summary: "Central sobrio, dominante en area y con buena lectura de coberturas.",
+    goals: 1,
+    assists: 1,
+    headlineStats: [
+      { label: "Partidos", value: "10" },
+      { label: "Despejes", value: "37" },
+      { label: "Duelos", value: "61" },
+      { label: "Porterias a cero", value: "4" },
+    ],
+  },
+  {
+    slug: "ian-pulse",
+    teamSlug: "cadete-a",
+    teamName: "Cadete A",
+    name: "Ian Pulse",
+    number: 7,
+    position: "Mediapunta",
+    country: "Espana",
+    foot: "Derecho",
+    premium: false,
+    summary: "Perfil creativo con lectura entre lineas y buen golpeo desde frontal.",
+    goals: 4,
+    assists: 6,
+    headlineStats: [
+      { label: "Partidos", value: "9" },
+      { label: "Goles", value: "4" },
+      { label: "Asistencias", value: "6" },
+      { label: "Ocasiones", value: "17" },
+    ],
+  },
+  {
+    slug: "rui-keller",
+    teamSlug: "cadete-a",
+    teamName: "Cadete A",
+    name: "Rui Keller",
+    number: 1,
+    position: "Portero",
+    country: "Alemania",
+    foot: "Derecho",
+    premium: false,
+    isGoalkeeper: true,
+    summary: "Portero cadete con reflejos cortos, juego de pies sobrio y buena comunicacion.",
+    goals: 0,
+    assists: 0,
+    headlineStats: [
+      { label: "Partidos", value: "9" },
+      { label: "Paradas", value: "23" },
+      { label: "Porterias a cero", value: "3" },
+      { label: "Goles en contra", value: "12" },
     ],
   },
 ];
@@ -492,6 +685,10 @@ export function getRelatedNews(teamSlug: string) {
 
 export function getStandings(teamSlug: string) {
   return standingsByTeam[teamSlug] ?? [];
+}
+
+export function getClubPlayerCount() {
+  return publicTeams.reduce((total, team) => total + team.rosterCount, 0);
 }
 
 export function getDashboardMock(role: UserRole) {

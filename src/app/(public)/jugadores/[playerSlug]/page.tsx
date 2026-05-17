@@ -3,6 +3,7 @@ import { PageHero } from "@/src/components/public/page-hero";
 import { SectionHeader } from "@/src/components/shared/section-header";
 import { CTAButton } from "@/src/components/shared/cta-button";
 import { getPlayerBySlug } from "@/src/lib/demo-data";
+import { getTeamCalendarHref, getTeamOverviewHref } from "@/src/lib/team-routes";
 
 export default async function PlayerDetailPage({
   params,
@@ -78,13 +79,13 @@ export default async function PlayerDetailPage({
             />
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <CTAButton
-                href={player.teamSlug === "primer-equipo" ? "/primer-equipo" : `/equipos/${player.teamSlug}`}
+                href={getTeamOverviewHref(player.teamSlug)}
                 variant="secondary"
               >
                 Ver equipo
               </CTAButton>
-              <CTAButton href="/partidos" variant="ghost">
-                Ver partidos
+              <CTAButton href={getTeamCalendarHref(player.teamSlug)} variant="ghost">
+                Ver calendario
               </CTAButton>
             </div>
           </div>

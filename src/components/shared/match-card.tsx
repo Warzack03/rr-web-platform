@@ -26,17 +26,17 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
         </span>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <p className="font-display text-3xl uppercase text-white sm:text-4xl">{match.teamName}</p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4">
+        <div className="min-w-0">
+          <p className="font-display text-2xl uppercase text-white sm:text-4xl">{match.teamName}</p>
         </div>
-        <div className="text-center">
+        <div className="text-center sm:px-2">
           <p className="font-display text-2xl uppercase text-[var(--rr-accent)] sm:text-3xl">
             {match.score ?? "VS"}
           </p>
         </div>
-        <div className="min-w-0 flex-1 text-right">
-          <p className="font-display text-3xl uppercase text-[var(--rr-text-muted)] sm:text-4xl">
+        <div className="min-w-0 sm:text-right">
+          <p className="font-display text-2xl uppercase text-[var(--rr-text-muted)] sm:text-4xl">
             {match.opponentName}
           </p>
         </div>

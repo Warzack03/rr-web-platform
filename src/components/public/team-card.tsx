@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Shield } from "lucide-react";
 import type { DemoTeam } from "@/src/lib/demo-data";
+import { getTeamOverviewHref } from "@/src/lib/team-routes";
 import { cn } from "@/lib/utils";
 
 type TeamCardProps = {
@@ -10,7 +11,7 @@ type TeamCardProps = {
 export function TeamCard({ team }: TeamCardProps) {
   return (
     <Link
-      href={team.isFirstTeam ? "/primer-equipo" : `/equipos/${team.slug}`}
+      href={getTeamOverviewHref(team.slug)}
       className={cn(
         "block overflow-hidden rounded-[22px] border p-5 transition duration-300 hover:-translate-y-1",
         team.accent === "premium"

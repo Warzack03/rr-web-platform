@@ -41,11 +41,13 @@ export function PageHero({
               {eyebrow}
             </p>
           ) : null}
-          <h1 className="max-w-4xl font-display text-5xl uppercase leading-none text-white sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-4xl font-display text-4xl uppercase leading-none text-white sm:text-6xl lg:text-7xl">
             {title}
           </h1>
           {description ? (
-            <p className="max-w-3xl text-lg leading-7 text-[var(--rr-text-muted)]">{description}</p>
+            <p className="max-w-3xl text-base leading-7 text-[var(--rr-text-muted)] sm:text-lg">
+              {description}
+            </p>
           ) : null}
           {meta ? <div className="flex flex-wrap items-center gap-4">{meta}</div> : null}
           {actions ? <div className="flex flex-col gap-3 sm:flex-row">{actions}</div> : null}

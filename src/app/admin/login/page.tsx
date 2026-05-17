@@ -30,8 +30,7 @@ export default async function AdminLoginPage() {
           </div>
 
           <div className="mt-10 border-t border-[var(--rr-border)] pt-6 text-sm leading-7 text-[var(--rr-text-soft)]">
-            Acceso restringido exclusivamente a personal autorizado. Toda actividad en esta
-            plataforma es monitorizada por motivos de seguridad corporativa.
+            Acceso solo para personal autorizado del club.
           </div>
         </div>
       </main>

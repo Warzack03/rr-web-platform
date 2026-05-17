@@ -1,12 +1,12 @@
-import Link from "next/link";
-import { BadgeInfo, CalendarDays, PlayCircle, ShieldCheck, Users } from "lucide-react";
+import { BadgeInfo, CalendarDays, LayoutList, PlayCircle, ShieldCheck, Trophy } from "lucide-react";
 import { CTAButton } from "@/src/components/shared/cta-button";
 import { MatchCard } from "@/src/components/shared/match-card";
 import { SectionHeader } from "@/src/components/shared/section-header";
 import { NewsListItem } from "@/src/components/public/news-list-item";
 import { PageHero } from "@/src/components/public/page-hero";
-import { PlayerCard } from "@/src/components/public/player-card";
+import { PlayerRosterCard } from "@/src/components/public/player-roster-card";
 import { StandingsTable } from "@/src/components/public/standings-table";
+import { TeamAccessCard } from "@/src/components/public/team-access-card";
 import {
   getLatestResults,
   getRelatedNews,
@@ -15,6 +15,11 @@ import {
   getTeamPlayers,
   getUpcomingMatch,
 } from "@/src/lib/demo-data";
+import {
+  getTeamCalendarHref,
+  getTeamRosterHref,
+  getTeamStandingsHref,
+} from "@/src/lib/team-routes";
 
 const team = getTeamBySlug("primer-equipo");
 
@@ -27,11 +32,12 @@ export default function FirstTeamPage() {
   const results = getLatestResults(team.slug);
   const players = getTeamPlayers(team.slug);
   const relatedNews = getRelatedNews(team.slug);
+  const featuredPlayers = players.slice(0, 2);
 
   return (
     <div className="space-y-10 pb-20">
       <PageHero
-        eyebrow={`${team.category} · Temporada ${team.season}`}
+        eyebrow={`${team.category} - Temporada ${team.season}`}
         title={team.name}
         description={team.summary}
         stadium
@@ -49,11 +55,11 @@ export default function FirstTeamPage() {
         }
         actions={
           <>
-            <CTAButton href="/partidos">
+            <CTAButton href={getTeamCalendarHref(team.slug)}>
               <CalendarDays className="h-4 w-4" />
               Calendario
             </CTAButton>
-            <CTAButton href="/clasificaciones" variant="secondary">
+            <CTAButton href={getTeamStandingsHref(team.slug)} variant="secondary">
               Clasificacion
             </CTAButton>
           </>
@@ -64,19 +70,19 @@ export default function FirstTeamPage() {
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rr-accent)]">
                 Posicion actual
               </p>
-              <p className="mt-4 font-display text-7xl uppercase text-white">{team.position}</p>
+              <p className="mt-4 font-display text-6xl uppercase text-white sm:text-7xl">{team.position}</p>
               <div className="mt-5 grid grid-cols-3 gap-3">
                 <div className="rounded-[16px] bg-black/20 px-3 py-3 text-center">
                   <p className="text-xs uppercase tracking-[0.14em] text-[var(--rr-text-soft)]">Pts</p>
-                  <p className="font-display text-3xl text-[var(--rr-accent)]">{team.points}</p>
+                  <p className="font-display text-2xl text-[var(--rr-accent)] sm:text-3xl">{team.points}</p>
                 </div>
                 <div className="rounded-[16px] bg-black/20 px-3 py-3 text-center">
                   <p className="text-xs uppercase tracking-[0.14em] text-[var(--rr-text-soft)]">GF</p>
-                  <p className="font-display text-3xl text-white">{team.goalsFor}</p>
+                  <p className="font-display text-2xl text-white sm:text-3xl">{team.goalsFor}</p>
                 </div>
                 <div className="rounded-[16px] bg-black/20 px-3 py-3 text-center">
                   <p className="text-xs uppercase tracking-[0.14em] text-[var(--rr-text-soft)]">GC</p>
-                  <p className="font-display text-3xl text-white">{team.goalsAgainst}</p>
+                  <p className="font-display text-2xl text-white sm:text-3xl">{team.goalsAgainst}</p>
                 </div>
               </div>
             </div>
@@ -103,7 +109,7 @@ export default function FirstTeamPage() {
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rr-accent)]">
                 Goles a favor
               </p>
-              <p className="mt-3 font-display text-6xl text-white">{team.goalsFor}</p>
+              <p className="mt-3 font-display text-5xl text-white sm:text-6xl">{team.goalsFor}</p>
             </div>
             <div className="rounded-[22px] border border-[var(--rr-border)] bg-[var(--rr-surface)] p-5">
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rr-accent)]">
@@ -115,25 +121,54 @@ export default function FirstTeamPage() {
         </div>
       </section>
 
-      <section className="space-y-6">
-        <SectionHeader
-          eyebrow="Plantilla"
-          title="Cromos premium y acceso a fichas"
-          description="La informacion avanzada del Primer Equipo se concentra aqui, no en la home."
-          action={
-            <Link
-              href="/jugadores/axel-blaze"
-              className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-[var(--rr-accent)]"
-            >
-              Ver jugador destacado
-              <Users className="h-4 w-4" />
-            </Link>
-          }
-        />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {players.map((player) => (
-            <PlayerCard key={player.slug} player={player} />
-          ))}
+      <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="space-y-6">
+          <SectionHeader
+            eyebrow="Plantilla"
+            title="Resumen premium del bloque"
+            description="La plantilla completa deja de estar embebida aqui y pasa a su propia ruta de cromos."
+            action={
+              <CTAButton href={getTeamRosterHref(team.slug)} size="sm">
+                Ver plantilla completa
+              </CTAButton>
+            }
+          />
+          <div className="grid gap-4 md:grid-cols-2">
+            {featuredPlayers.map((player) => (
+              <PlayerRosterCard key={player.slug} player={player} premium />
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          <SectionHeader
+            eyebrow="Accesos de equipo"
+            title="Plantilla, calendario y clasificacion"
+            description="Cada pieza importante del Primer Equipo gana su propia pantalla sin convertir este detalle en una pagina infinita."
+          />
+          <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+            <TeamAccessCard
+              href={getTeamRosterHref(team.slug)}
+              label="Plantilla"
+              title="Cromos premium"
+              description="Pagina dedicada a la plantilla con cromos construidos por elementos."
+              icon={LayoutList}
+            />
+            <TeamAccessCard
+              href={getTeamCalendarHref(team.slug)}
+              label="Calendario"
+              title="Ruta de partidos"
+              description="Proximos encuentros, resultados recientes y video externo cuando exista."
+              icon={CalendarDays}
+            />
+            <TeamAccessCard
+              href={getTeamStandingsHref(team.slug)}
+              label="Clasificacion"
+              title="Tabla competitiva"
+              description="Posiciones, puntos y contexto de la temporada sin mezclar otros equipos."
+              icon={Trophy}
+            />
+          </div>
         </div>
       </section>
 

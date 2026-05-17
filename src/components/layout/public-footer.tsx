@@ -64,7 +64,7 @@ export function PublicFooter() {
           <div className="flex flex-col gap-2 text-[var(--rr-text-soft)]">
             <Link href="https://tienda.risingraimon.es">Tienda</Link>
             <span>Madrid</span>
-            <span>Dark mode first</span>
+            <span>Academia y Primer Equipo</span>
           </div>
         </div>
       </div>

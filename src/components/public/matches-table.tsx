@@ -9,7 +9,7 @@ type MatchesTableProps = {
 export function MatchesTable({ title, matches }: MatchesTableProps) {
   return (
     <section className="rounded-[22px] border border-[var(--rr-border)] bg-[var(--rr-surface)] p-4 sm:p-5">
-      <h3 className="mb-4 font-display text-3xl uppercase text-white">{title}</h3>
+      <h3 className="mb-4 font-display text-2xl uppercase text-white sm:text-3xl">{title}</h3>
       <div className="space-y-3">
         {matches.map((match) => (
           <article
@@ -20,7 +20,7 @@ export function MatchesTable({ title, matches }: MatchesTableProps) {
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--rr-accent)]">
                 {match.competition}
               </p>
-              <p className="mt-2 font-display text-3xl uppercase text-white">
+              <p className="mt-2 font-display text-2xl uppercase text-white sm:text-3xl">
                 {match.teamName} {match.score ? match.score : "VS"} {match.opponentName}
               </p>
             </div>

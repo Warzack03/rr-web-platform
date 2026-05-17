@@ -35,8 +35,8 @@ export default function TeamsPage() {
             <h2 className="font-display text-5xl uppercase text-white">{featuredTeam.name}</h2>
             <p className="text-lg leading-7 text-[var(--rr-text-muted)]">{featuredTeam.summary}</p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <CTAButton href="/primer-equipo">Ver plantilla completa</CTAButton>
-              <CTAButton href="/partidos" variant="ghost">
+              <CTAButton href="/primer-equipo/plantilla">Ver plantilla completa</CTAButton>
+              <CTAButton href="/primer-equipo/calendario" variant="ghost">
                 Calendario
               </CTAButton>
             </div>
@@ -47,7 +47,7 @@ export default function TeamsPage() {
       <section className="space-y-6">
         <SectionHeader
           eyebrow="Cantera"
-          title="Academia de alto rendimiento"
+          title="Cantera y filial"
           description="Agrupamos cantera y filial para que el listado se parezca al wireframe y tenga jerarquia real."
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

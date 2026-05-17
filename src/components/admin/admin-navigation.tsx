@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { AdminNavItem } from "@/server/auth/permissions";
 
-const iconMap = {
+export const adminIconMap = {
   dashboard: Gauge,
   seasons: CalendarRange,
   teams: ShieldUser,
@@ -37,21 +37,23 @@ const iconMap = {
 
 type AdminNavigationProps = {
   items: AdminNavItem[];
+  onNavigate?: () => void;
 };
 
-export function AdminNavigation({ items }: AdminNavigationProps) {
+export function AdminNavigation({ items, onNavigate }: AdminNavigationProps) {
   const pathname = usePathname();
 
   return (
     <nav className="space-y-2">
       {items.map((item) => {
-        const Icon = iconMap[item.section];
+        const Icon = adminIconMap[item.section];
         const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
         return (
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
             className={cn(
               "flex items-center gap-3 rounded-[18px] border px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em] transition",
               isActive

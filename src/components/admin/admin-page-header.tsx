@@ -21,11 +21,13 @@ export function AdminPageHeader({
             {badge}
           </p>
         ) : null}
-        <h1 className="font-display text-5xl uppercase leading-none text-white sm:text-6xl">
+        <h1 className="font-display text-4xl uppercase leading-none text-white sm:text-5xl xl:text-6xl">
           {title}
         </h1>
         {description ? (
-          <p className="max-w-3xl text-lg leading-7 text-[var(--rr-text-muted)]">{description}</p>
+          <p className="max-w-3xl text-base leading-7 text-[var(--rr-text-muted)] sm:text-lg">
+            {description}
+          </p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}

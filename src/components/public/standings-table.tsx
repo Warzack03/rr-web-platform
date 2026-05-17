@@ -11,10 +11,10 @@ export function StandingsTable({ rows, compact = false, title }: StandingsTableP
   return (
     <div className="rounded-[22px] border border-[var(--rr-border)] bg-[var(--rr-surface)] p-4 sm:p-5">
       {title ? (
-        <h3 className="mb-4 font-display text-3xl uppercase text-white">{title}</h3>
+        <h3 className="mb-4 font-display text-2xl uppercase text-white sm:text-3xl">{title}</h3>
       ) : null}
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-separate border-spacing-y-2 text-left">
+      <div className="-mx-1 overflow-x-auto px-1">
+        <table className="min-w-[640px] w-full border-separate border-spacing-y-2 text-left">
           <thead>
             <tr className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--rr-text-soft)]">
               <th className="px-3 py-2">Pos</th>
