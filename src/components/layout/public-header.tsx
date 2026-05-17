@@ -51,7 +51,7 @@ export function PublicHeader({ activeKey }: PublicHeaderProps) {
             href="https://tienda.risingraimon.es"
             target="_blank"
             rel="noreferrer"
-            className="rr-kicker inline-flex min-h-12 items-center justify-center border border-[color:var(--rr-gold)] bg-[color:var(--rr-gold)] px-6 text-[0.96rem] text-[color:var(--rr-on-gold)] transition hover:-translate-y-0.5 hover:bg-[#ffd46f]"
+            className="inline-flex min-h-12 items-center justify-center border border-[color:var(--rr-gold)] bg-[color:var(--rr-gold)] px-6 py-3 font-[var(--rr-font-body)] text-[0.96rem] font-bold uppercase leading-none tracking-[0.18em] text-[color:var(--rr-on-gold)] transition hover:-translate-y-0.5 hover:bg-[#ffd46f]"
           >
             Tienda Oficial
           </a>
@@ -83,7 +83,7 @@ export function PublicHeader({ activeKey }: PublicHeaderProps) {
                 href="https://tienda.risingraimon.es"
                 target="_blank"
                 rel="noreferrer"
-                className="rr-kicker px-4 py-3 text-[0.92rem] text-[color:var(--rr-gold)]"
+                className="mx-4 my-4 inline-flex min-h-12 items-center justify-center border border-[color:var(--rr-gold)] bg-[color:var(--rr-gold)] px-4 py-3 text-center font-[var(--rr-font-body)] text-[0.92rem] font-bold uppercase leading-none tracking-[0.18em] text-[color:var(--rr-on-gold)]"
               >
                 Tienda Oficial
               </a>

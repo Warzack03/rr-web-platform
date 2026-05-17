@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsCard } from "@/components/public/news-card";
 import { PageHero } from "@/components/public/page-hero";
 import {
@@ -9,70 +11,29 @@ import {
   TeamNewsPreview,
   TopScorerPanel,
 } from "@/components/public/team-overview-panels";
-import { PublicSiteLayout } from "@/components/layout/public-site-layout";
+import { getPublicTeamPageContent } from "@/lib/public/team-page-content";
 
 export const metadata: Metadata = {
   title: "Primer Equipo",
   description: "Resumen publico del Primer Equipo de Rising Raimon.",
 };
 
-const teamSummary = {
-  competition: "Primera Division",
-  season: "Temporada 2023/24",
-  coach: "Seymour Hillman",
-  heroImageUrl: undefined as string | undefined,
-  nextMatch: {
-    home: { name: "Rising Raimon", highlight: true },
-    away: { name: "Royal Academy" },
-    competition: "Futbol Frontier - Jornada 12",
-    dateLabel: "Sab, 24 Nov - 18:00 hrs",
-    venue: "Estadio Raimon",
-  },
-  recentResults: [
-    { opponent: "Zeus FC", score: "2 - 1", result: "V" as const },
-    { opponent: "Kirkwood", score: "1 - 1", result: "E" as const },
-    { opponent: "Alpine", score: "3 - 0", result: "V" as const },
-  ],
-  standing: {
-    competition: "Primera Division",
-    position: "1",
-    points: 34,
-    played: 14,
-    won: 11,
-  },
-  metrics: {
-    goalsFor: 32,
-    goalsAgainst: 8,
-  },
-  topScorer: {
-    name: "Axel Blaze",
-    goals: 14,
-  },
-  news: [
-    {
-      href: "/#noticias",
-      category: "Entrenamiento",
-      title: "Preparacion intensa para el derbi",
-      tone: "ball" as const,
-    },
-    {
-      href: "/#noticias",
-      category: "Tactica",
-      title: "Analisis del rival: puntos clave",
-      tone: "tactics" as const,
-    },
-  ],
-};
+export default async function FirstTeamPage() {
+  const teamSummary = await getPublicTeamPageContent("primer-equipo");
 
-export default function FirstTeamPage() {
+  if (!teamSummary) {
+    notFound();
+  }
+
   return (
     <PublicSiteLayout activeNav="primer-equipo">
       <PageHero
         competition={teamSummary.competition}
         season={teamSummary.season}
-        title="Primer Equipo"
+        title={teamSummary.name}
         coach={teamSummary.coach}
         backgroundImageUrl={teamSummary.heroImageUrl}
+        backgroundPosition={teamSummary.heroImagePosition}
       />
 
       <section className="mx-auto w-full max-w-[1280px] px-5 py-10 md:px-8 md:py-14 xl:px-16">
