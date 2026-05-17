@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { CalendarDays, ChartNoAxesColumn, Clock3, MapPin, Shield, Trophy } from "lucide-react";
+import { CalendarDays, ChartNoAxesColumn, Clock3, MapPin, Shield } from "lucide-react";
 import { SectionLabel } from "@/components/public/section-label";
 import { cn } from "@/lib/utils";
 
@@ -125,7 +125,6 @@ type StandingSummaryPanelProps = {
 };
 
 export function StandingSummaryPanel({
-  competition,
   position,
   points,
   played,
@@ -135,8 +134,10 @@ export function StandingSummaryPanel({
     <section className="rr-panel border-[color:var(--rr-border-strong)] p-6 md:p-8">
       <div className="text-center">
         <p className="rr-kicker text-[0.92rem] text-[color:var(--rr-gold)]">Posicion Actual</p>
-        <div className="rr-display mt-4 text-[6rem] leading-none text-white">{position}</div>
-        <p className="mt-2 text-[1.15rem] text-[color:var(--rr-muted)]">{competition}</p>
+        <div className="rr-display mt-4 flex items-start justify-center gap-1 text-white">
+          <span className="text-[6rem] leading-none">{position}</span>
+          <span className="translate-y-2 text-[2.1rem] leading-none">º</span>
+        </div>
       </div>
       <div className="mt-6 border-t border-white/10 pt-5">
         <div className="grid grid-cols-3 gap-3 text-center">
@@ -167,23 +168,13 @@ function StandingStat({ label, value }: { label: string; value: number }) {
 type MetricTileProps = {
   label: string;
   value: number;
-  icon?: "attack" | "defense";
 };
 
-export function MetricTile({ label, value, icon = "attack" }: MetricTileProps) {
+export function MetricTile({ label, value }: MetricTileProps) {
   return (
-    <section className="rr-panel-dark flex min-h-[11rem] flex-col justify-between p-5">
-      <div className="text-[color:var(--rr-muted)]">
-        {icon === "attack" ? (
-          <Trophy className="h-5 w-5" strokeWidth={1.8} />
-        ) : (
-          <Shield className="h-5 w-5" strokeWidth={1.8} />
-        )}
-      </div>
-      <div>
-        <div className="rr-display text-[3rem] leading-none text-white">{value}</div>
-        <p className="rr-kicker mt-2 text-[0.88rem] text-[color:var(--rr-muted)]">{label}</p>
-      </div>
+    <section className="rr-panel-dark flex min-h-[8.5rem] flex-col justify-end p-5">
+      <div className="rr-display text-[3rem] leading-none text-white">{value}</div>
+      <p className="rr-kicker mt-2 text-[0.88rem] text-[color:var(--rr-muted)]">{label}</p>
     </section>
   );
 }

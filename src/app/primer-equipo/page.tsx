@@ -51,12 +51,8 @@ export default async function FirstTeamPage() {
           </div>
 
           <div className="order-4 grid gap-4 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-2">
-            <MetricTile label="Goles a Favor" value={teamSummary.metrics.goalsFor} icon="attack" />
-            <MetricTile
-              label="Goles en Contra"
-              value={teamSummary.metrics.goalsAgainst}
-              icon="defense"
-            />
+            <MetricTile label="Goles a Favor" value={teamSummary.metrics.goalsFor} />
+            <MetricTile label="Goles en Contra" value={teamSummary.metrics.goalsAgainst} />
           </div>
 
           <div className="order-6 lg:order-5 lg:col-span-8">
