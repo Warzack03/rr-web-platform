@@ -1,23 +1,45 @@
-import { CalendarDays, UserRound, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { CalendarDays, ChartNoAxesColumn, UserRound, Users } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
 
+type HeroChip = {
+  label: string;
+  tone?: "accent" | "muted";
+};
+
+type HeroAction = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  variant?: "primary" | "secondary";
+};
+
 type PageHeroProps = {
-  competition: string;
-  season: string;
+  chips: HeroChip[];
   title: string;
-  coach: string;
+  coaches: string[];
+  actions: HeroAction[];
   backgroundImageUrl?: string;
   backgroundPosition?: string;
+  variant?: "first-team" | "academy";
 };
 
 export function PageHero({
-  competition,
-  season,
+  chips,
   title,
-  coach,
+  coaches,
+  actions,
   backgroundImageUrl,
   backgroundPosition = "center center",
+  variant = "first-team",
 }: PageHeroProps) {
+  const coachLabel = coaches.length > 1 ? "Entrenadores" : "Entrenador";
+  const titleClassName =
+    variant === "academy"
+      ? "text-[3.8rem] leading-[0.92] sm:text-[4.8rem] lg:text-[5.7rem]"
+      : "text-[4rem] leading-[0.9] sm:text-[5rem] lg:text-[6.5rem]";
+  const heightClassName = variant === "academy" ? "lg:min-h-[34rem]" : "lg:min-h-[39rem]";
+
   return (
     <section className="relative isolate overflow-hidden border-b border-[color:var(--rr-border)] bg-[linear-gradient(180deg,#102746_0%,#0a1730_100%)]">
       <div className="absolute inset-0 opacity-95">
@@ -41,36 +63,50 @@ export function PageHero({
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,22,41,0.12)_0%,rgba(7,22,41,0.22)_52%,rgba(7,22,41,0.92)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[34rem] w-full max-w-[1280px] items-end px-5 pb-14 pt-24 md:px-8 md:pb-16 lg:min-h-[39rem] xl:px-16">
+      <div
+        className={`relative mx-auto flex min-h-[32rem] w-full max-w-[1280px] items-end px-5 pb-14 pt-24 md:px-8 md:pb-16 ${heightClassName} xl:px-16`}
+      >
         <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-[38rem]">
             <div className="mb-5 flex flex-wrap gap-2">
-              <span className="rr-chip text-[color:var(--rr-gold)]">{competition}</span>
-              <span className="rr-chip text-[color:var(--rr-muted)]">{season}</span>
+              {chips.map((chip, index) => (
+                <span
+                  key={`${chip.label}-${index}`}
+                  className={`rr-chip ${chip.tone === "accent" ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]"}`}
+                >
+                  {chip.label}
+                </span>
+              ))}
             </div>
-            <h1 className="rr-display text-[4rem] leading-[0.9] text-white sm:text-[5rem] lg:text-[6.5rem]">
-              {title}
-            </h1>
+            <h1 className={`rr-display text-white ${titleClassName}`}>{title}</h1>
             <div className="mt-4 flex items-center gap-3 text-[1.35rem] text-[color:var(--rr-text)]/94">
               <UserRound className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
               <span>
-                Entrenador: <span className="text-[color:var(--rr-muted)]">{coach}</span>
+                {coachLabel}: <span className="text-[color:var(--rr-muted)]">{coaches.join(", ")}</span>
               </span>
             </div>
           </div>
 
-          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
-            <CTAButton href="/primer-equipo/plantilla">
-              <Users className="h-4 w-4" strokeWidth={1.9} />
-              Ver plantilla
-            </CTAButton>
-            <CTAButton href="/primer-equipo/calendario" variant="secondary">
-              <CalendarDays className="h-4 w-4" strokeWidth={1.9} />
-              Calendario
-            </CTAButton>
+          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:flex-wrap lg:justify-end">
+            {actions.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <CTAButton key={action.href} href={action.href} variant={action.variant ?? "primary"}>
+                  <Icon className="h-4 w-4" strokeWidth={1.9} />
+                  {action.label}
+                </CTAButton>
+              );
+            })}
           </div>
         </div>
       </div>
     </section>
   );
 }
+
+export const PageHeroIcons = {
+  squad: Users,
+  calendar: CalendarDays,
+  standing: ChartNoAxesColumn,
+};

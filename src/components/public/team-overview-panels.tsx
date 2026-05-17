@@ -1,13 +1,15 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { CalendarDays, ChartNoAxesColumn, Clock3, MapPin, Shield } from "lucide-react";
+import { CalendarDays, ChartNoAxesColumn, Clock3, MapPin, Shield, Users } from "lucide-react";
+import { CTAButton } from "@/components/public/cta-button";
 import { SectionLabel } from "@/components/public/section-label";
+import type {
+  MatchResult,
+  SquadHighlight,
+  TeamQuickInfoItem,
+  TeamStub,
+} from "@/lib/public/team-page-content";
 import { cn } from "@/lib/utils";
-
-type TeamStub = {
-  name: string;
-  highlight?: boolean;
-};
 
 type MatchPreview = {
   home: TeamStub;
@@ -15,21 +17,40 @@ type MatchPreview = {
   competition: string;
   dateLabel: string;
   venue: string;
+  status?: string;
 };
 
 type MatchPreviewPanelProps = {
   match: MatchPreview;
+  compact?: boolean;
 };
 
-export function MatchPreviewPanel({ match }: MatchPreviewPanelProps) {
+export function MatchPreviewPanel({ match, compact = false }: MatchPreviewPanelProps) {
   return (
     <section className="rr-panel relative overflow-hidden p-6 md:p-8">
       <div className="absolute inset-y-0 right-0 hidden w-52 bg-[linear-gradient(270deg,rgba(5,12,22,0.26),transparent)] lg:block" />
-      <SectionLabel icon={CalendarDays}>Proximo Partido</SectionLabel>
-      <div className="mt-7 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex items-start justify-between gap-4">
+        <SectionLabel icon={CalendarDays}>Proximo Partido</SectionLabel>
+        {match.status ? (
+          <span className="rr-kicker border border-white/12 bg-[rgba(255,255,255,0.04)] px-3 py-2 text-[0.82rem] text-[color:var(--rr-muted)]">
+            {match.status}
+          </span>
+        ) : null}
+      </div>
+      <div
+        className={cn(
+          "mt-7 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between",
+          compact && "mt-6 gap-6",
+        )}
+      >
         <div className="flex items-center justify-center gap-6 sm:gap-10 lg:flex-1 lg:justify-start">
           <MatchTeamBadge team={match.home} />
-          <div className="rr-display text-[3.3rem] leading-none text-[color:var(--rr-muted)] sm:text-[4rem]">
+          <div
+            className={cn(
+              "rr-display leading-none text-[color:var(--rr-muted)]",
+              compact ? "text-[2.8rem] sm:text-[3.5rem]" : "text-[3.3rem] sm:text-[4rem]",
+            )}
+          >
             VS
           </div>
           <MatchTeamBadge team={match.away} />
@@ -72,22 +93,33 @@ function MatchTeamBadge({ team }: { team: TeamStub }) {
   );
 }
 
-type ResultItem = {
-  opponent: string;
-  score: string;
-  result: "V" | "E" | "D";
-};
-
 type RecentResultsStripProps = {
-  results: ResultItem[];
+  results: MatchResult[];
+  title?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
 };
 
-export function RecentResultsStrip({ results }: RecentResultsStripProps) {
+export function RecentResultsStrip({
+  results,
+  title = "Ultimos Resultados",
+  ctaHref,
+  ctaLabel,
+}: RecentResultsStripProps) {
   return (
     <section className="rr-panel-dark p-5 md:p-6">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="rr-kicker text-[0.96rem] text-[color:var(--rr-muted)]">Ultimos Resultados</h2>
-        <div className="rr-bolt-divider w-20" />
+        <h2 className="rr-kicker text-[0.96rem] text-[color:var(--rr-muted)]">{title}</h2>
+        {ctaHref && ctaLabel ? (
+          <Link
+            href={ctaHref}
+            className="rr-kicker text-[0.86rem] text-[color:var(--rr-gold)] transition hover:text-[#ffd46f]"
+          >
+            {ctaLabel}
+          </Link>
+        ) : (
+          <div className="rr-bolt-divider w-20" />
+        )}
       </div>
       <div className="mt-5 grid gap-3 md:grid-cols-3">
         {results.map((result) => {
@@ -103,7 +135,12 @@ export function RecentResultsStrip({ results }: RecentResultsStripProps) {
               key={`${result.opponent}-${result.score}`}
               className="flex items-center justify-between gap-3 border-l-2 border-[color:var(--rr-gold)] bg-[rgba(255,255,255,0.03)] px-4 py-4"
             >
-              <span className="text-[1.12rem] text-white/94">{result.opponent}</span>
+              <div className="min-w-0">
+                {result.label ? (
+                  <div className="rr-kicker mb-1 text-[0.72rem] text-[color:var(--rr-muted)]">{result.label}</div>
+                ) : null}
+                <span className="block truncate text-[1.12rem] text-white/94">{result.opponent}</span>
+              </div>
               <span className="rr-display text-[2rem] leading-none text-white">{result.score}</span>
               <span className={cn("rr-kicker inline-flex border px-2 py-1 text-[0.86rem]", accent)}>
                 {result.result}
@@ -122,6 +159,8 @@ type StandingSummaryPanelProps = {
   points: number;
   played: number;
   won: number;
+  href: string;
+  ctaLabel?: string;
 };
 
 export function StandingSummaryPanel({
@@ -129,6 +168,8 @@ export function StandingSummaryPanel({
   points,
   played,
   won,
+  href,
+  ctaLabel = "Ver clasificacion",
 }: StandingSummaryPanelProps) {
   return (
     <section className="rr-panel border-[color:var(--rr-border-strong)] p-6 md:p-8">
@@ -146,10 +187,10 @@ export function StandingSummaryPanel({
           <StandingStat label="PG" value={won} />
         </div>
         <Link
-          href="/primer-equipo/clasificacion"
+          href={href}
           className="rr-kicker mt-5 inline-flex text-[0.88rem] text-[color:var(--rr-gold)] transition hover:text-[#ffd46f]"
         >
-          Ver clasificacion
+          {ctaLabel}
         </Link>
       </div>
     </section>
@@ -201,18 +242,110 @@ export function TopScorerPanel({ name, goals }: TopScorerPanelProps) {
 
 type TeamNewsPreviewProps = {
   children: ReactNode;
+  title?: string;
 };
 
-export function TeamNewsPreview({ children }: TeamNewsPreviewProps) {
+export function TeamNewsPreview({
+  children,
+  title = "Actualidad del Primer Equipo",
+}: TeamNewsPreviewProps) {
   return (
     <section className="rr-panel-dark p-5 md:p-6">
       <div className="flex items-center gap-3">
         <ChartNoAxesColumn className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
-        <h2 className="rr-kicker text-[0.96rem] text-[color:var(--rr-muted)]">
-          Actualidad del Primer Equipo
-        </h2>
+        <h2 className="rr-kicker text-[0.96rem] text-[color:var(--rr-muted)]">{title}</h2>
       </div>
       <div className="mt-5 grid gap-4 md:grid-cols-2">{children}</div>
+    </section>
+  );
+}
+
+type SquadPreviewPanelProps = {
+  totalPlayers: number;
+  goalkeepers?: number;
+  highlights: SquadHighlight[];
+  href: string;
+};
+
+export function SquadPreviewPanel({
+  totalPlayers,
+  goalkeepers,
+  highlights,
+  href,
+}: SquadPreviewPanelProps) {
+  return (
+    <section className="rr-panel-dark p-5 md:p-6">
+      <div className="flex items-center justify-between gap-4">
+        <SectionLabel icon={Users}>Plantilla</SectionLabel>
+        <Link
+          href={href}
+          className="rr-kicker hidden text-[0.86rem] text-[color:var(--rr-gold)] transition hover:text-[#ffd46f] sm:inline-flex"
+        >
+          Ver plantilla
+        </Link>
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="border border-white/10 bg-[rgba(255,255,255,0.03)] p-4">
+            <p className="rr-kicker text-[0.82rem] text-[color:var(--rr-muted)]">Jugadores</p>
+            <p className="rr-display mt-3 text-[3rem] leading-none text-white">{totalPlayers}</p>
+          </div>
+          <div className="border border-white/10 bg-[rgba(255,255,255,0.03)] p-4">
+            <p className="rr-kicker text-[0.82rem] text-[color:var(--rr-muted)]">Porteros</p>
+            <p className="rr-display mt-3 text-[3rem] leading-none text-white">{goalkeepers ?? "-"}</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {highlights.map((player) => (
+            <article
+              key={`${player.name}-${player.number}`}
+              className="flex items-center gap-3 border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-3"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.08)]">
+                <span className="rr-display text-[1.4rem] leading-none text-[color:var(--rr-gold)]">
+                  {player.number}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="rr-display truncate text-[1.8rem] leading-none text-white">{player.name}</p>
+                <p className="rr-kicker mt-1 text-[0.82rem] text-[color:var(--rr-muted)]">{player.position}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 sm:hidden">
+        <CTAButton href={href} className="w-full">
+          <Users className="h-4 w-4" strokeWidth={1.9} />
+          Ver plantilla
+        </CTAButton>
+      </div>
+    </section>
+  );
+}
+
+type TeamInfoPanelProps = {
+  items: TeamQuickInfoItem[];
+};
+
+export function TeamInfoPanel({ items }: TeamInfoPanelProps) {
+  return (
+    <section className="rr-panel-dark p-5 md:p-6">
+      <SectionLabel>Informacion Rapida</SectionLabel>
+      <div className="mt-5 space-y-3">
+        {items.map((item) => (
+          <div
+            key={`${item.label}-${item.value}`}
+            className="border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-3"
+          >
+            <p className="rr-kicker text-[0.78rem] text-[color:var(--rr-muted)]">{item.label}</p>
+            <p className="mt-2 text-[1.1rem] text-white">{item.value}</p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

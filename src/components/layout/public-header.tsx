@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/", label: "Home", key: "home" },
   { href: "/primer-equipo", label: "Primer Equipo", key: "primer-equipo" },
-  { href: "/#equipos", label: "Equipos", key: "equipos" },
+  { href: "/equipos", label: "Equipos", key: "equipos" },
   { href: "/#noticias", label: "Noticias", key: "noticias" },
 ] as const;
 
