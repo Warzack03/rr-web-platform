@@ -1,28 +1,46 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { TeamRoutePlaceholder } from "@/components/public/team-route-placeholder";
-import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
+import { PublicSiteLayout } from "@/components/layout/public-site-layout";
+import { TeamStandingsPage } from "@/components/public/team-standings-page";
+import { getAcademyTeamStandingsContent } from "@/lib/public/team-standings-content";
 
-type TeamPlaceholderPageProps = {
+type TeamStandingsPageProps = {
   params: Promise<{
     teamSlug: string;
   }>;
 };
 
-export default async function TeamStandingPlaceholderPage({
+export async function generateMetadata({
   params,
-}: TeamPlaceholderPageProps) {
+}: TeamStandingsPageProps): Promise<Metadata> {
   const { teamSlug } = await params;
-  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
+  const content = await getAcademyTeamStandingsContent(teamSlug);
 
-  if (!teamSummary) {
+  if (!content) {
+    return {
+      title: "Clasificacion no encontrada",
+    };
+  }
+
+  return {
+    title: `Clasificacion | ${content.teamName}`,
+    description: `Clasificacion publica de ${content.teamName} en Rising Raimon.`,
+  };
+}
+
+export default async function TeamStandingPage({
+  params,
+}: TeamStandingsPageProps) {
+  const { teamSlug } = await params;
+  const content = await getAcademyTeamStandingsContent(teamSlug);
+
+  if (!content) {
     notFound();
   }
 
   return (
-    <TeamRoutePlaceholder
-      eyebrow={teamSummary.name}
-      title="Clasificacion"
-      description="Placeholder minimo. La clasificacion completa del equipo se desarrollara mas adelante."
-    />
+    <PublicSiteLayout activeNav="equipos">
+      <TeamStandingsPage content={content} />
+    </PublicSiteLayout>
   );
 }

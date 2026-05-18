@@ -1,3 +1,5 @@
+import { getAcademyTeamCalendarContent } from "@/lib/public/team-calendar-content";
+
 export type TeamStub = {
   name: string;
   highlight?: boolean;
@@ -8,6 +10,7 @@ export type MatchResult = {
   score: string;
   result: "V" | "E" | "D";
   label?: string;
+  href?: string;
 };
 
 export type TeamNewsItem = {
@@ -50,6 +53,7 @@ export type PublicTeamPageContent = {
     dateLabel: string;
     venue: string;
     status: string;
+    href?: string;
   };
   recentResults: MatchResult[];
   standing: {
@@ -69,6 +73,7 @@ export type PublicTeamPageContent = {
   topScorer?: {
     name: string;
     goals: number;
+    href?: string;
   };
   squadPreview?: {
     totalPlayers: number;
@@ -98,16 +103,23 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     },
     nextMatch: {
       home: { name: "Rising Raimon", highlight: true },
-      away: { name: "Royal Academy" },
-      competition: "Futbol Frontier - Jornada 12",
-      dateLabel: "Sab, 24 Nov - 18:00 hrs",
+      away: { name: "Inazuma City" },
+      competition: "Liga Profesional - Jornada 3",
+      dateLabel: "22 Sep 2024 - 20:45 CET",
       venue: "Estadio Raimon",
       status: "Pendiente",
+      href: "/primer-equipo/partidos/j3-inazuma-city",
     },
     recentResults: [
-      { opponent: "Zeus FC", score: "2 - 1", result: "V" },
-      { opponent: "Kirkwood", score: "1 - 1", result: "E" },
-      { opponent: "Alpine", score: "3 - 0", result: "V" },
+      {
+        opponent: "Royal Acad",
+        score: "3 - 1",
+        result: "V",
+        label: "J1",
+        href: "/primer-equipo/partidos/j1-royal-acad",
+      },
+      { opponent: "Kirkwood", score: "1 - 1", result: "E", label: "J0" },
+      { opponent: "Alpine", score: "3 - 0", result: "V", label: "Am." },
     ],
     standing: {
       competition: "Primera Division",
@@ -125,7 +137,8 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     },
     topScorer: {
       name: "Axel Blaze",
-      goals: 14,
+      goals: 18,
+      href: "/jugadores/axel-blaze",
     },
     news: [
       {
@@ -489,6 +502,79 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
   },
 };
 
+function getNextAcademyMatchFromCalendar(team: PublicTeamPageContent) {
+  const calendar = getAcademyTeamCalendarContent({
+    slug: team.slug,
+    name: team.name,
+    competition: team.competition,
+    season: team.season,
+  });
+
+  for (const matchday of calendar.matchdays) {
+    const nextMatch = matchday.matches.find(
+      (match) => match.status === "pending" || match.status === "postponed",
+    );
+
+    if (nextMatch) {
+      return {
+        home: {
+          name: nextMatch.homeTeam.name,
+          highlight: nextMatch.homeTeam.isClub,
+        },
+        away: {
+          name: nextMatch.awayTeam.name,
+          highlight: nextMatch.awayTeam.isClub,
+        },
+        competition: `${nextMatch.competition} - ${matchday.title}`,
+        dateLabel: `${nextMatch.dateLabel} - ${nextMatch.kickoffLabel}`,
+        venue: nextMatch.venue,
+        status: "Pendiente",
+        href: nextMatch.detailHref,
+      };
+    }
+  }
+
+  return team.nextMatch;
+}
+
+function getAcademyRecentResultsFromCalendar(team: PublicTeamPageContent) {
+  const calendar = getAcademyTeamCalendarContent({
+    slug: team.slug,
+    name: team.name,
+    competition: team.competition,
+    season: team.season,
+  });
+
+  return calendar.matchdays
+    .flatMap((matchday) =>
+      matchday.matches
+        .filter((match) => match.status === "played")
+        .map((match) => {
+          const clubIsHome = Boolean(match.homeTeam.isClub);
+          const goalsFor = clubIsHome ? match.homeScore : match.awayScore;
+          const goalsAgainst = clubIsHome ? match.awayScore : match.homeScore;
+          const opponent = clubIsHome ? match.awayTeam.name : match.homeTeam.name;
+
+          let result: MatchResult["result"] = "E";
+
+          if ((goalsFor ?? 0) > (goalsAgainst ?? 0)) {
+            result = "V";
+          } else if ((goalsFor ?? 0) < (goalsAgainst ?? 0)) {
+            result = "D";
+          }
+
+          return {
+            opponent,
+            score: `${goalsFor ?? "-"} - ${goalsAgainst ?? "-"}`,
+            result,
+            label: matchday.title.replace("Jornada ", "J"),
+            href: match.detailHref,
+          };
+        }),
+    )
+    .slice(0, 3);
+}
+
 export async function getPublicTeamPageContent(
   teamSlug: string,
 ): Promise<PublicTeamPageContent | null> {
@@ -504,5 +590,9 @@ export async function getPublicAcademyTeamPageContent(
     return null;
   }
 
-  return team;
+  return {
+    ...team,
+    nextMatch: getNextAcademyMatchFromCalendar(team),
+    recentResults: getAcademyRecentResultsFromCalendar(team),
+  };
 }

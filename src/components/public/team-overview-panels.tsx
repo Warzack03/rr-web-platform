@@ -18,6 +18,7 @@ type MatchPreview = {
   dateLabel: string;
   venue: string;
   status?: string;
+  href?: string;
 };
 
 type MatchPreviewPanelProps = {
@@ -26,8 +27,13 @@ type MatchPreviewPanelProps = {
 };
 
 export function MatchPreviewPanel({ match, compact = false }: MatchPreviewPanelProps) {
-  return (
-    <section className="rr-panel relative overflow-hidden p-6 md:p-8">
+  const content = (
+    <section
+      className={cn(
+        "rr-panel relative overflow-hidden p-6 md:p-8",
+        match.href && "transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]",
+      )}
+    >
       <div className="absolute inset-y-0 right-0 hidden w-52 bg-[linear-gradient(270deg,rgba(5,12,22,0.26),transparent)] lg:block" />
       <div className="flex items-start justify-between gap-4">
         <SectionLabel icon={CalendarDays}>Proximo Partido</SectionLabel>
@@ -71,6 +77,16 @@ export function MatchPreviewPanel({ match, compact = false }: MatchPreviewPanelP
         </div>
       </div>
     </section>
+  );
+
+  if (!match.href) {
+    return content;
+  }
+
+  return (
+    <Link href={match.href} className="block">
+      {content}
+    </Link>
   );
 }
 
@@ -131,20 +147,37 @@ export function RecentResultsStrip({
                 : "border-white/18 text-[color:var(--rr-muted)]";
 
           return (
-            <article
-              key={`${result.opponent}-${result.score}`}
-              className="flex items-center justify-between gap-3 border-l-2 border-[color:var(--rr-gold)] bg-[rgba(255,255,255,0.03)] px-4 py-4"
-            >
-              <div className="min-w-0">
-                {result.label ? (
-                  <div className="rr-kicker mb-1 text-[0.72rem] text-[color:var(--rr-muted)]">{result.label}</div>
-                ) : null}
-                <span className="block truncate text-[1.12rem] text-white/94">{result.opponent}</span>
-              </div>
-              <span className="rr-display text-[2rem] leading-none text-white">{result.score}</span>
-              <span className={cn("rr-kicker inline-flex border px-2 py-1 text-[0.86rem]", accent)}>
-                {result.result}
-              </span>
+            <article key={`${result.opponent}-${result.score}`}>
+              {result.href ? (
+                <Link
+                  href={result.href}
+                  className="flex items-center justify-between gap-3 border-l-2 border-[color:var(--rr-gold)] bg-[rgba(255,255,255,0.03)] px-4 py-4 transition hover:-translate-y-0.5 hover:bg-[rgba(255,255,255,0.05)]"
+                >
+                  <div className="min-w-0">
+                    {result.label ? (
+                      <div className="rr-kicker mb-1 text-[0.72rem] text-[color:var(--rr-muted)]">{result.label}</div>
+                    ) : null}
+                    <span className="block truncate text-[1.12rem] text-white/94">{result.opponent}</span>
+                  </div>
+                  <span className="rr-display text-[2rem] leading-none text-white">{result.score}</span>
+                  <span className={cn("rr-kicker inline-flex border px-2 py-1 text-[0.86rem]", accent)}>
+                    {result.result}
+                  </span>
+                </Link>
+              ) : (
+                <div className="flex items-center justify-between gap-3 border-l-2 border-[color:var(--rr-gold)] bg-[rgba(255,255,255,0.03)] px-4 py-4">
+                  <div className="min-w-0">
+                    {result.label ? (
+                      <div className="rr-kicker mb-1 text-[0.72rem] text-[color:var(--rr-muted)]">{result.label}</div>
+                    ) : null}
+                    <span className="block truncate text-[1.12rem] text-white/94">{result.opponent}</span>
+                  </div>
+                  <span className="rr-display text-[2rem] leading-none text-white">{result.score}</span>
+                  <span className={cn("rr-kicker inline-flex border px-2 py-1 text-[0.86rem]", accent)}>
+                    {result.result}
+                  </span>
+                </div>
+              )}
             </article>
           );
         })}
@@ -223,10 +256,11 @@ export function MetricTile({ label, value }: MetricTileProps) {
 type TopScorerPanelProps = {
   name: string;
   goals: number;
+  href?: string;
 };
 
-export function TopScorerPanel({ name, goals }: TopScorerPanelProps) {
-  return (
+export function TopScorerPanel({ name, goals, href }: TopScorerPanelProps) {
+  const content = (
     <section className="rr-panel-dark flex items-center gap-4 p-4">
       <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border border-white/12 bg-[linear-gradient(180deg,#5f656e_0%,#1d2126_100%)]">
         <div className="h-full w-full bg-[radial-gradient(circle_at_50%_26%,rgba(255,255,255,0.18),transparent_18%),linear-gradient(180deg,rgba(255,255,255,0.08),transparent_42%),linear-gradient(180deg,#3f454e_0%,#121519_100%)]" />
@@ -237,6 +271,16 @@ export function TopScorerPanel({ name, goals }: TopScorerPanelProps) {
         <div className="mt-1 text-[1.05rem] text-[color:var(--rr-muted)]">{goals} goles</div>
       </div>
     </section>
+  );
+
+  if (!href) {
+    return content;
+  }
+
+  return (
+    <Link href={href} className="block transition hover:-translate-y-0.5">
+      {content}
+    </Link>
   );
 }
 
