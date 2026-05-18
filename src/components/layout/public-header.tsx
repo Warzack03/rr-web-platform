@@ -17,7 +17,7 @@ export function PublicHeader({ activeKey }: PublicHeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-[color:var(--rr-border)] bg-[rgba(7,22,41,0.9)] backdrop-blur-md">
       <div className="mx-auto flex h-[72px] w-full max-w-[1280px] items-center justify-between gap-4 px-5 md:px-8 xl:px-16">
-        <Link href="/primer-equipo" className="flex shrink-0 items-center gap-3">
+        <Link href="/" className="flex shrink-0 items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.08)] text-[color:var(--rr-gold)]">
             <Shield className="h-4 w-4" strokeWidth={1.8} />
           </span>

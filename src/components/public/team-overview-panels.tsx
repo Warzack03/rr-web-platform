@@ -19,6 +19,9 @@ type MatchPreview = {
   venue: string;
   status?: string;
   href?: string;
+  actionLabel?: string;
+  actionHref?: string;
+  actionExternal?: boolean;
 };
 
 type MatchPreviewPanelProps = {
@@ -27,11 +30,19 @@ type MatchPreviewPanelProps = {
 };
 
 export function MatchPreviewPanel({ match, compact = false }: MatchPreviewPanelProps) {
+  const actionMatchesPanelHref = Boolean(
+    match.href && match.actionHref && match.href === match.actionHref && !match.actionExternal,
+  );
+  const hasStandaloneAction = Boolean(
+    match.actionHref && match.actionLabel && !actionMatchesPanelHref,
+  );
   const content = (
     <section
       className={cn(
         "rr-panel relative overflow-hidden p-6 md:p-8",
-        match.href && "transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]",
+        match.href &&
+          !hasStandaloneAction &&
+          "transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]",
       )}
     >
       <div className="absolute inset-y-0 right-0 hidden w-52 bg-[linear-gradient(270deg,rgba(5,12,22,0.26),transparent)] lg:block" />
@@ -76,10 +87,36 @@ export function MatchPreviewPanel({ match, compact = false }: MatchPreviewPanelP
           </div>
         </div>
       </div>
+
+      {match.actionHref && match.actionLabel ? (
+        <div className="mt-7 flex justify-end border-t border-white/10 pt-5">
+          {actionMatchesPanelHref ? (
+            <span className="rr-kicker inline-flex min-h-11 items-center border border-[color:var(--rr-gold)] px-4 py-3 text-[0.82rem] text-[color:var(--rr-gold)]">
+              {match.actionLabel}
+            </span>
+          ) : match.actionExternal ? (
+            <a
+              href={match.actionHref}
+              target="_blank"
+              rel="noreferrer"
+              className="rr-kicker inline-flex min-h-11 items-center border border-[color:var(--rr-gold)] px-4 py-3 text-[0.82rem] text-[color:var(--rr-gold)] transition hover:bg-[rgba(253,203,88,0.08)]"
+            >
+              {match.actionLabel}
+            </a>
+          ) : (
+            <Link
+              href={match.actionHref}
+              className="rr-kicker inline-flex min-h-11 items-center border border-[color:var(--rr-gold)] px-4 py-3 text-[0.82rem] text-[color:var(--rr-gold)] transition hover:bg-[rgba(253,203,88,0.08)]"
+            >
+              {match.actionLabel}
+            </Link>
+          )}
+        </div>
+      ) : null}
     </section>
   );
 
-  if (!match.href) {
+  if (!match.href || hasStandaloneAction) {
     return content;
   }
 
@@ -114,6 +151,7 @@ type RecentResultsStripProps = {
   title?: string;
   ctaHref?: string;
   ctaLabel?: string;
+  layout?: "default" | "compact";
 };
 
 export function RecentResultsStrip({
@@ -121,6 +159,7 @@ export function RecentResultsStrip({
   title = "Ultimos Resultados",
   ctaHref,
   ctaLabel,
+  layout = "default",
 }: RecentResultsStripProps) {
   return (
     <section className="rr-panel-dark p-5 md:p-6">
@@ -137,7 +176,12 @@ export function RecentResultsStrip({
           <div className="rr-bolt-divider w-20" />
         )}
       </div>
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div
+        className={cn(
+          "mt-5 grid gap-3",
+          layout === "compact" ? "grid-cols-1" : "md:grid-cols-3",
+        )}
+      >
         {results.map((result) => {
           const accent =
             result.result === "V"
