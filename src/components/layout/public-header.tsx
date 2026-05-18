@@ -6,7 +6,7 @@ const navItems = [
   { href: "/", label: "Home", key: "home" },
   { href: "/primer-equipo", label: "Primer Equipo", key: "primer-equipo" },
   { href: "/equipos", label: "Equipos", key: "equipos" },
-  { href: "/#noticias", label: "Noticias", key: "noticias" },
+  { href: "/noticias", label: "Noticias", key: "noticias" },
 ] as const;
 
 type PublicHeaderProps = {

@@ -1,14 +1,94 @@
 import Link from "next/link";
+import { ArrowRight, CalendarDays } from "lucide-react";
+import { NewsArtwork } from "@/components/public/news-artwork";
 import { cn } from "@/lib/utils";
+import type { PublicNewsImageTone } from "@/lib/public/news-content";
 
-type NewsCardProps = {
+type LegacyNewsCardProps = {
   href: string;
   category: string;
   title: string;
   tone: "ball" | "tactics";
+  variant?: "preview";
 };
 
-export function NewsCard({ href, category, title, tone }: NewsCardProps) {
+type ArticleNewsCardProps = {
+  href: string;
+  category: string;
+  title: string;
+  excerpt: string;
+  dateLabel: string;
+  imageTone: PublicNewsImageTone;
+  relatedTeam?: string;
+  ctaLabel?: string;
+  className?: string;
+  variant: "article";
+};
+
+type NewsCardProps = LegacyNewsCardProps | ArticleNewsCardProps;
+
+function ArticleNewsCard({
+  href,
+  category,
+  title,
+  excerpt,
+  dateLabel,
+  imageTone,
+  relatedTeam,
+  ctaLabel = "Leer articulo",
+  className,
+}: ArticleNewsCardProps) {
+  return (
+    <article
+      className={cn(
+        "group overflow-hidden border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(31,46,70,0.96),rgba(16,27,45,0.98))] shadow-[var(--rr-shadow)] transition duration-300 hover:-translate-y-1 hover:border-[color:var(--rr-border-strong)]",
+        className,
+      )}
+    >
+      <Link href={href} className="block">
+        <NewsArtwork
+          imageTone={imageTone}
+          className="aspect-[16/10] border-b border-[color:var(--rr-border)]"
+        />
+        <div className="space-y-4 p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.86rem] uppercase tracking-[0.16em] text-[color:var(--rr-muted)]/84">
+            <span className="rr-kicker inline-flex bg-[rgba(7,22,41,0.88)] px-2.5 py-1 text-[0.78rem] text-[color:var(--rr-gold)]">
+              {category}
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <CalendarDays className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+              {dateLabel}
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="rr-display text-[2.15rem] leading-[0.92] text-white sm:text-[2.35rem]">
+              {title}
+            </h3>
+            <p className="text-[1.02rem] leading-6 text-[color:var(--rr-muted)]">{excerpt}</p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {relatedTeam ? (
+              <span className="rr-chip border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] text-[color:var(--rr-muted)]">
+                {relatedTeam}
+              </span>
+            ) : (
+              <span />
+            )}
+
+            <span className="rr-kicker inline-flex items-center gap-2 text-[color:var(--rr-gold)] transition group-hover:translate-x-1">
+              {ctaLabel}
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+            </span>
+          </div>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+function PreviewNewsCard({ href, category, title, tone }: LegacyNewsCardProps) {
   return (
     <Link
       href={href}
@@ -49,4 +129,12 @@ export function NewsCard({ href, category, title, tone }: NewsCardProps) {
       </div>
     </Link>
   );
+}
+
+export function NewsCard(props: NewsCardProps) {
+  if (props.variant === "article") {
+    return <ArticleNewsCard {...props} />;
+  }
+
+  return <PreviewNewsCard {...props} />;
 }

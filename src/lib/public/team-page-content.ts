@@ -143,13 +143,13 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     },
     news: [
       {
-        href: "/#noticias",
+        href: "/noticias/preparacion-intensa-para-el-derbi",
         category: "Entrenamiento",
         title: "Preparacion intensa para el derbi",
         tone: "ball",
       },
       {
-        href: "/#noticias",
+        href: "/noticias/tactical-masterclass-asegura-el-pase-a-semifinales",
         category: "Tactica",
         title: "Analisis del rival: puntos clave",
         tone: "tactics",
@@ -222,13 +222,13 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     ],
     news: [
       {
-        href: "/#noticias",
+        href: "/noticias/celia-hills-la-identidad-del-club-tambien-se-entrena",
         category: "Cantera",
         title: "Raimon B sigue creciendo en casa",
         tone: "ball",
       },
       {
-        href: "/#noticias",
+        href: "/noticias/jude-sharp-el-grupo-ha-ganado-madurez",
         category: "Partido",
         title: "Claves del proximo duelo en el anexo",
         tone: "tactics",
@@ -301,7 +301,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     ],
     news: [
       {
-        href: "/#noticias",
+        href: "/noticias/juvenil-a-acelera-su-crecimiento",
         category: "Academia",
         title: "El Juvenil A prepara el derbi con intensidad maxima",
         tone: "ball",
