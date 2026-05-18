@@ -82,7 +82,7 @@ const TEAMS_DIRECTORY_CONTENT: TeamsDirectoryContent = {
         competition: "Entorno competitivo senior",
         description:
           "El paso previo al profesionalismo para acelerar el crecimiento de nuestras mejores promesas.",
-        ctaLabel: "Ver plantilla",
+        ctaLabel: "Ver equipo",
         featured: true,
         accent: "blue",
       },
@@ -93,7 +93,7 @@ const TEAMS_DIRECTORY_CONTENT: TeamsDirectoryContent = {
         competition: "Division de Honor",
         description:
           "Maximo nivel juvenil para consolidar automatismos, ritmo de partido y competitividad.",
-        ctaLabel: "Ver plantilla",
+        ctaLabel: "Ver equipo",
         accent: "slate",
       },
       {
@@ -103,7 +103,7 @@ const TEAMS_DIRECTORY_CONTENT: TeamsDirectoryContent = {
         competition: "Liga Nacional Juvenil",
         description:
           "Grupo orientado a sostener volumen de juego, intensidad tactica y progresion sostenida.",
-        ctaLabel: "Ver plantilla",
+        ctaLabel: "Ver equipo",
         accent: "slate",
       },
       {
@@ -112,7 +112,7 @@ const TEAMS_DIRECTORY_CONTENT: TeamsDirectoryContent = {
         name: "Cadete A",
         competition: "Division Autonomica",
         description: "Base competitiva para crecer con orden, lectura de juego y personalidad.",
-        ctaLabel: "Explorar equipo",
+        ctaLabel: "Ver equipo",
         accent: "slate",
       },
       {
@@ -122,7 +122,7 @@ const TEAMS_DIRECTORY_CONTENT: TeamsDirectoryContent = {
         competition: "Division Autonomica",
         description:
           "Primeras grandes exigencias del modelo formativo, con foco en tecnica y toma de decision.",
-        ctaLabel: "Explorar equipo",
+        ctaLabel: "Ver equipo",
         accent: "slate",
       },
     ],
