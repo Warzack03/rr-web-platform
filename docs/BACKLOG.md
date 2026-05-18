@@ -111,3 +111,18 @@
 - MySQL env vars.
 - Beta domain.
 - Backup checklist.
+
+---
+
+## Public website consolidation status
+
+The public website specification is now considered defined. Public implementation can proceed page-by-page using `docs/PUBLIC_APP_SPEC.md` as source of truth. Remaining public work is mainly:
+
+- connect real DB/services;
+- replace mocks with data queries;
+- add SEO metadata;
+- harden loading/error/empty states;
+- final real copy/images/assets;
+- responsive QA.
+
+Next recommended phase: backoffice mocks and role UX.

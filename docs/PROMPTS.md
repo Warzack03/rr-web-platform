@@ -271,3 +271,75 @@ Preserva campos web-owned, stats historicas y asignaciones manuales excepcionale
 Guarda ImportBatch e ImportBatchItem.
 Ejecuta lint/build/prisma validate.
 ```
+
+---
+
+# Backoffice next phase - mocks and role UX
+
+Use this when the public website is visually consolidated and the next task is to work on admin/backoffice with mocks.
+
+```text
+Necesito iniciar la fase de backoffice con datos mock realistas.
+
+La parte publica ya esta definida a nivel de pantallas/rutas y no debe rehacerse en esta tarea. Mantener header/footer publico, rutas publicas y componentes publicos salvo que haya que corregir imports.
+
+Objetivo de esta fase:
+- Mejorar el backoffice con datos mock suficientes.
+- Definir experiencia clara por rol: superadmin, manager y entrenador.
+- Hacer que el admin se parezca visualmente al lenguaje publico, pero manteniendo sidebar izquierda en desktop.
+- Cuidar especialmente la vista mobile del entrenador.
+
+Mantener:
+- Prisma, migraciones, auth y modelo de datos.
+- Parte publica ya validada.
+- Tokens visuales y lenguaje UI actual.
+- Sidebar izquierda en desktop.
+
+No hacer:
+- No tocar Prisma/migraciones.
+- No rehacer la parte publica.
+- No conectar datos reales.
+- No implementar ecommerce.
+- No usar datos reales ni sensibles.
+
+Mocks necesarios:
+- usuarios: superadmin, manager, entrenador asignado a equipo.
+- temporada activa.
+- Primer Equipo y 3-4 equipos de cantera.
+- jugadores, porteros, entrenadores visibles.
+- partidos jugados, pendientes y en vivo solo First Team.
+- clasificaciones.
+- estadisticas.
+- noticias publicadas/borrador.
+- media placeholders.
+- importaciones mock solo superadmin.
+
+Pantallas admin a cubrir con mocks:
+- /admin dashboard por rol.
+- /admin/equipos.
+- /admin/jugadores.
+- /admin/partidos.
+- /admin/clasificaciones.
+- /admin/estadisticas.
+- /admin/noticias.
+- /admin/media.
+- /admin/importaciones solo superadmin.
+- /admin/usuarios solo superadmin.
+
+Rol entrenador:
+- Debe ver solo equipos asignados.
+- Mobile especialmente cuidado.
+- Accesos rapidos: proximo partido, resultado, clasificacion, goles/asistencias/estadisticas.
+- No mostrar usuarios, importaciones, media, noticias ni creacion de equipos.
+
+Responsive:
+- Desktop: sidebar izquierda.
+- Mobile: sidebar en drawer/menu usable.
+- Tablas pasan a cards o scroll controlado.
+- Sin overflow horizontal.
+
+Al final ejecutar:
+- npm run lint
+- npm run build
+- npx prisma validate
+```

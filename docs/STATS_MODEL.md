@@ -1,98 +1,90 @@
 # STATS_MODEL.md
 
-## Principios
+## General principles
 
-- Las estadisticas pertenecen al contexto donde se crearon: jugador + equipo + temporada + partido cuando sea posible.
-- Si un jugador cambia de equipo, no se mueven estadisticas historicas.
-- Los agregados de temporada deben calcularse desde datos base cuando sea razonable.
-- Las metricas derivadas se calculan en codigo, no se almacenan salvo que haya razon clara.
+- Statistics stay attached to the player + team + season + match where they were created.
+- If a player changes team, historical stats do not move.
+- Goal participation = goals + assists.
+- Do not allow negative stats.
+- Derived metrics must avoid division by zero.
 
-## Primer Equipo - jugadores de campo
+## First Team field player stats
 
-Campos base:
+- Matches played.
+- Goals.
+- Assists.
+- Yellow cards.
+- Red cards.
+- Recoveries.
+- Shots.
+- Shots on target.
+- Own goals.
+- MVP's.
 
-- matchesPlayed.
-- goals.
-- assists.
-- recoveries.
-- shots.
-- shotsOnTarget.
-- yellowCards.
-- redCards.
-- ownGoals.
+Derived examples:
 
-Metricas derivadas:
+- Goal participations.
+- Goals per match.
+- Assists per match.
+- Goal participations per match.
+- Shots per match.
+- Shot accuracy = shots on target / shots.
 
-- goalParticipations = goals + assists.
-- goalsPerMatch.
-- assistsPerMatch.
-- goalParticipationsPerMatch.
-- shotsPerMatch.
-- shotsOnTargetPerMatch.
-- shotsOnTargetRate.
+## First Team goalkeeper stats
 
-## Primer Equipo - porteros
+- Matches played.
+- Goals.
+- Assists.
+- Yellow cards.
+- Red cards.
+- Clean sheets / imbatidos.
+- Saves.
+- Own goals.
+- MVP's.
 
-Campos base:
+Derived examples:
 
-- matchesPlayed.
-- goals.
-- assists.
-- saves.
-- goalsAgainst.
-- cleanSheets.
-- yellowCards.
-- redCards.
-- shotsOnTargetAgainst.
+- Goal participations.
+- Saves per match.
+- Clean sheet rate.
+- Goal participations per match.
 
-Metricas derivadas:
+## Academy/rest field player stats
 
-- goalParticipations = goals + assists.
-- goalsAgainstPerMatch.
-- savesPerMatch.
-- cleanSheetRate.
+- Matches played.
+- Goals.
+- Assists.
+- Yellow cards.
+- Red cards.
+- Own goals.
+- MVP's.
 
-## Resto de equipos - jugadores de campo
+Derived examples:
 
-Campos base:
+- Goal participations.
+- Goals per match.
+- Assists per match.
+- Goal participations per match.
 
-- matchesPlayed.
-- goals.
-- assists.
+## Academy/rest goalkeeper stats
 
-Metricas derivadas:
+- Matches played.
+- Goals.
+- Assists.
+- Yellow cards.
+- Red cards.
+- Clean sheets / imbatidos.
+- Own goals.
+- MVP's.
 
-- goalParticipations = goals + assists.
-- goalsPerMatch.
-- assistsPerMatch.
-- goalParticipationsPerMatch.
+Derived examples:
 
-## Resto de equipos - porteros
+- Goal participations.
+- Clean sheet rate.
+- Goal participations per match.
 
-Campos base:
+## Public rendering rules
 
-- matchesPlayed.
-- goals.
-- assists.
-- goalsAgainst.
-- cleanSheets.
-
-Metricas derivadas:
-
-- goalParticipations = goals + assists.
-- goalsAgainstPerMatch.
-- cleanSheetRate.
-
-## Permisos de entrenador sobre estadisticas
-
-El entrenador solo puede editar estadisticas de sus equipos asignados.
-
-En MVP, como minimo puede actualizar:
-
-- goles.
-- asistencias.
-- resultado de partidos.
-- proximo partido.
-- clasificacion.
-
-Si se implementan campos avanzados del Primer Equipo, restringirlos a usuarios con permiso sobre el Primer Equipo.
+- First Team player detail can show advanced stats.
+- Academy player detail must not show recoveries, shots, shots on target or saves.
+- Do not render radar/tactical charts without real data. Use the space for stats/metrics instead.
