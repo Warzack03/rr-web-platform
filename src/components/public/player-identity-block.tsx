@@ -1,26 +1,43 @@
-import type { FirstTeamSquadPlayer } from "@/lib/public/first-team-squad-content";
+import type { PublicPlayerProfile } from "@/lib/public/player-profile-content";
 
 type PlayerIdentityBlockProps = {
-  player: FirstTeamSquadPlayer;
+  player: PublicPlayerProfile;
 };
 
 export function PlayerIdentityBlock({ player }: PlayerIdentityBlockProps) {
+  const isAcademy = player.teamType === "academy";
+  const showCountry = Boolean(player.country && player.countryFlag);
+
   return (
     <div className="relative z-10 flex max-w-[30rem] flex-col gap-6">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-        <span className="rr-display inline-flex min-w-[3.25rem] items-center justify-center border border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.08)] px-3 py-2 text-[2rem] leading-none text-[color:var(--rr-gold)]">
+        <span
+          className={
+            isAcademy
+              ? "rr-display inline-flex min-w-[3rem] items-center justify-center border border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.06)] px-3 py-2 text-[1.8rem] leading-none text-[color:var(--rr-gold)]"
+              : "rr-display inline-flex min-w-[3.25rem] items-center justify-center border border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.08)] px-3 py-2 text-[2rem] leading-none text-[color:var(--rr-gold)]"
+          }
+        >
           {player.number}
         </span>
         <span className="hidden h-8 w-px bg-white/16 sm:block" />
         <span className="rr-kicker text-[0.98rem] text-white">{player.position}</span>
-        <span className="hidden h-5 w-px bg-white/12 sm:block" />
-        <span className="rr-kicker text-[0.98rem] text-[color:var(--rr-muted)]">
-          {player.countryFlag} {player.country}
-        </span>
+        {showCountry ? <span className="hidden h-5 w-px bg-white/12 sm:block" /> : null}
+        {showCountry ? (
+          <span className="rr-kicker text-[0.98rem] text-[color:var(--rr-muted)]">
+            {player.countryFlag} {player.country}
+          </span>
+        ) : null}
       </div>
 
       <div>
-        <h1 className="rr-display text-[4.2rem] leading-[0.88] text-white sm:text-[5.5rem] xl:text-[6.3rem]">
+        <h1
+          className={
+            isAcademy
+              ? "rr-display text-[3.5rem] leading-[0.9] text-white sm:text-[4.5rem] xl:text-[5.3rem]"
+              : "rr-display text-[4.2rem] leading-[0.88] text-white sm:text-[5.5rem] xl:text-[6.3rem]"
+          }
+        >
           <span className="block">{player.firstName}</span>
           <span className="block text-[color:var(--rr-gold)]">{player.lastName}</span>
         </h1>

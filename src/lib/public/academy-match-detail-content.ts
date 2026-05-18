@@ -8,6 +8,7 @@ import {
   getKnownAcademyTeamCalendarSlugs,
   type CalendarMatch,
 } from "@/lib/public/team-calendar-content";
+import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 
 type AcademyMatchSeed = {
@@ -31,6 +32,7 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 1,
           name: "Alex Zabel",
           position: "Portero",
+          href: getAcademyPlayerHref("raimon-b", "alex-zabel"),
           cleanSheet: true,
         },
         {
@@ -38,6 +40,7 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 4,
           name: "Erik Eagle",
           position: "Defensa",
+          href: getAcademyPlayerHref("raimon-b", "erik-eagle"),
           goals: 1,
         },
         {
@@ -45,6 +48,7 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 8,
           name: "Sam Kincaid",
           position: "Centrocampista",
+          href: getAcademyPlayerHref("raimon-b", "sam-kincaid"),
           assists: 1,
           yellowCards: 1,
         },
@@ -53,6 +57,7 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 7,
           name: "Nathan Swift",
           position: "Extremo",
+          href: getAcademyPlayerHref("raimon-b", "nathan-swift"),
           goals: 1,
           assists: 1,
           mvp: true,
@@ -62,12 +67,14 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 9,
           name: "Austin Hobbes",
           position: "Delantero",
+          href: getAcademyPlayerHref("raimon-b", "austin-hobbes"),
         },
         {
           id: "raimon-b-j1-jack-wallside",
           shirtNumber: 3,
           name: "Jack Wallside",
           position: "Defensa",
+          href: getAcademyPlayerHref("raimon-b", "jack-wallside"),
         },
       ],
     },
@@ -94,12 +101,14 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 1,
           name: "Matt Carter",
           position: "Portero",
+          href: getAcademyPlayerHref("juvenil-a", "matt-carter"),
         },
         {
           id: "juvenil-a-j1-jack-wallside",
           shirtNumber: 2,
           name: "Jack Wallside",
           position: "Lateral",
+          href: getAcademyPlayerHref("juvenil-a", "jack-wallside"),
           assists: 1,
         },
         {
@@ -107,6 +116,7 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 4,
           name: "Erik Eagle",
           position: "Defensa",
+          href: getAcademyPlayerHref("juvenil-a", "erik-eagle"),
           yellowCards: 1,
         },
         {
@@ -114,6 +124,7 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 10,
           name: "Tod Ironside",
           position: "Mediapunta",
+          href: getAcademyPlayerHref("juvenil-a", "tod-ironside"),
           goals: 1,
           assists: 1,
         },
@@ -122,6 +133,7 @@ const ACADEMY_MATCH_DETAIL_SEEDS: Record<string, Record<string, AcademyMatchSeed
           shirtNumber: 9,
           name: "Scott Banyan",
           position: "Delantero",
+          href: getAcademyPlayerHref("juvenil-a", "scott-banyan"),
           goals: 2,
           mvp: true,
         },

@@ -1,7 +1,8 @@
 import type {
-  FirstTeamPlayerStats,
-  FirstTeamPlayerType,
-} from "@/lib/public/first-team-squad-content";
+  PublicPlayerStats,
+  PublicPlayerStatsLevel,
+  PublicPlayerType,
+} from "@/lib/public/player-profile-content";
 
 export type PlayerStatTone = "default" | "warning" | "danger";
 export type PlayerStatIcon =
@@ -19,6 +20,8 @@ export type PlayerStatIcon =
   | "shots"
   | "shotsOnTarget"
   | "goalContributions"
+  | "goalsPerMatch"
+  | "assistsPerMatch"
   | "goalsAgainstPerMatch"
   | "shotsPerGoalAgainst"
   | "contributionsPerMatch"
@@ -34,10 +37,34 @@ export type PlayerStatItem = {
 };
 
 export function getPlayerBaseStats(
-  playerType: FirstTeamPlayerType,
-  stats: FirstTeamPlayerStats,
+  playerType: PublicPlayerType,
+  stats: PublicPlayerStats,
+  statsLevel: PublicPlayerStatsLevel = "advanced",
 ): PlayerStatItem[] {
   if (playerType === "goalkeeper") {
+    if (statsLevel === "basic") {
+      return [
+        { label: "Partidos jugados", value: formatInteger(stats.matchesPlayed), icon: "matches" },
+        { label: "Goles", value: formatInteger(stats.goals), icon: "goals" },
+        { label: "Asistencias", value: formatInteger(stats.assists), icon: "assists" },
+        {
+          label: "Amarillas",
+          value: formatInteger(stats.yellowCards),
+          tone: "warning",
+          icon: "yellowCard",
+        },
+        {
+          label: "Rojas",
+          value: formatInteger(stats.redCards),
+          tone: "danger",
+          icon: "redCard",
+        },
+        { label: "Imbatidos", value: formatOptionalInteger(stats.cleanSheets), icon: "cleanSheet" },
+        { label: "Goles en propia", value: formatInteger(stats.ownGoals), icon: "ownGoals" },
+        { label: "MVP's", value: formatInteger(stats.mvps), icon: "mvps" },
+      ];
+    }
+
     return [
       { label: "Partidos jugados", value: formatInteger(stats.matchesPlayed), icon: "matches" },
       { label: "Goles", value: formatInteger(stats.goals), icon: "goals" },
@@ -61,6 +88,28 @@ export function getPlayerBaseStats(
       },
       { label: "Imbatidos", value: formatOptionalInteger(stats.cleanSheets), icon: "cleanSheet" },
       { label: "Paradas", value: formatOptionalInteger(stats.saves), icon: "saves" },
+      { label: "Goles en propia", value: formatInteger(stats.ownGoals), icon: "ownGoals" },
+      { label: "MVP's", value: formatInteger(stats.mvps), icon: "mvps" },
+    ];
+  }
+
+  if (statsLevel === "basic") {
+    return [
+      { label: "Partidos jugados", value: formatInteger(stats.matchesPlayed), icon: "matches" },
+      { label: "Goles", value: formatInteger(stats.goals), icon: "goals" },
+      { label: "Asistencias", value: formatInteger(stats.assists), icon: "assists" },
+      {
+        label: "Amarillas",
+        value: formatInteger(stats.yellowCards),
+        tone: "warning",
+        icon: "yellowCard",
+      },
+      {
+        label: "Rojas",
+        value: formatInteger(stats.redCards),
+        tone: "danger",
+        icon: "redCard",
+      },
       { label: "Goles en propia", value: formatInteger(stats.ownGoals), icon: "ownGoals" },
       { label: "MVP's", value: formatInteger(stats.mvps), icon: "mvps" },
     ];
@@ -95,12 +144,38 @@ export function getPlayerBaseStats(
 }
 
 export function getPlayerDerivedMetrics(
-  playerType: FirstTeamPlayerType,
-  stats: FirstTeamPlayerStats,
+  playerType: PublicPlayerType,
+  stats: PublicPlayerStats,
+  statsLevel: PublicPlayerStatsLevel = "advanced",
 ): PlayerStatItem[] {
   const goalContributions = stats.goals + stats.assists;
 
   if (playerType === "goalkeeper") {
+    if (statsLevel === "basic") {
+      const items: PlayerStatItem[] = [
+        {
+          label: "Participaciones de gol",
+          value: formatInteger(goalContributions),
+          icon: "goalContributions",
+        },
+        {
+          label: "Ratio de imbatidos",
+          value: formatPercentage(stats.cleanSheets, stats.matchesPlayed),
+          icon: "cleanSheetRate",
+        },
+      ];
+
+      if (goalContributions > 0) {
+        items.push({
+          label: "Participaciones por partido",
+          value: formatRatio(goalContributions, stats.matchesPlayed),
+          icon: "contributionsPerMatch",
+        });
+      }
+
+      return items;
+    }
+
     return [
       {
         label: "Participaciones de gol",
@@ -124,8 +199,33 @@ export function getPlayerDerivedMetrics(
       },
       {
         label: "Tiros por gol encajado",
-        value: formatRatio(sum(stats.saves, stats.goalsAgainst), stats.goalsAgainst),
+        value: formatRatio(sum(stats.saves, stats.goalsAgainst), stats.goalsAgainst ?? 0),
         icon: "shotsPerGoalAgainst",
+      },
+    ];
+  }
+
+  if (statsLevel === "basic") {
+    return [
+      {
+        label: "Participaciones de gol",
+        value: formatInteger(goalContributions),
+        icon: "goalContributions",
+      },
+      {
+        label: "Goles por partido",
+        value: formatRatio(stats.goals, stats.matchesPlayed),
+        icon: "goalsPerMatch",
+      },
+      {
+        label: "Asistencias por partido",
+        value: formatRatio(stats.assists, stats.matchesPlayed),
+        icon: "assistsPerMatch",
+      },
+      {
+        label: "Participaciones por partido",
+        value: formatRatio(goalContributions, stats.matchesPlayed),
+        icon: "contributionsPerMatch",
       },
     ];
   }
@@ -200,5 +300,11 @@ function sum(...values: Array<number | undefined>): number | undefined {
     return undefined;
   }
 
-  return values.reduce((total, value) => total + (value ?? 0), 0);
+  let total = 0;
+
+  for (const value of values) {
+    total += value as number;
+  }
+
+  return total;
 }

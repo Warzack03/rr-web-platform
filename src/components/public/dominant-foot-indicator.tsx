@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { DominantFoot } from "@/lib/public/first-team-squad-content";
+import type { DominantFoot } from "@/lib/public/player-profile-content";
 
 type DominantFootIndicatorProps = {
   foot: DominantFoot;

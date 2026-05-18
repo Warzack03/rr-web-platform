@@ -1,4 +1,5 @@
 import { getAcademyTeamCalendarContent } from "@/lib/public/team-calendar-content";
+import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
 
 export type TeamStub = {
   name: string;
@@ -200,6 +201,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     topScorer: {
       name: "Nathan Swift",
       goals: 7,
+      href: getAcademyPlayerHref("raimon-b", "nathan-swift"),
     },
     squadPreview: {
       totalPlayers: 19,
@@ -278,6 +280,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     topScorer: {
       name: "Scott Banyan",
       goals: 5,
+      href: getAcademyPlayerHref("juvenil-a", "scott-banyan"),
     },
     squadPreview: {
       totalPlayers: 18,
@@ -350,6 +353,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     topScorer: {
       name: "Austin Hobbes",
       goals: 4,
+      href: getAcademyPlayerHref("juvenil-b", "austin-hobbes"),
     },
     squadPreview: {
       totalPlayers: 18,
@@ -415,6 +419,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     topScorer: {
       name: "Aiden Froste",
       goals: 5,
+      href: getAcademyPlayerHref("cadete-a", "aiden-froste"),
     },
     squadPreview: {
       totalPlayers: 17,
@@ -480,6 +485,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     topScorer: {
       name: "Arion Sherwind",
       goals: 4,
+      href: getAcademyPlayerHref("infantil-a", "arion-sherwind"),
     },
     squadPreview: {
       totalPlayers: 16,

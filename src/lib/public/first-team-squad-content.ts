@@ -1,42 +1,23 @@
-export type DominantFoot = "left" | "right" | "both" | "unknown";
+import type {
+  DominantFoot,
+  PublicPlayerGroup,
+  PublicPlayerProfile,
+  PublicPlayerStats,
+  PublicPlayerType,
+} from "@/lib/public/player-profile-content";
 
-export type FirstTeamPlayerType = "field" | "goalkeeper";
-
-export type FirstTeamPlayerStats = {
-  matchesPlayed: number;
-  goals: number;
-  assists: number;
-  goalsAgainst?: number;
-  yellowCards: number;
-  redCards: number;
-  ownGoals: number;
-  mvps: number;
-  recoveries?: number;
-  shots?: number;
-  shotsOnTarget?: number;
-  cleanSheets?: number;
-  saves?: number;
-};
-
-export type FirstTeamSquadPlayer = {
-  id: string;
-  slug: string;
-  firstName: string;
-  lastName: string;
-  name: string;
-  number: number;
+export type FirstTeamPlayerType = PublicPlayerType;
+export type FirstTeamPlayerStats = PublicPlayerStats;
+export type FirstTeamSquadPlayer = PublicPlayerProfile & {
   country: string;
   countryFlag: string;
-  position: string;
   dominantFoot: DominantFoot;
   imageUrl: string;
-  playerType: FirstTeamPlayerType;
-  group?: "defensas" | "mediocentros" | "delanteros";
+  group?: PublicPlayerGroup;
   teamType: "first-team";
-  teamLabel: string;
-  seasonLabel: string;
+  statsLevel: "advanced";
+  teamSlug: "primer-equipo";
   shopHref: string;
-  stats: FirstTeamPlayerStats;
 };
 
 export type FirstTeamSquadContent = {
@@ -60,6 +41,8 @@ const FIRST_TEAM_PLAYERS: FirstTeamSquadPlayer[] = [
     imageUrl: "/images/mock/first-team/teo-ibarra.svg",
     playerType: "goalkeeper",
     teamType: "first-team",
+    statsLevel: "advanced",
+    teamSlug: "primer-equipo",
     teamLabel: "Primer Equipo",
     seasonLabel: "Temporada 2025/26",
     shopHref: "https://tienda.risingraimon.es",
@@ -91,6 +74,8 @@ const FIRST_TEAM_PLAYERS: FirstTeamSquadPlayer[] = [
     playerType: "field",
     group: "defensas",
     teamType: "first-team",
+    statsLevel: "advanced",
+    teamSlug: "primer-equipo",
     teamLabel: "Primer Equipo",
     seasonLabel: "Temporada 2025/26",
     shopHref: "https://tienda.risingraimon.es",
@@ -122,6 +107,8 @@ const FIRST_TEAM_PLAYERS: FirstTeamSquadPlayer[] = [
     playerType: "field",
     group: "mediocentros",
     teamType: "first-team",
+    statsLevel: "advanced",
+    teamSlug: "primer-equipo",
     teamLabel: "Primer Equipo",
     seasonLabel: "Temporada 2025/26",
     shopHref: "https://tienda.risingraimon.es",
@@ -153,6 +140,8 @@ const FIRST_TEAM_PLAYERS: FirstTeamSquadPlayer[] = [
     playerType: "field",
     group: "delanteros",
     teamType: "first-team",
+    statsLevel: "advanced",
+    teamSlug: "primer-equipo",
     teamLabel: "Primer Equipo",
     seasonLabel: "Temporada 2025/26",
     shopHref: "https://tienda.risingraimon.es",
@@ -184,6 +173,8 @@ const FIRST_TEAM_PLAYERS: FirstTeamSquadPlayer[] = [
     playerType: "field",
     group: "delanteros",
     teamType: "first-team",
+    statsLevel: "advanced",
+    teamSlug: "primer-equipo",
     teamLabel: "Primer Equipo",
     seasonLabel: "Temporada 2025/26",
     shopHref: "https://tienda.risingraimon.es",

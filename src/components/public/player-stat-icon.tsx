@@ -84,6 +84,10 @@ export function PlayerStatIcon({
                     ? Target
                     : icon === "goalContributions"
                       ? Activity
+                      : icon === "goalsPerMatch"
+                        ? Gauge
+                        : icon === "assistsPerMatch"
+                          ? Gauge
                       : icon === "goalsAgainstPerMatch"
                         ? Shield
                         : icon === "shotsPerGoalAgainst"

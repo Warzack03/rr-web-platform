@@ -1,10 +1,19 @@
-import type { FirstTeamSquadPlayer } from "@/lib/public/first-team-squad-content";
+type PlayerShopCTAPlayer = {
+  number: number;
+  name: string;
+  lastName: string;
+  shopHref?: string;
+};
 
 type PlayerShopCTAProps = {
-  player: FirstTeamSquadPlayer;
+  player: PlayerShopCTAPlayer;
 };
 
 export function PlayerShopCTA({ player }: PlayerShopCTAProps) {
+  if (!player.shopHref) {
+    return null;
+  }
+
   return (
     <section className="rr-panel border-[color:var(--rr-border-strong)] px-6 py-8 md:px-8 md:py-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_14rem] xl:items-center">
