@@ -122,8 +122,8 @@ export function PremiumPlayerCard({
             <h3
               className={
                 isAcademy
-                  ? "rr-display mt-2 text-[2rem] leading-[0.92] text-white sm:text-[2.35rem]"
-                  : "rr-display mt-2 text-[2.35rem] leading-[0.9] text-white sm:text-[2.7rem]"
+                  ? "rr-display mt-2 min-h-[3.68rem] text-[2rem] leading-[0.92] text-white sm:min-h-[4.32rem] sm:text-[2.35rem]"
+                  : "rr-display mt-2 min-h-[4.23rem] text-[2.35rem] leading-[0.9] text-white sm:min-h-[4.86rem] sm:text-[2.7rem]"
               }
             >
               {name}
