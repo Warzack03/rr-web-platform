@@ -1,123 +1,345 @@
-# Small Prompts for Codex
+# PROMPTS.md
 
-Use these prompts one at a time. The goal is to keep each Codex session focused and reduce token usage.
+Use these prompts one at a time. Keep each Codex session focused.
 
-## Bootstrap
-Implement Epic 1 from `docs/BACKLOG.md` following `AGENTS.md` and `docs/MVP_SCOPE.md`. Do not add features outside the MVP. After implementation, run lint/build if available and report any issues.
+## Core rule
+
+Do not ask Codex to build the whole app in one prompt. Use phases and commit after each successful phase.
+
+## Rebuild frontend over existing technical base
+
+```text
+Quiero rehacer la capa visual/frontend de la app desde cero, pero manteniendo la base tecnica ya creada.
+
+Contexto:
+- El proyecto ya tiene Prisma, MySQL, migraciones y modelo de base de datos.
+- No quiero perder prisma/schema.prisma ni prisma/migrations.
+- No quiero perder configuracion de auth si ya funciona.
+- No quiero perder AGENTS.md ni docs/.
+- El frontend generado anteriormente no me gusta, asi que quiero rehacerlo de forma ordenada.
+
+Archivos de referencia visual:
+- stitch_rising_raimon_football_hub.zip
+- stitch_rising_raimon_football_hub(1).zip
+
+Objetivo:
+Rehacer el frontend tomando esos ZIPs como referencia visual y funcional, pero implementandolo correctamente en Next.js/React/TypeScript.
+
+Reglas:
+- No modificar prisma/schema.prisma salvo que sea imprescindible.
+- No eliminar prisma/migrations.
+- No cambiar el modelo de datos sin pedirlo.
+- No romper la autenticacion existente.
+- No implementar ecommerce.
+- No conectar con WordPress.
+- No usar rr-management como backend vivo.
+- No pegar HTML estatico gigante sin componentizar.
+- No meter datos sensibles.
+- No usar datos reales de jugadores.
+- Usar datos demo o mocks donde todavia no haya backend implementado.
+- Mantener separacion entre web publica y backoffice.
+- Respetar AGENTS.md y docs/.
+
+Antes de modificar codigo:
+1. Revisa la estructura actual del proyecto.
+2. Recomienda limpieza selectiva o reconstruccion del frontend.
+3. Lista exactamente que archivos eliminarias/reemplazarias y por que.
+4. No borres nada hasta que se confirme el plan.
+```
+
+## Approve Phase 1 - visual foundation
+
+```text
+Adelante con la reconstruccion del frontend, pero solo Fase 1.
+
+Condiciones:
+1. No elimines el arbol app/ antiguo hasta haber creado src/app, migrado las rutas necesarias y comprobado que el build funciona.
+2. Migra la ruta de NextAuth a src/app/api/auth/[...nextauth]/route.ts sin cambiar la logica de auth existente.
+3. No toques prisma/, migrations/, schema.prisma, docs/, AGENTS.md ni el modelo de datos.
+4. No cambies server/auth/*, server/db/*, server/services/* ni server/validators/* salvo imports necesarios.
+5. Implementa solo la base visual:
+   - estructura src/app y src/components
+   - tokens globales
+   - layout publico
+   - layout admin
+   - navegacion publica
+   - navegacion admin
+   - home publica con mocks
+   - dashboard admin con mocks
+   - login admin conservando auth
+6. No implementes CRUDs, detalle de equipos, noticias, partidos, estadisticas ni importaciones.
+7. Si necesitas borrar archivos, hazlo solo despues de confirmar que sus equivalentes nuevos existen.
+8. Ejecuta npm run lint, npm run build y npx prisma validate.
+9. Resume que se elimino, que se movio, que se creo y que queda pendiente.
+```
+
+## Phase 2 - public home
+
+```text
+Implementa la Fase 2: home publica de Rising Raimon usando como referencia la pantalla home_rising_raimon de los ZIPs Stitch y siguiendo AGENTS.md, docs/PUBLIC_PAGE_SPECS.md, docs/UI_PUBLIC_SITE.md, docs/DESIGN_TOKENS.md y docs/CODE_CONVENTIONS.md.
+
+Debe incluir:
+- presentacion general del club
+- proximo partido del Primer Equipo
+- ultimos resultados
+- clasificacion/resumen del Primer Equipo
+- noticias recientes
+- acceso al Primer Equipo
+- acceso al listado de equipos
+- enlace a tienda externa tienda.risingraimon.es
+
+Usa datos demo o servicios existentes si ya estan disponibles.
+No implementes detalle de equipo ni CRUDs.
+Ejecuta lint/build/prisma validate y resume cambios.
+```
+
+## Phase 3 - First Team detail
+
+```text
+Implementa la Fase 3: pagina publica del Primer Equipo usando como referencia los ZIPs Stitch y siguiendo docs/TEAM_DETAIL_PAGE.md, docs/STATS_MODEL.md, docs/MATCH_MODEL.md, docs/STANDINGS_MODEL.md y docs/IMAGE_AND_CARDS_POLICY.md.
+
+Debe cubrir:
+- informacion general
+- entrenadores visibles
+- proximo partido
+- ultimos resultados
+- clasificacion manual
+- plantilla
+- cromos premium subidos como imagen
+- estadisticas avanzadas
+- videos asociados a partidos jugados
+- noticias relacionadas
+
+No implementes todavia detalle estandar de equipos.
+Ejecuta lint/build/prisma validate y resume cambios.
+```
+
+## Phase 4 - standard teams
+
+```text
+Implementa la Fase 4: listado de equipos y detalle publico de equipo estandar usando como referencia los ZIPs Stitch y siguiendo docs/TEAM_DETAIL_PAGE.md.
+
+Debe cubrir:
+- /equipos
+- /equipos/[teamSlug]
+- nombre, categoria, temporada, competicion
+- entrenadores visibles
+- proximo partido
+- ultimos resultados
+- clasificacion manual
+- plantilla
+- cromos generados por la web
+- estadisticas basicas
+- noticias relacionadas si existen
+
+No conviertas el detalle estandar en una copia del Primer Equipo; debe ser mas simple.
+Ejecuta lint/build/prisma validate y resume cambios.
+```
+
+## Phase 5 - admin shell
+
+```text
+Implementa la Fase 5: shell visual del backoffice usando como referencia login_backoffice, dashboard_backoffice, dashboard_manager, dashboard_entrenador y gestion_de_equipos de los ZIPs Stitch.
+
+Debe cubrir:
+- login visual conservando auth
+- layout admin
+- sidebar/nav
+- dashboard segun rol con mocks
+- cards/resumenes
+- estructura preparada para secciones admin
+- estados vacio/carga/error
+
+No implementes CRUDs nuevos todavia si no existen.
+No rompas auth.
+Ejecuta lint/build/prisma validate y resume cambios.
+```
 
 ## Prisma schema
-Implement the initial Prisma schema based on `docs/DOMAIN_MODEL.md` and `docs/DATABASE_SCHEMA.md`. Use MySQL provider. Do not add ecommerce, finance or rr-management private fields.
+
+```text
+Implementa o ajusta el schema Prisma inicial siguiendo docs/DATABASE_FINAL_MODEL.md, docs/PRISMA_SCHEMA_DRAFT.md y docs/DATABASE_IMPLEMENTATION_NOTES.md.
+No implementes UI.
+No anadas ecommerce, finanzas ni campos privados de rr-management.
+Ejecuta npx prisma validate, prisma format y build/lint si aplica.
+```
+
+## Prisma 7 MySQL adapter fix
+
+```text
+Estamos usando Prisma 7+ con MySQL y @prisma/adapter-mariadb.
+Corrige el proyecto para que PrismaClient se construya con adapter en seed y cliente global.
+
+Reglas:
+- Mantener DATABASE_URL para Prisma CLI/migraciones.
+- Usar DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_CONNECTION_LIMIT para runtime si el adapter lo requiere.
+- No pasar connectionString a PrismaMariaDb.
+- Usar host, port, user, password, database, connectionLimit.
+- Mantener singleton global en desarrollo.
+- No cambiar schema ni migraciones.
+
+Ejecuta npx prisma generate, npx prisma validate, npx prisma db seed, npm run lint y npm run build.
+```
 
 ## Auth
-Implement admin authentication and role protection for `/admin` based on `docs/SECURITY.md`. Keep it simple and compatible with Hostinger deployment.
+
+```text
+Implementa autenticacion admin y proteccion por rol siguiendo AGENTS.md, docs/PERMISSIONS_MATRIX.md, docs/ROLES_PERMISSIONS.md y docs/CODE_CONVENTIONS.md.
+Alcance: login, logout, proteccion de /admin, seed superadmin inicial, layout base admin.
+No implementes CRUDs.
+Ejecuta lint/build/prisma validate.
+```
 
 ## Seasons CRUD
-Implement CRUD for seasons only. Follow the domain model and MVP scope. Do not implement teams yet.
+
+```text
+Implementa solo CRUD de temporadas siguiendo docs/ADMIN_PAGE_SPECS.md y docs/DATABASE_FINAL_MODEL.md.
+Solo puede haber una temporada activa.
+No implementes equipos todavia.
+Ejecuta lint/build/prisma validate.
+```
 
 ## Teams CRUD
-Implement CRUD for teams and the public team listing. Use the active season by default. Follow the public visibility rules.
 
-## Players CRUD
-Implement CRUD for public-safe players and team assignments. Do not store sensitive personal data.
+```text
+Implementa CRUD de equipos siguiendo docs/ADMIN_PAGE_SPECS.md, docs/PERMISSIONS_MATRIX.md y docs/TEAM_DETAIL_PAGE.md.
+Solo superadmin y manager pueden crear/editar equipos.
+No implementes jugadores todavia.
+Ejecuta lint/build/prisma validate.
+```
 
-## Matches CRUD
-Implement competitions and matches CRUD. Add public listing of matches and latest results.
+## Players and assignments
+
+```text
+Implementa jugadores y asignaciones jugador/equipo/temporada siguiendo docs/ADMIN_PAGE_SPECS.md, docs/FIELD_POLICIES.md y docs/DATABASE_FINAL_MODEL.md.
+No guardes datos sensibles.
+No muevas estadisticas historicas si cambia una asignacion.
+Ejecuta lint/build/prisma validate.
+```
+
+## Matches
+
+```text
+Implementa partidos siguiendo docs/MATCH_MODEL.md y docs/ADMIN_PAGE_SPECS.md.
+Rival como texto, logo opcional, estados scheduled/live/played/postponed, video externo para partido jugado del Primer Equipo.
+Ejecuta lint/build/prisma validate.
+```
 
 ## Standings
-Implement manual standings management and public standings display.
 
-## Import
-Implement `rr-management` snapshot validation and preview only. Do not apply changes yet. Follow `docs/IMPORT_RR_MANAGEMENT.md` strictly.
+```text
+Implementa clasificaciones manuales siguiendo docs/STANDINGS_MODEL.md.
+No las calcules desde partidos.
+Entrenador solo puede editar las de sus equipos asignados.
+Ejecuta lint/build/prisma validate.
+```
 
-## Apply import
-Implement the apply step for validated `rr-management` snapshot imports. Store import batch history and avoid deleting existing historical data.
+## Stats
 
-## Public polish
-Improve public pages responsive design and SEO. Do not change database schema unless necessary.
-
-## Prompt - UI publica inicial
-
-Implementa la primera version visual de la web publica siguiendo `docs/UI_PUBLIC_SITE.md`. Crea tema global, layout, header responsive, home, pagina Primer Equipo, pagina Mis equipos y pagina detalle de equipo usando datos mock. No implementes todavia logica de base de datos si no esta creada. Mantén el estilo profesional/juvenil inspirado en la referencia documentada.
-
-## Prompt - Reglas deportivas
-
-Implementa las reglas deportivas de `docs/SPORTS_RULES.md`: estados de partido, clasificaciones manuales, estadisticas basicas para equipos normales y estadisticas avanzadas para Primer Equipo. No conectes APIs externas. No implementes torneos.
-
-## Prompt - Roles y permisos
-
-Implementa roles y permisos siguiendo `docs/ROLES_PERMISSIONS.md`. Superadmin tiene acceso total; manager gestiona contenido deportivo; entrenador solo puede editar stats/clasificacion/partidos de sus equipos asignados. Valida permisos en servidor y oculta acciones no permitidas en UI.
-
-## Prompt - Importacion CSV
-
-Implementa la importacion CSV siguiendo `docs/IMPORT_FORMAT.md`. Crea validacion, previsualizacion y aplicacion de importacion. No importes campos sensibles. No borres partidos, resultados, clasificaciones ni estadisticas salvo confirmacion explicita.
-
-## Prompt - Cache publico
-
-Implementa estrategia de cache siguiendo `docs/CACHE_STRATEGY.md`. La web publica debe evitar consultar MySQL en cada visita cuando sea posible. El admin puede consultar en tiempo real. Limita pool de conexiones y documenta la configuracion.
-
-
-## Prompt - Harden rr-management import merge/upsert
-
-Implement the rr-management import using `docs/IMPORT_FORMAT.md`, `docs/IMPORT_RR_MANAGEMENT.md`, `docs/DOMAIN_MODEL.md` and `docs/DATABASE_SCHEMA.md`.
-
-Requirements:
-- CSV/ZIP input.
-- Match by rr-management external IDs.
-- No destructive replacement.
-- Calculate a diff preview before applying.
-- Preserve web-owned fields.
-- Preserve manual exceptional assignments.
-- If a player changes team, close/inactivate the previous imported assignment and create/update the new one. Do not move historical stats.
-- Store import batch and row-level import actions.
-- Reject or ignore sensitive fields.
-
-Do not implement ecommerce or runtime integration with rr-management.
-
-
-## Team detail page
-
-Implement the public team detail page `/equipos/[teamSlug]` following `docs/PUBLIC_PAGE_SPECS.md`, `docs/STATS_MODEL.md`, `docs/MATCH_MODEL.md`, `docs/STANDINGS_MODEL.md`, `docs/DESIGN_TOKENS.md` and `docs/CODE_CONVENTIONS.md`. Use a premium variant for the First Team and a standard variant for other teams. Hide empty sections.
-
-## Roles update
-
-Implement or update role checks following `docs/ROLES_PERMISSIONS.md`. Only superadmin and manager can create teams and assign coaches. Coaches can only update next match, results, goals/assists/statistics allowed by role and standings for assigned teams.
+```text
+Implementa estadisticas por partido siguiendo docs/STATS_MODEL.md.
+Las stats permanecen asociadas a jugador/equipo/temporada/partido donde se crearon.
+Goal participation = goals + assists.
+Ejecuta lint/build/prisma validate.
+```
 
 ## News MVP
 
-Implement the news MVP following `docs/CONTENT_MODEL.md`, `docs/PUBLIC_PAGE_SPECS.md`, `docs/ADMIN_PAGE_SPECS.md` and `docs/MEDIA_POLICY.md`. Support cover image and external video links.
+```text
+Implementa noticias MVP siguiendo docs/CONTENT_MODEL.md y docs/NEWS_AND_VIDEO.md.
+Soporta draft/published, portada, links de video externos y equipos relacionados.
+Solo superadmin/manager gestionan noticias.
+Ejecuta lint/build/prisma validate.
+```
 
-## External data guardrail
+## rr-management import preview
 
-Do not implement automatic RFFM or municipal sync unless explicitly requested. If adding placeholders, follow `docs/EXTERNAL_COMPETITION_DATA.md`: future imports must be admin-triggered, cached locally and have preview/diff.
+```text
+Implementa validacion y preview de importacion CSV/ZIP desde rr-management siguiendo docs/IMPORT_FORMAT.md y docs/IMPORT_RR_MANAGEMENT.md.
+Solo superadmin.
+No apliques cambios todavia.
+No importes datos sensibles.
+Ejecuta lint/build/prisma validate.
+```
 
-## Additional focused prompts
+## rr-management import apply
 
-### Permissions matrix
+```text
+Implementa apply de importacion merge/upsert siguiendo docs/IMPORT_FORMAT.md y docs/IMPORT_RR_MANAGEMENT.md.
+No borrado destructivo.
+Preserva campos web-owned, stats historicas y asignaciones manuales excepcionales.
+Guarda ImportBatch e ImportBatchItem.
+Ejecuta lint/build/prisma validate.
+```
 
-Implement role permission checks according to `docs/PERMISSIONS_MATRIX.md`. Enforce permissions server-side. Do not rely only on hidden UI buttons.
+---
 
-### Team detail page
+# Backoffice next phase - mocks and role UX
 
-Implement `/equipos/[teamSlug]` following `docs/TEAM_DETAIL_PAGE.md`, `docs/STATS_MODEL.md`, `docs/MATCH_MODEL.md`, `docs/STANDINGS_MODEL.md`, `docs/IMAGE_AND_CARDS_POLICY.md` and `docs/DESIGN_TOKENS.md`.
+Use this when the public website is visually consolidated and the next task is to work on admin/backoffice with mocks.
 
-### Seed data
+```text
+Necesito iniciar la fase de backoffice con datos mock realistas.
 
-Create Prisma seed data following `docs/SEED_DATA.md`. Use fake data only and include first-team and non-first-team examples.
+La parte publica ya esta definida a nivel de pantallas/rutas y no debe rehacerse en esta tarea. Mantener header/footer publico, rutas publicas y componentes publicos salvo que haya que corregir imports.
 
-### Publishing workflow
+Objetivo de esta fase:
+- Mejorar el backoffice con datos mock suficientes.
+- Definir experiencia clara por rol: superadmin, manager y entrenador.
+- Hacer que el admin se parezca visualmente al lenguaje publico, pero manteniendo sidebar izquierda en desktop.
+- Cuidar especialmente la vista mobile del entrenador.
 
-Implement sport-data immediate publishing and news draft/publish workflow following `docs/PUBLISHING_WORKFLOW.md`.
+Mantener:
+- Prisma, migraciones, auth y modelo de datos.
+- Parte publica ya validada.
+- Tokens visuales y lenguaje UI actual.
+- Sidebar izquierda en desktop.
 
-## Implement final Prisma schema
+No hacer:
+- No tocar Prisma/migraciones.
+- No rehacer la parte publica.
+- No conectar datos reales.
+- No implementar ecommerce.
+- No usar datos reales ni sensibles.
 
-Implement the initial Prisma schema using `docs/DATABASE_FINAL_MODEL.md`, `docs/PRISMA_SCHEMA_DRAFT.md` and `docs/DATABASE_IMPLEMENTATION_NOTES.md`.
+Mocks necesarios:
+- usuarios: superadmin, manager, entrenador asignado a equipo.
+- temporada activa.
+- Primer Equipo y 3-4 equipos de cantera.
+- jugadores, porteros, entrenadores visibles.
+- partidos jugados, pendientes y en vivo solo First Team.
+- clasificaciones.
+- estadisticas.
+- noticias publicadas/borrador.
+- media placeholders.
+- importaciones mock solo superadmin.
 
-Constraints:
-- Use MySQL provider.
-- Preserve the Team vs SeasonTeam separation.
-- Preserve Player vs PlayerSeasonProfile separation.
-- Store match stats by player + match + seasonTeam + season.
-- Do not introduce destructive import behavior.
-- Do not store binary media in the database.
-- Add a seed script with demo data from `docs/SEED_DATA.md`.
-- Run Prisma format and ensure the schema is syntactically valid.
+Pantallas admin a cubrir con mocks:
+- /admin dashboard por rol.
+- /admin/equipos.
+- /admin/jugadores.
+- /admin/partidos.
+- /admin/clasificaciones.
+- /admin/estadisticas.
+- /admin/noticias.
+- /admin/media.
+- /admin/importaciones solo superadmin.
+- /admin/usuarios solo superadmin.
+
+Rol entrenador:
+- Debe ver solo equipos asignados.
+- Mobile especialmente cuidado.
+- Accesos rapidos: proximo partido, resultado, clasificacion, goles/asistencias/estadisticas.
+- No mostrar usuarios, importaciones, media, noticias ni creacion de equipos.
+
+Responsive:
+- Desktop: sidebar izquierda.
+- Mobile: sidebar en drawer/menu usable.
+- Tablas pasan a cards o scroll controlado.
+- Sin overflow horizontal.
+
+Al final ejecutar:
+- npm run lint
+- npm run build
+- npx prisma validate
+```

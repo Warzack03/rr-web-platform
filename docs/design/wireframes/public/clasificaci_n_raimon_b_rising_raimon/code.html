@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clasificación Raimon B - Rising Raimon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow+Condensed:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#690005",
+                    "tertiary-fixed-dim": "#b8c7e5",
+                    "on-primary": "#3f2e00",
+                    "surface": "#121414",
+                    "on-tertiary-fixed-variant": "#394760",
+                    "outline-variant": "#4e4635",
+                    "active-glow": "rgba(253, 203, 88, 0.25)",
+                    "on-tertiary-fixed": "#0c1c33",
+                    "on-error-container": "#ffdad6",
+                    "error": "#ffb4ab",
+                    "tertiary-container": "#c3d2f1",
+                    "secondary-container": "#374761",
+                    "on-surface-variant": "#d2c5b0",
+                    "on-secondary-fixed": "#091c33",
+                    "on-primary-container": "#735500",
+                    "primary-fixed-dim": "#f0c04e",
+                    "pitch-deep": "#0B1B32",
+                    "bolt-gold": "#FDCB58",
+                    "surface-tint": "#f0c04e",
+                    "on-secondary-fixed-variant": "#374761",
+                    "surface-container-high": "#282a2b",
+                    "error-container": "#93000a",
+                    "surface-container": "#1e2020",
+                    "on-tertiary-container": "#4c5a74",
+                    "secondary": "#b6c7e6",
+                    "inverse-surface": "#e2e2e2",
+                    "inverse-on-surface": "#2f3131",
+                    "surface-bright": "#37393a",
+                    "inverse-primary": "#785900",
+                    "primary-container": "#fdcb58",
+                    "outline": "#9b8f7c",
+                    "on-primary-fixed-variant": "#5b4300",
+                    "surface-variant": "#333535",
+                    "stadium-blue": "#1E2F47",
+                    "primary": "#ffeccb",
+                    "surface-dim": "#121414",
+                    "on-surface": "#e2e2e2",
+                    "surface-container-highest": "#333535",
+                    "on-primary-fixed": "#251a00",
+                    "background": "#121414",
+                    "secondary-fixed": "#d4e3ff",
+                    "on-background": "#e2e2e2",
+                    "surface-container-low": "#1a1c1c",
+                    "on-tertiary": "#223149",
+                    "on-secondary-container": "#a5b6d4",
+                    "surface-container-lowest": "#0c0f0f",
+                    "primary-fixed": "#ffdf9d",
+                    "tertiary-fixed": "#d6e3ff",
+                    "on-secondary": "#203149",
+                    "secondary-fixed-dim": "#b6c7e6",
+                    "tertiary": "#e7eeff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-sm": "8px",
+                    "section-gap": "80px",
+                    "margin-mobile": "20px",
+                    "stack-lg": "32px",
+                    "gutter": "24px",
+                    "margin-desktop": "64px",
+                    "stack-md": "16px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Bebas Neue"],
+                    "display-xl": ["Bebas Neue"],
+                    "body-md": ["Barlow Condensed"],
+                    "headline-lg-mobile": ["Bebas Neue"],
+                    "headline-lg": ["Bebas Neue"],
+                    "stat-value": ["Bebas Neue"],
+                    "body-lg": ["Barlow Condensed"],
+                    "label-caps": ["Barlow Condensed"]
+            },
+            "fontSize": {
+                    "headline-md": ["32px", {"lineHeight": "1.2", "fontWeight": "400"}],
+                    "display-xl": ["72px", {"lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "400"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                    "stat-value": ["24px", {"lineHeight": "1.0", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.5", "fontWeight": "500"}],
+                    "label-caps": ["14px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { background-color: theme('colors.pitch-deep'); color: theme('colors.on-surface'); }
+        .bolt-divider {
+            position: relative;
+            height: 1px;
+            background-color: theme('colors.white/10');
+            width: 100%;
+        }
+        .bolt-divider::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: -4px;
+            width: 10px;
+            height: 10px;
+            background-color: theme('colors.bolt-gold');
+            transform: translateX(-50%) rotate(45deg);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .table-row-hover:hover {
+            background-color: theme('colors.white/5');
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col pt-20">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-pitch-deep/80 backdrop-blur-xl border-b border-white/10">
+<div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<span class="font-display-xl text-bolt-gold text-[32px] tracking-tight">Rising Raimon</span>
+<div class="hidden md:flex items-center gap-6 ml-8">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors py-2 uppercase" href="#">Home</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors py-2 uppercase" href="#">Primer Equipo</a>
+<a class="font-label-caps text-label-caps text-bolt-gold border-b-2 border-bolt-gold pb-1 uppercase" href="#">Equipos</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors py-2 uppercase" href="#">Noticias</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex font-label-caps text-label-caps text-bolt-gold border border-bolt-gold px-4 py-2 rounded uppercase hover:bg-bolt-gold/10 transition-colors">Login</button>
+<button class="font-label-caps text-label-caps bg-bolt-gold text-pitch-deep px-6 py-2 rounded uppercase hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(253,203,88,0.25)] transition-all">Unirse</button>
+<button class="md:hidden text-bolt-gold">
+<span class="material-symbols-outlined text-[32px]">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full py-section-gap">
+<!-- Header Section -->
+<header class="mb-stack-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-stack-md">
+<div>
+<span class="font-label-caps text-label-caps text-bolt-gold uppercase tracking-widest mb-2 block">Preferente Autonómica - Grupo II</span>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-white">Clasificación</h1>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-bolt-gold rounded-full"></div>
+<span class="font-body-md text-body-md text-on-surface-variant">Ascenso Directo</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-secondary-container rounded-full"></div>
+<span class="font-body-md text-body-md text-on-surface-variant">Playoff</span>
+</div>
+</div>
+</header>
+<!-- Standings Table Container -->
+<div class="bg-stadium-blue border border-stadium-blue/50 rounded-lg overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="border-b border-white/10 bg-pitch-deep/50">
+<th class="py-4 px-4 font-label-caps text-label-caps text-on-surface-variant w-16 text-center">Pos</th>
+<th class="py-4 px-4 font-label-caps text-label-caps text-on-surface-variant">Equipo</th>
+<th class="py-4 px-2 font-label-caps text-label-caps text-on-surface-variant text-center w-12" title="Partidos Jugados">PJ</th>
+<th class="py-4 px-2 font-label-caps text-label-caps text-on-surface-variant text-center w-12" title="Ganados">G</th>
+<th class="py-4 px-2 font-label-caps text-label-caps text-on-surface-variant text-center w-12" title="Empatados">E</th>
+<th class="py-4 px-2 font-label-caps text-label-caps text-on-surface-variant text-center w-12" title="Perdidos">P</th>
+<th class="py-4 px-2 font-label-caps text-label-caps text-on-surface-variant text-center w-12" title="Goles a Favor">GF</th>
+<th class="py-4 px-2 font-label-caps text-label-caps text-on-surface-variant text-center w-12" title="Goles en Contra">GC</th>
+<th class="py-4 px-2 font-label-caps text-label-caps text-on-surface-variant text-center w-12" title="Diferencia de Goles">DG</th>
+<th class="py-4 px-4 font-headline-md text-[20px] text-bolt-gold text-center w-16">Pts</th>
+</tr>
+</thead>
+<tbody class="font-body-lg text-body-lg text-on-surface">
+<!-- Row 1 -->
+<tr class="border-b border-white/5 table-row-hover transition-colors group">
+<td class="py-3 px-4 text-center">
+<div class="w-8 h-8 rounded-full bg-bolt-gold text-pitch-deep flex items-center justify-center font-stat-value text-stat-value mx-auto">1</div>
+</td>
+<td class="py-3 px-4 flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">shield</span>
+</div>
+<span class="font-bold">CD Royal</span>
+</td>
+<td class="py-3 px-2 text-center text-on-surface-variant">24</td>
+<td class="py-3 px-2 text-center">18</td>
+<td class="py-3 px-2 text-center">4</td>
+<td class="py-3 px-2 text-center">2</td>
+<td class="py-3 px-2 text-center">45</td>
+<td class="py-3 px-2 text-center">12</td>
+<td class="py-3 px-2 text-center text-tertiary-fixed-dim">+33</td>
+<td class="py-3 px-4 text-center font-stat-value text-stat-value text-bolt-gold">58</td>
+</tr>
+<!-- Row 2: Highlighted Raimon B -->
+<tr class="border-l-4 border-l-bolt-gold bg-bolt-gold/5 shadow-[inset_0_0_20px_rgba(253,203,88,0.1)] group">
+<td class="py-3 px-4 text-center">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-white flex items-center justify-center font-stat-value text-stat-value mx-auto group-hover:bg-bolt-gold group-hover:text-pitch-deep transition-colors">2</div>
+</td>
+<td class="py-3 px-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-pitch-deep border border-bolt-gold flex items-center justify-center shadow-[0_0_10px_rgba(253,203,88,0.3)]">
+<span class="material-symbols-outlined text-[20px] text-bolt-gold">sports_soccer</span>
+</div>
+<span class="font-headline-md text-[24px] text-bolt-gold tracking-wide">Raimon B</span>
+</td>
+<td class="py-3 px-2 text-center font-bold">24</td>
+<td class="py-3 px-2 text-center font-bold">17</td>
+<td class="py-3 px-2 text-center font-bold">5</td>
+<td class="py-3 px-2 text-center font-bold">2</td>
+<td class="py-3 px-2 text-center font-bold">48</td>
+<td class="py-3 px-2 text-center font-bold">15</td>
+<td class="py-3 px-2 text-center font-bold text-tertiary-fixed-dim">+33</td>
+<td class="py-3 px-4 text-center font-stat-value text-[28px] text-bolt-gold">56</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-white/5 table-row-hover transition-colors group">
+<td class="py-3 px-4 text-center">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-white flex items-center justify-center font-stat-value text-stat-value mx-auto">3</div>
+</td>
+<td class="py-3 px-4 flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">shield</span>
+</div>
+<span class="font-bold">Inazuma City FC</span>
+</td>
+<td class="py-3 px-2 text-center text-on-surface-variant">24</td>
+<td class="py-3 px-2 text-center">16</td>
+<td class="py-3 px-2 text-center">3</td>
+<td class="py-3 px-2 text-center">5</td>
+<td class="py-3 px-2 text-center">39</td>
+<td class="py-3 px-2 text-center">18</td>
+<td class="py-3 px-2 text-center text-tertiary-fixed-dim">+21</td>
+<td class="py-3 px-4 text-center font-stat-value text-stat-value text-white">51</td>
+</tr>
+<!-- Row 4 -->
+<tr class="border-b border-white/5 table-row-hover transition-colors group">
+<td class="py-3 px-4 text-center">
+<div class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-stat-value text-stat-value mx-auto">4</div>
+</td>
+<td class="py-3 px-4 flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">shield</span>
+</div>
+<span>Alpin FC</span>
+</td>
+<td class="py-3 px-2 text-center text-on-surface-variant">24</td>
+<td class="py-3 px-2 text-center">14</td>
+<td class="py-3 px-2 text-center">6</td>
+<td class="py-3 px-2 text-center">4</td>
+<td class="py-3 px-2 text-center">35</td>
+<td class="py-3 px-2 text-center">20</td>
+<td class="py-3 px-2 text-center text-tertiary-fixed-dim">+15</td>
+<td class="py-3 px-4 text-center font-stat-value text-stat-value text-white/70">48</td>
+</tr>
+<!-- Row 5 -->
+<tr class="border-b border-white/5 table-row-hover transition-colors group">
+<td class="py-3 px-4 text-center">
+<div class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-stat-value text-stat-value mx-auto">5</div>
+</td>
+<td class="py-3 px-4 flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">shield</span>
+</div>
+<span>Zeus Academy</span>
+</td>
+<td class="py-3 px-2 text-center text-on-surface-variant">24</td>
+<td class="py-3 px-2 text-center">13</td>
+<td class="py-3 px-2 text-center">5</td>
+<td class="py-3 px-2 text-center">6</td>
+<td class="py-3 px-2 text-center">40</td>
+<td class="py-3 px-2 text-center">25</td>
+<td class="py-3 px-2 text-center text-tertiary-fixed-dim">+15</td>
+<td class="py-3 px-4 text-center font-stat-value text-stat-value text-white/70">44</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-pitch-deep/80 p-4 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Última actualización: Hoy, 10:45 AM</p>
+<button class="font-label-caps text-label-caps text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded transition-colors uppercase flex items-center gap-2">
+                    Ver Jornada Completa
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-pitch-deep w-full py-stack-lg border-t border-white/5 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-stack-md">
+<span class="font-headline-md text-bolt-gold text-headline-md tracking-wide">Rising Raimon</span>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Privacidad</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Términos</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Contacto</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Socios</a>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm text-center md:text-right">
+                © 2024 Rising Raimon Football Club. All Rights Reserved.
+            </p>
+</div>
+</footer>
+</body></html>

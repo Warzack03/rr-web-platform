@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Calendario de Partidos - Rising Raimon Coach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow+Condensed:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#f0c04e",
+                        "tertiary-container": "#c3d2f1",
+                        "surface": "#121414",
+                        "surface-container-lowest": "#0c0f0f",
+                        "pitch-deep": "#0B1B32",
+                        "background": "#121414",
+                        "outline-variant": "#4e4635",
+                        "tertiary": "#e7eeff",
+                        "on-tertiary-fixed": "#0c1c33",
+                        "surface-container-low": "#1a1c1c",
+                        "on-secondary": "#203149",
+                        "surface-dim": "#121414",
+                        "primary-fixed": "#ffdf9d",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#282a2b",
+                        "on-background": "#e2e2e2",
+                        "active-glow": "rgba(253, 203, 88, 0.25)",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-primary-container": "#735500",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#b6c7e6",
+                        "on-tertiary-container": "#4c5a74",
+                        "on-primary-fixed-variant": "#5b4300",
+                        "surface-container-highest": "#333535",
+                        "surface-variant": "#333535",
+                        "on-tertiary": "#223149",
+                        "inverse-surface": "#e2e2e2",
+                        "secondary-container": "#374761",
+                        "primary-container": "#fdcb58",
+                        "on-tertiary-fixed-variant": "#394760",
+                        "inverse-primary": "#785900",
+                        "primary": "#ffeccb",
+                        "on-primary-fixed": "#251a00",
+                        "on-primary": "#3f2e00",
+                        "tertiary-fixed-dim": "#b8c7e5",
+                        "stadium-blue": "#1E2F47",
+                        "inverse-on-surface": "#2f3131",
+                        "surface-tint": "#f0c04e",
+                        "outline": "#9b8f7c",
+                        "on-secondary-fixed": "#091c33",
+                        "bolt-gold": "#FDCB58",
+                        "surface-bright": "#37393a",
+                        "on-secondary-fixed-variant": "#374761",
+                        "secondary-fixed": "#d4e3ff",
+                        "on-surface": "#e2e2e2",
+                        "on-secondary-container": "#a5b6d4",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#d2c5b0",
+                        "surface-container": "#1e2020",
+                        "error": "#ffb4ab",
+                        "secondary": "#b6c7e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "margin-mobile": "20px",
+                        "section-gap": "80px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Barlow Condensed"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-md": ["Barlow Condensed"],
+                        "label-caps": ["Barlow Condensed"],
+                        "stat-value": ["Bebas Neue"],
+                        "headline-md": ["Bebas Neue"],
+                        "headline-lg-mobile": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["14px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "stat-value": ["24px", { "lineHeight": "1.0", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-pitch-deep text-on-surface font-body-md min-h-screen pt-16">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-pitch-deep/80 backdrop-blur-md border-b border-outline-variant">
+<div class="flex items-center gap-gutter">
+<span class="font-headline-md text-headline-md text-bolt-gold tracking-wider uppercase">RISING RAIMON COACH</span>
+<div class="hidden md:flex gap-stack-lg ml-stack-lg">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors duration-200 uppercase cursor-pointer" href="#">Teams</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors duration-200 uppercase cursor-pointer" href="#">Players</a>
+<a class="font-label-caps text-label-caps text-bolt-gold border-b-2 border-bolt-gold pb-1 uppercase cursor-pointer" href="#">Matches</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors duration-200 uppercase cursor-pointer" href="#">Standings</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors duration-200 uppercase cursor-pointer" href="#">Statistics</a>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="text-on-surface-variant hover:text-bolt-gold transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-bolt-gold transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-stadium-blue border border-outline-variant overflow-hidden">
+<img alt="Coach Profile Picture" class="w-full h-full object-cover" data-alt="A close up portrait of a male football coach in his 40s. He has short dark hair and a serious, focused expression. The lighting is dramatic and moody, reflecting a high energy athletic style with deep dark backgrounds and a subtle warm glow on his face." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC20PfgTSS-aZr8_-ooBLATHAK-dBLjr86b5ZIDpwYqgXvegj-12HSBxuxQBf6OSGtR7NsQG5-12BHsV-0vOQkb7jSI2Nx-CLO3KSBf7SrPtsGbNUTCvtnmylgbJcuY1rOzwanTn694s2sP4qXWzgG2cJxKzJVRFxhZr4_ZSv0bHQfi5NI8GxTaCKUCY_ZkT15dAe-udUZV8-uIvtkRvzUEDVfy2k1gdk6EYeNvrLGLmXaNqyHv4oqq7XNdCGjIuA4CwZPV60uDSyM"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden md:flex flex-col h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-surface-container border-r border-outline-variant py-stack-md">
+<div class="px-gutter mb-stack-lg flex flex-col items-center">
+<div class="w-24 h-24 rounded-full bg-stadium-blue border-2 border-bolt-gold mb-stack-sm overflow-hidden flex items-center justify-center p-2">
+<img alt="Team Crest" class="w-full h-full object-contain" data-alt="A striking, modern football club crest featuring a lightning bolt motif. The crest is rendered in a sleek metallic gold against a deep navy blue shield. The style is high contrast and athletic, set against a dark stadium themed background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYmCgBJsvkFosRtwXCSBtUmi5uvWeqQY6b5UiolpQSvoRL5ZhmW911bXRo9qihIZ4fK_x9Itr-mi7Ij7zOT8Bm4SAgby461ASPUd5ee-WcizPPIupQzQlsNmAicQHnY7x6fhqjQQ104BezFBS6smaHIyEpHN8icvkTsB0-8X7ULZyKNyiZK5xKJqJooxT13tgKoa_o60YEoGVmax23WHmsmE8FYycqU2-B4ITVbp4FEZRkJqcT_3-iCYNYgMbGejcl2De4uuKjjHs"/>
+</div>
+<h2 class="font-headline-md text-headline-md text-bolt-gold text-center">Raimon Junior High</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">First Team Coach</p>
+</div>
+<div class="px-gutter mb-stack-lg">
+<button class="w-full bg-bolt-gold text-pitch-deep font-label-caps text-label-caps py-2 rounded uppercase hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(253,203,88,0.25)] transition-all">
+                NEW SESSION
+            </button>
+</div>
+<nav class="flex-1 px-stack-md flex flex-col gap-2">
+<a class="flex items-center gap-stack-md px-stack-md py-3 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-caps text-label-caps uppercase">Teams</span>
+</a>
+<a class="flex items-center gap-stack-md px-stack-md py-3 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps uppercase">Players</span>
+</a>
+<a class="flex items-center gap-stack-md px-stack-md py-3 rounded text-bolt-gold border-l-4 border-bolt-gold bg-stadium-blue/50 transform scale-[0.99] transition-transform" href="#">
+<span class="material-symbols-outlined">sports_soccer</span>
+<span class="font-label-caps text-label-caps uppercase">Matches</span>
+</a>
+<a class="flex items-center gap-stack-md px-stack-md py-3 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-caps text-label-caps uppercase">Standings</span>
+</a>
+<a class="flex items-center gap-stack-md px-stack-md py-3 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">equalizer</span>
+<span class="font-label-caps text-label-caps uppercase">Statistics</span>
+</a>
+</nav>
+<div class="mt-auto px-stack-md flex flex-col gap-2">
+<a class="flex items-center gap-stack-md px-stack-md py-2 rounded text-on-surface-variant hover:text-bolt-gold transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-caps text-label-caps uppercase">Help Center</span>
+</a>
+<a class="flex items-center gap-stack-md px-stack-md py-2 rounded text-on-surface-variant hover:text-bolt-gold transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-caps text-label-caps uppercase">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto">
+<header class="mb-section-gap">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface uppercase mb-stack-sm">Calendario de Partidos</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Raimon B - 2ª División Regional</p>
+<div class="mt-stack-lg flex items-center w-full">
+<div class="h-[1px] bg-outline-variant flex-1"></div>
+<div class="w-4 h-4 border-t border-r border-bolt-gold transform rotate-45 -mx-1 bg-pitch-deep z-10"></div>
+<div class="h-[1px] bg-outline-variant flex-1"></div>
+</div>
+</header>
+<div class="space-y-stack-md">
+<!-- Past Match -->
+<div class="bg-stadium-blue border border-outline-variant rounded p-stack-md md:p-gutter flex flex-col md:flex-row items-start md:items-center justify-between gap-stack-lg relative overflow-hidden">
+<!-- Status Strip -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-outline-variant"></div>
+<div class="flex-1 flex flex-col gap-2 pl-2">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+<span class="font-body-md text-body-md">15 Oct 2023 • 10:00 AM</span>
+</div>
+<div class="font-label-caps text-label-caps text-bolt-gold uppercase">2ª División Regional - J1</div>
+</div>
+<div class="flex items-center gap-stack-lg flex-1 justify-center w-full md:w-auto">
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 h-12 rounded-full bg-surface-container border border-outline-variant p-1 flex items-center justify-center">
+<span class="font-headline-md text-headline-md text-on-surface">RB</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface uppercase">Raimon B</span>
+</div>
+<div class="px-stack-md py-2 bg-surface-container-highest border-l-2 border-bolt-gold rounded font-stat-value text-stat-value text-on-surface tracking-wider">
+                        2 - 1
+                    </div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 h-12 rounded-full bg-surface-container border border-outline-variant p-1 flex items-center justify-center">
+<img alt="Royal Academy Crest" class="w-full h-full object-contain" data-alt="A stylized football crest featuring an eagle design in deep red and silver colors. The emblem is presented on a dark, textured background indicative of a high energy athletic style with modern lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3ofdnbhchOqBHN4wzpYIgmPuGiPdHlh4a4402Upt039gAppmiGZl5FXUpVi3ZdICHqmxF9HzU9kAHvtUsVd97qhrqP6M1Dd4zAmprJiyo3Z5weKUSybiZIC5zwsp4Doj-peptlnqVuRaX2PZYQDcyDelvCenUM_5khpJloTFeR21RNzZbVSSJ1SHdAJNCs8prlqKaDU4RFZVIlYcO3uSkGZadxLkUkYxw-Acq5Y6GgsvecYIRdv6RuXphFSZy1sYG_hatkTiB15c"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface uppercase">Royal AC.</span>
+</div>
+</div>
+<div class="flex-1 flex justify-end w-full md:w-auto">
+<button class="w-full md:w-auto bg-transparent border border-bolt-gold text-bolt-gold font-label-caps text-label-caps px-stack-md py-2 rounded uppercase hover:bg-bolt-gold hover:text-pitch-deep transition-all">
+                        SUBIR ACTA/STATS
+                    </button>
+</div>
+</div>
+<!-- Next Match (Active) -->
+<div class="bg-stadium-blue border border-stadium-blue rounded p-stack-md md:p-gutter flex flex-col md:flex-row items-start md:items-center justify-between gap-stack-lg relative overflow-hidden shadow-[0_0_20px_rgba(253,203,88,0.15)]">
+<!-- Status Strip -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-bolt-gold"></div>
+<div class="flex-1 flex flex-col gap-2 pl-2">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-sm text-bolt-gold">event</span>
+<span class="font-body-md text-body-md">22 Oct 2023 • 12:00 PM</span>
+</div>
+<div class="font-label-caps text-label-caps text-bolt-gold uppercase">2ª División Regional - J2</div>
+</div>
+<div class="flex items-center gap-stack-lg flex-1 justify-center w-full md:w-auto">
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 h-12 rounded-full bg-surface-container border-2 border-bolt-gold p-1 flex items-center justify-center shadow-[0_0_10px_rgba(253,203,88,0.3)]">
+<span class="font-headline-md text-headline-md text-on-surface">RB</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface uppercase">Raimon B</span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface-variant">
+                        VS
+                    </div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 h-12 rounded-full bg-surface-container border border-outline-variant p-1 flex items-center justify-center">
+<img alt="Zeus FC Crest" class="w-full h-full object-contain" data-alt="A modern football club crest with a lightning bolt and wings motif in pure white and pale blue. The design is clean and corporate modern, set against a dark stadium themed backdrop." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsfMD7XhIEbNAK8ySaQ8kprRVNvDqSq_WMMZ6fmcUjSHzB99PNrxbh6tc11ezA6GCeUAp6bJ7avkJ-BKGJARZKe_PdGMnV0zlfzUuhaA83BE4OkO1qPPVXfM7tdPIOX8mzFb0KewoKjSgRzuD2_tr9xBoSE52827c6WzISa0wjHmxJe6YMqN4ahEVp3sOx70BjnlDCGf1KPzwSQ8Lq-LFnJarBcgILHcZ9q7I6LoabAS72QcGLDTjnSCdzKwYL_NkAoJ49xwVX7KU"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface uppercase">Zeus FC</span>
+</div>
+</div>
+<div class="flex-1 flex justify-end w-full md:w-auto">
+<button class="w-full md:w-auto bg-bolt-gold text-pitch-deep font-label-caps text-label-caps px-stack-md py-2 rounded uppercase hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(253,203,88,0.25)] transition-all">
+                        PREPARAR TÁCTICA
+                    </button>
+</div>
+</div>
+<!-- Future Match -->
+<div class="bg-stadium-blue border border-outline-variant rounded p-stack-md md:p-gutter flex flex-col md:flex-row items-start md:items-center justify-between gap-stack-lg relative overflow-hidden opacity-80">
+<!-- Status Strip -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-outline-variant"></div>
+<div class="flex-1 flex flex-col gap-2 pl-2">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+<span class="font-body-md text-body-md">29 Oct 2023 • 16:00 PM</span>
+</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase">2ª División Regional - J3</div>
+</div>
+<div class="flex items-center gap-stack-lg flex-1 justify-center w-full md:w-auto">
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 h-12 rounded-full bg-surface-container border border-outline-variant p-1 flex items-center justify-center">
+<img alt="Occult Crest" class="w-full h-full object-contain" data-alt="A dark and imposing football crest featuring a crescent moon and wolf design in deep purples and silver. The style is edgy and athletic, sitting perfectly in a dark mode UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNmG6cWQrfBKYDIVwCNcVGOI-Ldz0XM4sO8ZbElNWidC_BoWOkOdm-opEZhFIWbVR7tuOB3kxCBJrl76xBKnELyDTEuJFkmgxYM0nVbMITNei440ZDnZ5AjI3trvavMnFKiSoRUC2GXcarpG4gSWozFP4yvN2sxt3OM3ajv34dbmC0-_Uu77PPoj3EC6R2oYcu6t8WahBcjqA7x8xaJdFcPiEsjv5HiUEfO83n1Lkh161xYwUEIEFA7qOjVAWulxtt2_0Xi0x6ZYk"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Occult</span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface-variant">
+                        VS
+                    </div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 h-12 rounded-full bg-surface-container border border-outline-variant p-1 flex items-center justify-center">
+<span class="font-headline-md text-headline-md text-on-surface-variant">RB</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Raimon B</span>
+</div>
+</div>
+<div class="flex-1 flex justify-end w-full md:w-auto">
+<button class="w-full md:w-auto bg-transparent border border-outline-variant text-on-surface-variant font-label-caps text-label-caps px-stack-md py-2 rounded uppercase hover:border-bolt-gold hover:text-bolt-gold transition-all">
+                        PREPARAR TÁCTICA
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

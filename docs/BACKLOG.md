@@ -1,173 +1,128 @@
-# Backlog
+# BACKLOG.md
 
-## Epic 1 - Project bootstrap
-- Create Next.js project with TypeScript.
-- Configure Tailwind CSS.
-- Configure shadcn/ui.
-- Configure ESLint and formatting.
-- Configure environment variables.
-- Configure Prisma with MySQL.
-- Add base layout.
-- Add health/status page or endpoint.
+## Epic 0 - Preserve technical base
 
-## Epic 2 - Database foundation
-- Create Prisma schema for MVP tables.
-- Add migrations.
-- Add seed script for initial admin user and sample season/team.
-- Add DB access utility.
-- Document local/dev database setup.
+- Confirm Prisma migrations are valid.
+- Confirm auth route works.
+- Confirm seed can run.
+- Confirm `npm run build`, `npm run lint`, `npx prisma validate`.
 
-## Epic 3 - Admin authentication
-- Implement admin login.
-- Implement logout.
-- Protect `/admin` routes.
-- Implement roles: superadmin, manager/editor.
-- Add basic admin shell/layout.
+## Epic 1 - Frontend rebuild foundation
 
-## Epic 4 - Seasons and teams
+- Create clean `src/app` / `src/components` structure.
+- Preserve Prisma, migrations, auth and docs.
+- Create design tokens/global CSS.
+- Create public layout and navigation.
+- Create admin layout and navigation.
+- Create base components: cards, stat chips, match cards, section headers, empty states.
+- Public home with mocks.
+- Admin dashboard with mocks.
+
+## Epic 2 - Public home
+
+- Club hero.
+- First Team next match.
+- Latest results.
+- First Team standings summary.
+- Recent news.
+- Team access.
+- External shop link.
+
+## Epic 3 - First Team public page
+
+- Premium header.
+- Coaches.
+- Next match/latest results.
+- Manual standings.
+- Squad.
+- Uploaded premium card images.
+- Advanced stats.
+- Played match videos.
+- Related news.
+
+## Epic 4 - Standard teams public pages
+
+- `/equipos` listing.
+- `/equipos/[teamSlug]` standard team detail.
+- Coaches.
+- Next match/latest results.
+- Manual standings.
+- Squad.
+- Generated cards.
+- Basic stats.
+- Related news.
+
+## Epic 5 - Admin shell
+
+- Login visual preserving auth.
+- Dashboard by role.
+- Admin nav/sidebar.
+- Common table/form shell.
+- Empty/loading/error states.
+
+## Epic 6 - Seasons
+
 - CRUD seasons.
-- Activate season.
+- Only one active season.
+
+## Epic 7 - Teams and coaches
+
 - CRUD teams.
-- Public visibility toggle.
-- Public teams list page.
-- Team detail public page skeleton.
+- First Team flag.
+- Public visibility.
+- Visible coaches.
+- Coach account assignment.
 
-## Epic 5 - Players and assignments
-- CRUD players.
-- Manage public profile fields.
-- Assign players to teams per season.
-- Manage dorsal/position/captain/order.
-- Public player card/profile.
-- Team roster public section.
+## Epic 8 - Players and assignments
 
-## Epic 6 - Competitions, matches and results
-- CRUD competitions.
-- CRUD matches.
-- Enter results.
-- Public match list.
-- Home next match/latest results widgets.
+- CRUD public-safe players.
+- Player/team/season assignments.
+- No sensitive data.
 
-## Epic 7 - Standings and statistics
-- Manual standings editor.
-- Public standings page.
-- Player stats editor.
-- Public player/team stats display.
+## Epic 9 - Matches and standings
 
-## Epic 8 - Media
-- Basic image upload or URL-based media management.
-- Image selection for players and teams.
-- File validation.
-- Alt text support.
+- Matches CRUD.
+- Results/status.
+- Manual standings.
 
-## Epic 9 - rr-management import
-- Define CSV/ZIP import parser.
-- Validate snapshot using rr-management DDL mapping.
-- Match by external IDs.
-- Calculate diff: creates, updates, inactivations, assignment changes and conflicts.
-- Show import preview before applying.
-- Apply merge/upsert import transactionally where possible.
-- Preserve web-owned fields and historical stats.
-- Preserve manual exceptional assignments unless explicitly confirmed.
-- Store import batch and import batch item history.
-- Reject/ignore sensitive fields.
+## Epic 10 - Stats
 
-## Epic 10 - Public website polish
-- Home page design.
-- Mobile-first responsive polish.
-- SEO metadata.
-- Navigation.
-- Link to WooCommerce shop.
-- Loading/error states.
+- Match stats by player/team/season/match.
+- Aggregates/derived metrics.
 
-## Epic 11 - Deployment hardening
-- Hostinger deployment docs.
-- Production env checklist.
-- DB backup procedure.
-- Build verification.
-- Basic monitoring/log review steps.
+## Epic 11 - News and media
 
-## Epica 12 - Definicion visual publica
+- News draft/published.
+- Related teams.
+- Cover image/video links.
+- Media metadata/uploads.
+- Cards/cromos.
 
-- Implementar tema visual basado en `docs/UI_PUBLIC_SITE.md`.
-- Crear tokens CSS globales equivalentes a la referencia `inscripciones`.
-- Crear componentes base: SiteHeader, HeroSection, SectionHeading, CTAButton, SportCard, TeamCard, PlayerCard, MatchCard, StandingTable.
-- Crear layout responsive mobile-first.
-- Crear home publica con datos mock.
-- Crear pagina Primer Equipo con datos mock.
-- Crear pagina Mis equipos con datos mock.
-- Crear pagina detalle de equipo con datos mock.
+## Epic 12 - rr-management import
 
-## Epica 13 - Reglas deportivas
+- CSV/ZIP validation.
+- Preview diff.
+- Merge/upsert apply.
+- Import history.
 
-- Implementar estados de partido: scheduled, live, played, postponed.
-- Implementar clasificaciones editables manualmente.
-- Implementar stats basicas para equipos normales.
-- Implementar stats avanzadas para Primer Equipo.
-- Implementar distincion jugador de campo / portero.
-- Calcular metricas derivadas desde stats base.
+## Epic 13 - Deployment beta
 
-## Epica 14 - Roles y permisos por equipo
+- Hostinger Node app.
+- MySQL env vars.
+- Beta domain.
+- Backup checklist.
 
-- Implementar rol superadmin.
-- Implementar rol manager.
-- Implementar rol entrenador.
-- Crear asignacion usuario-equipo-temporada.
-- Restringir edicion de entrenadores a sus equipos.
-- Validar permisos en servidor.
+---
 
-## Epica 15 - Cache y rendimiento publico
+## Public website consolidation status
 
-- Configurar cache/revalidate en paginas publicas.
-- Limitar pool MySQL.
-- Evitar N+1 queries en listados publicos.
-- Revalidar rutas al publicar cambios desde admin.
-- Documentar estrategia de cache en README/deploy.
+The public website specification is now considered defined. Public implementation can proceed page-by-page using `docs/PUBLIC_APP_SPEC.md` as source of truth. Remaining public work is mainly:
 
+- connect real DB/services;
+- replace mocks with data queries;
+- add SEO metadata;
+- harden loading/error/empty states;
+- final real copy/images/assets;
+- responsive QA.
 
-## Epica 16 - Import merge/upsert hardening
-
-- Implement `import_batches` and `import_batch_items`.
-- Add external ID fields to imported entities.
-- Implement conflict categories for import preview.
-- Implement inactivate/archive behavior for missing imported records.
-- Implement assignment change handling without moving historical stats.
-- Add tests for player team change, player missing from snapshot, team missing from snapshot and manual exceptional assignment preservation.
-
-
-## Epic 17 - Public team detail pages
-
-- Implement `/equipos/[teamSlug]`.
-- Render team hero with name, category, season, competition and coach.
-- Render next match.
-- Render latest results.
-- Render manual standings.
-- Render roster and cards.
-- Render team statistics.
-- Render related news if available.
-- Use premium variant for First Team.
-- Show video link/embed for First Team played matches when videoUrl exists.
-- Hide sections without data.
-- Add SEO metadata per team.
-
-## Epic 18 - News MVP
-
-- Implement news database model.
-- Implement admin news list/create/edit/publish.
-- Support cover image and video links.
-- Implement public `/noticias` and `/noticias/[slug]`.
-- Support related team.
-- Add SEO metadata.
-
-## Epic 19 - External competition data research placeholder
-
-- Do not implement external sync in MVP.
-- Add admin notes/config placeholders only if useful.
-- Future work: municipal open-data import with preview/diff.
-- Future work: RFFM import if stable documented/acceptable data access exists.
-
-## Epic 20 - Light mode finalization
-
-- Keep design tokens ready for light mode from day one.
-- Build/polish dark mode first.
-- Implement light mode after public UI is stable.
-- Ensure all public components use tokens, not hardcoded colors.
+Next recommended phase: backoffice mocks and role UX.

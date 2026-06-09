@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nuestros Equipos - Rising Raimon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow+Condensed:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bolt-divider {
+            position: relative;
+            height: 1px;
+            background-color: theme('colors.outline-variant');
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.5;
+        }
+        .bolt-divider::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            background: theme('colors.background');
+            border-left: 2px solid theme('colors.bolt-gold');
+            border-right: 2px solid theme('colors.bolt-gold');
+            transform: skewX(-30deg);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#333535",
+                        "active-glow": "rgba(253, 203, 88, 0.25)",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#333535",
+                        "outline-variant": "#4e4635",
+                        "primary-container": "#fdcb58",
+                        "on-surface-variant": "#d2c5b0",
+                        "on-tertiary": "#223149",
+                        "secondary-fixed": "#d4e3ff",
+                        "surface-container-lowest": "#0c0f0f",
+                        "on-background": "#e2e2e2",
+                        "bolt-gold": "#FDCB58",
+                        "inverse-surface": "#e2e2e2",
+                        "tertiary": "#e7eeff",
+                        "on-tertiary-fixed": "#0c1c33",
+                        "inverse-primary": "#785900",
+                        "on-error": "#690005",
+                        "background": "#121414",
+                        "tertiary-container": "#c3d2f1",
+                        "surface": "#121414",
+                        "primary-fixed-dim": "#f0c04e",
+                        "tertiary-fixed-dim": "#b8c7e5",
+                        "primary-fixed": "#ffdf9d",
+                        "on-secondary": "#203149",
+                        "error-container": "#93000a",
+                        "on-primary-fixed-variant": "#5b4300",
+                        "on-secondary-fixed-variant": "#374761",
+                        "secondary-fixed-dim": "#b6c7e6",
+                        "inverse-on-surface": "#2f3131",
+                        "outline": "#9b8f7c",
+                        "on-tertiary-container": "#4c5a74",
+                        "on-primary-container": "#735500",
+                        "surface-container-low": "#1a1c1c",
+                        "secondary-container": "#374761",
+                        "primary": "#ffeccb",
+                        "pitch-deep": "#0B1B32",
+                        "on-tertiary-fixed-variant": "#394760",
+                        "surface-container": "#1e2020",
+                        "on-primary": "#3f2e00",
+                        "on-surface": "#e2e2e2",
+                        "surface-tint": "#f0c04e",
+                        "on-secondary-fixed": "#091c33",
+                        "secondary": "#b6c7e6",
+                        "stadium-blue": "#1E2F47",
+                        "surface-dim": "#121414",
+                        "surface-bright": "#37393a",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-container": "#a5b6d4",
+                        "surface-container-high": "#282a2b",
+                        "on-primary-fixed": "#251a00",
+                        "tertiary-fixed": "#d6e3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "margin-desktop": "64px",
+                        "section-gap": "80px",
+                        "container-max": "1280px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "stat-value": ["Bebas Neue"],
+                        "headline-lg-mobile": ["Bebas Neue"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-lg": ["Barlow Condensed"],
+                        "label-caps": ["Barlow Condensed"],
+                        "headline-md": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "body-md": ["Barlow Condensed"]
+                    },
+                    "fontSize": {
+                        "stat-value": ["24px", { "lineHeight": "1.0", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "label-caps": ["14px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-pitch-deep/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-center h-20 px-margin-desktop max-w-container-max mx-auto">
+<!-- Brand Logo -->
+<a class="font-headline-lg text-headline-lg tracking-wider text-bolt-gold hover:scale-105 hover:shadow-active-glow transition-all duration-300" href="#">
+                RISING RAIMON
+            </a>
+<!-- Navigation Links -->
+<ul class="hidden md:flex items-center gap-stack-lg">
+<li><a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors hover:scale-105 hover:shadow-active-glow duration-300 uppercase" href="#">Home</a></li>
+<li><a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors hover:scale-105 hover:shadow-active-glow duration-300 uppercase" href="#">Primer Equipo</a></li>
+<li><a class="font-label-caps text-label-caps text-bolt-gold border-b-2 border-bolt-gold pb-1 hover:scale-105 hover:shadow-active-glow transition-all duration-300 uppercase" href="#">Equipos</a></li>
+<li><a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors hover:scale-105 hover:shadow-active-glow duration-300 uppercase" href="#">Noticias</a></li>
+</ul>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-stack-md">
+<a class="hidden lg:block font-label-caps text-label-caps text-pitch-deep bg-bolt-gold px-6 py-2 uppercase hover:-translate-y-1 hover:shadow-active-glow transition-all duration-300 rounded-sm" href="#">
+                    Tienda Oficial
+                </a>
+<button class="text-bolt-gold hover:scale-105 hover:shadow-active-glow transition-all duration-300 active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[24px]">person</span>
+</button>
+<button class="text-bolt-gold hover:scale-105 hover:shadow-active-glow transition-all duration-300 active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-24 pb-section-gap">
+<!-- Hero Section -->
+<header class="relative w-full py-section-gap px-margin-desktop text-center flex flex-col items-center justify-center overflow-hidden">
+<!-- Background Texture Gradient -->
+<div class="absolute inset-0 bg-gradient-to-b from-pitch-deep/40 to-background z-0 pointer-events-none"></div>
+<div class="relative z-10 max-w-container-max mx-auto flex flex-col items-center gap-stack-md">
+<span class="font-label-caps text-label-caps text-bolt-gold uppercase tracking-widest border border-bolt-gold/30 px-4 py-1 rounded-sm bg-surface-container-highest/50 backdrop-blur-sm">
+                    Estructura Deportiva
+                </span>
+<h1 class="font-display-xl text-display-xl text-on-surface uppercase tracking-wide drop-shadow-md">
+                    NUESTROS EQUIPOS
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-4">
+                    La esencia del Rising Raimon desde la base hasta la cima. Descubre las plantillas que defienden nuestro escudo en cada categoría, forjando el futuro con disciplina y excelencia técnica.
+                </p>
+</div>
+</header>
+<!-- PRIMER EQUIPO Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mb-section-gap">
+<h2 class="font-headline-lg text-headline-lg text-bolt-gold uppercase mb-stack-lg border-l-4 border-bolt-gold pl-4">
+                PRIMER EQUIPO
+            </h2>
+<div class="relative group bg-stadium-blue border border-outline-variant/30 rounded-lg overflow-hidden flex flex-col md:flex-row hover:shadow-active-glow transition-all duration-500">
+<!-- Large Image Area -->
+<div class="w-full md:w-3/5 h-64 md:h-[400px] relative bg-surface-container-highest overflow-hidden">
+<img alt="Primer Equipo" class="w-full h-full object-cover object-center opacity-80 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700" data-alt="A dramatic, high-contrast wide shot of a professional football team lined up on a meticulously manicured pitch at night. The stadium is illuminated by harsh, bright floodlights cutting through a dark, moody atmosphere, reflecting the high-energy athletic aesthetic. The players are silhouetted slightly, wearing sleek, modern dark navy and gold kits that match the brand palette. The overall mood is intense, corporate-modern, and highly competitive." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIrwfJXdtVE5a0ET8-Q-BTehb-df7omNJlQstl432zDE-KLZy20gLCOsQ2KJU96COKOPvu_TP_7dDtAZxucE2zkvl0_O_OIbwzwBiWEW0iC8Ykt5CmuXLIkFRJOtVIV6vnWjYrpKqcz0cDJISRmB3OxJQjE0vHperpC9X--Ngd4Wt0wAaGlQOGLAebJTaot7nPnpWrO3zc6EYOhLEmoEhSgKDBeq43vFmrRhUulQQSO-MoBwthlrAJrNnxOjk8I2OmC98FawBb5UE"/>
+<div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-stadium-blue to-transparent"></div>
+</div>
+<!-- Content Area -->
+<div class="w-full md:w-2/5 p-margin-mobile md:p-stack-lg flex flex-col justify-center relative z-10 bg-stadium-blue">
+<span class="font-label-caps text-label-caps text-bolt-gold uppercase mb-2 block">Plantilla Profesional</span>
+<h3 class="font-display-xl text-display-xl text-on-surface uppercase leading-none mb-4">
+                        RISING RAIMON
+                    </h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-lg">
+                        El buque insignia del club. Compitiendo al máximo nivel nacional con una filosofía basada en la posesión, la intensidad táctica y el desarrollo del talento puro.
+                    </p>
+<div class="flex flex-wrap gap-4 mt-auto">
+<a class="inline-block bg-bolt-gold text-pitch-deep font-label-caps text-label-caps uppercase px-8 py-3 hover:-translate-y-1 hover:shadow-active-glow transition-all duration-300 rounded-sm" href="#">
+                            VER PLANTILLA COMPLETA
+                        </a>
+<a class="inline-flex items-center gap-2 border border-outline-variant text-on-surface hover:border-bolt-gold hover:text-bolt-gold font-label-caps text-label-caps uppercase px-6 py-3 transition-colors rounded-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                            Calendario
+                        </a>
+</div>
+</div>
+</div>
+</section>
+<!-- Bolt Divider -->
+<div class="max-w-container-max mx-auto px-margin-desktop py-stack-lg">
+<div class="bolt-divider"></div>
+</div>
+<!-- CANTERA Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex items-center gap-4 mb-stack-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface uppercase border-l-4 border-bolt-gold pl-4">
+                    CANTERA
+                </h2>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase bg-surface-container-highest px-3 py-1 rounded-sm">
+                    Academia de Alto Rendimiento
+                </span>
+</div>
+<!-- Bento Grid / Asymmetric Grid for Academy -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- RAIMON B (Slightly larger, spans 2 columns on tablet) -->
+<article class="bg-stadium-blue border border-outline-variant/30 rounded-lg flex flex-col overflow-hidden hover:shadow-active-glow hover:-translate-y-1 transition-all duration-300 group md:col-span-2 lg:col-span-1">
+<div class="h-48 relative bg-surface-container-highest overflow-hidden">
+<img alt="Raimon B" class="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500" data-alt="A focused, low-angle shot of young professional football players running through high-intensity training drills at dusk. The lighting is moody, with stadium lights creating long shadows on the pitch, emphasizing a dark mode, high-energy athletic style. The players wear dark navy training tops with subtle gold accents. The scene conveys ambition, discipline, and the transition from academy to the first team." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAE0-j_SnhZFrbBib8g55Jwx1UgZk641bjR4csTeUQ5rwyS2mCydCT5Zj52m5scUlzqIJSaogBpXxoL1_QfAixuzyFwlNWa1O1tecJL_01hroXAHmrhGEn9cg3p75UODzyGNt1lAqN71E8hWiK-gZ5gXTLkvAxjD7tWWg3dMfPSN0m4IhjzKxEiPZdSXuJ2IhDku6z_-0KpoDTRrfBJkWHLPSXUYRqJ3cgQofXsDX_sWdauwZNyrEuzbjKaoIVIRwNn_MceAv93cek"/>
+<div class="absolute inset-0 bg-gradient-to-t from-stadium-blue to-transparent"></div>
+</div>
+<div class="p-stack-md flex flex-col flex-grow relative z-10">
+<span class="font-label-caps text-label-caps text-bolt-gold uppercase mb-1">Filial</span>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase mb-2">RAIMON B</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                            El paso previo al profesionalismo. Un equipo diseñado para foguear a nuestras mejores promesas en un entorno competitivo exigente.
+                        </p>
+<div class="mt-stack-md pt-stack-md border-t border-outline-variant/30">
+<a class="w-full flex justify-between items-center text-on-surface hover:text-bolt-gold font-label-caps text-label-caps uppercase transition-colors group/btn" href="#">
+                                VER PLANTILLA
+                                <span class="material-symbols-outlined group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+</article>
+<!-- JUVENIL A -->
+<article class="bg-surface-container-highest border border-outline-variant/20 rounded-lg flex flex-col overflow-hidden hover:border-bolt-gold/50 hover:shadow-active-glow hover:-translate-y-1 transition-all duration-300 group">
+<div class="p-stack-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="font-label-caps text-label-caps text-outline uppercase mb-1 block">Sub-19 Nacional</span>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase">JUVENIL A</h3>
+</div>
+<div class="w-10 h-10 rounded-full bg-pitch-deep border border-bolt-gold flex items-center justify-center text-bolt-gold shadow-sm">
+<span class="material-symbols-outlined text-[20px]">sports_soccer</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow mb-stack-md text-sm">
+                            División de Honor. El máximo nivel juvenil donde se forja el carácter competitivo necesario para dar el salto al filial.
+                        </p>
+<a class="mt-auto w-full text-center border border-outline-variant text-on-surface font-label-caps text-label-caps uppercase py-2 hover:border-bolt-gold hover:text-bolt-gold transition-colors rounded-sm" href="#">
+                            VER PLANTILLA
+                        </a>
+</div>
+</article>
+<!-- JUVENIL B -->
+<article class="bg-surface-container-highest border border-outline-variant/20 rounded-lg flex flex-col overflow-hidden hover:border-bolt-gold/50 hover:shadow-active-glow hover:-translate-y-1 transition-all duration-300 group">
+<div class="p-stack-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="font-label-caps text-label-caps text-outline uppercase mb-1 block">Sub-18 Regional</span>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase">JUVENIL B</h3>
+</div>
+<div class="w-10 h-10 rounded-full bg-pitch-deep border border-outline-variant flex items-center justify-center text-on-surface-variant shadow-sm">
+<span class="material-symbols-outlined text-[20px]">sports_soccer</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow mb-stack-md text-sm">
+                            Liga Nacional Juvenil. Consolidando conceptos tácticos avanzados y preparación física de alta intensidad.
+                        </p>
+<a class="mt-auto w-full text-center border border-outline-variant text-on-surface font-label-caps text-label-caps uppercase py-2 hover:border-bolt-gold hover:text-bolt-gold transition-colors rounded-sm" href="#">
+                            VER PLANTILLA
+                        </a>
+</div>
+</article>
+<!-- CADETE A -->
+<article class="bg-surface-container-highest border border-outline-variant/20 rounded-lg flex flex-col overflow-hidden hover:border-bolt-gold/50 hover:shadow-active-glow hover:-translate-y-1 transition-all duration-300 group">
+<div class="p-stack-md flex flex-col flex-grow border-l-2 border-transparent group-hover:border-bolt-gold transition-colors">
+<div class="flex flex-col mb-4">
+<span class="font-label-caps text-label-caps text-outline uppercase mb-1">Sub-16</span>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase">CADETE A</h3>
+</div>
+<div class="flex items-center gap-2 mb-stack-md">
+<span class="w-2 h-2 rounded-full bg-bolt-gold"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">División Autonómica</span>
+</div>
+<a class="mt-auto w-fit text-bolt-gold font-label-caps text-label-caps uppercase hover:underline underline-offset-4 transition-all" href="#">
+                            EXPLORAR EQUIPO →
+                        </a>
+</div>
+</article>
+<!-- INFANTIL A -->
+<article class="bg-surface-container-highest border border-outline-variant/20 rounded-lg flex flex-col overflow-hidden hover:border-bolt-gold/50 hover:shadow-active-glow hover:-translate-y-1 transition-all duration-300 group">
+<div class="p-stack-md flex flex-col flex-grow border-l-2 border-transparent group-hover:border-bolt-gold transition-colors">
+<div class="flex flex-col mb-4">
+<span class="font-label-caps text-label-caps text-outline uppercase mb-1">Sub-14</span>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase">INFANTIL A</h3>
+</div>
+<div class="flex items-center gap-2 mb-stack-md">
+<span class="w-2 h-2 rounded-full bg-bolt-gold"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">División Autonómica</span>
+</div>
+<a class="mt-auto w-fit text-bolt-gold font-label-caps text-label-caps uppercase hover:underline underline-offset-4 transition-all" href="#">
+                            EXPLORAR EQUIPO →
+                        </a>
+</div>
+</article>
+<!-- Promesa Banner (Fill remaining space in grid) -->
+<article class="bg-gradient-to-br from-pitch-deep to-surface-container-low border border-outline-variant/20 rounded-lg flex flex-col justify-center items-center p-stack-md text-center hover:shadow-active-glow transition-all duration-300">
+<span class="material-symbols-outlined text-bolt-gold text-[48px] mb-4">diamond</span>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase mb-2">FUTURO RAIMON</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 text-sm max-w-xs">
+                        Nuestra red de ojeadores trabaja incansablemente para encontrar a las próximas estrellas del fútbol mundial.
+                    </p>
+<a class="text-bolt-gold font-label-caps text-label-caps uppercase border-b border-bolt-gold pb-1 hover:text-white hover:border-white transition-colors" href="#">
+                        METODOLOGÍA
+                    </a>
+</article>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full pt-section-gap pb-stack-lg bg-surface-container-lowest border-t border-outline-variant/20 flex flex-col items-center gap-stack-md px-margin-desktop mt-auto">
+<!-- Brand Logo -->
+<div class="font-headline-md text-headline-md text-bolt-gold uppercase">
+            RISING RAIMON
+        </div>
+<!-- Links -->
+<ul class="flex flex-wrap justify-center gap-stack-md md:gap-stack-lg">
+<li><a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Aviso Legal</a></li>
+<li><a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Política de Privacidad</a></li>
+<li><a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Contacto</a></li>
+<li><a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Socio</a></li>
+<li><a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors uppercase" href="#">Prensa</a></li>
+</ul>
+<!-- Copyright -->
+<div class="font-body-md text-body-md text-on-surface-variant text-center mt-stack-md opacity-70 text-sm">
+            © 2024 RISING RAIMON FOOTBALL CLUB. TODOS LOS DERECHOS RESERVADOS.
+        </div>
+</footer>
+</body></html>

@@ -1,42 +1,79 @@
 # NAVIGATION_AND_ROUTES.md
 
-## Objetivo
+## Public routes
 
-Definir la estructura de rutas para evitar que Codex improvise URLs, nombres de secciones o jerarquias.
+```text
+/
+/primer-equipo
+/primer-equipo/plantilla
+/primer-equipo/calendario
+/primer-equipo/clasificacion
+/primer-equipo/partidos/[matchId]
+/equipos
+/equipos/[teamSlug]
+/equipos/[teamSlug]/plantilla
+/equipos/[teamSlug]/calendario
+/equipos/[teamSlug]/clasificacion
+/equipos/[teamSlug]/partidos/[matchId]
+/equipos/[teamSlug]/jugadores/[playerSlug]
+/jugadores/[playerSlug]
+/noticias
+/noticias/[slug]
+```
 
-## Rutas publicas MVP
+## Public navigation
 
-- `/` - Home publica.
-- `/primer-equipo` - Pagina premium del Primer Equipo.
-- `/equipos` - Listado de todos los equipos visibles.
-- `/equipos/[teamSlug]` - Detalle publico de cada equipo.
-- `/jugadores/[playerSlug]` - Ficha publica de jugador, si se habilita en MVP.
-- `/partidos` - Calendario/resultados publicos.
-- `/clasificacion` - Clasificacion destacada del Primer Equipo o acceso a clasificaciones.
-- `/noticias` - Listado de noticias nuevas creadas en la plataforma.
-- `/noticias/[slug]` - Detalle de noticia.
-- `/tienda` - Enlace o redirect a WooCommerce, no ecommerce propio.
+Main header items:
 
-## Rutas admin MVP
+- Home -> `/`
+- Primer Equipo -> `/primer-equipo`
+- Equipos -> `/equipos`
+- Noticias -> `/noticias`
+- Tienda Oficial -> `https://tienda.risingraimon.es`
 
-- `/admin/login` - Login interno.
-- `/admin` - Dashboard.
-- `/admin/temporadas` - Gestion de temporadas.
-- `/admin/equipos` - Gestion de equipos.
-- `/admin/equipos/[teamId]` - Detalle/edicion de equipo.
-- `/admin/jugadores` - Gestion de jugadores publicables.
-- `/admin/partidos` - Gestion de partidos/resultados/proximo partido.
-- `/admin/clasificaciones` - Gestion manual de clasificaciones.
-- `/admin/estadisticas` - Gestion de estadisticas.
-- `/admin/noticias` - Gestion de noticias.
-- `/admin/importaciones` - Importacion desde rr-management.
-- `/admin/usuarios` - Gestion de usuarios y permisos.
-- `/admin/configuracion` - Configuracion general.
+Active nav:
 
-## Regla de ruta por temporada
+- `/primer-equipo/*` marks Primer Equipo active.
+- `/equipos/*` marks Equipos active.
+- `/noticias/*` marks Noticias active.
+- `/` marks Home active.
 
-Por defecto las rutas publicas muestran la temporada activa. En una fase posterior se podra anadir historico por temporada, por ejemplo:
+## Team route ownership
 
-- `/temporadas/[seasonSlug]/equipos/[teamSlug]`
+First Team owns:
 
-No implementar historico publico avanzado en MVP salvo que se solicite explicitamente.
+- `/primer-equipo`
+- `/primer-equipo/plantilla`
+- `/primer-equipo/calendario`
+- `/primer-equipo/clasificacion`
+- `/primer-equipo/partidos/[matchId]`
+- First Team players can use `/jugadores/[playerSlug]`.
+
+Academy/rest teams own:
+
+- `/equipos/[teamSlug]`
+- `/equipos/[teamSlug]/plantilla`
+- `/equipos/[teamSlug]/calendario`
+- `/equipos/[teamSlug]/clasificacion`
+- `/equipos/[teamSlug]/partidos/[matchId]`
+- `/equipos/[teamSlug]/jugadores/[playerSlug]`
+
+## Admin routes
+
+```text
+/admin
+/admin/login
+/admin/temporadas
+/admin/equipos
+/admin/jugadores
+/admin/asignaciones
+/admin/partidos
+/admin/clasificaciones
+/admin/estadisticas
+/admin/noticias
+/admin/media
+/admin/importaciones
+/admin/usuarios
+```
+
+Admin routes must be protected. Role-based visibility is not enough; server-side permission checks are required for writes.

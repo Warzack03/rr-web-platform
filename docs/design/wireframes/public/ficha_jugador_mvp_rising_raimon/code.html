@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Axel Blaze | Rising Raimon FC</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#121414",
+                        "on-secondary": "#203149",
+                        "inverse-surface": "#e2e2e2",
+                        "on-tertiary": "#223149",
+                        "on-primary-fixed": "#251a00",
+                        "on-tertiary-fixed": "#0c1c33",
+                        "primary-fixed": "#ffdf9d",
+                        "on-background": "#e2e2e2",
+                        "tertiary": "#e7eeff",
+                        "surface-bright": "#37393a",
+                        "bolt-gold": "#FDCB58",
+                        "primary-fixed-dim": "#f0c04e",
+                        "surface-container-high": "#282a2b",
+                        "on-surface": "#e2e2e2",
+                        "inverse-on-surface": "#2f3131",
+                        "tertiary-fixed": "#d6e3ff",
+                        "outline": "#9b8f7c",
+                        "on-error": "#690005",
+                        "pitch-deep": "#0B1B32",
+                        "on-secondary-fixed-variant": "#374761",
+                        "on-surface-variant": "#d2c5b0",
+                        "on-primary-container": "#735500",
+                        "surface-container-lowest": "#0c0f0f",
+                        "secondary-fixed": "#d4e3ff",
+                        "background": "#121414",
+                        "outline-variant": "#4e4635",
+                        "stadium-blue": "#1E2F47",
+                        "on-secondary-fixed": "#091c33",
+                        "on-tertiary-container": "#4c5a74",
+                        "secondary": "#b6c7e6",
+                        "surface-container-highest": "#333535",
+                        "surface-container-low": "#1a1c1c",
+                        "surface-variant": "#333535",
+                        "primary-container": "#fdcb58",
+                        "surface": "#121414",
+                        "primary": "#ffeccb",
+                        "on-secondary-container": "#a5b6d4",
+                        "error": "#ffb4ab",
+                        "active-glow": "rgba(253, 203, 88, 0.25)",
+                        "on-primary-fixed-variant": "#5b4300",
+                        "on-tertiary-fixed-variant": "#394760",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#b8c7e5",
+                        "secondary-container": "#374761",
+                        "error-container": "#93000a",
+                        "surface-tint": "#f0c04e",
+                        "inverse-primary": "#785900",
+                        "tertiary-container": "#c3d2f1",
+                        "on-primary": "#3f2e00",
+                        "surface-container": "#1e2020",
+                        "secondary-fixed-dim": "#b6c7e6"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "stack-lg": "32px",
+                        "margin-mobile": "20px",
+                        "container-max": "1280px",
+                        "section-gap": "80px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px"
+                    },
+                    fontFamily: {
+                        "label-caps": ["Barlow Condensed", "sans-serif"],
+                        "body-lg": ["Barlow Condensed", "sans-serif"],
+                        "headline-md": ["Bebas Neue", "sans-serif"],
+                        "headline-lg": ["Bebas Neue", "sans-serif"],
+                        "body-md": ["Barlow Condensed", "sans-serif"],
+                        "display-xl": ["Bebas Neue", "sans-serif"],
+                        "stat-value": ["Bebas Neue", "sans-serif"],
+                        "headline-lg-mobile": ["Bebas Neue", "sans-serif"]
+                    },
+                    fontSize: {
+                        "label-caps": ["14px", { lineHeight: "1.0", letterSpacing: "0.1em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "1.5", fontWeight: "500" }],
+                        "headline-md": ["32px", { lineHeight: "1.2", fontWeight: "400" }],
+                        "headline-lg": ["48px", { lineHeight: "1.2", letterSpacing: "0.02em", fontWeight: "400" }],
+                        "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+                        "display-xl": ["72px", { lineHeight: "1.1", letterSpacing: "0.02em", fontWeight: "400" }],
+                        "stat-value": ["24px", { lineHeight: "1.0", fontWeight: "400" }],
+                        "headline-lg-mobile": ["36px", { lineHeight: "1.2", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .clip-diagonal { clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%); }
+        .bolt-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background-color: theme('colors.pitch-deep');
+            border-left: 2px solid theme('colors.bolt-gold');
+            border-bottom: 2px solid theme('colors.bolt-gold');
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+    </style>
+</head>
+<body class="bg-pitch-deep text-on-surface antialiased selection:bg-bolt-gold selection:text-pitch-deep font-body-md text-body-md flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-pitch-deep/80 backdrop-blur-xl dark:bg-pitch-deep/80 docked full-width top-0 sticky z-50 border-b border-outline-variant/30 flat no shadows">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md text-bolt-gold tracking-wider uppercase">
+                Rising Raimon
+            </div>
+<nav class="hidden md:flex gap-gutter font-label-caps text-label-caps">
+<a class="text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Home</a>
+<a class="text-bolt-gold border-b-2 border-bolt-gold pb-1" href="#">Primer Equipo</a>
+<a class="text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Equipos</a>
+<a class="text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Noticias</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="hidden md:block bg-bolt-gold text-pitch-deep font-label-caps text-label-caps px-6 py-2 uppercase hover:bg-active-glow transition-all duration-300 scale-95 active:scale-90 shadow-[0_0_15px_rgba(253,203,88,0.2)] hover:shadow-[0_0_25px_rgba(253,203,88,0.4)]">
+                    Tienda Oficial
+                </button>
+<button class="text-bolt-gold hover:bg-active-glow transition-all duration-300 rounded-full p-2 scale-95 active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col">
+<!-- Hero Section -->
+<section class="relative w-full min-h-[716px] flex items-end pt-32 pb-16 px-margin-mobile md:px-margin-desktop overflow-hidden border-b border-outline-variant/30 bg-stadium-blue">
+<!-- Background Image -->
+<div class="absolute inset-0 z-0 opacity-40 mix-blend-luminosity">
+<div class="w-full h-full bg-cover bg-center" data-alt="A dramatic, high-energy nighttime view of a massive modern football stadium. Intense floodlights cut through light fog, illuminating the empty pristine green pitch. The stands are dark and imposing. The overall color palette features deep, moody stadium-blue and pitch-deep shadows with striking, sharp white light beams creating a premium athletic atmosphere." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAwhHSHgZ4BY9QZ1X1NcNMW1rr_3AxSklkhrdi1VJkLDOqPhxvBBDu6t0WSwV3iS82pPW6JbFGzZSHsDzmsUXoMgvcgdNrXBx5I-ArzpWKKbQYsZXVxTun4MIyqLayupRdW5Wv4qdu3Nbd6qQSZTANZqyDAjOUIEF5vqxC3_SAN0PXIv1GZ7EcO4q1NN9Hsyt3308MXwSOMND-8cxK3gJJu-PnQIok88CMlYkCZB4fmEI4zBp7P9gKuvnd73zcMB8ppNv4L6DvkL5A');"></div>
+</div>
+<!-- Overlay Gradients -->
+<div class="absolute inset-0 z-0 bg-gradient-to-t from-pitch-deep via-pitch-deep/80 to-transparent"></div>
+<div class="absolute inset-0 z-0 bg-gradient-to-r from-pitch-deep via-pitch-deep/50 to-transparent"></div>
+<!-- Giant Background Number -->
+<div class="absolute right-[-5%] top-[10%] text-[400px] leading-none font-display-xl text-bolt-gold/5 select-none z-0">
+                10
+            </div>
+<!-- Content Container -->
+<div class="relative z-10 w-full max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-end md:items-center gap-gutter">
+<!-- Player Info -->
+<div class="flex-1 flex flex-col gap-stack-sm">
+<div class="flex items-center gap-4">
+<span class="font-stat-value text-stat-value text-pitch-deep bg-bolt-gold px-4 py-1">10</span>
+<span class="font-label-caps text-label-caps text-bolt-gold uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">sports_soccer</span> Delantero
+                        </span>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-caps text-label-caps ml-4 border-l border-outline-variant pl-4">
+<span>JAPÓN</span>
+</div>
+</div>
+<h1 class="font-display-xl text-display-xl text-inverse-surface uppercase leading-[0.85] tracking-tight mt-2">
+                        AXEL<br/><span class="text-bolt-gold">BLAZE</span>
+</h1>
+</div>
+<!-- Player Image / Render -->
+<div class="w-full md:w-1/2 h-[400px] md:h-[600px] relative flex justify-end items-end">
+<div class="w-full h-full bg-contain bg-bottom bg-no-repeat" data-alt="A dynamic, high-contrast studio portrait cutout of an athletic male football player striking a powerful pose. He is wearing a dark navy and gold jersey. Dramatic edge lighting highlights his silhouette, with a subtle golden glow rim light on his back. The background is completely transparent, allowing him to stand out sharply against the dark stadium UI." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuChTrjOThIK_oBxv-R8p8_xL2Eh64E_f9NcaPZBpxPeaLANz-59YksTcrWD0YAYkJxhQNhRWnMGQpn7fZBKE39Jy58Bh0k1NThWtLz2AOItn3kH5ZtUof28L7iFmK2VJPXGjgGl7I1wVDxn6xN6AAoQl6OC6tNDCdbbN6qrdAolCDJPpIUC-lKrMDpL7aaCIRz__ONVooKLsfQjctmMBhvvaONoVUvhMEWUgnZ4DF5IfmSJy8YljzhHXF7idtyAA47CAAHUcpBN24A'); filter: drop-shadow(0 0 30px rgba(253, 203, 88, 0.15));"></div>
+</div>
+</div>
+</section>
+<!-- Stats & Radar Bento Grid -->
+<section class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-gap">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Radar/Skills Block -->
+<div class="md:col-span-5 bg-stadium-blue border border-outline-variant/50 rounded-lg p-stack-lg relative overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
+<h2 class="absolute top-6 left-6 font-headline-md text-headline-md text-bolt-gold uppercase">Rendimiento Técnico</h2>
+<!-- Fake Radar Graphic (CSS shapes for demo) -->
+<div class="w-64 h-64 border border-outline-variant/30 rounded-full flex items-center justify-center relative mt-8">
+<div class="w-48 h-48 border border-outline-variant/30 rounded-full absolute"></div>
+<div class="w-32 h-32 border border-outline-variant/30 rounded-full absolute"></div>
+<div class="absolute w-full h-[1px] bg-outline-variant/30 rotate-0"></div>
+<div class="absolute w-full h-[1px] bg-outline-variant/30 rotate-45"></div>
+<div class="absolute w-full h-[1px] bg-outline-variant/30 rotate-90"></div>
+<div class="absolute w-full h-[1px] bg-outline-variant/30 rotate-[135deg]"></div>
+<!-- Radar Area -->
+<div class="absolute w-40 h-40 bg-bolt-gold/20 border border-bolt-gold clip-diagonal"></div>
+</div>
+</div>
+<!-- Metrics Grid -->
+<div class="md:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-stack-md">
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        Partidos jugados <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">142</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        Goles <span class="material-symbols-outlined text-[16px]">sports_soccer</span>
+</div>
+<div class="font-stat-value text-stat-value text-bolt-gold">118</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        Asistencias <span class="material-symbols-outlined text-[16px]">directions_run</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">34</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        G+A <span class="material-symbols-outlined text-[16px]">add_circle</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">152</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        Recuperaciones <span class="material-symbols-outlined text-[16px]">refresh</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">85</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        Tiros <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">312</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        Tiros a puerta <span class="material-symbols-outlined text-[16px]">target</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">194</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        T. Amarillas <span class="material-symbols-outlined text-[16px] text-bolt-gold">style</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">12</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        T. Rojas <span class="material-symbols-outlined text-[16px] text-error">style</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">1</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        Goles en propia <span class="material-symbols-outlined text-[16px]">error</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">0</div>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-stack-md border-y border-r border-outline-variant/30 rounded-r shadow-[inset_0_0_20px_rgba(253,203,88,0.02)]">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex items-center justify-between">
+        MVP's <span class="material-symbols-outlined text-[16px]">star</span>
+</div>
+<div class="font-stat-value text-stat-value text-inverse-surface">8</div>
+</div></div>
+</div>
+</section>
+<!-- Bolt Divider -->
+<!-- Bio & Gallery Section -->
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest full-width bg-pitch-deep border-t border-bolt-gold/20 flat no shadows mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1 flex flex-col gap-4">
+<div class="font-headline-md text-headline-md text-bolt-gold">Rising Raimon</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    © 2024 Rising Raimon Football Club. Todos los derechos reservados.
+                </p>
+</div>
+<div class="col-span-1 md:col-span-3 flex justify-end items-end gap-6 font-label-caps text-label-caps">
+<a class="text-on-surface-variant hover:text-on-surface hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100" href="#">Privacidad</a>
+<a class="text-on-surface-variant hover:text-on-surface hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100" href="#">Aviso Legal</a>
+<a class="text-on-surface-variant hover:text-on-surface hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100" href="#">Contacto</a>
+<a class="text-on-surface-variant hover:text-on-surface hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100" href="#">Socio</a>
+</div>
+</div>
+</footer>
+</body></html>

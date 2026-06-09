@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Raimon B - Plantilla</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow+Condensed:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#203149",
+                    "on-tertiary-container": "#4c5a74",
+                    "primary-fixed": "#ffdf9d",
+                    "surface-container-lowest": "#0c0f0f",
+                    "secondary-fixed-dim": "#b6c7e6",
+                    "on-error-container": "#ffdad6",
+                    "on-surface": "#e2e2e2",
+                    "primary": "#ffeccb",
+                    "surface-tint": "#f0c04e",
+                    "on-tertiary-fixed": "#0c1c33",
+                    "surface-variant": "#333535",
+                    "surface-bright": "#37393a",
+                    "stadium-blue": "#1E2F47",
+                    "outline-variant": "#4e4635",
+                    "bolt-gold": "#FDCB58",
+                    "on-tertiary": "#223149",
+                    "tertiary-container": "#c3d2f1",
+                    "background": "#121414",
+                    "tertiary-fixed-dim": "#b8c7e5",
+                    "surface-container-high": "#282a2b",
+                    "on-secondary-fixed": "#091c33",
+                    "on-background": "#e2e2e2",
+                    "inverse-on-surface": "#2f3131",
+                    "surface": "#121414",
+                    "primary-container": "#fdcb58",
+                    "surface-dim": "#121414",
+                    "on-primary-fixed-variant": "#5b4300",
+                    "on-secondary-fixed-variant": "#374761",
+                    "pitch-deep": "#0B1B32",
+                    "secondary-fixed": "#d4e3ff",
+                    "error": "#ffb4ab",
+                    "on-primary-container": "#735500",
+                    "tertiary": "#e7eeff",
+                    "primary-fixed-dim": "#f0c04e",
+                    "on-error": "#690005",
+                    "surface-container": "#1e2020",
+                    "active-glow": "rgba(253, 203, 88, 0.25)",
+                    "error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#394760",
+                    "on-secondary-container": "#a5b6d4",
+                    "secondary-container": "#374761",
+                    "on-surface-variant": "#d2c5b0",
+                    "inverse-primary": "#785900",
+                    "tertiary-fixed": "#d6e3ff",
+                    "surface-container-low": "#1a1c1c",
+                    "inverse-surface": "#e2e2e2",
+                    "secondary": "#b6c7e6",
+                    "on-primary-fixed": "#251a00",
+                    "on-primary": "#3f2e00",
+                    "outline": "#9b8f7c",
+                    "surface-container-highest": "#333535"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-lg": "32px",
+                    "container-max": "1280px",
+                    "stack-md": "16px",
+                    "section-gap": "80px",
+                    "margin-mobile": "20px",
+                    "margin-desktop": "64px",
+                    "stack-sm": "8px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Bebas Neue"
+                    ],
+                    "headline-lg": [
+                            "Bebas Neue"
+                    ],
+                    "body-md": [
+                            "Barlow Condensed"
+                    ],
+                    "display-xl": [
+                            "Bebas Neue"
+                    ],
+                    "headline-lg-mobile": [
+                            "Bebas Neue"
+                    ],
+                    "body-lg": [
+                            "Barlow Condensed"
+                    ],
+                    "label-caps": [
+                            "Barlow Condensed"
+                    ],
+                    "stat-value": [
+                            "Bebas Neue"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-xl": [
+                            "72px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "36px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-caps": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.0",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "stat-value": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.0",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+</head>
+<body class="bg-pitch-deep text-on-surface antialiased flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-pitch-deep/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="font-headline-lg text-headline-lg tracking-tighter text-bolt-gold">
+                Rising Raimon
+            </div>
+<div class="hidden md:flex gap-stack-lg items-center">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors" href="#">Home</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors" href="#">First Team</a>
+<a class="font-label-caps text-label-caps text-bolt-gold border-b-2 border-bolt-gold pb-1" href="#">Teams</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors" href="#">News</a>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="text-on-surface-variant hover:text-bolt-gold transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-on-surface-variant hover:text-bolt-gold transition-all duration-300 hidden md:block">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+<button class="hidden md:block bg-bolt-gold text-pitch-deep font-label-caps text-label-caps px-4 py-2 rounded uppercase font-bold hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(253,203,88,0.25)] transition-all active:scale-95 duration-200">
+                    JOIN ACADEMY
+                </button>
+<button class="md:hidden text-on-surface-variant hover:text-bolt-gold">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-[100px] pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full">
+<!-- Page Header & Breadcrumbs -->
+<header class="mb-stack-lg border-b border-outline-variant/30 pb-stack-md">
+<div class="flex items-center gap-2 mb-stack-sm text-on-surface-variant font-label-caps text-label-caps uppercase">
+<a class="hover:text-bolt-gold transition-colors" href="#">Teams</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-bolt-gold">Raimon B / Plantilla 23/24</span>
+</div>
+<h1 class="font-display-xl text-headline-lg-mobile md:text-display-xl text-on-surface uppercase tracking-tighter">
+                Raimon B <span class="text-bolt-gold">Squad</span>
+</h1>
+</header>
+<!-- Position Group: Porteros -->
+<section class="mb-section-gap">
+<div class="flex items-center gap-stack-md mb-stack-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase">Porteros</h2>
+<div class="flex-grow h-[1px] bg-outline-variant/30 relative">
+<div class="absolute left-1/2 top-1/2 -translate-y-1/2 w-4 h-4 bg-pitch-deep rotate-45 border border-outline-variant/30"></div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- GK Cromo 1 -->
+<div class="bg-stadium-blue border border-stadium-blue/50 rounded-lg overflow-hidden group hover:border-bolt-gold hover:shadow-[0_0_20px_rgba(253,203,88,0.15)] transition-all duration-300">
+<div class="relative aspect-[3/4] bg-surface-container-high overflow-hidden">
+<img alt="Goalkeeper profile" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" data-alt="A striking portrait of a young football goalkeeper in a dark stadium setting. The player wears a premium athletic kit, illuminated by high-key, soft stadium lighting that highlights their determination. The scene uses a deep navy blue and pitch black palette, punctuated by a subtle golden glow. The mood is highly professional and focused, capturing the intensity of an academy training session." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLKmuOGnVB129trUoVTkSdFjVal-PAp9KHXWNaLFBXPRnTeSjJqlF0gaSpRmvKwjkeroaXKGKqh69ZxNfxnihVGxy2igniCt-SKvoJ3k_oR2zSczHDOXIWx0izbgoLfIBkgefYbB9WOK25saBgkFYdQlW5EjCDKk30GYvg6CVwP2jHyGOIghJFFjMRRd9KyINDYBsx0JDVqILyy1sel-MUDMlnEDfsM-1x-jlCBFwd2lhccZWbdNXyyfFbqv79ejig7k-D-JXZ9YY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-pitch-deep via-transparent to-transparent"></div>
+<div class="absolute top-4 left-4 font-display-xl text-display-xl text-bolt-gold opacity-90 drop-shadow-md">1</div>
+<div class="absolute top-4 right-4 text-2xl" title="España">🇪🇸</div>
+</div>
+<div class="p-stack-md relative">
+<div class="absolute -top-6 right-4 w-8 h-8 rounded-full bg-pitch-deep border border-bolt-gold flex items-center justify-center" title="Pie Dominante: Derecho">
+<span class="material-symbols-outlined text-[16px] text-bolt-gold">sports_soccer</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase mb-1">M. Evans</h3>
+<div class="grid grid-cols-2 gap-stack-sm mt-stack-md">
+<div class="bg-surface-container-low border-l-2 border-bolt-gold p-2 rounded-r">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-1">Goles Encajados</p>
+<p class="font-stat-value text-stat-value text-on-surface">12</p>
+</div>
+<div class="bg-surface-container-low border-l-2 border-bolt-gold p-2 rounded-r">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-1">Porterías a Cero</p>
+<p class="font-stat-value text-stat-value text-on-surface">8</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Position Group: Defensas -->
+<section class="mb-section-gap">
+<div class="flex items-center gap-stack-md mb-stack-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase">Defensas</h2>
+<div class="flex-grow h-[1px] bg-outline-variant/30 relative">
+<div class="absolute left-1/2 top-1/2 -translate-y-1/2 w-4 h-4 bg-pitch-deep rotate-45 border border-outline-variant/30"></div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- DEF Cromo 1 -->
+<div class="bg-stadium-blue border border-stadium-blue/50 rounded-lg overflow-hidden group hover:border-bolt-gold hover:shadow-[0_0_20px_rgba(253,203,88,0.15)] transition-all duration-300">
+<div class="relative aspect-[3/4] bg-surface-container-high overflow-hidden">
+<img alt="Defender profile" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" data-alt="A dramatic portrait of a strong youth football defender in a modern arena. The player is dressed in a dark navy blue athletic jersey, lit by sharp, directional stadium lights that create deep shadows. The visual style is high-contrast and corporate-modern, utilizing deep blacks and subtle gold accents. The atmosphere is intense, ambitious, and disciplined." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIF-1ENidC8TdF7g1w-tfWGbd1jkIejgZdZwsokmExyKlWPP9hdge-GNLkBgKDLs6r5p4xI3Q7D3xIDNaSh6K2a4qwbdCHhLmWWW6Q5y8RiU24RkYsOcJTshygvg9SgauEPjPD9o9cgCPMDMYse7yRvlNLYSI296Sep0w9DtV-wu_QkiQ1W7kMzSBYTtmTrrAPvjamN_z8GDIjVr8NRJJtV8lbUM9FYnhEgfLH_5swTfNxU5_ulS8pu9Zy-zLYhIwF44O2zdQh05U"/>
+<div class="absolute inset-0 bg-gradient-to-t from-pitch-deep via-transparent to-transparent"></div>
+<div class="absolute top-4 left-4 font-display-xl text-display-xl text-bolt-gold opacity-90 drop-shadow-md">3</div>
+<div class="absolute top-4 right-4 text-2xl" title="Japón">🇯🇵</div>
+</div>
+<div class="p-stack-md relative">
+<div class="absolute -top-6 right-4 w-8 h-8 rounded-full bg-pitch-deep border border-bolt-gold flex items-center justify-center" title="Pie Dominante: Izquierdo">
+<span class="material-symbols-outlined text-[16px] text-bolt-gold" style="transform: scaleX(-1);">sports_soccer</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase mb-1">J. Wall</h3>
+<div class="grid grid-cols-2 gap-stack-sm mt-stack-md">
+<div class="bg-surface-container-low border-l-2 border-bolt-gold p-2 rounded-r">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-1">Goles</p>
+<p class="font-stat-value text-stat-value text-on-surface">2</p>
+</div>
+<div class="bg-surface-container-low border-l-2 border-bolt-gold p-2 rounded-r">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-1">Asistencias</p>
+<p class="font-stat-value text-stat-value text-on-surface">1</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full pt-section-gap pb-stack-lg bg-pitch-deep border-t border-outline-variant/20">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-stack-md">
+<div class="font-headline-md text-headline-md text-bolt-gold">
+                Rising Raimon
+            </div>
+<div class="flex flex-wrap justify-center gap-stack-md">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#">Cookie Settings</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#">Contact Us</a>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-center md:text-right">
+                © 2024 RISING RAIMON FOOTBALL CLUB. ALL RIGHTS RESERVED.
+            </div>
+</div>
+</footer>
+</body></html>

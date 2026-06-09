@@ -1,40 +1,71 @@
 # CODE_CONVENTIONS.md
 
-## Stack
+## App structure
 
-- Next.js App Router.
-- TypeScript estricto.
-- Prisma.
-- MySQL.
-- Tailwind.
-- shadcn/ui cuando aporte valor.
-- Zod para validacion.
+Prefer this structure:
 
-## Estructura recomendada
+```text
+src/app/(public)/
+src/app/admin/
+src/app/api/
+src/components/public/
+src/components/admin/
+src/components/layout/
+src/components/shared/
+src/server/db/
+src/server/services/
+src/server/validators/
+src/lib/
+```
 
-- `src/app` - rutas Next.js.
-- `src/components` - componentes UI reutilizables.
-- `src/components/public` - componentes web publica.
-- `src/components/admin` - componentes admin.
-- `src/server/db` - cliente Prisma/acceso DB.
-- `src/server/services` - logica de negocio.
-- `src/server/validators` - esquemas Zod.
-- `src/server/auth` - auth/permisos.
-- `src/lib` - utilidades compartidas.
+If the project already has `server/` at root and it is working, preserve it unless explicitly migrating. Do not break auth/import paths unnecessarily.
 
-## Reglas
+## Next.js
 
-- Server components por defecto.
-- Client components solo para interaccion.
-- No meter queries Prisma complejas directamente en componentes visuales.
-- Centralizar permisos en servidor.
-- No confiar solo en ocultar botones del frontend.
-- Usar acciones pequenas y testeables.
-- Evitar dependencias innecesarias.
-- Mantener prompts/tareas pequenas por epic.
+- Use App Router.
+- Prefer server components by default.
+- Use client components only for interactivity.
+- Keep route files thin.
+- Put business logic in services/actions, not JSX.
 
-## Nombres
+## TypeScript
 
-- Entidades en ingles en codigo: `Team`, `Player`, `Season`, `Match`, `Standing`.
-- Textos UI en espanol.
-- Slugs limpios, minusculas y sin espacios.
+- Use strict TypeScript.
+- Avoid `any` unless justified.
+- Type form payloads and service responses.
+
+## Database
+
+- Centralize Prisma client.
+- Do not instantiate multiple clients directly in components.
+- Use services for business operations.
+- Validate writes with Zod.
+- Check permissions server-side.
+
+## UI
+
+- Build reusable components.
+- Do not paste static HTML from mockups without componentization.
+- Use tokens/CSS variables.
+- Keep UI copy concise.
+- Provide loading/empty/error states.
+
+## Admin
+
+- Tables should support filters where useful.
+- Forms must show validation errors.
+- Critical actions require confirmation.
+- Hide disallowed UI actions, but always enforce permissions server-side.
+
+## Public
+
+- Public pages should be indexable.
+- Use slugs.
+- Avoid fetching private/internal data.
+- Cache public data where possible.
+
+## Git discipline
+
+- Small phases.
+- Run lint/build/prisma validate after each phase.
+- Commit after each successful phase.

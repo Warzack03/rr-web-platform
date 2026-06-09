@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+:root {
+  --rr-bg: #0b1b32;
+  --rr-bg-alt: #071629;
+  --rr-bg-soft: #0d2340;
+  --rr-surface: #1e2f47;
+  --rr-surface-strong: #223652;
+  --rr-surface-muted: #191d20;
+  --rr-panel: rgba(30, 47, 71, 0.92);
+  --rr-panel-dark: rgba(17, 19, 20, 0.96);
+  --rr-text: #eef4ff;
+  --rr-muted: #c2cedf;
+  --rr-muted-soft: rgba(194, 206, 223, 0.72);
+  --rr-gold: #fdcb58;
+  --rr-on-gold: #0b1b32;
+  --rr-gold-soft: rgba(253, 203, 88, 0.18);
+  --rr-border: rgba(255, 255, 255, 0.12);
+  --rr-border-strong: rgba(253, 203, 88, 0.45);
+  --rr-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
+  --rr-font-brand: "Bebas Neue", "Agency FB", "Arial Narrow", Impact, sans-serif;
+  --rr-font-display: "Bebas Neue", "Agency FB", "Arial Narrow", Impact, sans-serif;
+  --rr-font-body: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", "Segoe UI", sans-serif;
+  --background: var(--rr-bg);
+  --foreground: var(--rr-text);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(43, 70, 108, 0.22), transparent 42%),
+    linear-gradient(180deg, #102543 0%, var(--rr-bg) 32%, #0a1730 100%);
+  color: var(--rr-text);
+  font-family: var(--rr-font-body);
+  letter-spacing: 0.01em;
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(253, 203, 88, 0.26);
+  color: var(--rr-text);
+}
+
+.rr-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 16%),
+    linear-gradient(180deg, #102543 0%, var(--rr-bg) 42%, #0a1730 100%);
+}
+
+.rr-panel {
+  border: 1px solid var(--rr-border);
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, rgba(36, 56, 84, 0.97), rgba(24, 38, 60, 0.97));
+  box-shadow: var(--rr-shadow);
+}
+
+.rr-panel-dark {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, rgba(28, 31, 33, 0.98), rgba(20, 22, 23, 0.98));
+}
+
+.rr-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(36, 41, 47, 0.9);
+  padding: 0.3rem 0.65rem;
+  font-family: var(--rr-font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rr-kicker {
+  font-family: var(--rr-font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.rr-display {
+  font-family: var(--rr-font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.rr-brand {
+  font-family: var(--rr-font-brand);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.rr-bolt-divider {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(253, 203, 88, 0), rgba(253, 203, 88, 0.55), rgba(253, 203, 88, 0));
+}
+
+.rr-bolt-divider::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border: 1px solid rgba(253, 203, 88, 0.7);
+  background: var(--rr-bg);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.rr-button {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 1px solid var(--rr-gold);
+  padding: 0.75rem 1.25rem;
+  font-family: var(--rr-font-body);
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition:
+    transform 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.rr-button svg {
+  flex-shrink: 0;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+.rr-button-primary {
+  background: var(--rr-gold);
+  color: var(--rr-on-gold);
+}
+
+.rr-button-primary:hover {
+  transform: translateY(-2px);
+  background: #ffd46f;
+  color: var(--rr-on-gold);
+}
+
+.rr-button-secondary {
+  background: transparent;
+  color: var(--rr-gold);
+}
+
+.rr-button-secondary:hover {
+  background: rgba(253, 203, 88, 0.08);
+  color: var(--rr-gold);
+}

@@ -1,0 +1,321 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mark Evans - Rising Raimon</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config from Design System -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#e7eeff",
+                        "on-background": "#e2e2e2",
+                        "surface-container-low": "#1a1c1c",
+                        "primary": "#ffeccb",
+                        "on-primary-fixed-variant": "#5b4300",
+                        "surface-container": "#1e2020",
+                        "on-primary-fixed": "#251a00",
+                        "tertiary-container": "#c3d2f1",
+                        "on-secondary": "#203149",
+                        "outline-variant": "#4e4635",
+                        "stadium-blue": "#1E2F47",
+                        "tertiary-fixed-dim": "#b8c7e5",
+                        "surface-dim": "#121414",
+                        "inverse-on-surface": "#2f3131",
+                        "background": "#121414",
+                        "surface-container-highest": "#333535",
+                        "inverse-surface": "#e2e2e2",
+                        "primary-fixed-dim": "#f0c04e",
+                        "surface-container-high": "#282a2b",
+                        "on-primary": "#3f2e00",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed": "#0c1c33",
+                        "active-glow": "rgba(253, 203, 88, 0.25)",
+                        "on-secondary-fixed": "#091c33",
+                        "secondary-fixed": "#d4e3ff",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed": "#ffdf9d",
+                        "outline": "#9b8f7c",
+                        "on-tertiary-container": "#4c5a74",
+                        "on-surface-variant": "#d2c5b0",
+                        "secondary": "#b6c7e6",
+                        "on-secondary-fixed-variant": "#374761",
+                        "on-primary-container": "#735500",
+                        "inverse-primary": "#785900",
+                        "primary-container": "#fdcb58",
+                        "bolt-gold": "#FDCB58",
+                        "pitch-deep": "#0B1B32",
+                        "on-surface": "#e2e2e2",
+                        "surface-variant": "#333535",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#223149",
+                        "surface-container-lowest": "#0c0f0f",
+                        "surface-tint": "#f0c04e",
+                        "surface": "#121414",
+                        "secondary-container": "#374761",
+                        "on-secondary-container": "#a5b6d4",
+                        "surface-bright": "#37393a",
+                        "error-container": "#93000a",
+                        "secondary-fixed-dim": "#b6c7e6",
+                        "on-tertiary-fixed-variant": "#394760"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "stack-md": "16px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "section-gap": "80px",
+                        "stack-sm": "8px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Barlow Condensed"],
+                        "body-lg": ["Barlow Condensed"],
+                        "stat-value": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "headline-md": ["Bebas Neue"],
+                        "headline-lg-mobile": ["Bebas Neue"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-md": ["Barlow Condensed"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["14px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "stat-value": ["24px", { "lineHeight": "1.0", "fontWeight": "400" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bolt-glow {
+            box-shadow: 0 0 15px rgba(253, 203, 88, 0.25);
+        }
+        .bolt-divider {
+            position: relative;
+            height: 1px;
+            background-color: rgba(253, 203, 88, 0.3);
+            width: 100%;
+        }
+        .bolt-divider::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid #FDCB58;
+            border-top: 2px solid #FDCB58;
+        }
+    </style>
+<style data-stitch-cursor=""></style><style data-stitch-scroll-lock=""></style></head>
+<body class="bg-pitch-deep text-on-surface antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-pitch-deep/80 backdrop-blur-xl dark:bg-pitch-deep/80 docked full-width top-0 sticky z-50 border-b border-outline-variant/30 flat no shadows">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md text-bolt-gold tracking-wider uppercase">
+                Rising Raimon
+            </div>
+<nav class="hidden md:flex items-center gap-gutter">
+<a class="font-label-caps text-label-caps text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Home</a>
+<!-- Active Navigation: Primer Equipo -->
+<a class="font-label-caps text-label-caps text-bolt-gold border-b-2 border-bolt-gold pb-1" href="#">Primer Equipo</a>
+<a class="font-label-caps text-label-caps text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Equipos</a>
+<a class="font-label-caps text-label-caps text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Noticias</a>
+</nav>
+<div class="flex items-center gap-stack-md">
+<a class="hidden md:block font-label-caps text-label-caps text-pitch-deep bg-bolt-gold px-6 py-2 rounded scale-95 active:scale-90 transition-transform hover:bg-active-glow hover:text-bolt-gold hover:bg-transparent border border-bolt-gold uppercase" href="#">Tienda Oficial</a>
+<button class="text-bolt-gold dark:text-bolt-gold hover:bg-active-glow transition-all duration-300 p-2 rounded-full">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative pt-section-gap pb-stack-lg border-b border-outline-variant/20 overflow-hidden">
+<!-- Background element -->
+<div class="absolute top-1/2 left-1/4 -translate-y-1/2 -translate-x-1/2 text-[300px] leading-none font-display-xl font-bold text-stadium-blue/30 select-none z-0">
+                1
+            </div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-end">
+<!-- Player Info -->
+<div class="md:col-span-6 flex flex-col justify-end pb-stack-lg">
+<div class="flex items-center gap-stack-sm mb-stack-sm">
+<span class="font-display-xl text-display-xl text-bolt-gold">1</span>
+<div class="h-8 w-px bg-bolt-gold/50 mx-2"></div>
+<span class="font-headline-md text-headline-md text-on-surface tracking-wide">PORTERO</span>
+</div>
+<h1 class="font-display-xl text-display-xl text-on-surface uppercase leading-none mb-stack-md">
+                            Mark<br><span class="text-bolt-gold">Evans</span>
+</h1>
+<div class="flex items-center gap-stack-md">
+<div class="px-4 py-1 border border-outline-variant rounded-full flex items-center gap-2 bg-stadium-blue/50">
+<img alt="España" class="w-5 h-auto rounded-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfZQS4oyTfgUyBNuKTq_pxcbfC-GAdu0_7chMqDjTjHrgoWA9WLhV8T3na6GwrDqdbqMsaAvyVqezk1hUShwkQNbl2HFI9yrFZTHSkZIfhUtWxJ6yHPn7cifurxXSbEQSQ7aJhSggC5S5oL_0GLyZE-yAqCM3Bff7UL-2XECGEouMnVq5XaQ6Fs3wla7_ZBv1DemWBWSYEOeS66f3RaheDXJg_pH_KBpjqknD44W1AcNA3BJhkPFcQyBLXt8ximDQEcD214nKd6OM">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">España</span>
+</div>
+</div>
+</div>
+<!-- Player Image -->
+<div class="md:col-span-6 relative flex justify-center md:justify-end">
+<!-- Decorative glow behind player -->
+<div class="absolute inset-0 bg-bolt-gold/10 blur-[100px] rounded-full z-0"></div>
+<img alt="Mark Evans" class="relative z-10 w-full max-w-[500px] h-auto object-cover mask-image-gradient-bottom" data-alt="A highly detailed, professional sports portrait of an athletic male soccer goalkeeper standing confidently on a dark pitch. He is wearing a premium, high-tech dark blue and gold goalkeeper jersey. The lighting is dramatic stadium lighting, creating high-contrast shadows and highlighting his focused expression. The aesthetic is modern, intense, and corporate-athletic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmCCDOf7fvOQnmcNPayou3bi3oC069daBa-dwV9gDpwRp2rBpIiBZnBQe4ARhOyoDVSmLB2UAyDjpl3BWES-5C-aZNAwggFW0K19jqY-2nAO2fvKp2bghbw3tp0g9VcMpoRYzTJMQiRZTjWLtBQ8OaK0wR20xa04sgQ7SX2QThbZb52mKByTBCJebt2wglH_SPC56F-fczAA0KvUPryz8hhwrKlvC2ZxjJFs8sZMyD1WgcQR02VfJ7nklqgBzJ1emGQQFN7BIKwbg" style="-webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%); mask-image: linear-gradient(to bottom, black 70%, transparent 100%);">
+</div>
+</div>
+</div>
+</section>
+<!-- Stats & Radar Section -->
+<section class="py-section-gap">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex items-center justify-between mb-stack-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface uppercase">Rendimiento <span class="text-bolt-gold">Técnico</span></h2>
+<div class="hidden md:block w-1/3 bolt-divider"></div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Stats Bento Grid -->
+<div class="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-stack-sm"><!-- Primary Stats Row (4 stats) -->
+<div class="col-span-2 md:col-span-3 lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-stack-sm mb-stack-sm w-full">
+    <div class="bg-stadium-blue border border-outline-variant/30 p-4 rounded-lg flex flex-col justify-between relative overflow-hidden group hover:border-bolt-gold/50 transition-colors">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-bolt-gold"></div>
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Partidos Jugados</span>
+        <span class="font-stat-value text-stat-value text-bolt-gold text-4xl">38</span>
+    </div>
+    <div class="bg-stadium-blue border border-outline-variant/30 p-4 rounded-lg flex flex-col justify-between hover:border-bolt-gold/50 transition-colors">
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Paradas</span>
+        <span class="font-stat-value text-stat-value text-bolt-gold text-4xl">145</span>
+    </div>
+    <div class="bg-stadium-blue border border-outline-variant/30 p-4 rounded-lg flex flex-col justify-between hover:border-bolt-gold/50 transition-colors">
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Goles Encajados</span>
+        <span class="font-stat-value text-stat-value text-on-surface text-4xl">28</span>
+    </div>
+    <div class="bg-stadium-blue border border-outline-variant/30 p-4 rounded-lg flex flex-col justify-between relative overflow-hidden group hover:border-bolt-gold/50 transition-colors">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-bolt-gold"></div>
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Porterías a cero</span>
+        <span class="font-stat-value text-stat-value text-bolt-gold text-4xl">18</span>
+    </div>
+</div>
+
+<!-- Secondary Stats Grid (6 stats) -->
+<div class="col-span-2 md:col-span-3 lg:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-stack-sm w-full">
+    <div class="bg-surface-container border border-outline-variant/20 p-4 rounded-lg flex flex-col justify-between">
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">MVP's</span>
+        <span class="font-stat-value text-stat-value text-bolt-gold text-3xl">5</span>
+    </div>
+    <div class="bg-surface-container border border-outline-variant/20 p-4 rounded-lg flex flex-col justify-between">
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Tiros Recibidos</span>
+        <span class="font-stat-value text-stat-value text-on-surface text-3xl">173</span>
+    </div>
+    <div class="bg-surface-container border border-outline-variant/20 p-4 rounded-lg flex flex-col justify-between">
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Goles</span>
+        <span class="font-stat-value text-stat-value text-on-surface text-3xl">0</span>
+    </div>
+    <div class="bg-surface-container border border-outline-variant/20 p-4 rounded-lg flex flex-col justify-between">
+        <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Asistencias</span>
+        <span class="font-stat-value text-stat-value text-bolt-gold text-3xl">2</span>
+    </div>
+    <div class="bg-surface-container border border-outline-variant/20 p-4 rounded-lg flex flex-col justify-between">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-3 h-4 bg-yellow-400 rounded-sm"></div>
+            <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Amarillas</span>
+        </div>
+        <span class="font-stat-value text-stat-value text-on-surface text-3xl">3</span>
+    </div>
+    <div class="bg-surface-container border border-outline-variant/20 p-4 rounded-lg flex flex-col justify-between">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-3 h-4 bg-red-500 rounded-sm"></div>
+            <span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Rojas</span>
+        </div>
+        <span class="font-stat-value text-stat-value text-on-surface text-3xl">0</span>
+    </div>
+</div></div>
+<!-- Radar Chart Area -->
+<div class="lg:col-span-5 bg-stadium-blue/30 border border-outline-variant/20 rounded-xl p-stack-md flex flex-col items-center justify-center relative backdrop-blur-sm min-h-[400px]">
+<span class="font-label-caps text-label-caps text-bolt-gold absolute top-6 left-6 uppercase tracking-widest">Perfil Táctico</span>
+<img alt="Radar Chart" class="w-full max-w-[300px] opacity-80 mix-blend-screen filter sepia-[.3] hue-rotate-[180deg] saturate-[2]" data-alt="A stylized, neon-lit digital radar chart displaying athletic performance metrics on a dark background. The chart features a glowing gold polygon representing player stats, set against a dark blue grid. The visual style is high-tech, data-driven, and perfectly matches a modern sports analytics dashboard interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVzYXN0hhdQktQIdx22GFCpx2oqFxWoC04x2pIGldfQ0tgrSJUB3yds_Cdc8V5PRG4GAxRM70XqlzmxJr524pgaaqivKnp72l57MmIWfa0KxzD1orU-k00P_xt0mrMmaFQ_lzkqV0HkVpf-u-KrKp4Veqz4AREWC7a_fpk2IFHS-tItAifIJmnj9oR3PHPlACVKtAzrhVHLLYvAi9YI56bUB-O-wlEpE68NJYTkGAoqtBytbGwR3KGgg4x_op0PVWfk71M6W2m_UI">
+</div>
+</div>
+</div>
+</section>
+<!-- Shop CTA Banner -->
+<section class="py-section-gap">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="bg-stadium-blue border border-bolt-gold/30 rounded-xl overflow-hidden relative group">
+<!-- Background texture/image -->
+<div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1518605368461-1e1e1fd51ed4?q=80&amp;w=2000&amp;auto=format&amp;fit=crop')] bg-cover bg-center mix-blend-overlay" data-alt="A dark, moody close-up abstract shot of premium sports fabric with geometric patterns. The lighting highlights the texture of the material, evoking the high-quality feel of a professional football jersey. The color palette is strictly deep blacks, navy blues, with subtle metallic gold threads catching the light.">
+</div>
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-2 items-center p-8 md:p-12 gap-gutter">
+<div class="flex flex-col items-start gap-stack-md">
+<h3 class="font-display-xl text-display-xl text-on-surface uppercase leading-none">
+                                Consigue la <span class="text-bolt-gold">#1</span>
+</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">
+                                Equípate con la armadura oficial de Mark Evans. Edición profesional con tecnología de alto rendimiento.
+                            </p>
+<button class="mt-4 font-label-caps text-label-caps text-pitch-deep bg-bolt-gold px-8 py-3 rounded scale-95 active:scale-90 transition-transform hover:bg-active-glow hover:text-bolt-gold hover:bg-transparent border border-bolt-gold uppercase bolt-glow">
+                                Comprar Ahora
+                            </button>
+</div>
+<!-- Jersey Mockup Placeholder -->
+<div class="flex justify-center md:justify-end relative">
+<div class="w-48 h-64 bg-surface-container border border-outline-variant/50 rounded flex items-center justify-center transform rotate-3 shadow-2xl relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-tr from-pitch-deep to-stadium-blue opacity-50"></div>
+<span class="font-display-xl text-display-xl text-bolt-gold relative z-10 text-[100px]">1</span>
+<span class="font-label-caps text-label-caps text-on-surface absolute top-4 uppercase tracking-widest relative z-10">Evans</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest full-width bg-pitch-deep border-t border-bolt-gold/20 flat no shadows">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="font-headline-md text-headline-md text-bolt-gold mb-stack-sm">
+                    Rising Raimon
+                </div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    © 2024 Rising Raimon Football Club. Todos los derechos reservados.
+                </p>
+</div>
+<div class="col-span-1 md:col-span-3 flex flex-wrap gap-stack-lg justify-start md:justify-end items-end">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Privacidad</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Aviso Legal</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Contacto</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Socio</a>
+</div>
+</div>
+</footer>
+
+
+</body></html>

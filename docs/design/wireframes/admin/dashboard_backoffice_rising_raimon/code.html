@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard - Rising Raimon Backoffice</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#ffeccb",
+                      "inverse-primary": "#785900",
+                      "on-surface": "#e2e2e2",
+                      "on-primary": "#3f2e00",
+                      "error": "#ffb4ab",
+                      "on-primary-container": "#735500",
+                      "on-surface-variant": "#d2c5b0",
+                      "on-secondary-fixed-variant": "#374761",
+                      "on-tertiary": "#223149",
+                      "surface-variant": "#333535",
+                      "surface-dim": "#121414",
+                      "stadium-blue": "#1E2F47",
+                      "bolt-gold": "#FDCB58",
+                      "inverse-on-surface": "#2f3131",
+                      "outline": "#9b8f7c",
+                      "on-background": "#e2e2e2",
+                      "on-tertiary-container": "#4c5a74",
+                      "surface": "#121414",
+                      "tertiary": "#e7eeff",
+                      "surface-container": "#1e2020",
+                      "surface-tint": "#f0c04e",
+                      "secondary-fixed-dim": "#b6c7e6",
+                      "on-secondary-container": "#a5b6d4",
+                      "on-tertiary-fixed": "#0c1c33",
+                      "surface-container-lowest": "#0c0f0f",
+                      "tertiary-fixed-dim": "#b8c7e5",
+                      "surface-container-highest": "#333535",
+                      "tertiary-container": "#c3d2f1",
+                      "secondary-container": "#374761",
+                      "on-secondary-fixed": "#091c33",
+                      "primary-fixed-dim": "#f0c04e",
+                      "on-primary-fixed-variant": "#5b4300",
+                      "surface-container-high": "#282a2b",
+                      "tertiary-fixed": "#d6e3ff",
+                      "on-error-container": "#ffdad6",
+                      "outline-variant": "#4e4635",
+                      "on-tertiary-fixed-variant": "#394760",
+                      "pitch-deep": "#0B1B32",
+                      "on-secondary": "#203149",
+                      "inverse-surface": "#e2e2e2",
+                      "on-primary-fixed": "#251a00",
+                      "active-glow": "rgba(253, 203, 88, 0.25)",
+                      "on-error": "#690005",
+                      "surface-container-low": "#1a1c1c",
+                      "primary-fixed": "#ffdf9d",
+                      "primary-container": "#fdcb58",
+                      "secondary": "#b6c7e6",
+                      "background": "#121414",
+                      "error-container": "#93000a",
+                      "surface-bright": "#37393a",
+                      "secondary-fixed": "#d4e3ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "section-gap": "80px",
+                      "stack-md": "16px",
+                      "margin-desktop": "64px",
+                      "container-max": "1280px",
+                      "margin-mobile": "20px",
+                      "stack-sm": "8px",
+                      "stack-lg": "32px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Barlow Condensed"
+                      ],
+                      "headline-md": [
+                              "Bebas Neue"
+                      ],
+                      "headline-lg-mobile": [
+                              "Bebas Neue"
+                      ],
+                      "label-caps": [
+                              "Barlow Condensed"
+                      ],
+                      "body-lg": [
+                              "Barlow Condensed"
+                      ],
+                      "stat-value": [
+                              "Bebas Neue"
+                      ],
+                      "headline-lg": [
+                              "Bebas Neue"
+                      ],
+                      "display-xl": [
+                              "Bebas Neue"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "stat-value": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-xl": [
+                              "72px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-pitch-deep text-on-surface font-body-md text-body-md overflow-x-hidden min-h-screen">
+<!-- SideNavBar -->
+<aside class="hidden md:flex w-64 h-screen fixed left-0 top-0 bg-surface-container-low shadow-md z-40 flex-col py-stack-lg border-r border-stadium-blue/30">
+<div class="px-6 mb-8 flex flex-col items-center">
+<div class="w-16 h-16 rounded-full bg-stadium-blue flex items-center justify-center mb-4 border border-bolt-gold/30">
+<img alt="Rising Raimon Admin Shield" class="w-12 h-12 object-contain" data-alt="A stylized high-energy corporate crest in gold and navy blue, symbolizing a premium football academy. The logo is sharp, modern, and features subtle athletic elements. Professional, vector-style design set against a dark stadium-like background to maintain the brand's premium, intense identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5OydURMeQ9Z44zgDaOO1UvB-SbI0l0ouacSpZ1A_feHyD89-NAVGJ4eqXVlChq4hVpULOGqkcQnN7XPpHuK_f6un9idy30TrnuuLCoWCDR1AR1DpWyFl_P_mA8iK9g2GLXwqICPRC47nnb5x3QTVyYzqLZFyWEOVxe_IFxWDtEz8R-RZgjgxgWlGWKPnaDm57Nnm7rY9j4JjoZj8uRPQDb8jA2IXH3ojZgbfr8cuOag2N68t_sW_OmV7OqgN0gwelEuVnAlFgB4k"/>
+</div>
+<h1 class="font-headline-md text-headline-md text-bolt-gold tracking-wider text-center">RISING RAIMON</h1>
+<p class="text-on-surface-variant font-label-caps text-label-caps opacity-70 mt-1">Backoffice Principal</p>
+</div>
+<nav class="flex-1 overflow-y-auto px-2 space-y-2">
+<!-- Active Tab: Temporadas (closest match to Dashboard intent here) -->
+<a class="flex items-center px-4 py-3 text-bolt-gold font-bold bg-secondary-container rounded-lg mx-2 transition-transform scale-95 shadow-[0_0_15px_rgba(253,203,88,0.15)]" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span>Temporadas</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">groups</span>
+<span>Equipos</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">person_filled</span>
+<span>Jugadores</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">sports_soccer</span>
+<span>Partidos</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">leaderboard</span>
+<span>Clasificaciones</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">analytics</span>
+<span>Estadísticas</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">newspaper</span>
+<span>Noticias</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">perm_media</span>
+<span>Media</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 mx-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">upload_file</span>
+<span>Importaciones</span>
+</a>
+</nav>
+<div class="px-6 mt-8">
+<button class="w-full py-3 bg-bolt-gold text-pitch-deep font-label-caps text-label-caps rounded uppercase hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(253,203,88,0.3)] transition-all duration-300 flex items-center justify-center">
+<span class="material-symbols-outlined mr-2 text-lg">add</span>
+                Nuevo Registro
+            </button>
+</div>
+<div class="mt-8 px-2 space-y-2 border-t border-surface-variant pt-4 mx-4">
+<a class="flex items-center px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span>Ajustes</span>
+</a>
+<a class="flex items-center px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined mr-3">logout</span>
+<span>Cerrar Sesión</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="hidden md:flex flex-row justify-between items-center h-16 px-gutter ml-64 bg-pitch-deep/80 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-surface-variant/30">
+<div class="flex items-center space-x-6">
+<span class="font-headline-md text-headline-md text-bolt-gold">Backoffice v1.0</span>
+<nav class="flex space-x-6">
+<a class="font-label-caps text-label-caps text-bolt-gold border-b-2 border-bolt-gold pb-1 hover:text-bolt-gold transition-colors hover:shadow-[0_0_10px_rgba(253,203,88,0.2)]" href="#">Dashboard</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface hover:text-bolt-gold transition-colors" href="#">Soporte</a>
+</nav>
+</div>
+<div class="flex items-center space-x-4">
+<div class="relative text-on-surface-variant">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 opacity-50">search</span>
+<input class="bg-surface-container-high border border-outline-variant rounded-full py-1.5 pl-10 pr-4 text-sm focus:border-bolt-gold focus:ring-1 focus:ring-bolt-gold outline-none transition-colors w-48 text-on-surface" placeholder="Buscar..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-bolt-gold transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-bolt-gold transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-6 w-px bg-surface-variant mx-2"></div>
+<button class="flex items-center space-x-2 text-on-surface hover:text-bolt-gold transition-colors">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full border border-bolt-gold/50" data-alt="A professional headshot of an athletic administrator, wearing a dark polo shirt with subtle gold trim. The background is a clean, dark corporate office setting with hints of modern stadium lighting. Moody, high-contrast, professional portrait style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRT2kG9qoUDQbxqUJMNoXq2qEjTzEKjeK1T9jkKWOr5TZhSsESGjuW-f_wXtvZHGVaED5gQzk9BQSuLKJiaGNw_SC0Xr20xG4L1LVlYxtpeYjCY-kI0bUmDQDuiBtjAwrBf-zvtarJ8NM1LLidxMY_rlX19EWdnR10hjNA1aMi9VpAXg9epM1JkD07thJxJDqMDlnJEuAz4cUUfP0oYo_dU5QXTAB5RWNr4XIv8b5k9WbsFURz5ZtxDi1qyaGqnHxZlHHm9C4aJTU"/>
+<span class="font-label-caps text-label-caps">Perfil</span>
+</button>
+</div>
+</header>
+<!-- Mobile Nav (Simplified for demonstration) -->
+<header class="md:hidden flex justify-between items-center h-16 px-margin-mobile bg-pitch-deep/90 backdrop-blur-md sticky top-0 z-50 border-b border-surface-variant">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-bolt-gold mr-3">menu</span>
+<span class="font-headline-md text-headline-lg-mobile text-bolt-gold">RR ADMIN</span>
+</div>
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full border border-bolt-gold/50" data-alt="A professional headshot of an athletic administrator, wearing a dark polo shirt with subtle gold trim. The background is a clean, dark corporate office setting with hints of modern stadium lighting. Moody, high-contrast, professional portrait style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMNkuyxjZtlz0PZ4go_xDRySkmPwaf5LFgzAGXj9pAxPsbJDseSY518PIMUl59wJdpZlWSIf7mU8Af8qUE4o1IkrPdQjIzGgTYhsNhNUzh7ozcg6vfx2JuANSkJI-XeuiAjVEnRLRC7X8ubDFdb1ElKP3-ec48ShsynWWKXrrl_LkDfTqw6Ur0xskwEc8iyeZauMFo6Q6w1gv3SKdfW2gk2vtpzeyyak_rFu6RDpB4rP8_YFYm4hd_AwvRBhKE_uX6OllTOpcjwt4"/>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto space-y-section-gap pb-20">
+<!-- Header Section -->
+<section class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-surface-variant pb-6">
+<div>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface uppercase tracking-wide">
+                    Temporada 2023/24
+                </h2>
+<div class="flex items-center mt-2">
+<span class="w-3 h-3 rounded-full bg-bolt-gold shadow-[0_0_10px_rgba(253,203,88,0.8)] mr-2"></span>
+<span class="text-on-surface-variant font-label-caps text-label-caps tracking-widest text-bolt-gold">ACTIVA</span>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="bg-stadium-blue border border-outline-variant hover:border-bolt-gold text-on-surface font-label-caps text-label-caps py-2 px-4 rounded transition-all flex items-center">
+<span class="material-symbols-outlined mr-2 text-sm">download</span>
+                    Reporte Global
+                </button>
+</div>
+</section>
+<!-- KPI Grid -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-gutter">
+<!-- KPI 1 -->
+<div class="bg-stadium-blue border border-outline-variant/30 rounded-lg p-5 relative overflow-hidden group hover:border-bolt-gold/50 transition-colors">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px] text-bolt-gold">groups</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-bolt-gold">groups</span>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant">Equipos</h3>
+</div>
+<div class="font-stat-value text-display-xl text-on-surface">12</div>
+<div class="text-sm text-on-surface-variant/70 mt-1 flex items-center">
+<span class="material-symbols-outlined text-bolt-gold text-sm mr-1">trending_up</span>
+<span>+2 esta temporada</span>
+</div>
+<div class="absolute left-0 bottom-0 w-1 h-full bg-bolt-gold"></div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-stadium-blue border border-outline-variant/30 rounded-lg p-5 relative overflow-hidden group hover:border-bolt-gold/50 transition-colors">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px] text-bolt-gold">person_filled</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-bolt-gold">person_filled</span>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant">Jugadores</h3>
+</div>
+<div class="font-stat-value text-display-xl text-on-surface">240</div>
+<div class="text-sm text-on-surface-variant/70 mt-1 flex items-center">
+<span class="material-symbols-outlined text-bolt-gold text-sm mr-1">trending_up</span>
+<span>+15% registro completado</span>
+</div>
+<div class="absolute left-0 bottom-0 w-1 h-full bg-bolt-gold"></div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-stadium-blue border border-outline-variant/30 rounded-lg p-5 relative overflow-hidden group hover:border-bolt-gold/50 transition-colors">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px] text-bolt-gold">sports_soccer</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-bolt-gold">sports_soccer</span>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant">Próx. Partidos</h3>
+</div>
+<div class="font-stat-value text-display-xl text-on-surface">5</div>
+<div class="text-sm text-on-surface-variant/70 mt-1">Este fin de semana</div>
+<div class="absolute left-0 bottom-0 w-1 h-full bg-bolt-gold"></div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-stadium-blue border border-outline-variant/30 rounded-lg p-5 relative overflow-hidden group hover:border-bolt-gold/50 transition-colors">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px] text-bolt-gold">edit_document</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-bolt-gold">edit_document</span>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant">Noticias Borrador</h3>
+</div>
+<div class="font-stat-value text-display-xl text-on-surface">3</div>
+<div class="text-sm text-on-surface-variant/70 mt-1">Pendientes de revisión</div>
+<div class="absolute left-0 bottom-0 w-1 h-full bg-secondary-fixed"></div>
+</div>
+</section>
+<!-- Complex Layout Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column (Wider) -->
+<div class="lg:col-span-2 space-y-8">
+<!-- Próximos Partidos -->
+<section>
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase flex items-center">
+<span class="material-symbols-outlined text-bolt-gold mr-2">event</span>
+                            Próximos Partidos
+                        </h3>
+<a class="text-bolt-gold font-label-caps text-label-caps hover:underline" href="#">Ver Todos</a>
+</div>
+<div class="bg-stadium-blue rounded-lg border border-outline-variant/30 overflow-hidden">
+<!-- List Header -->
+<div class="grid grid-cols-12 gap-4 px-6 py-3 bg-surface-container-high border-b border-outline-variant/30 text-on-surface-variant font-label-caps text-xs">
+<div class="col-span-3">FECHA/HORA</div>
+<div class="col-span-4">ENCUENTRO</div>
+<div class="col-span-3">COMPETICIÓN</div>
+<div class="col-span-2 text-right">ESTADO</div>
+</div>
+<!-- List Items -->
+<div class="divide-y divide-outline-variant/20">
+<!-- Item 1 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-container-high transition-colors">
+<div class="col-span-3 flex flex-col">
+<span class="text-on-surface font-body-lg">Sáb 24 Nov</span>
+<span class="text-on-surface-variant text-sm">18:00h</span>
+</div>
+<div class="col-span-4 flex items-center gap-3">
+<div class="font-stat-value text-xl">RAI</div>
+<span class="text-on-surface-variant text-sm">vs</span>
+<div class="font-stat-value text-xl text-on-surface-variant">ROY</div>
+</div>
+<div class="col-span-3 text-sm text-on-surface-variant">
+                                    Liga Élite U18
+                                </div>
+<div class="col-span-2 text-right">
+<span class="inline-block px-2 py-1 bg-surface-container-high border border-bolt-gold/30 text-bolt-gold rounded text-xs font-label-caps">PROGRAMADO</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-container-high transition-colors">
+<div class="col-span-3 flex flex-col">
+<span class="text-on-surface font-body-lg">Dom 25 Nov</span>
+<span class="text-on-surface-variant text-sm">10:30h</span>
+</div>
+<div class="col-span-4 flex items-center gap-3">
+<div class="font-stat-value text-xl">RAI B</div>
+<span class="text-on-surface-variant text-sm">vs</span>
+<div class="font-stat-value text-xl text-on-surface-variant">ZEU</div>
+</div>
+<div class="col-span-3 text-sm text-on-surface-variant">
+                                    Torneo Frontera
+                                </div>
+<div class="col-span-2 text-right">
+<span class="inline-block px-2 py-1 bg-surface-container-high border border-bolt-gold/30 text-bolt-gold rounded text-xs font-label-caps">PROGRAMADO</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-container-high transition-colors">
+<div class="col-span-3 flex flex-col">
+<span class="text-on-surface font-body-lg">Mié 28 Nov</span>
+<span class="text-on-surface-variant text-sm">20:00h</span>
+</div>
+<div class="col-span-4 flex items-center gap-3">
+<div class="font-stat-value text-xl">ALI</div>
+<span class="text-on-surface-variant text-sm">vs</span>
+<div class="font-stat-value text-xl text-on-surface">RAI</div>
+</div>
+<div class="col-span-3 text-sm text-on-surface-variant">
+                                    Copa Nacional
+                                </div>
+<div class="col-span-2 text-right">
+<span class="inline-block px-2 py-1 bg-surface-container-high border border-bolt-gold/30 text-bolt-gold rounded text-xs font-label-caps">PROGRAMADO</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bolt Divider -->
+<div class="flex items-center justify-center py-4 opacity-50">
+<div class="h-px bg-outline-variant flex-1"></div>
+<div class="mx-2 text-bolt-gold">
+<svg fill="none" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"></path>
+</svg>
+</div>
+<div class="h-px bg-outline-variant flex-1"></div>
+</div>
+<!-- Últimas Importaciones -->
+<section>
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase flex items-center">
+<span class="material-symbols-outlined text-secondary mr-2">cloud_sync</span>
+                            Últimas Importaciones
+                        </h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- Import Card 1 -->
+<div class="bg-stadium-blue border border-outline-variant/30 rounded-lg p-4 flex flex-col hover:border-secondary/50 transition-colors">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-sm">data_object</span>
+</div>
+<div>
+<h4 class="font-body-lg text-on-surface leading-tight">Players_U18_Q4.csv</h4>
+<span class="text-xs text-on-surface-variant">rr-management-api</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-bolt-gold" title="Completado">check_circle</span>
+</div>
+<div class="mt-auto flex justify-between items-end pt-2 border-t border-outline-variant/20">
+<span class="text-xs text-on-surface-variant">Hace 2 horas</span>
+<span class="text-sm font-label-caps text-on-surface">120 REGISTROS</span>
+</div>
+</div>
+<!-- Import Card 2 -->
+<div class="bg-stadium-blue border border-outline-variant/30 rounded-lg p-4 flex flex-col hover:border-secondary/50 transition-colors">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-sm">query_stats</span>
+</div>
+<div>
+<h4 class="font-body-lg text-on-surface leading-tight">Match_Stats_W12.json</h4>
+<span class="text-xs text-on-surface-variant">scouting-sys</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-bolt-gold" title="Completado">check_circle</span>
+</div>
+<div class="mt-auto flex justify-between items-end pt-2 border-t border-outline-variant/20">
+<span class="text-xs text-on-surface-variant">Ayer, 18:45</span>
+<span class="text-sm font-label-caps text-on-surface">45 METRICS</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (Narrower) -->
+<div class="space-y-8">
+<!-- Noticias Recientes -->
+<section class="bg-stadium-blue border border-outline-variant/30 rounded-lg p-6 h-full flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase flex items-center">
+<span class="material-symbols-outlined text-bolt-gold mr-2">newspaper</span>
+                            Noticias
+                        </h3>
+<button class="w-8 h-8 rounded-full border border-bolt-gold/30 flex items-center justify-center text-bolt-gold hover:bg-bolt-gold hover:text-pitch-deep transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<div class="space-y-4 flex-1">
+<!-- News Item 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-video w-full rounded overflow-hidden mb-3 relative border border-outline-variant/20">
+<div class="absolute inset-0 bg-gradient-to-t from-pitch-deep to-transparent z-10"></div>
+<img alt="Jugadores entrenando" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Dynamic shot of a youth football team during a high-intensity evening training session under stadium floodlights. The lighting is dramatic, casting deep shadows on the rich green artificial turf. The players are wearing dark athletic gear with gold accents, matching the premium club identity. Moody, cinematic sports photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2jFvKaSlXdquIbA-ZyE86_c5DGyeCcZBD3YBl2nB_2Z7fdPUNNvpQ5izE-8Jf6zmiKgzV5OeLpqHVJIOFpIjbmH62T_Mw2-C30d2wBY_9hCdoNZ3AnDwfBFFgmejHh8G5U11-cIU0HRTvsBe2a54-UuxLgaPRxeO59k0cjvoFO4o74d32IfHqcGenMoQzLq8SJ34unCH8ceRMxXdvTW-YSgZbUZ_j9Bt-FBGvGIlJpEnfnSiek9VgRILNo2-9yIUoLvQojq2cdak"/>
+<span class="absolute bottom-2 left-2 z-20 px-2 py-0.5 bg-bolt-gold text-pitch-deep text-xs font-label-caps rounded">PUBLICADO</span>
+</div>
+<h4 class="font-body-lg text-on-surface group-hover:text-bolt-gold transition-colors line-clamp-2">Nueva convocatoria para la selección regional U18: Tres jugadores de Raimon elegidos</h4>
+<p class="text-xs text-on-surface-variant mt-1">Hace 4 horas • Redacción Central</p>
+</div>
+<div class="h-px w-full bg-outline-variant/20 my-4"></div>
+<!-- News Item 2 (Draft) -->
+<div class="group cursor-pointer flex gap-3">
+<div class="w-20 h-20 rounded overflow-hidden flex-shrink-0 border border-outline-variant/20">
+<img alt="Instalaciones del estadio" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Wide architectural shot of a modern football stadium's empty stands and pristine pitch under dim, dramatic evening lighting. The stadium features sleek metal structures and subtle blue and gold accent lights. High contrast, clean, professional corporate sports aesthetic emphasizing infrastructure and legacy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAByAESLpMUf7nVtCGnby164YGHxYYUUoy0B-1qX9rUfWmRy8VIPnWxMbYOIs8C1bhAyAzbMSpcQ3taDzBS51bKwp8QwWBYznPT96OkHsb2DHhknc3Lx50XrLxhZCbvn_lYUkgG1pibo5OJzfVC2VZXASvEgo5KkEII0oxMQ5UZOoQKmoQf6w0IAIDmIX0h9LIGrlsFQnPrS2TYktAfw1A7LqxYpQeYfihoUOHQlPL96CV2xq0FdhJbzYs4QY8pwyK45Nzug40Ay-0"/>
+</div>
+<div class="flex flex-col justify-center">
+<span class="inline-block px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface-variant text-[10px] font-label-caps rounded mb-1 w-max">BORRADOR</span>
+<h4 class="font-body-md text-on-surface group-hover:text-bolt-gold transition-colors line-clamp-2 leading-snug">Actualización de las instalaciones: Nuevo césped híbrido en el campo principal</h4>
+</div>
+</div>
+<!-- News Item 3 (Draft) -->
+<div class="group cursor-pointer flex gap-3">
+<div class="w-20 h-20 rounded overflow-hidden flex-shrink-0 border border-outline-variant/20 bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">image_not_supported</span>
+</div>
+<div class="flex flex-col justify-center">
+<span class="inline-block px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface-variant text-[10px] font-label-caps rounded mb-1 w-max">BORRADOR</span>
+<h4 class="font-body-md text-on-surface group-hover:text-bolt-gold transition-colors line-clamp-2 leading-snug">Entrevista post-partido: El míster analiza la victoria en el derbi</h4>
+</div>
+</div>
+</div>
+<a class="block text-center mt-6 text-sm text-bolt-gold hover:underline font-label-caps" href="#">Gestor de Contenidos</a>
+</section>
+</div>
+</div>
+</main>
+</body></html>

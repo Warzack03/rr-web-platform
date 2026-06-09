@@ -1,151 +1,272 @@
 # ADMIN_PAGE_SPECS.md
 
-## Principios
+## Goal
 
-- El admin debe ser practico, no necesariamente tan visual como la web publica.
-- Validar permisos en servidor siempre.
-- Ocultar acciones no permitidas por rol.
-- Usar formularios claros, tablas con filtros y acciones rapidas.
+The backoffice manages the public sports website data. It does not manage ecommerce, payments, orders or buyer accounts.
+
+The admin should be practical, role-aware and efficient. It should not contain long explanatory text. Use clear labels, filters, tables, forms and action buttons.
+
+## Roles
+
+- `superadmin`
+- `manager`
+- `entrenador`
+
+## Permissions summary
+
+- Only `superadmin` manages users, roles and global permissions.
+- Only `superadmin` imports from `rr-management`.
+- `manager` manages sport/public content but not users and not imports.
+- `entrenador` only edits allowed data for assigned teams.
+- Coaches cannot upload images/media/news/cards/logos.
 
 ## Dashboard `/admin`
 
-Mostrar:
+Show operational summary:
 
-- temporada activa.
-- equipos visibles.
-- proximos partidos.
-- ultimos resultados pendientes de completar.
-- noticias borrador.
-- avisos de importacion si aplica.
+- Active season.
+- Public teams.
+- Active players.
+- Upcoming matches.
+- Recent results.
+- Draft news.
+- Import history/alerts for superadmin.
+- Quick actions based on role.
 
-## Equipos `/admin/equipos`
+Role behavior:
 
-Solo `superadmin` y `manager` pueden crear equipos.
+- Superadmin/manager: global view.
+- Coach: only assigned teams.
 
-Campos gestionables:
+## Users `/admin/usuarios`
 
-- nombre.
-- slug.
-- categoria.
-- competicion.
-- temporada.
-- es Primer Equipo.
-- visible publico.
-- activo.
-- entrenador asignado.
-- banner/logo.
-- orden visual.
+Only `superadmin` can create, edit, deactivate users and change roles.
 
-Acciones:
+Fields/actions:
 
-- crear equipo.
-- editar equipo.
-- activar/desactivar.
-- asignar entrenador.
-- configurar visibilidad.
+- Name.
+- Email/username.
+- Role.
+- Active status.
+- Assigned coach teams.
+- Reset/change password flow if implemented.
 
-El entrenador no puede crear equipos ni asignar permisos.
+Managers do not create users. If allowed by implementation, they can only assign an existing coach user to a team, never create or edit global users.
 
-## Usuarios y permisos `/admin/usuarios`
+## Seasons `/admin/temporadas`
 
-Solo `superadmin` y `manager` pueden asignar entrenadores a equipos.
+- Create season.
+- Edit season.
+- Activate season.
+- Close/deactivate season.
+- Only one active season.
+- Do not hard delete seasons with related data.
 
-Acciones:
+Fields:
 
-- crear usuario interno.
-- asignar rol.
-- asignar entrenador a equipo/temporada.
-- retirar permisos.
+- Name.
+- Slug if used.
+- Start date.
+- End date.
+- Status/active.
 
-`superadmin` es el unico que puede gestionar otros superadmins o configuracion sensible.
+Permissions:
 
-## Partidos `/admin/partidos`
+- Superadmin/manager: manage.
+- Coach: no access or read-only if needed.
 
-Permisos:
+## Teams `/admin/equipos`
 
-- `superadmin` y `manager`: gestion completa.
-- `entrenador`: solo partidos de sus equipos asignados.
+Only `superadmin` and `manager` can create/edit teams.
 
-El entrenador puede:
+Manage:
 
-- actualizar proximo partido de su equipo.
-- introducir/editar resultado de partido.
-- cambiar estado permitido: scheduled, live, played, postponed.
-- asociar video al partido cuando este `played`, si se permite en su rol.
+- Name.
+- Slug.
+- Category.
+- Competition.
+- Season.
+- First Team flag.
+- Public visibility.
+- Active status.
+- Display order.
+- Logo.
+- Banner.
+- Visible coaches.
+- Coach account responsible for the team.
 
-No puede:
+Coach cannot create or edit teams.
 
-- crear competiciones globales.
-- editar partidos de otros equipos.
+## Team coaches
 
-## Clasificaciones `/admin/clasificaciones`
+A team can display multiple public coaches. Only one coach account is expected for backoffice access in MVP.
 
-Las clasificaciones son manuales.
+Manage:
 
-Permisos:
+- Visible coach name.
+- Public role label.
+- Display order.
+- Visible on web.
+- Optional linked user account.
+- Coach responsible account, usually `entrenador_<team_slug>`.
 
-- `superadmin` y `manager`: gestion completa.
-- `entrenador`: editar clasificacion de sus equipos asignados.
+## Players `/admin/jugadores`
 
-Campos por fila:
+Manage public-safe player data only:
 
-- posicion.
-- nombre equipo.
-- PJ.
-- G.
-- E.
-- P.
-- GF.
-- GC.
-- DG.
-- Pts.
+- Public name.
+- Slug.
+- Shirt number.
+- Position.
+- Goalkeeper/outfield flag.
+- Dominant foot.
+- Country/flag.
+- Public visibility.
+- Active status.
+- Photo managed by superadmin/manager.
 
-## Estadisticas `/admin/estadisticas`
+Do not store/import sensitive data such as NIF, address, contact, notes, finance or documents.
 
-Permisos:
+Coach cannot edit player identity/profile structure. Coach can edit allowed stats only.
 
-- `superadmin` y `manager`: gestion completa.
-- `entrenador`: editar goles/asistencias y estadisticas permitidas de sus equipos asignados.
+## Assignments
 
-Regla MVP para entrenador:
+Manage player/team/season assignment:
 
-- Puede actualizar goles y asistencias.
-- Puede actualizar resultado de partidos.
-- Puede actualizar proximo partido.
-- Puede actualizar clasificacion de su equipo.
-- No puede tocar jugadores/equipos fuera de sus permisos.
+- Player.
+- Team.
+- Season.
+- Shirt number for that assignment.
+- Public position.
+- Captain flag.
+- Display order.
+- Active/end date.
+- Imported/manual source.
 
-## Noticias `/admin/noticias`
+If player changes team, close/inactivate previous assignment and create/update new one. Do not move historical stats.
 
-MVP incluye noticias nuevas en la plataforma.
+## Matches `/admin/partidos`
 
-Permisos recomendados:
+Manage:
 
-- `superadmin` y `manager`: crear, editar, publicar.
-- `entrenador`: no crear noticias salvo que se habilite explicitamente en el futuro.
+- Team.
+- Season.
+- Competition.
+- Opponent name as text.
+- Optional opponent logo.
+- Home/away.
+- Date/time.
+- Venue.
+- Matchday.
+- Status: scheduled, live, played, postponed.
+- Result.
+- External video URL for played First Team match when available.
 
-Campos:
+Permissions:
 
-- titulo.
-- slug.
-- extracto.
-- cuerpo.
-- portada.
-- links de video.
-- equipo relacionado opcional.
-- estado: draft/published.
+- Superadmin/manager: all matches.
+- Coach: assigned teams only.
 
-## Importaciones `/admin/importaciones`
+## Standings `/admin/clasificaciones`
 
-Solo `superadmin` y opcionalmente `manager` si se decide.
+Manual standings only. Do not calculate from matches.
 
-Nunca debe haber importacion destructiva sin preview.
+Manage table rows:
 
-Flujo:
+- Position.
+- Team name.
+- Played.
+- Won.
+- Drawn.
+- Lost.
+- Goals for.
+- Goals against.
+- Goal difference.
+- Points.
+- Own team marker.
 
-1. subir CSV/ZIP.
-2. validar.
-3. mostrar diff.
-4. confirmar.
-5. aplicar merge/upsert.
-6. registrar batch.
+Permissions:
+
+- Superadmin/manager: all.
+- Coach: assigned teams only.
+
+## Statistics `/admin/estadisticas`
+
+Stats are recorded by match whenever possible and aggregated by code.
+
+General rules:
+
+- Stats stay attached to player + team + season + match where created.
+- Do not move stats when player changes team.
+- No negative values.
+- Goal participation = goals + assists.
+
+Coach can edit allowed stats for assigned teams only.
+
+## News `/admin/noticias`
+
+News are part of MVP.
+
+Manage:
+
+- Title.
+- Slug.
+- Excerpt.
+- Content.
+- Cover image.
+- External video links.
+- Related teams.
+- Author.
+- Draft/published status.
+- Published date.
+- Featured flag.
+
+Only superadmin/manager can manage news.
+
+## Media `/admin/media`
+
+Manage image metadata and uploads for:
+
+- Team logos.
+- Team banners.
+- Opponent logos.
+- Player photos.
+- First Team premium card images.
+- News covers.
+- General public images.
+
+Images are files/URLs, not DB BLOBs.
+
+## Imports `/admin/importaciones`
+
+Only `superadmin`.
+
+Flow:
+
+1. Upload CSV/ZIP.
+2. Validate.
+3. Preview diff.
+4. Show conflicts.
+5. Confirm.
+6. Apply merge/upsert.
+7. Store import batch and item history.
+
+Never import sensitive fields.
+Never destructive replace.
+
+## Filters
+
+Use filters/search in admin lists:
+
+- By season.
+- By team.
+- By category.
+- By status.
+- By visibility.
+- By role.
+- By date.
+- Search by player/team/news title.
+
+## Audit
+
+Important entities should have created/updated metadata and actor when feasible.

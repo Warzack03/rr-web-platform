@@ -1,84 +1,123 @@
-# Public team detail page
+# TEAM_DETAIL_PAGE.md
 
-Route: `/equipos/[teamSlug]`
+## Route
 
-## Goal
+```text
+/equipos/[teamSlug]
+```
 
-Show a complete public page for each team. The first team has a premium variant with richer visuals, uploaded premium cards, extended statistics and match video support. All other teams use the standard variant.
+Public team detail is mandatory MVP functionality.
 
-## Sections
+By default, show the active season.
 
-1. Team hero
-   - Team name
-   - Category/branch
-   - Season
-   - Competition name
-   - Public coach names
-   - Banner/logo if available
-   - Premium styling for first team
+## Shared page sections
 
-2. Quick summary cards
-   - Next match
-   - Latest result
-   - Standing position if available
-   - Squad count
-   - Goals/assists summary if available
+All public team detail pages include:
 
-3. Next match
-   - Opponent name
-   - Optional opponent logo
-   - Home/away
-   - Date/time
-   - Venue
-   - Status
+1. Team header.
+2. Category, season and competition.
+3. Visible coaches.
+4. Next match.
+5. Latest results.
+6. Manual standings.
+7. Squad.
+8. Cards/cromos.
+9. Statistics.
+10. Related news if any.
 
-4. Latest results
-   - Last 3 to 5 played matches for the team
-   - Opponent, date, home/away, score and status
+Only show public/visible data. Never show internal/private data.
 
-5. Standings
-   - Manual standings table linked to team + season + competition
-   - Not calculated from matches, because not all league results are tracked
+## First Team variant
 
-6. Squad
-   - Grouped by position if possible
-   - Player photo or placeholder
-   - Public name
-   - Shirt number
-   - Position
-   - Link to player/card detail when available
+The First Team uses a premium version of the page.
 
-7. Cards
-   - First team: uploaded premium card images
-   - Other teams: generated standard cards
-   - Standard card fields: foot, public name, shirt number, country flag, position, goals, assists
+Include:
 
-8. Statistics
-   - First team: extended stats and derived metrics
-   - Other teams: simplified stats
-   - Goal participation = goals + assists
+- Premium header.
+- More complete match/result area.
+- Manual standings.
+- Squad.
+- Uploaded premium card images.
+- Advanced outfield and goalkeeper stats.
+- Derived metrics.
+- External video links for played matches.
+- Related news.
 
-9. Related news
-   - Optional news tagged with this team
-   - Hide section if no news exists
+## Standard team variant
 
-## First-team played match video
+Non-first-team pages are simpler but complete.
 
-For first-team matches with status `PLAYED`, the detail can show an external video URL.
+Include:
 
-Fields:
+- Name.
+- Category.
+- Active season.
+- Competition.
+- Visible coaches.
+- Next match.
+- Latest results.
+- Manual standings.
+- Squad.
+- Generated standard cards.
+- Basic stats.
+- Related news if any.
 
-- `videoUrl`
-- `videoLabel`
-- `videoProvider` optional
+## Squad/player display
 
-Videos are external URLs, not uploaded to Hostinger.
+Each player should display:
 
-## Visibility fallback rules
+- Public name.
+- Shirt number.
+- Position.
+- Photo or placeholder.
+- Country/flag.
+- Dominant foot.
+- Link to player/card detail when available.
 
-- If no squad: show a friendly "Plantilla pendiente de publicar" state.
-- If no standings: hide section or show "Clasificacion pendiente".
-- If no next match: show latest result instead.
-- If no player photo: use placeholder.
-- If no opponent logo: use generic crest/opponent placeholder.
+## Generated standard card fields
 
+For non-first-team players, generated cards use:
+
+- Foot.
+- Public name.
+- Shirt number.
+- Country flag.
+- Position.
+- Goals.
+- Assists.
+
+## First Team premium cards
+
+First Team cards are uploaded images. The system stores image metadata/URL and associates each card to player/team/season.
+
+## Match data
+
+Each match displayed can show:
+
+- Opponent.
+- Optional opponent logo.
+- Home/away.
+- Date.
+- Time.
+- Venue.
+- Matchday.
+- Competition.
+- Status.
+- Result if played.
+- External video URL if First Team and played.
+
+## Standings
+
+Manual standings only. If no standings exist, hide the section or show a neutral empty state.
+
+## Empty states
+
+- No squad: "Plantilla pendiente de publicar".
+- No standings: hide or "Clasificacion pendiente".
+- No next match: show latest result or neutral state.
+- No photo/logo: use placeholder.
+- No related news: hide section.
+
+## Historical integrity
+
+If a player changes team, do not move historical stats. Stats stay associated with the team/season/match where they were created.

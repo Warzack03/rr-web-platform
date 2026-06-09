@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rising Raimon - Primer Equipo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow+Condensed:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#9b8f7c",
+                        "inverse-on-surface": "#2f3131",
+                        "stadium-blue": "#1E2F47",
+                        "bolt-gold": "#FDCB58",
+                        "on-background": "#e2e2e2",
+                        "on-tertiary-container": "#4c5a74",
+                        "surface": "#121414",
+                        "surface-container": "#1e2020",
+                        "tertiary": "#e7eeff",
+                        "on-secondary-container": "#a5b6d4",
+                        "surface-tint": "#f0c04e",
+                        "secondary-fixed-dim": "#b6c7e6",
+                        "primary": "#ffeccb",
+                        "inverse-primary": "#785900",
+                        "on-primary": "#3f2e00",
+                        "error": "#ffb4ab",
+                        "on-surface": "#e2e2e2",
+                        "on-primary-container": "#735500",
+                        "on-surface-variant": "#d2c5b0",
+                        "on-secondary-fixed-variant": "#374761",
+                        "surface-variant": "#333535",
+                        "on-tertiary": "#223149",
+                        "surface-dim": "#121414",
+                        "outline-variant": "#4e4635",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#282a2b",
+                        "on-tertiary-fixed-variant": "#394760",
+                        "pitch-deep": "#0B1B32",
+                        "on-secondary": "#203149",
+                        "inverse-surface": "#e2e2e2",
+                        "on-error": "#690005",
+                        "active-glow": "rgba(253, 203, 88, 0.25)",
+                        "on-primary-fixed": "#251a00",
+                        "background": "#121414",
+                        "secondary": "#b6c7e6",
+                        "surface-container-low": "#1a1c1c",
+                        "primary-fixed": "#ffdf9d",
+                        "primary-container": "#fdcb58",
+                        "surface-bright": "#37393a",
+                        "secondary-fixed": "#d4e3ff",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed": "#0c1c33",
+                        "surface-container-lowest": "#0c0f0f",
+                        "surface-container-highest": "#333535",
+                        "tertiary-fixed-dim": "#b8c7e5",
+                        "tertiary-container": "#c3d2f1",
+                        "on-secondary-fixed": "#091c33",
+                        "secondary-container": "#374761",
+                        "primary-fixed-dim": "#f0c04e",
+                        "on-primary-fixed-variant": "#5b4300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "section-gap": "80px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Barlow Condensed"],
+                        "body-lg": ["Barlow Condensed"],
+                        "headline-lg": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "stat-value": ["Bebas Neue"],
+                        "headline-md": ["Bebas Neue"],
+                        "body-md": ["Barlow Condensed"],
+                        "headline-lg-mobile": ["Bebas Neue"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["14px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "stat-value": ["24px", { "lineHeight": "1.0", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bolt-divider {
+            position: relative;
+            height: 1px;
+            background-color: #4e4635; /* outline-variant */
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bolt-divider::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #0B1B32; /* pitch-deep */
+            border: 1px solid #4e4635;
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body class="bg-pitch-deep text-on-surface min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-pitch-deep/80 backdrop-blur-xl dark:bg-pitch-deep/80 docked full-width top-0 sticky z-50 border-b border-outline-variant/30">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md text-bolt-gold tracking-wider uppercase">
+                Rising Raimon
+            </div>
+<div class="hidden md:flex gap-8">
+<a class="font-label-caps text-label-caps text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Home</a>
+<a class="font-label-caps text-label-caps text-bolt-gold border-b-2 border-bolt-gold pb-1" href="#">Primer Equipo</a>
+<a class="font-label-caps text-label-caps text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Equipos</a>
+<a class="font-label-caps text-label-caps text-on-surface hover:text-bolt-gold transition-colors duration-300" href="#">Noticias</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:block bg-bolt-gold text-pitch-deep font-label-caps text-label-caps px-6 py-2 rounded uppercase hover:bg-active-glow hover:-translate-y-0.5 transition-all duration-300 scale-95 active:scale-90 shadow-[0_0_15px_rgba(253,203,88,0.25)]">
+                    Tienda Oficial
+                </button>
+<button class="text-on-surface hover:text-bolt-gold transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center w-full px-margin-mobile md:px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<!-- Header -->
+<header class="w-full text-center mb-16">
+<h1 class="font-display-xl text-headline-lg-mobile md:text-display-xl text-bolt-gold uppercase mb-4 tracking-wider">Plantilla - Primer Equipo</h1>
+<div class="bolt-divider my-8"></div>
+</header>
+<!-- Goalkeepers Section -->
+<section class="w-full mb-20">
+<h2 class="font-headline-lg text-headline-md md:text-headline-lg text-on-surface mb-8 border-l-4 border-bolt-gold pl-4">Porteros</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+<!-- Player Card -->
+<div class="group relative bg-stadium-blue border border-stadium-blue-light rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(253,203,88,0.15)] hover:-translate-y-1">
+<div class="absolute top-0 right-0 p-4 z-10 text-right">
+<span class="font-display-xl text-display-xl text-bolt-gold/30 block leading-none">01</span>
+</div>
+<div class="relative h-64 w-full bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover object-top mix-blend-luminosity opacity-80 group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-500" data-alt="A highly detailed portrait of a professional soccer goalkeeper wearing a dark athletic kit with gold accents. The player stands confidently against a moody stadium background with subtle lens flares from overhead floodlights. The lighting is cinematic, highlighting the player's focused expression and athletic build. The overall aesthetic is modern, high-contrast, and corporate-athletic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7pB5s02dSxNtEDCUwNPzAMGHMX_cKiaM4D-v9T-_kZ-pEhUxoR_HZXb8FXX6deOdyXHsvBU_pNiEhm9vM3Yd5ErDZ7RBm9o2wZ3-XL-1T5oh-aLQ-Tmi_wijtPNTsRwqFfPHf-cNAgz8xRG1DkbBP-Np46WjGqH652yckAANQHh0815qlDHMl0HEnrOfyGVwMu49gAsP5SiLGWSeQgqW2pcTNnB4HBcJY0SDXTZ7vJffWtIlhArzEIgqrf_PsKw6iT6aer1p2zqQ"/>
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-stadium-blue to-transparent"></div>
+</div>
+<div class="p-6 relative z-20 -mt-8">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-bolt-gold text-sm" data-icon="flag">flag</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">España</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase mb-4">Mark Evans</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-2 rounded flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">Partidos Imbatido</span>
+<span class="font-stat-value text-stat-value text-bolt-gold">12</span>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-2 rounded flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">Paradas</span>
+<span class="font-stat-value text-stat-value text-bolt-gold">45</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Outfield Players Section -->
+<section class="w-full">
+<h2 class="font-headline-lg text-headline-md md:text-headline-lg text-on-surface mb-8 border-l-4 border-bolt-gold pl-4">Jugadores de Campo</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+<!-- Player Card -->
+<div class="group relative bg-stadium-blue border border-stadium-blue-light rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(253,203,88,0.15)] hover:-translate-y-1">
+<div class="absolute top-0 right-0 p-4 z-10 text-right">
+<span class="font-display-xl text-display-xl text-bolt-gold/30 block leading-none">10</span>
+</div>
+<div class="relative h-64 w-full bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover object-top mix-blend-luminosity opacity-80 group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-500" data-alt="A highly detailed portrait of a professional soccer forward wearing a dark athletic kit with gold accents. The player stands confidently against a moody stadium background with subtle lens flares from overhead floodlights. The lighting is cinematic, highlighting the player's focused expression and athletic build. The overall aesthetic is modern, high-contrast, and corporate-athletic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHw929PAroku3d8Ul0klq0jAo1tMDE8W9Kn145EPF3UaOELBvsYebSQwok2Z0mh_CM2Ozi-ggqpT9uPJMPC6FklzXM5kpUDObhxFYAnCciU7pwPUcSAawy-MGt-pBIY1c0NqpjSipENU2QBkSc28DW5IS34iF2KInBNPCP9oTN6ACgddRDZIdJ-LqEZRmclZsVuo-YKQrzCOQDxd07Kz2a3EMVFWF6oBXHddQk5aVfegMlu536Kg3pf7lfP4lgpJOPond0VedlBVk"/>
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-stadium-blue to-transparent"></div>
+</div>
+<div class="p-6 relative z-20 -mt-8">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-bolt-gold text-sm" data-icon="flag">flag</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Japón</span>
+</div>
+<span class="font-label-caps text-[10px] text-bolt-gold uppercase border border-bolt-gold px-1 rounded">Delantero</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase mb-4">Axel Blaze</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-2 rounded flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">Goles</span>
+<span class="font-stat-value text-stat-value text-bolt-gold">24</span>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-2 rounded flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">Asistencias</span>
+<span class="font-stat-value text-stat-value text-bolt-gold">8</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Player Card -->
+<div class="group relative bg-stadium-blue border border-stadium-blue-light rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(253,203,88,0.15)] hover:-translate-y-1">
+<div class="absolute top-0 right-0 p-4 z-10 text-right">
+<span class="font-display-xl text-display-xl text-bolt-gold/30 block leading-none">14</span>
+</div>
+<div class="relative h-64 w-full bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover object-top mix-blend-luminosity opacity-80 group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-500" data-alt="A highly detailed portrait of a professional soccer midfielder wearing a dark athletic kit with gold accents. The player stands confidently against a moody stadium background with subtle lens flares from overhead floodlights. The lighting is cinematic, highlighting the player's focused expression and athletic build. The overall aesthetic is modern, high-contrast, and corporate-athletic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjRUWkcX8QuKxGhBPZ3l79ZDrCheAdNzKKJ_kS_X-EBi6_5A8eY5zab6t169NMw7CFkbE4rlR3ePm7ZMrSNSgnUupsd_RKXzf6fRjeKDgPDI_gQKUSXckl4-rj08Lj9Bv_Dage8oYBdwac1wv3hVUNzi-rZWZ-tyHq-uD_V6vZQ2XSEt5X2QprzwFRlrBpYeRZGbx0Q6hJuBlv6ZmuHCptKkfjCtAhFrYaGr5boVGxL-vdAHzD_1ihAYUl9pw6yi6xkG7L62TvzCU"/>
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-stadium-blue to-transparent"></div>
+</div>
+<div class="p-6 relative z-20 -mt-8">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-bolt-gold text-sm" data-icon="flag">flag</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Italia</span>
+</div>
+<span class="font-label-caps text-[10px] text-bolt-gold uppercase border border-bolt-gold px-1 rounded">Centrocampista</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface uppercase mb-4">Jude Sharp</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-2 rounded flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">Goles</span>
+<span class="font-stat-value text-stat-value text-bolt-gold">5</span>
+</div>
+<div class="bg-surface-dim border-l-2 border-bolt-gold p-2 rounded flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">Asistencias</span>
+<span class="font-stat-value text-stat-value text-bolt-gold">15</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest full-width border-t border-bolt-gold/20 mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<div class="md:col-span-1">
+<span class="font-headline-md text-headline-md text-bolt-gold uppercase">Rising Raimon</span>
+<p class="font-body-md text-body-md text-on-surface-variant mt-4">© 2024 Rising Raimon Football Club. Todos los derechos reservados.</p>
+</div>
+<div class="md:col-span-3 flex flex-wrap gap-8 md:justify-end items-start mt-8 md:mt-0">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Privacidad</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Aviso Legal</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Contacto</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-bolt-gold transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Socio</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rising Raimon Coach - Estadísticas del Equipo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#f0c04e",
+                        "tertiary-container": "#c3d2f1",
+                        "surface": "#121414",
+                        "surface-container-lowest": "#0c0f0f",
+                        "pitch-deep": "#0B1B32",
+                        "background": "#121414",
+                        "outline-variant": "#4e4635",
+                        "tertiary": "#e7eeff",
+                        "on-tertiary-fixed": "#0c1c33",
+                        "surface-container-low": "#1a1c1c",
+                        "on-secondary": "#203149",
+                        "surface-dim": "#121414",
+                        "primary-fixed": "#ffdf9d",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#282a2b",
+                        "on-background": "#e2e2e2",
+                        "active-glow": "rgba(253, 203, 88, 0.25)",
+                        "tertiary-fixed": "#d6e3ff",
+                        "on-primary-container": "#735500",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#b6c7e6",
+                        "on-tertiary-container": "#4c5a74",
+                        "on-primary-fixed-variant": "#5b4300",
+                        "surface-container-highest": "#333535",
+                        "surface-variant": "#333535",
+                        "on-tertiary": "#223149",
+                        "inverse-surface": "#e2e2e2",
+                        "secondary-container": "#374761",
+                        "primary-container": "#fdcb58",
+                        "on-tertiary-fixed-variant": "#394760",
+                        "inverse-primary": "#785900",
+                        "primary": "#ffeccb",
+                        "on-primary-fixed": "#251a00",
+                        "on-primary": "#3f2e00",
+                        "tertiary-fixed-dim": "#b8c7e5",
+                        "stadium-blue": "#1E2F47",
+                        "inverse-on-surface": "#2f3131",
+                        "surface-tint": "#f0c04e",
+                        "outline": "#9b8f7c",
+                        "on-secondary-fixed": "#091c33",
+                        "bolt-gold": "#FDCB58",
+                        "surface-bright": "#37393a",
+                        "on-secondary-fixed-variant": "#374761",
+                        "secondary-fixed": "#d4e3ff",
+                        "on-surface": "#e2e2e2",
+                        "on-secondary-container": "#a5b6d4",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#d2c5b0",
+                        "surface-container": "#1e2020",
+                        "error": "#ffb4ab",
+                        "secondary": "#b6c7e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "margin-mobile": "20px",
+                        "section-gap": "80px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Barlow Condensed"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-md": ["Barlow Condensed"],
+                        "label-caps": ["Barlow Condensed"],
+                        "stat-value": ["Bebas Neue"],
+                        "headline-md": ["Bebas Neue"],
+                        "headline-lg-mobile": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "1.5", "fontWeight": "500"}],
+                        "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-caps": ["14px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "stat-value": ["24px", {"lineHeight": "1.0", "fontWeight": "400"}],
+                        "headline-md": ["32px", {"lineHeight": "1.2", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "400"}],
+                        "display-xl": ["72px", {"lineHeight": "1.1", "letterSpacing": "0.02em", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .bolt-divider {
+            position: relative;
+            height: 1px;
+            background-color: theme('colors.outline-variant');
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bolt-divider::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: theme('colors.bolt-gold');
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            transform: skewX(-20deg);
+        }
+    </style>
+</head>
+<body class="bg-pitch-deep text-on-surface min-h-screen font-body-md font-body-md">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-pitch-deep/80 backdrop-blur-md text-bolt-gold font-headline-md text-headline-md font-body-md text-body-md font-label-caps text-label-caps docked full-width top-0 border-b border-outline-variant flat no shadows cursor-pointer active:opacity-80">
+<div class="flex items-center gap-gutter">
+<div class="font-headline-md text-headline-md text-bolt-gold tracking-wider">RISING RAIMON COACH</div>
+</div>
+<div class="flex items-center gap-stack-md text-on-surface-variant">
+<span class="material-symbols-outlined hover:text-bolt-gold transition-colors duration-200" data-icon="search">search</span>
+<span class="material-symbols-outlined hover:text-bolt-gold transition-colors duration-200" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined hover:text-bolt-gold transition-colors duration-200" data-icon="settings">settings</span>
+<img alt="Coach Profile Picture" class="w-8 h-8 rounded-full border border-bolt-gold" data-alt="Close up portrait of a serious football coach with a short beard, wearing a dark navy training jacket. High-contrast, moody stadium lighting with a subtle gold rim light. Corporate-modern athletic aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu4PtelxX5UOU63NAr6yjAoVwTL5KkmHKiPuKfCTPi2e4Earo2PDrDhXZQc5LS9E79MWlWrL-KzEMqJNCgiOEo_kdEgO1uToNNU0pZ6xTW-OniaPO5ItNG8TJx4aXH2smk6oF2YmjJoys8NSf0UY7HgPq9OLEg8NeIuHb6SE39h0xEYhB7DlD1e5WshfC-vpPZSrWFXZwEkQ0V1YibrSGDiS6uekNeHkkg6jx8Aw7Uh2a64Vi9YH_B3vlen-s_kG27fwVzWkkhvpA"/>
+</div>
+</nav>
+<div class="flex pt-16">
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="hidden md:flex flex-col h-[calc(100vh-64px)] py-stack-md bg-surface-container text-bolt-gold font-headline-md text-headline-md font-label-caps text-label-caps h-full w-64 fixed left-0 top-16 border-r border-outline-variant flat no shadows Active: scale-[0.99] transition-transform">
+<div class="px-gutter mb-stack-lg flex flex-col items-center">
+<img alt="Team Crest" class="w-20 h-20 rounded-full border-2 border-bolt-gold mb-stack-sm object-cover" data-alt="A stylized, modern football club crest featuring a lightning bolt motif in bright gold against a deep navy blue background. The crest is slightly distressed to give it a gritty, athletic feel. High contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4R4ykOJxjPsQYRQceFwqL2ZsTXf8_atd20EBaE6uyLghkYyHVh98DbZC7BfcG3UzspF8Q5UwUZWJe_xRNUmPo0L1GFiUNeRjll3AJA-OMjfT7w-ls3Q9x0S5HgUsA-vbn2K-IDSJIbfioTcVzvnrnl_BBJzAVojtjY3-AnuvukCAveFAJxiD7SZ0dKkfN-PRjaoyy9hwwlEMWSwq6DkSNypDWILBstn9Yn_2mVksbarpU5eH1DcIRwaz22WARUFgbzmVT5aHHGTQ"/>
+<div class="font-headline-md text-headline-md text-bolt-gold text-center">Raimon Junior High</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mt-1 text-center">First Team Coach</div>
+</div>
+<div class="px-gutter mb-stack-md">
+<button class="w-full bg-bolt-gold text-pitch-deep font-label-caps text-label-caps py-2 rounded uppercase hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(253,203,88,0.25)] transition-all flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                     NEW SESSION
+                 </button>
+</div>
+<nav class="flex-1 flex flex-col gap-2 px-gutter">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-caps text-label-caps">Teams</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Players</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="sports_soccer">sports_soccer</span>
+<span class="font-label-caps text-label-caps">Matches</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label-caps text-label-caps">Standings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-bolt-gold border-l-4 border-bolt-gold bg-stadium-blue/50" href="#">
+<span class="material-symbols-outlined" data-icon="equalizer" data-weight="fill" style="font-variation-settings: 'FILL' 1;">equalizer</span>
+<span class="font-label-caps text-label-caps">Statistics</span>
+</a>
+</nav>
+<div class="mt-auto px-gutter flex flex-col gap-2 pb-stack-md">
+<div class="bolt-divider mb-4"></div>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-caps text-label-caps">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-stadium-blue hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-caps text-label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-margin-mobile md:p-margin-desktop bg-pitch-deep min-h-[calc(100vh-64px)] w-full max-w-container-max mx-auto">
+<header class="mb-section-gap">
+<h1 class="font-display-xl text-display-xl text-on-surface md:font-display-xl font-headline-lg-mobile text-headline-lg-mobile">TEAM PERFORMANCE OVERVIEW</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-stack-sm">Current Season Statistics &amp; Key Metrics</p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Goals Chart -->
+<div class="md:col-span-8 bg-stadium-blue border border-stadium-blue/50 rounded-lg p-stack-lg relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-bolt-gold/5 to-transparent pointer-events-none"></div>
+<h2 class="font-headline-md text-headline-md text-bolt-gold mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined">sports_score</span>
+                        TOP SCORERS
+                     </h2>
+<div class="space-y-4 relative z-10">
+<!-- Bar 1 -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface mb-1">
+<span>Axel Blaze</span>
+<span class="text-bolt-gold">14</span>
+</div>
+<div class="w-full bg-pitch-deep h-4 rounded overflow-hidden">
+<div class="bg-bolt-gold h-full rounded" style="width: 85%;"></div>
+</div>
+</div>
+<!-- Bar 2 -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface mb-1">
+<span>Kevin Dragonfly</span>
+<span class="text-bolt-gold">8</span>
+</div>
+<div class="w-full bg-pitch-deep h-4 rounded overflow-hidden">
+<div class="bg-bolt-gold h-full rounded opacity-80" style="width: 50%;"></div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface mb-1">
+<span>Jude Sharp</span>
+<span class="text-bolt-gold">5</span>
+</div>
+<div class="w-full bg-pitch-deep h-4 rounded overflow-hidden">
+<div class="bg-bolt-gold h-full rounded opacity-60" style="width: 30%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Clean Sheets Summary -->
+<div class="md:col-span-4 bg-stadium-blue border-l-2 border-bolt-gold rounded-lg p-stack-lg flex flex-col justify-center items-center text-center relative overflow-hidden">
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[120px]">shield</span>
+</div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-stack-sm uppercase">Clean Sheets</h3>
+<div class="font-display-xl text-display-xl text-bolt-gold mb-2">8</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Mark Evans has maintained a solid defense in 8 out of 15 matches.</p>
+</div>
+<!-- Assists Chart -->
+<div class="md:col-span-6 bg-surface-container-high border border-outline-variant/30 rounded-lg p-stack-lg relative overflow-hidden">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined text-bolt-gold">conversion_path</span>
+                        TOP ASSISTS
+                     </h2>
+<div class="space-y-4">
+<!-- Bar 1 -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface mb-1">
+<span>Jude Sharp</span>
+<span class="text-on-surface">12</span>
+</div>
+<div class="w-full bg-pitch-deep h-2 rounded overflow-hidden">
+<div class="bg-secondary h-full rounded" style="width: 90%;"></div>
+</div>
+</div>
+<!-- Bar 2 -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface mb-1">
+<span>Nathan Swift</span>
+<span class="text-on-surface">6</span>
+</div>
+<div class="w-full bg-pitch-deep h-2 rounded overflow-hidden">
+<div class="bg-secondary h-full rounded opacity-80" style="width: 45%;"></div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface mb-1">
+<span>Erik Eagle</span>
+<span class="text-on-surface">4</span>
+</div>
+<div class="w-full bg-pitch-deep h-2 rounded overflow-hidden">
+<div class="bg-secondary h-full rounded opacity-60" style="width: 30%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Most Minutes Summary -->
+<div class="md:col-span-6 bg-surface-container-high border border-outline-variant/30 rounded-lg p-stack-lg flex items-center gap-stack-md">
+<img alt="Player in action" class="w-24 h-24 rounded object-cover border border-bolt-gold/50" data-alt="Close up action shot of a young male football player running on a pristine green pitch at night. Dynamic stadium lighting highlighting the sweat on his brow. High contrast athletic photography with deep blue shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZCrxdrYbvp3R4vAfGfDV82SAY7GvZC3ajf6sOP6HVUMtV6EK_rMNKHH3gyMx7IsTi7lmAjrfITat5yaY4QfR27pLL4oYD1z1FpIRLtje_e-4FM0ce8wVne8DWJNyTXogNNbJ6Qg53EwkTUU7WCOZcd7OwDrL8cYEztWEiVrq3iybEuQQKYhdjSjtNlHvGXrkLyX2QA3Vj3_hvpcZdRIP6n16_89tD1Ym5uKNJS2smLOMSkjyBM07QwCqxmTh5_mSmdsSv1tHKWOE"/>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Most Minutes Played</h3>
+<div class="font-stat-value text-stat-value text-bolt-gold mb-1">Mark Evans</div>
+<div class="font-body-md text-body-md text-on-surface">1,350 Mins / 15 Starts</div>
+</div>
+</div>
+</div>
+<div class="mt-section-gap">
+<div class="bolt-divider"></div>
+</div>
+</main>
+</div>
+</body></html>
