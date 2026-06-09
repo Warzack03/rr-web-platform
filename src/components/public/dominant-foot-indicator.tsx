@@ -13,12 +13,12 @@ export function DominantFootIndicator({ foot, className }: DominantFootIndicator
     foot === "left" ? "Zurdo" : foot === "right" ? "Diestro" : foot === "both" ? "Ambidiestro" : "Sin dato";
 
   return (
-    <div className={cn("border border-white/8 bg-[rgba(255,255,255,0.03)] px-3 py-3", className)}>
-      <div className="flex items-center justify-between gap-3">
-        <p className="rr-kicker text-[0.66rem] text-[color:var(--rr-muted)]/88">Pie dominante</p>
+    <div className={cn("border border-white/8 bg-[rgba(255,255,255,0.03)] px-4 py-4", className)}>
+      <div className="flex items-center justify-between gap-4">
+        <p className="rr-kicker text-[0.66rem] text-[color:var(--rr-muted)]/88">Pierna</p>
         <p className="rr-kicker text-[0.66rem] text-[color:var(--rr-gold)]">{label}</p>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-3.5 grid grid-cols-2 gap-3">
         <FootToggle side="Izq" active={leftActive} neutral={foot === "unknown"} />
         <FootToggle side="Der" active={rightActive} neutral={foot === "unknown"} />
       </div>
@@ -36,7 +36,7 @@ function FootToggle({ side, active, neutral = false }: FootToggleProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2 border px-2 py-2",
+        "flex items-center gap-2.5 border px-3 py-2.5",
         active
           ? "border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]"
           : neutral

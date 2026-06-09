@@ -39,7 +39,7 @@ export default function FirstTeamSquadPage() {
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.12),transparent_56%)]" />
         <div className="absolute inset-x-0 top-28 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
 
-        <section className="relative mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
+        <section className="relative mx-auto w-full max-w-[1344px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
           <SquadPageTitle title={squad.pageTitle} />
 
           <div className="mt-16 space-y-[4.5rem] md:mt-20 md:space-y-24">

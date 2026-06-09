@@ -82,7 +82,7 @@ export default async function TeamSquadPage({
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.08),transparent_58%)]" />
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
 
-        <section className="relative mx-auto w-full max-w-[1280px] px-5 py-14 md:px-8 md:py-18 xl:px-16">
+        <section className="relative mx-auto w-full max-w-[1344px] px-5 py-14 md:px-8 md:py-18 xl:px-16">
           <SquadPageTitle title={squad.pageTitle} />
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">

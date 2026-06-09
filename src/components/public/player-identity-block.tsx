@@ -1,4 +1,5 @@
 import type { PublicPlayerProfile } from "@/lib/public/player-profile-content";
+import { getCountryFlagEmoji } from "@/lib/public/country-flags";
 
 type PlayerIdentityBlockProps = {
   player: PublicPlayerProfile;
@@ -6,7 +7,8 @@ type PlayerIdentityBlockProps = {
 
 export function PlayerIdentityBlock({ player }: PlayerIdentityBlockProps) {
   const isAcademy = player.teamType === "academy";
-  const showCountry = Boolean(player.country && player.countryFlag);
+  const countryMarker = getCountryFlagEmoji(player.countryFlag) ?? player.countryFlag?.trim().toUpperCase() ?? null;
+  const showCountry = Boolean(player.country && countryMarker);
 
   return (
     <div className="relative z-10 flex max-w-[30rem] flex-col gap-6">
@@ -24,8 +26,11 @@ export function PlayerIdentityBlock({ player }: PlayerIdentityBlockProps) {
         <span className="rr-kicker text-[0.98rem] text-white">{player.position}</span>
         {showCountry ? <span className="hidden h-5 w-px bg-white/12 sm:block" /> : null}
         {showCountry ? (
-          <span className="rr-kicker text-[0.98rem] text-[color:var(--rr-muted)]">
-            {player.countryFlag} {player.country}
+          <span className="rr-kicker inline-flex items-center gap-2 text-[0.98rem] text-[color:var(--rr-muted)]">
+            <span aria-hidden="true" className="text-[1.08rem] leading-none">
+              {countryMarker}
+            </span>
+            <span>{player.country}</span>
           </span>
         ) : null}
       </div>

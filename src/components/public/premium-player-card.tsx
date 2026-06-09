@@ -4,6 +4,7 @@ import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DominantFootIndicator } from "@/components/public/dominant-foot-indicator";
 import { PlayerStatMiniBox } from "@/components/public/player-stat-mini-box";
+import { getCountryFlagEmoji } from "@/lib/public/country-flags";
 import type {
   DominantFoot,
   PublicPlayerStats,
@@ -42,6 +43,7 @@ export function PremiumPlayerCard({
 }: PremiumPlayerCardProps) {
   const isAcademy = teamType === "academy";
   const statItems = buildStatItems(playerType, stats, teamType);
+  const countryMarker = getCountryFlagEmoji(countryFlag) ?? countryFlag?.trim().toUpperCase() ?? null;
 
   const content = (
     <article
@@ -86,7 +88,7 @@ export function PremiumPlayerCard({
           </div>
         )}
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent_0%,rgba(12,24,40,0.35)_28%,rgba(14,26,44,1)_100%)]" />
-        <div className="absolute left-0 right-0 top-0 flex justify-end p-5">
+        <div className="absolute left-0 right-0 top-0 flex justify-end p-6">
           <span
             className={
               isAcademy
@@ -102,18 +104,19 @@ export function PremiumPlayerCard({
       <div
         className={
           isAcademy
-            ? "relative flex min-h-[28rem] flex-col justify-end p-5 pt-[14.5rem]"
-            : "relative flex min-h-[31rem] flex-col justify-end p-5 pt-[16rem]"
+            ? "relative flex min-h-[29rem] flex-col justify-end p-6 pt-[15rem]"
+            : "relative flex min-h-[32rem] flex-col justify-end p-6 pt-[16.5rem]"
         }
       >
-        <div className="flex flex-col items-start gap-3">
+        <div className="flex flex-col items-start gap-4">
           <div className="min-w-0">
-            {countryFlag && country ? (
-              <div className="flex items-center gap-2">
-                <span className="rr-kicker inline-flex min-w-8 items-center justify-center border border-[color:var(--rr-gold)]/55 bg-[rgba(253,203,88,0.08)] px-1.5 py-0.5 text-[0.62rem] text-[color:var(--rr-gold)]">
-                  {countryFlag}
+            {countryMarker && country ? (
+              <div className="flex items-center gap-2.5">
+                <span className="inline-flex h-7 min-w-9 items-center justify-center border border-[color:var(--rr-gold)]/55 bg-[rgba(253,203,88,0.08)] px-2 text-[0.92rem] leading-none text-[color:var(--rr-gold)]">
+                  <span aria-hidden="true">{countryMarker}</span>
+                  <span className="sr-only">{country}</span>
                 </span>
-                <span className="rr-kicker text-[0.72rem] text-[color:var(--rr-muted)]">{country}</span>
+                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">{country}</span>
               </div>
             ) : null}
             <h3
@@ -140,7 +143,7 @@ export function PremiumPlayerCard({
 
         <div
           className={cn(
-            "mt-5 grid gap-3",
+            "mt-6 grid gap-4",
             statItems.length >= 3 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2",
           )}
         >
@@ -154,7 +157,7 @@ export function PremiumPlayerCard({
           ))}
         </div>
 
-        {!isAcademy && dominantFoot ? <DominantFootIndicator foot={dominantFoot} className="mt-4" /> : null}
+        {!isAcademy && dominantFoot ? <DominantFootIndicator foot={dominantFoot} className="mt-5" /> : null}
       </div>
     </article>
   );
