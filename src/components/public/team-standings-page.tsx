@@ -73,11 +73,7 @@ export function TeamStandingsPage({ content }: TeamStandingsPageProps) {
           {content.rows.length > 0 ? (
             <>
               <StandingsTable rows={content.rows} />
-              <div className="space-y-3 lg:hidden">
-                {content.rows.map((row) => (
-                  <StandingsMobileCard key={`${row.position}-${row.team}`} row={row} />
-                ))}
-              </div>
+              <StandingsMobileTable rows={content.rows} />
             </>
           ) : (
             <StandingsEmptyState />
@@ -161,6 +157,34 @@ export function StandingsTable({ rows }: StandingsTableProps) {
           ))}
         </tbody>
       </table>
+    </section>
+  );
+}
+
+function StandingsMobileTable({ rows }: StandingsTableProps) {
+  return (
+    <section className="rr-panel overflow-hidden lg:hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[34rem] border-collapse">
+          <thead>
+            <tr className="border-b border-white/10 bg-[rgba(255,255,255,0.03)]">
+              <StandingsTableHead className="w-14 pl-4 text-left">Pos</StandingsTableHead>
+              <StandingsTableHead className="min-w-[11rem] text-left">Equipo</StandingsTableHead>
+              <StandingsTableHead className="w-14">PJ</StandingsTableHead>
+              <StandingsTableHead className="w-14">G</StandingsTableHead>
+              <StandingsTableHead className="w-14">E</StandingsTableHead>
+              <StandingsTableHead className="w-14">P</StandingsTableHead>
+              <StandingsTableHead className="w-16">DG</StandingsTableHead>
+              <StandingsTableHead className="w-16 pr-4">Pts</StandingsTableHead>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <StandingsMobileRow key={`${row.position}-${row.team}`} row={row} />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
@@ -250,6 +274,53 @@ export function StandingRow({ row }: StandingRowProps) {
   );
 }
 
+function StandingsMobileRow({ row }: StandingRowProps) {
+  return (
+    <tr
+      className={cn(
+        "border-t border-white/8 transition hover:bg-[rgba(255,255,255,0.025)]",
+        row.isClub && "bg-[rgba(253,203,88,0.08)]",
+      )}
+    >
+      <td className="px-2 py-3 pl-4">
+        <div
+          className={cn(
+            "flex h-9 w-9 items-center justify-center border text-[0.96rem] font-semibold",
+            row.isClub
+              ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]"
+              : "border-white/10 bg-[rgba(255,255,255,0.04)] text-white",
+          )}
+        >
+          {row.position}
+        </div>
+      </td>
+      <td className="px-2 py-3 text-left">
+        <div className="min-w-0">
+          <p className="truncate text-[0.98rem] font-semibold text-white">{row.team}</p>
+          {row.isClub ? (
+            <p className="rr-kicker mt-1 text-[0.66rem] text-[color:var(--rr-gold)]">Rising Raimon</p>
+          ) : null}
+        </div>
+      </td>
+      <StandingsValue className="py-3 text-[0.95rem]">{row.played}</StandingsValue>
+      <StandingsValue className="py-3 text-[0.95rem]">{row.won}</StandingsValue>
+      <StandingsValue className="py-3 text-[0.95rem]">{row.drawn}</StandingsValue>
+      <StandingsValue className="py-3 text-[0.95rem]">{row.lost}</StandingsValue>
+      <StandingsValue
+        className={cn(
+          "py-3 text-[0.95rem]",
+          row.goalDifference > 0 ? "text-[color:var(--rr-gold)]" : undefined,
+        )}
+      >
+        {formatGoalDifference(row.goalDifference)}
+      </StandingsValue>
+      <StandingsValue className="py-3 pr-4 text-[0.98rem] font-semibold text-white">
+        {row.points}
+      </StandingsValue>
+    </tr>
+  );
+}
+
 function StandingsValue({
   children,
   className,
@@ -261,59 +332,6 @@ function StandingsValue({
     <td className={cn("px-2 py-4 text-right text-[1.08rem] text-[color:var(--rr-muted)]", className)}>
       {children}
     </td>
-  );
-}
-
-type StandingsMobileCardProps = {
-  row: StandingRowData;
-};
-
-export function StandingsMobileCard({ row }: StandingsMobileCardProps) {
-  return (
-    <article
-      className={cn(
-        "rr-panel-dark border-l-2 p-4",
-        row.isClub ? "border-l-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.06)]" : "border-l-white/10",
-      )}
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="rr-kicker text-[0.76rem] text-[color:var(--rr-muted)]">Posicion {row.position}</div>
-          <h2 className="rr-display mt-2 text-[2.15rem] leading-none text-white">{row.team}</h2>
-          {row.isClub ? (
-            <div className="mt-2 inline-flex items-center gap-2 text-[0.92rem] text-[color:var(--rr-gold)]">
-              <Shield className="h-4 w-4" strokeWidth={1.8} />
-              <span>Equipo propio</span>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="border border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)] px-3 py-2 text-right">
-          <div className="rr-kicker text-[0.72rem] text-[color:var(--rr-muted)]">Pts</div>
-          <div className="rr-display text-[2.3rem] leading-none text-[color:var(--rr-gold)]">{row.points}</div>
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <MobileStatCard label="PJ" value={`${row.played}`} />
-        <MobileStatCard label="Balance" value={`${row.won}-${row.drawn}-${row.lost}`} />
-      </div>
-
-      <div className="mt-4 flex flex-wrap items-center gap-3 text-[0.98rem] text-[color:var(--rr-muted)]">
-        <span className="border border-white/10 px-3 py-2">GF {row.goalsFor}</span>
-        <span className="border border-white/10 px-3 py-2">GC {row.goalsAgainst}</span>
-        <span className="border border-white/10 px-3 py-2">DG {formatGoalDifference(row.goalDifference)}</span>
-      </div>
-    </article>
-  );
-}
-
-function MobileStatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-3">
-      <div className="rr-kicker text-[0.72rem] text-[color:var(--rr-muted)]">{label}</div>
-      <div className="mt-2 text-[1.1rem] font-semibold text-white">{value}</div>
-    </div>
   );
 }
 
