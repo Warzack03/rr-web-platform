@@ -2,16 +2,7 @@
 
 import Link from "next/link";
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
-import {
-  AlertTriangle,
-  CalendarClock,
-  CheckCircle2,
-  CircleDotDashed,
-  Plus,
-  Radio,
-  ShieldCheck,
-  Trophy,
-} from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, CircleDotDashed, Plus, Radio, Trophy } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { MatchFilters, type MatchFiltersValue } from "@/components/admin/match-filters";
 import { MatchFormDialog } from "@/components/admin/match-form-dialog";
@@ -267,7 +258,7 @@ export function AdminMatchesWorkspace({
       <AdminPageHeader
         eyebrow="Calendario operativo"
         title={role === "COACH" ? "Partidos de tu equipo" : "Partidos"}
-        description="Gestion de calendario, previas y resultados."
+        description=""
         actions={
           <button
             type="button"
@@ -291,21 +282,8 @@ export function AdminMatchesWorkspace({
 
       {role === "COACH" ? (
         <AdminPanel className="border-[rgba(52,112,200,0.24)] px-5 py-4">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-end">
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <ShieldCheck className="mt-1 h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
-                <div className="space-y-1">
-                  <p className="text-[0.94rem] text-white">
-                    Solo ves los partidos del equipo asignado en esta simulacion.
-                  </p>
-                  <p className="text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
-                    Priorizamos el siguiente partido, los ultimos jugados y accesos directos a
-                    clasificacion y estadisticas.
-                  </p>
-                </div>
-              </div>
-
               <div className="flex flex-wrap gap-2">
                 <Link
                   href={`/admin/clasificaciones?team=${coachAssignedTeam?.slug ?? ""}`}
@@ -354,28 +332,25 @@ export function AdminMatchesWorkspace({
         <AdminMetricCard
           label="Jugados"
           value={playedMatchesCount.toString()}
-          detail="Partidos cerrados en la vista actual"
           tone="blue"
           icon={<Trophy className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="Pendientes"
           value={pendingMatchesCount.toString()}
-          detail="Incluye fecha por confirmar y aplazados"
           tone="slate"
           icon={<CircleDotDashed className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="En vivo"
           value={liveMatchesCount.toString()}
-          detail={allowLiveFilter ? "Solo Primer Equipo" : "No aplica en la vista actual"}
+          detail={allowLiveFilter ? "Primer Equipo" : ""}
           tone="danger"
           icon={<Radio className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="Sin resultado"
           value={missingResultCount.toString()}
-          detail="Jugados que aun requieren marcador"
           tone="gold"
           icon={<AlertTriangle className="h-5 w-5" />}
         />

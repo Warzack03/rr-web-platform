@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 type AdminMetricCardProps = {
   label: string;
   value: string;
-  detail: string;
+  detail?: string;
   icon?: ReactNode;
   tone?: "gold" | "blue" | "slate" | "danger";
 };
@@ -36,7 +36,9 @@ export function AdminMetricCard({
           <p className="rr-kicker text-[color:var(--rr-muted)]">{label}</p>
           <div className="space-y-1">
             <p className="rr-display text-[2.45rem] leading-none text-white">{value}</p>
-            <p className="text-[0.95rem] leading-5 text-[color:var(--rr-muted)]">{detail}</p>
+            {detail ? (
+              <p className="text-[0.95rem] leading-5 text-[color:var(--rr-muted)]">{detail}</p>
+            ) : null}
           </div>
         </div>
 

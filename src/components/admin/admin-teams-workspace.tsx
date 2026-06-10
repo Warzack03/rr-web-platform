@@ -235,11 +235,7 @@ export function AdminTeamsWorkspace({
       <AdminPageHeader
         eyebrow="Estructura deportiva"
         title={role === "COACH" ? "Mis equipos" : "Equipos"}
-        description={
-          role === "COACH"
-            ? "Vista limitada a tus equipos asignados."
-            : "Gestion de estructura deportiva, visibilidad publica y entrenadores."
-        }
+        description=""
         actions={
           canManageTeams ? (
             <button type="button" onClick={openCreateDialog} className="rr-button rr-button-primary text-[0.84rem]">
@@ -259,43 +255,28 @@ export function AdminTeamsWorkspace({
         </AdminPanel>
       ) : null}
 
-      {role === "COACH" ? (
-        <AdminPanel className="border-[rgba(52,112,200,0.24)] px-5 py-4">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="mt-1 h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
-            <p className="text-[0.94rem] leading-6 text-[color:var(--rr-muted)]">
-              Esta vista prioriza consulta rapida y acceso al equipo asignado. No muestra acciones de estructura global.
-            </p>
-          </div>
-        </AdminPanel>
-      ) : null}
-
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <AdminMetricCard
           label="Total equipos"
           value={totalTeams.toString()}
-          detail="Estructuras visibles para este rol"
           tone="gold"
           icon={<Layers3 className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="Publicos"
           value={visibleTeams.toString()}
-          detail="Listos para la web"
           tone="blue"
           icon={<Eye className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="Activos"
           value={activeTeams.toString()}
-          detail="Operativos esta temporada"
           tone="slate"
           icon={<ShieldCheck className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="Cantera"
           value={academyTeams.toString()}
-          detail="Sin contar el Primer Equipo"
           tone="gold"
           icon={<FolderKanban className="h-5 w-5" />}
         />

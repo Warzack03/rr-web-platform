@@ -843,7 +843,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
 
     return {
       heading: assignedTeam?.name ?? "Equipo asignado",
-      intro: "Acceso rapido para partido, clasificacion y estadisticas desde movil.",
+      intro: "",
       metrics: [
         {
           label: "Proximo paso",
@@ -888,7 +888,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
   if (role === "MANAGER") {
     return {
       heading: "Control deportivo y publico",
-      intro: "Resumen del dia para equipos, partidos, noticias y media.",
+      intro: "",
       metrics: [
         {
           label: "Temporada activa",
@@ -939,7 +939,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
 
   return {
     heading: "Control global del backoffice",
-    intro: "Resumen general de usuarios, estructura deportiva e importaciones.",
+    intro: "",
     metrics: [
       {
         label: "Temporada activa",
@@ -1016,8 +1016,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
       return {
         title: "Jugadores",
         eyebrow: isCoach ? "Consulta rapida" : "Plantilla publica",
-        description:
-          "Consulta la plantilla, el perfil publico y la informacion deportiva de cada jugador.",
+        description: "",
         metrics: [
           { label: "Jugadores", value: adminMockPlayers.length.toString(), detail: "Porteros y jugadores de campo", tone: "gold" },
           { label: "Con stats", value: "10", detail: "Datos basicos y avanzados", tone: "blue" },

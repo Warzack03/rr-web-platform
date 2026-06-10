@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 type AdminPageHeaderProps = {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   actions?: ReactNode;
   className?: string;
 };
@@ -24,9 +24,11 @@ export function AdminPageHeader({
           <h1 className="rr-display text-[2.7rem] leading-[0.92] text-white sm:text-[3.4rem]">
             {title}
           </h1>
-          <p className="max-w-2xl text-[1rem] leading-6 text-[color:var(--rr-muted)] sm:text-[1.06rem]">
-            {description}
-          </p>
+          {description ? (
+            <p className="max-w-2xl text-[1rem] leading-6 text-[color:var(--rr-muted)] sm:text-[1.06rem]">
+              {description}
+            </p>
+          ) : null}
         </div>
       </div>
 

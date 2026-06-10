@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Eye,
-  EyeOff,
-  Pencil,
-  ShieldCheck,
-  ShieldOff,
-  UsersRound,
-} from "lucide-react";
+import { Eye, EyeOff, Pencil, ShieldCheck, ShieldOff, UsersRound } from "lucide-react";
 import { AdminListCard } from "@/components/admin/admin-list-card";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { AdminTable } from "@/components/admin/admin-table";
@@ -131,20 +124,8 @@ export function TeamList({
   onToggleVisibility,
 }: TeamListProps) {
   const rows = teams.map((team) => ({
-    team: (
-      <div className="space-y-1">
-        <p className="font-semibold text-white">{team.name}</p>
-        <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-          /{team.slug} · Orden {team.displayOrder}
-        </p>
-      </div>
-    ),
-    category: (
-      <div className="space-y-1">
-        <p>{team.category}</p>
-        <p className="text-[0.88rem] text-[color:var(--rr-muted)]">{team.branch}</p>
-      </div>
-    ),
+    team: <p className="font-semibold text-white">{team.name}</p>,
+    category: team.category,
     competition: (
       <div className="space-y-1">
         <p>{team.competition}</p>
@@ -167,9 +148,11 @@ export function TeamList({
     coaches: (
       <div className="space-y-1">
         <p>{team.coaches.filter((coach) => coach.publicVisible).length} visibles</p>
-        <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-          Resp. {team.responsibleCoachUser?.username ?? "sin cuenta"}
-        </p>
+        {team.visibleCoaches.length > 0 ? (
+          <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
+            {team.visibleCoaches.join(" · ")}
+          </p>
+        ) : null}
       </div>
     ),
     actions: (
@@ -205,12 +188,11 @@ export function TeamList({
             }
             footer={
               <div className="space-y-4">
-                <div className="grid gap-3 rounded-[10px] border border-white/8 bg-white/4 p-3 text-[0.9rem] text-[color:var(--rr-muted)]">
-                  <p>Slug: /{team.slug}</p>
-                  <p>Rama: {team.branch}</p>
-                  <p>Entrenadores visibles: {team.visibleCoaches.join(" · ") || "Sin mostrar"}</p>
-                  <p>Responsable: {team.responsibleCoachUser?.username ?? "Sin cuenta"}</p>
-                </div>
+                {team.visibleCoaches.length > 0 ? (
+                  <div className="rounded-[10px] border border-white/8 bg-white/4 p-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+                    {team.visibleCoaches.join(" · ")}
+                  </div>
+                ) : null}
                 <TeamActions
                   role={role}
                   team={team}

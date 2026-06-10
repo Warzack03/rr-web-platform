@@ -38,9 +38,11 @@ export function AdminTopbar({
       <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <p className="rr-kicker text-[color:var(--rr-gold)]">{currentLabel}</p>
+            <p className="rr-kicker text-[0.86rem] text-[color:var(--rr-gold)] sm:text-[0.92rem]">
+              {currentLabel}
+            </p>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-[1.18rem] font-semibold text-white sm:text-[1.26rem]">
+              <h1 className="text-[1.3rem] font-semibold text-white sm:text-[1.45rem]">
                 {displayName}
               </h1>
               <span className="inline-flex min-h-8 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 text-[0.84rem] text-[color:var(--rr-muted)]">
@@ -59,10 +61,7 @@ export function AdminTopbar({
           </Link>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-2xl text-[0.94rem] leading-5 text-[color:var(--rr-muted)]">
-            Centro de control para el area deportiva y el contenido publico.
-          </p>
+        <div className="flex justify-end">
           <AdminRoleSwitcher actualRole={actualRole} previewRole={previewRole} />
         </div>
       </div>
