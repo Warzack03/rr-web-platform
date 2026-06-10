@@ -176,8 +176,8 @@ export const adminMockUsers: AdminMockUser[] = [
     assignedTeamSlugs: [],
   },
   {
-    id: "user-coach",
-    displayName: "Entrenador Primer Equipo",
+    id: "user-coach-primer-equipo",
+    displayName: "Marcos Varela",
     email: "entrenador_primer_equipo@risingraimon.local",
     username: "entrenador_primer_equipo",
     role: "COACH",
@@ -186,12 +186,37 @@ export const adminMockUsers: AdminMockUser[] = [
     note: "Cuenta demo orientada a uso movil en dia de partido.",
   },
   {
-    id: "visible-coach-only",
+    id: "user-coach-raimon-b",
+    displayName: "Sergio Mena",
+    email: "entrenador_raimon_b@risingraimon.local",
+    username: "entrenador_raimon_b",
+    role: "COACH",
+    roleLabel: adminRoleLabels.COACH,
+    assignedTeamSlugs: ["raimon-b"],
+  },
+  {
+    id: "user-coach-juvenil-a",
+    displayName: "Ivan Lobo",
+    email: "entrenador_juvenil_a@risingraimon.local",
+    username: "entrenador_juvenil_a",
+    role: "COACH",
+    roleLabel: adminRoleLabels.COACH,
+    assignedTeamSlugs: ["juvenil-a"],
+  },
+  {
+    id: "visible-coach-lucia-serrano",
     displayName: "Lucia Serrano",
     role: "COACH",
     roleLabel: "Visible sin cuenta",
     assignedTeamSlugs: ["juvenil-a"],
     note: "Entrenadora visible en web sin acceso interno.",
+  },
+  {
+    id: "visible-coach-marta-solis",
+    displayName: "Marta Solis",
+    role: "COACH",
+    roleLabel: "Visible sin cuenta",
+    assignedTeamSlugs: ["cadete-a"],
   },
 ];
 
@@ -818,7 +843,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
 
     return {
       heading: assignedTeam?.name ?? "Equipo asignado",
-      intro: "Vista compacta para actualizar partido, clasificacion y estadisticas desde movil.",
+      intro: "Acceso rapido para partido, clasificacion y estadisticas desde movil.",
       metrics: [
         {
           label: "Proximo paso",
@@ -849,12 +874,12 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
         {
           title: "Jugadores a mano",
           value: topPlayers.map((player) => player.name).join(" · "),
-          detail: "Acceso rapido para actualizar aportacion ofensiva.",
+          detail: "Referencia directa para registrar la aportacion ofensiva.",
         },
         {
           title: "Pendiente",
           value: "Validar MVP y porterias a cero",
-          detail: "Checklist rapida para cerrar el acta del partido.",
+          detail: "Revisa los ultimos datos antes de cerrar el partido.",
         },
       ],
     };
@@ -863,7 +888,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
   if (role === "MANAGER") {
     return {
       heading: "Control deportivo y publico",
-      intro: "Resumen operativo del contenido deportivo, partidos, noticias y media publica.",
+      intro: "Resumen del dia para equipos, partidos, noticias y media.",
       metrics: [
         {
           label: "Temporada activa",
@@ -906,7 +931,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
         {
           title: "Entradas activas",
           value: "3 publicaciones destacadas",
-          detail: "Mantener portada, cantera y primer equipo equilibrados.",
+          detail: "Revisa portada, cantera y primer equipo.",
         },
       ],
     };
@@ -914,7 +939,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
 
   return {
     heading: "Control global del backoffice",
-    intro: "Vista amplia para usuarios, importaciones, estructura deportiva y contenido publico.",
+    intro: "Resumen general de usuarios, estructura deportiva e importaciones.",
     metrics: [
       {
         label: "Temporada activa",
@@ -925,13 +950,13 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
       {
         label: "Usuarios internos",
         value: adminMockUsers.filter((user) => user.email).length.toString(),
-        detail: "Superadmin, manager y entrenador de prueba",
+        detail: "Superadmin, manager y entrenador",
         tone: "blue",
       },
       {
         label: "Jugadores activos",
         value: adminMockPlayers.length.toString(),
-        detail: "Base mock para validar pantallas admin",
+        detail: "Plantilla disponible en el area deportiva",
         tone: "slate",
       },
       {
@@ -957,7 +982,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
       {
         title: "Alertas",
         value: "2 conflictos pendientes",
-        detail: "Revisar asignaciones antes del siguiente merge.",
+        detail: "Revisa las asignaciones antes de aplicar cambios.",
       },
     ],
   };
@@ -971,7 +996,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
       return {
         title: "Temporadas",
         eyebrow: "Planificacion deportiva",
-        description: "Base preparada para activar una sola temporada y revisar historico sin tocar datos productivos.",
+        description: "Controla la temporada activa y consulta el historico del club.",
         metrics: [
           { label: "Temporada viva", value: "1", detail: "2026/2027 en foco", tone: "gold" },
           { label: "Historicas", value: "2", detail: "Listas para consulta", tone: "slate" },
@@ -982,7 +1007,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
             items: ["Activar temporada", "Cerrar temporadas antiguas", "Revisar fechas clave"],
           },
           {
-            title: "Mock actual",
+            title: "Temporadas",
             items: adminMockSeasons.map((season) => `${season.name} · ${season.status}`),
           },
         ],
@@ -992,9 +1017,9 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
         title: "Jugadores",
         eyebrow: isCoach ? "Consulta rapida" : "Plantilla publica",
         description:
-          "Vista lista para evolucionar a gestion real del perfil publico sin mezclar datos sensibles ni romper el flujo del entrenador.",
+          "Consulta la plantilla, el perfil publico y la informacion deportiva de cada jugador.",
         metrics: [
-          { label: "Jugadores mock", value: adminMockPlayers.length.toString(), detail: "Porteros y campo", tone: "gold" },
+          { label: "Jugadores", value: adminMockPlayers.length.toString(), detail: "Porteros y jugadores de campo", tone: "gold" },
           { label: "Con stats", value: "10", detail: "Datos basicos y avanzados", tone: "blue" },
         ],
         highlights: [
@@ -1005,7 +1030,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
               .map((player) => `${player.number} · ${player.name} · ${player.position}`),
           },
           {
-            title: "Alcance MVP",
+            title: "Ficha publica",
             items: ["Nombre publico", "Dorsal", "Posicion", "Pais", "Visibilidad", "Foto via media"],
           },
         ],
@@ -1014,14 +1039,14 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
       return {
         title: "Asignaciones",
         eyebrow: "Relacion jugador-equipo",
-        description: "Estructura pensada para mover jugadores entre equipos sin perder el historial de estadisticas.",
+        description: "Organiza la relacion entre jugador, equipo y temporada.",
         metrics: [
           { label: "Equipos cubiertos", value: "6", detail: "Con categorias diferentes", tone: "gold" },
           { label: "Cambios manuales", value: "2", detail: "Casos que requeriran confirmacion", tone: "slate" },
         ],
         highlights: [
           {
-            title: "Control previsto",
+            title: "Campos clave",
             items: ["Alta por temporada", "Dorsal por asignacion", "Capitan", "Orden visual"],
           },
           {
@@ -1033,10 +1058,10 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
     case "clasificaciones":
       return {
         title: "Clasificaciones",
-        eyebrow: isCoach ? "Uso rapido en campo" : "Tabla manual MVP",
-        description: "Resumen visual listo para editar manualmente la clasificacion por equipo sin depender de integraciones externas.",
+        eyebrow: isCoach ? "Uso rapido en campo" : "Clasificacion por equipo",
+        description: "Consulta y actualiza la clasificacion de cada equipo.",
         metrics: [
-          { label: "Tablas mock", value: adminMockStandings.length.toString(), detail: "Primer Equipo y cantera", tone: "gold" },
+          { label: "Tablas", value: adminMockStandings.length.toString(), detail: "Primer Equipo y cantera", tone: "gold" },
           { label: "Equipo destacado", value: "2", detail: "Filas marcadas como propias", tone: "blue" },
         ],
         highlights: [
@@ -1054,18 +1079,18 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
       return {
         title: "Noticias",
         eyebrow: "Editorial publica",
-        description: "Shell editorial conectada al lenguaje publico para probar listado, estados y piezas destacadas antes del CRUD real.",
+        description: "Gestiona titulares, estado editorial y piezas destacadas.",
         metrics: [
           { label: "Publicadas", value: adminMockNews.filter((item) => item.status === "published").length.toString(), detail: "Listas para portada", tone: "gold" },
           { label: "Borradores", value: adminMockNews.filter((item) => item.status === "draft").length.toString(), detail: "Pendientes de revision", tone: "slate" },
         ],
         highlights: [
           {
-            title: "Titulares mock",
+            title: "Titulares",
             items: adminMockNews.map((item) => `${item.title} · ${item.updatedLabel}`),
           },
           {
-            title: "Campos previstos",
+            title: "Campos clave",
             items: ["Titulo", "Slug", "Extracto", "Bloques", "Imagen", "Video externo", "Relacion con equipos"],
           },
         ],
@@ -1074,9 +1099,9 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
       return {
         title: "Media",
         eyebrow: "Activos publicos",
-        description: "Biblioteca visual preparada para logos, banners, retratos y cromos sin convertir esta fase en un gestor de archivos complejo.",
+        description: "Biblioteca visual para logos, banners, retratos y cromos.",
         metrics: [
-          { label: "Recursos mock", value: adminMockMedia.length.toString(), detail: "Logo, banner, foto, cromo, placeholder", tone: "gold" },
+          { label: "Recursos", value: adminMockMedia.length.toString(), detail: "Logo, banner, foto, cromo y placeholder", tone: "gold" },
           { label: "Pendientes", value: "2", detail: "Fotos y banners por validar", tone: "blue" },
         ],
         highlights: [
@@ -1085,7 +1110,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
             items: adminMockMedia.map((item) => `${item.label} · ${item.updatedLabel}`),
           },
           {
-            title: "Uso MVP",
+            title: "Usos",
             items: ["Logo de equipo", "Banner", "Foto de jugador", "Cromo", "Logo rival", "Cover de noticia"],
           },
         ],
@@ -1094,7 +1119,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
       return {
         title: "Importaciones",
         eyebrow: "Solo superadmin",
-        description: "Zona visual lista para preview de diff, conflictos y estados de importacion desde rr-management.",
+        description: "Revisa el estado de cada importacion y los posibles conflictos.",
         metrics: [
           { label: "Aplicadas", value: adminMockImports.filter((item) => item.status === "completed").length.toString(), detail: "Historial reciente", tone: "gold" },
           { label: "Con conflictos", value: adminMockImports.filter((item) => item.status === "conflict").length.toString(), detail: "Requieren revision", tone: "danger" },
@@ -1105,8 +1130,8 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
             items: adminMockImports.map((item) => `${item.fileName} · ${item.updatedLabel}`),
           },
           {
-            title: "Flujo previsto",
-            items: ["Subir archivo", "Validar", "Preview de diff", "Resolver conflictos", "Aplicar merge"],
+            title: "Proceso",
+            items: ["Subir archivo", "Validar", "Revisar cambios", "Resolver conflictos", "Aplicar importacion"],
           },
         ],
       };
@@ -1114,18 +1139,18 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
       return {
         title: "Usuarios",
         eyebrow: "Acceso interno",
-        description: "Base para administrar cuentas internas, roles y permisos por equipo sin tocar todavia el CRUD completo.",
+        description: "Gestiona cuentas internas, roles y acceso por equipo.",
         metrics: [
-          { label: "Cuentas demo", value: adminMockUsers.filter((user) => user.email).length.toString(), detail: "Roles principales ya cubiertos", tone: "gold" },
+          { label: "Cuentas", value: adminMockUsers.filter((user) => user.email).length.toString(), detail: "Roles principales ya cubiertos", tone: "gold" },
           { label: "Visibles sin cuenta", value: "1", detail: "Coach publico no autenticado", tone: "slate" },
         ],
         highlights: [
           {
-            title: "Usuarios mock",
+            title: "Usuarios",
             items: adminMockUsers.map((user) => `${user.displayName} · ${user.roleLabel}`),
           },
           {
-            title: "Permite despues",
+            title: "Acciones",
             items: ["Alta de usuario", "Cambio de rol", "Asignacion de equipos", "Desactivacion"],
           },
         ],
@@ -1133,16 +1158,16 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
     default:
       return {
         title: "Backoffice",
-        eyebrow: "Base mock",
-        description: "Seccion preparada para seguir creciendo con la misma base visual y de navegacion.",
+        eyebrow: "Resumen",
+        description: "Area preparada para seguir ampliando la operativa del club.",
         metrics: [
           { label: "Rutas activas", value: "12", detail: "Publico y admin alineados", tone: "gold" },
-          { label: "Modo actual", value: "Mock", detail: "Sin CRUD real todavia", tone: "slate" },
+          { label: "Estado", value: "Activo", detail: "Estructura lista para seguir avanzando", tone: "slate" },
         ],
         highlights: [
           {
             title: "Siguientes pasos",
-            items: ["Conectar servicios", "Acciones seguras", "Validacion", "Permisos server-side"],
+            items: ["Completar pantallas", "Afinar acciones", "Revisar flujos", "Pulir permisos"],
           },
         ],
       };

@@ -35,7 +35,7 @@ export default async function AdminStatsPage() {
       <AdminPageHeader
         eyebrow={actualRole === "COACH" ? "Mobile first" : "Control de estadisticas"}
         title="Estadisticas"
-        description="Vista mock pensada para entrenador: seleccionar equipo, elegir partido y actualizar goles, asistencias, tarjetas, MVP y datos avanzados sin saturar la pantalla."
+        description="Selecciona equipo y partido para registrar goles, asistencias, tarjetas y datos clave."
         actions={
           <Link href="/admin/partidos" className="rr-button rr-button-secondary text-[0.84rem]">
             Ir a partidos
@@ -131,7 +131,7 @@ export default async function AdminStatsPage() {
                 </h2>
               </div>
               <button type="button" className="rr-button rr-button-primary text-[0.84rem]">
-                Guardar mock
+                Guardar
               </button>
             </div>
 

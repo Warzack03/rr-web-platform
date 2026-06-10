@@ -1,16 +1,30 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { LoaderCircle, ShieldCheck } from "lucide-react";
-import { adminMockUsers } from "@/lib/admin/mock-data";
 
 type AdminLoginFormProps = {
   callbackUrl?: string;
   error?: string;
 };
+
+const demoAccounts = [
+  {
+    id: "manager-demo",
+    displayName: "Manager Demo",
+    roleLabel: "Manager",
+    username: "manager",
+  },
+  {
+    id: "coach-primer-demo",
+    displayName: "Entrenador Primer Equipo",
+    roleLabel: "Entrenador",
+    username: "entrenador_primer_equipo",
+  },
+] as const;
 
 export function AdminLoginForm({
   callbackUrl = "/admin",
@@ -23,11 +37,6 @@ export function AdminLoginForm({
     error ? "Credenciales invalidas o sesion no disponible." : null,
   );
   const [isPending, startTransition] = useTransition();
-
-  const demoAccounts = useMemo(
-    () => adminMockUsers.filter((user) => user.email && user.username),
-    [],
-  );
 
   function fillAccount(username: string) {
     setLogin(username);
@@ -132,7 +141,7 @@ export function AdminLoginForm({
               <button
                 key={account.id}
                 type="button"
-                onClick={() => fillAccount(account.username ?? "")}
+                onClick={() => fillAccount(account.username)}
                 className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-left transition hover:border-[rgba(253,203,88,0.25)] hover:bg-[rgba(253,203,88,0.08)]"
               >
                 <p className="text-[1rem] font-semibold text-white">{account.displayName}</p>
@@ -144,7 +153,8 @@ export function AdminLoginForm({
           </div>
 
           <div className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.94rem] leading-6 text-[color:var(--rr-muted)]">
-            Todas las cuentas demo usan la contrasena <span className="font-semibold text-white">ChangeMe123!</span>
+            Manager y entrenador usan <span className="font-semibold text-white">ChangeMe123!</span>.
+            El superadmin inicial usa la clave de <span className="font-semibold text-white">ADMIN_INITIAL_PASSWORD</span>.
           </div>
         </div>
       </div>

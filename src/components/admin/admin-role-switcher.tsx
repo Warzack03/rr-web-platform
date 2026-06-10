@@ -31,7 +31,7 @@ export function AdminRoleSwitcher({
 
   return (
     <label className="flex min-w-[13rem] flex-col gap-1 text-left">
-      <span className="rr-kicker text-[0.7rem] text-[color:var(--rr-muted)]">Vista mock</span>
+      <span className="rr-kicker text-[0.7rem] text-[color:var(--rr-muted)]">Vista</span>
       <select
         value={previewRole}
         onChange={(event) => handleChange(event.target.value as AdminRole)}
@@ -40,7 +40,7 @@ export function AdminRoleSwitcher({
         {adminPreviewRoleOptions.map((role) => (
           <option key={role} value={role}>
             {adminRoleLabels[role]}
-            {role === actualRole ? " · real" : " · preview"}
+            {role === actualRole ? " · actual" : " · prueba"}
           </option>
         ))}
       </select>

@@ -61,7 +61,7 @@ export function AdminTopbar({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-2xl text-[0.94rem] leading-5 text-[color:var(--rr-muted)]">
-            Base visual mock del backoffice lista para seguir conectando servicios, permisos y flujos reales.
+            Centro de control para el area deportiva y el contenido publico.
           </p>
           <AdminRoleSwitcher actualRole={actualRole} previewRole={previewRole} />
         </div>
