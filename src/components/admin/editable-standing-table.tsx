@@ -3,12 +3,14 @@
 import { ArrowDown, ArrowUp, GripVertical, Star, Trash2 } from "lucide-react";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { StandingMobileCard } from "@/components/admin/standing-mobile-card";
+import { StandingStatusBadge } from "@/components/admin/standing-status-badge";
 import type { StandingManagementTable } from "@/lib/admin/standings-management-mocks";
 import { cn } from "@/lib/utils";
 
 type EditableStandingTableProps = {
   standing: StandingManagementTable;
   validationErrors: string[];
+  rowErrors: Record<string, string[]>;
   onUpdateField: (
     rowId: string,
     field:
@@ -39,6 +41,7 @@ const numberCellClassName =
 export function EditableStandingTable({
   standing,
   validationErrors,
+  rowErrors,
   onUpdateField,
   onToggleOwnTeam,
   onAddRow,
@@ -46,6 +49,8 @@ export function EditableStandingTable({
   onMoveRowUp,
   onMoveRowDown,
 }: EditableStandingTableProps) {
+  const ownTeamRow = standing.rows.find((row) => row.isOwnTeam);
+
   return (
     <div className="space-y-4">
       <AdminPanel className="p-5 sm:p-6">
@@ -55,6 +60,7 @@ export function EditableStandingTable({
               <p className="rr-kicker text-[color:var(--rr-gold)]">
                 Tabla editable
               </p>
+              <StandingStatusBadge status={standing.status} />
               <span className="text-[0.86rem] text-[color:var(--rr-muted)]">
                 DG se recalcula automaticamente desde GF y GC.
               </span>
@@ -65,6 +71,11 @@ export function EditableStandingTable({
               </h2>
               <p className="mt-2 text-[0.95rem] text-[color:var(--rr-muted)]">
                 {standing.competition} - {standing.season}
+              </p>
+              <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
+                {ownTeamRow
+                  ? `Equipo propio en posicion ${ownTeamRow.position}. ${standing.rows.length} filas editables.`
+                  : `${standing.rows.length} filas editables.`}
               </p>
             </div>
           </div>
@@ -79,8 +90,13 @@ export function EditableStandingTable({
         </div>
 
         {validationErrors.length > 0 ? (
-          <div className="mt-4 rounded-[10px] border border-[rgba(214,64,69,0.34)] bg-[rgba(214,64,69,0.08)] px-4 py-3 text-[0.92rem] text-[#ffc3bc]">
-            {validationErrors[0]}
+          <div className="mt-4 space-y-2 rounded-[10px] border border-[rgba(214,64,69,0.34)] bg-[rgba(214,64,69,0.08)] px-4 py-3 text-[0.92rem] text-[#ffc3bc]">
+            {validationErrors.slice(0, 3).map((error) => (
+              <p key={error}>{error}</p>
+            ))}
+            {validationErrors.length > 3 ? (
+              <p>Hay mas avisos pendientes dentro de la tabla.</p>
+            ) : null}
           </div>
         ) : null}
       </AdminPanel>
@@ -119,6 +135,9 @@ export function EditableStandingTable({
                   key={row.id}
                   className={cn(
                     "border-b border-[rgba(255,255,255,0.06)] align-top last:border-b-0",
+                    rowErrors[row.id]?.length
+                      ? "bg-[rgba(214,64,69,0.08)]"
+                      : undefined,
                     row.isOwnTeam ? "bg-[rgba(253,203,88,0.08)]" : "hover:bg-[rgba(255,255,255,0.03)]",
                   )}
                 >
@@ -157,15 +176,28 @@ export function EditableStandingTable({
                     />
                   </td>
                   <td className="min-w-[16rem] px-3 py-3">
-                    <input
-                      type="text"
-                      value={row.teamName}
-                      onChange={(event) =>
-                        onUpdateField(row.id, "teamName", event.target.value)
-                      }
-                      placeholder="Nombre del equipo"
-                      className={`${inputClassName} w-full`}
-                    />
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={row.teamName}
+                        onChange={(event) =>
+                          onUpdateField(row.id, "teamName", event.target.value)
+                        }
+                        placeholder="Nombre del equipo"
+                        className={cn(
+                          inputClassName,
+                          "w-full",
+                          rowErrors[row.id]?.length
+                            ? "border-[rgba(214,64,69,0.4)]"
+                            : undefined,
+                        )}
+                      />
+                      {rowErrors[row.id]?.length ? (
+                        <p className="text-[0.8rem] text-[#ffc3bc]">
+                          {rowErrors[row.id][0]}
+                        </p>
+                      ) : null}
+                    </div>
                   </td>
                   {[
                     { field: "played", value: row.played },
@@ -250,6 +282,7 @@ export function EditableStandingTable({
           <StandingMobileCard
             key={row.id}
             row={row}
+            errors={rowErrors[row.id] ?? []}
             index={index}
             totalRows={standing.rows.length}
             canRemove={standing.rows.length > 1}

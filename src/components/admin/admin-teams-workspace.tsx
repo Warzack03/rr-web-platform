@@ -1,8 +1,9 @@
 "use client";
+
+import Link from "next/link";
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
 import {
   AlertTriangle,
-  CheckCircle2,
   Eye,
   FolderKanban,
   Layers3,
@@ -11,10 +12,15 @@ import {
   Trophy,
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
+import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
-import { TeamFilters, type TeamFiltersValue } from "@/components/admin/team-filters";
+import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
+import {
+  TeamFilters,
+  type TeamFiltersValue,
+} from "@/components/admin/team-filters";
 import { TeamFormDialog } from "@/components/admin/team-form-dialog";
 import { TeamList } from "@/components/admin/team-list";
 import type { AdminRole } from "@/lib/admin/roles";
@@ -46,16 +52,20 @@ const initialFilters: TeamFiltersValue = {
   search: "",
 };
 
-const coachUsers: TeamResponsibleCoachUser[] = getAssignableCoachUsers().map((user) => ({
-  id: user.id,
-  displayName: user.displayName,
-  username: user.username ?? "",
-  roleLabel: user.roleLabel,
-}));
+const coachUsers: TeamResponsibleCoachUser[] = getAssignableCoachUsers().map(
+  (user) => ({
+    id: user.id,
+    displayName: user.displayName,
+    username: user.username ?? "",
+    roleLabel: user.roleLabel,
+  }),
+);
 
 function sortTeams(teams: TeamManagementTeam[]) {
   return [...teams].sort(
-    (left, right) => left.displayOrder - right.displayOrder || left.name.localeCompare(right.name),
+    (left, right) =>
+      left.displayOrder - right.displayOrder ||
+      left.name.localeCompare(right.name),
   );
 }
 
@@ -68,7 +78,9 @@ export function AdminTeamsWorkspace({
   const [filters, setFilters] = useState<TeamFiltersValue>(initialFilters);
   const [dialogState, setDialogState] = useState<DialogState>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
-  const [screenState, setScreenState] = useState<"loading" | "ready" | "error">("loading");
+  const [screenState, setScreenState] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
   const deferredSearch = useDeferredValue(filters.search.trim().toLowerCase());
 
   useEffect(() => {
@@ -144,6 +156,7 @@ export function AdminTeamsWorkspace({
   const activeTeams = teams.filter((team) => team.active).length;
   const academyTeams = teams.filter((team) => !team.isFirstTeam).length;
   const firstTeam = teams.find((team) => team.isFirstTeam);
+  const selectedCoachTeam = teams[0];
   const selectedTeam =
     dialogState && "teamId" in dialogState
       ? teams.find((team) => team.id === dialogState.teamId)
@@ -173,9 +186,11 @@ export function AdminTeamsWorkspace({
         const teamToSave = normalizeTeamManagementTeam(nextTeam);
         const nextTeams = currentTeams.some((team) => team.id === teamToSave.id)
           ? currentTeams.map((team) =>
-              team.id === teamToSave.id ? teamToSave : team.isFirstTeam && teamToSave.isFirstTeam
-                ? normalizeTeamManagementTeam({ ...team, isFirstTeam: false })
-                : team,
+              team.id === teamToSave.id
+                ? teamToSave
+                : team.isFirstTeam && teamToSave.isFirstTeam
+                  ? normalizeTeamManagementTeam({ ...team, isFirstTeam: false })
+                  : team,
             )
           : [
               ...currentTeams.map((team) =>
@@ -191,7 +206,9 @@ export function AdminTeamsWorkspace({
       setDialogState(null);
     });
 
-    pushBanner(dialogState?.mode === "create" ? "Equipo creado en mock." : "Cambios guardados.");
+    pushBanner(
+      dialogState?.mode === "create" ? "Equipo creado en mock." : "Cambios guardados.",
+    );
   }
 
   function toggleActive(teamId: string) {
@@ -206,7 +223,9 @@ export function AdminTeamsWorkspace({
     const updatedTeam = teams.find((team) => team.id === teamId);
     if (updatedTeam) {
       pushBanner(
-        updatedTeam.active ? `${updatedTeam.name} pasa a inactivo.` : `${updatedTeam.name} vuelve a estar activo.`,
+        updatedTeam.active
+          ? `${updatedTeam.name} pasa a inactivo.`
+          : `${updatedTeam.name} vuelve a estar activo.`,
       );
     }
   }
@@ -215,7 +234,10 @@ export function AdminTeamsWorkspace({
     setTeams((currentTeams) =>
       currentTeams.map((team) =>
         team.id === teamId
-          ? normalizeTeamManagementTeam({ ...team, publicVisible: !team.publicVisible })
+          ? normalizeTeamManagementTeam({
+              ...team,
+              publicVisible: !team.publicVisible,
+            })
           : team,
       ),
     );
@@ -234,11 +256,19 @@ export function AdminTeamsWorkspace({
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
         eyebrow="Estructura deportiva"
-        title={role === "COACH" ? "Mis equipos" : "Equipos"}
-        description=""
+        title={role === "COACH" ? "Mi equipo" : "Equipos"}
+        description={
+          role === "COACH"
+            ? "Consulta el contexto publico de tu equipo y usa esta pantalla como apoyo rapido, no como panel de gestion global."
+            : "Controla visibilidad, responsables y contexto deportivo sin salir del patron operativo del backoffice."
+        }
         actions={
           canManageTeams ? (
-            <button type="button" onClick={openCreateDialog} className="rr-button rr-button-primary text-[0.84rem]">
+            <button
+              type="button"
+              onClick={openCreateDialog}
+              className="rr-button rr-button-primary text-[0.84rem]"
+            >
               <Plus className="h-4 w-4" />
               Crear equipo
             </button>
@@ -246,69 +276,132 @@ export function AdminTeamsWorkspace({
         }
       />
 
-      {bannerMessage ? (
-        <AdminPanel className="border-[rgba(253,203,88,0.3)] px-4 py-3">
-          <div className="flex items-center gap-3 text-[0.92rem] text-white">
-            <CheckCircle2 className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
-            {bannerMessage}
-          </div>
-        </AdminPanel>
+      {bannerMessage ? <AdminFeedbackBanner message={bannerMessage} /> : null}
+
+      {role === "COACH" ? (
+        <AdminScopePanel
+          eyebrow="Consulta de entrenador"
+          title="Solo contexto de tu equipo"
+          description="Aqui no gestionas estructura global. Revisa identidad publica, responsables visibles y salta a partidos, clasificacion o estadisticas."
+          actions={
+            <>
+              <Link
+                href="/admin/partidos"
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
+                Ir a partidos
+              </Link>
+              <Link
+                href="/admin/clasificaciones"
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
+                Ir a clasificacion
+              </Link>
+              <Link
+                href="/admin/estadisticas"
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
+                Ir a estadisticas
+              </Link>
+            </>
+          }
+        />
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <AdminMetricCard
-          label="Total equipos"
-          value={totalTeams.toString()}
-          tone="gold"
-          icon={<Layers3 className="h-5 w-5" />}
-        />
-        <AdminMetricCard
-          label="Publicos"
-          value={visibleTeams.toString()}
-          tone="blue"
-          icon={<Eye className="h-5 w-5" />}
-        />
-        <AdminMetricCard
-          label="Activos"
-          value={activeTeams.toString()}
-          tone="slate"
-          icon={<ShieldCheck className="h-5 w-5" />}
-        />
-        <AdminMetricCard
-          label="Cantera"
-          value={academyTeams.toString()}
-          tone="gold"
-          icon={<FolderKanban className="h-5 w-5" />}
-        />
-        <AdminMetricCard
-          label="Primer Equipo"
-          value={firstTeam?.name ?? "-"}
-          detail={firstTeam ? `${firstTeam.competition} · ${firstTeam.season}` : "Sin equipo destacado"}
-          tone="blue"
-          icon={<Trophy className="h-5 w-5" />}
-        />
-      </div>
+      {role === "COACH" ? (
+        <div className="grid gap-4 md:grid-cols-3">
+          <AdminMetricCard
+            label="Estado web"
+            value={selectedCoachTeam?.publicVisible ? "Visible" : "Oculto"}
+            detail="Como aparece ahora mismo en la web"
+            tone={selectedCoachTeam?.publicVisible ? "gold" : "danger"}
+            icon={<Eye className="h-5 w-5" />}
+          />
+          <AdminMetricCard
+            label="Estado interno"
+            value={selectedCoachTeam?.active ? "Activo" : "Inactivo"}
+            detail="Disponibilidad deportiva del equipo"
+            tone={selectedCoachTeam?.active ? "blue" : "danger"}
+            icon={<ShieldCheck className="h-5 w-5" />}
+          />
+          <AdminMetricCard
+            label="Entrenadores visibles"
+            value={selectedCoachTeam?.visibleCoaches.length.toString() ?? "0"}
+            detail={selectedCoachTeam?.primaryCoach ?? "Sin responsable visible"}
+            tone="blue"
+            icon={<Trophy className="h-5 w-5" />}
+          />
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <AdminMetricCard
+            label="Total equipos"
+            value={totalTeams.toString()}
+            tone="gold"
+            icon={<Layers3 className="h-5 w-5" />}
+          />
+          <AdminMetricCard
+            label="Visibles en web"
+            value={visibleTeams.toString()}
+            detail="Listos para consumo publico"
+            tone="blue"
+            icon={<Eye className="h-5 w-5" />}
+          />
+          <AdminMetricCard
+            label="Activos"
+            value={activeTeams.toString()}
+            detail="Estructuras deportivas disponibles"
+            tone="slate"
+            icon={<ShieldCheck className="h-5 w-5" />}
+          />
+          <AdminMetricCard
+            label="Cantera"
+            value={academyTeams.toString()}
+            detail="Equipos que no son primer equipo"
+            tone="gold"
+            icon={<FolderKanban className="h-5 w-5" />}
+          />
+          <AdminMetricCard
+            label="Primer Equipo"
+            value={firstTeam?.name ?? "-"}
+            detail={
+              firstTeam
+                ? `${firstTeam.competition} Â· ${firstTeam.season}`
+                : "Sin equipo destacado"
+            }
+            tone="blue"
+            icon={<Trophy className="h-5 w-5" />}
+          />
+        </div>
+      )}
 
-      <TeamFilters
-        value={filters}
-        seasons={seasons}
-        categories={categories}
-        branches={branches}
-        totalTeams={teams.length}
-        filteredTeams={filteredTeams.length}
-        onChange={setFilters}
-        onReset={() => setFilters(initialFilters)}
-      />
+      {role !== "COACH" ? (
+        <TeamFilters
+          value={filters}
+          seasons={seasons}
+          categories={categories}
+          branches={branches}
+          totalTeams={teams.length}
+          filteredTeams={filteredTeams.length}
+          onChange={setFilters}
+          onReset={() => setFilters(initialFilters)}
+        />
+      ) : null}
 
       {screenState === "loading" ? (
         <div className="space-y-4">
-          <AdminPanel className="p-5">
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="h-11 animate-pulse rounded-[8px] bg-white/6" />
-              ))}
-            </div>
-          </AdminPanel>
+          {role !== "COACH" ? (
+            <AdminPanel className="p-5">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="h-11 animate-pulse rounded-[8px] bg-white/6"
+                  />
+                ))}
+              </div>
+            </AdminPanel>
+          ) : null}
           <div className="grid gap-3">
             {Array.from({ length: role === "COACH" ? 1 : 3 }).map((_, index) => (
               <AdminPanel key={index} className="p-5">
@@ -334,9 +427,14 @@ export function AdminTeamsWorkspace({
               No hemos podido cargar la gestion de equipos
             </h2>
             <p className="text-[0.96rem] leading-6 text-[color:var(--rr-muted)]">
-              La pantalla contempla un error operativo para validar mensajes, recuperacion y layout sin datos.
+              La pantalla contempla un error operativo para validar mensajes,
+              recuperacion y layout sin datos.
             </p>
-            <button type="button" onClick={() => setScreenState("ready")} className="rr-button rr-button-primary text-[0.82rem]">
+            <button
+              type="button"
+              onClick={() => setScreenState("ready")}
+              className="rr-button rr-button-primary text-[0.82rem]"
+            >
               Reintentar
             </button>
           </div>
@@ -349,7 +447,11 @@ export function AdminTeamsWorkspace({
           description="Cuando conectemos la fuente real o anadas mocks, esta pantalla mostrara la estructura deportiva del club."
           action={
             canManageTeams ? (
-              <button type="button" onClick={openCreateDialog} className="rr-button rr-button-primary text-[0.82rem]">
+              <button
+                type="button"
+                onClick={openCreateDialog}
+                className="rr-button rr-button-primary text-[0.82rem]"
+              >
                 Crear primer equipo
               </button>
             ) : undefined
@@ -362,7 +464,11 @@ export function AdminTeamsWorkspace({
           title="Sin resultados"
           description="Ajusta los filtros o la busqueda para volver a ver equipos."
           action={
-            <button type="button" onClick={() => setFilters(initialFilters)} className="rr-button rr-button-secondary text-[0.82rem]">
+            <button
+              type="button"
+              onClick={() => setFilters(initialFilters)}
+              className="rr-button rr-button-secondary text-[0.82rem]"
+            >
               Limpiar filtros
             </button>
           }

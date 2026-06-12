@@ -26,12 +26,16 @@ export function AdminShell({
         <AdminSidebar displayName={displayName} roleLabel={roleLabel} navItems={navItems} />
 
         <div className="flex min-h-screen flex-1 flex-col">
-          <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] px-4 py-3 lg:hidden">
+          <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] px-4 py-2.5 lg:hidden">
             <div>
-              <p className="rr-kicker text-[0.7rem] text-[color:var(--rr-gold)]">Rising Raimon</p>
-              <p className="text-[1rem] font-semibold text-white">Admin deportivo</p>
+              <p className="rr-kicker text-[0.68rem] text-[color:var(--rr-gold)]">Backoffice</p>
+              <p className="text-[0.95rem] font-semibold text-white">Operacion deportiva</p>
             </div>
-            <AdminMobileNav navItems={navItems} />
+            <AdminMobileNav
+              navItems={navItems}
+              displayName={displayName}
+              roleLabel={roleLabel}
+            />
           </div>
 
           <AdminTopbar
@@ -41,7 +45,7 @@ export function AdminShell({
             actualRole={actualRole}
           />
 
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
+          <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">{children}</main>
         </div>
       </div>
     </div>

@@ -8,7 +8,6 @@ export type StandingsFiltersValue = {
   team: string;
   competition: string;
   category: string;
-  status: "all" | "published" | "draft" | "review";
   search: string;
 };
 
@@ -70,7 +69,7 @@ export function StandingsFilters({
           </button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <label className="grid gap-2 xl:col-span-2">
             <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
               Buscar
@@ -158,27 +157,6 @@ export function StandingsFilters({
                   {category}
                 </option>
               ))}
-            </select>
-          </label>
-
-          <label className="grid gap-2">
-            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-              Estado
-            </span>
-            <select
-              value={value.status}
-              onChange={(event) =>
-                updateField(
-                  "status",
-                  event.target.value as StandingsFiltersValue["status"],
-                )
-              }
-              className={fieldClassName}
-            >
-              <option value="all">Todos</option>
-              <option value="published">Publicada</option>
-              <option value="draft">Borrador</option>
-              <option value="review">Pendiente de revision</option>
             </select>
           </label>
         </div>

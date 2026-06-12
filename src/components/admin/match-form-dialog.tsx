@@ -140,6 +140,7 @@ export function MatchFormDialog({
     availableTeams.find((team) => team.slug === formState.teamSlug) ?? availableTeams[0];
   const canManageHighlights = role !== "COACH" && selectedTeam?.isFirstTeam;
   const lockTeam = role === "COACH" || availableTeams.length <= 1;
+  const isCoach = role === "COACH";
 
   function updateField<Key extends keyof MatchFormState>(
     key: Key,
@@ -269,15 +270,19 @@ export function MatchFormDialog({
               {mode === "create" ? "Nuevo partido" : "Editar partido"}
             </p>
             <div>
-              <h2 className="rr-display text-[2.35rem] leading-[0.92] text-white">
+              <h2 className="rr-display text-[2.05rem] leading-[0.94] text-white sm:text-[2.25rem]">
                 {mode === "create"
-                  ? role === "COACH"
-                    ? "Anadir proximo partido"
+                  ? isCoach
+                    ? "Proximo partido"
                     : "Crear partido"
-                  : `${selectedTeam?.name ?? "Partido"} vs ${match?.opponentName ?? ""}`}
+                  : isCoach
+                    ? `Previa de ${selectedTeam?.name ?? "tu equipo"}`
+                    : `${selectedTeam?.name ?? "Partido"} vs ${match?.opponentName ?? ""}`}
               </h2>
-              <p className="mt-2 max-w-2xl text-[0.95rem] leading-6 text-[color:var(--rr-muted)]">
-                Formulario mock para validar calendario, previa y resultado sin tocar persistencia real.
+              <p className="mt-2 max-w-xl text-[0.94rem] leading-5 text-[color:var(--rr-muted)]">
+                {isCoach
+                  ? "Completa rival, fecha, campo y estado sin salir del flujo movil."
+                  : "Formulario mock para validar calendario, previa y resultado sin tocar persistencia real."}
               </p>
             </div>
           </div>
@@ -293,6 +298,12 @@ export function MatchFormDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 px-5 py-5 sm:px-6 sm:py-6">
+          {isCoach ? (
+            <div className="rounded-[10px] border border-[rgba(253,203,88,0.22)] bg-[rgba(253,203,88,0.06)] px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+              Equipo activo: <span className="font-semibold text-white">{selectedTeam?.name ?? "Equipo asignado"}</span>
+            </div>
+          ) : null}
+
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {lockTeam ? (
               <div className="grid gap-2 md:col-span-2">
@@ -321,34 +332,38 @@ export function MatchFormDialog({
               </label>
             )}
 
-            <label className="grid gap-2">
-              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Temporada</span>
-              <select
-                value={formState.season}
-                onChange={(event) => updateField("season", event.target.value)}
-                className={fieldClassName}
-              >
-                {seasons.map((season) => (
-                  <option key={season} value={season}>
-                    {season}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {!isCoach ? (
+              <label className="grid gap-2">
+                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Temporada</span>
+                <select
+                  value={formState.season}
+                  onChange={(event) => updateField("season", event.target.value)}
+                  className={fieldClassName}
+                >
+                  {seasons.map((season) => (
+                    <option key={season} value={season}>
+                      {season}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
 
-            <label className="grid gap-2">
-              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Competicion</span>
-              <input
-                type="text"
-                value={formState.competition}
-                onChange={(event) => updateField("competition", event.target.value)}
-                className={fieldClassName}
-                placeholder="Liga Juvenil Preferente"
-              />
-              {errors.competition ? (
-                <span className="text-[0.82rem] text-[#ff8d8d]">{errors.competition}</span>
-              ) : null}
-            </label>
+            {!isCoach ? (
+              <label className="grid gap-2">
+                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Competicion</span>
+                <input
+                  type="text"
+                  value={formState.competition}
+                  onChange={(event) => updateField("competition", event.target.value)}
+                  className={fieldClassName}
+                  placeholder="Liga Juvenil Preferente"
+                />
+                {errors.competition ? (
+                  <span className="text-[0.82rem] text-[#ff8d8d]">{errors.competition}</span>
+                ) : null}
+              </label>
+            ) : null}
 
             <label className="grid gap-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Jornada</span>
@@ -503,31 +518,35 @@ export function MatchFormDialog({
             </div>
           ) : null}
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
-              <input
-                type="checkbox"
-                checked={formState.previewAvailable}
-                onChange={(event) => updateField("previewAvailable", event.target.checked)}
-                className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
-              />
-              Previa lista para publicar
-            </label>
+          {!isCoach ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+                <input
+                  type="checkbox"
+                  checked={formState.previewAvailable}
+                  onChange={(event) => updateField("previewAvailable", event.target.checked)}
+                  className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
+                />
+                Previa lista para publicar
+              </label>
 
-            <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
-              <input
-                type="checkbox"
-                checked={formState.detailAvailable}
-                onChange={(event) => updateField("detailAvailable", event.target.checked)}
-                className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
-              />
-              Ficha publica disponible
-            </label>
-          </div>
+              <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+                <input
+                  type="checkbox"
+                  checked={formState.detailAvailable}
+                  onChange={(event) => updateField("detailAvailable", event.target.checked)}
+                  className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
+                />
+                Ficha publica disponible
+              </label>
+            </div>
+          ) : null}
 
           <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-              Guardado local mock para revisar permisos, responsive y flujo operativo.
+              {isCoach
+                ? "Guarda la previa o el cambio de estado y vuelve a la jornada."
+                : "Guardado local mock para revisar permisos, responsive y flujo operativo."}
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -535,7 +554,7 @@ export function MatchFormDialog({
                 Cancelar
               </button>
               <button type="submit" className="rr-button rr-button-primary text-[0.8rem]">
-                {mode === "create" ? "Crear partido" : "Guardar cambios"}
+                {mode === "create" ? (isCoach ? "Guardar partido" : "Crear partido") : "Guardar cambios"}
               </button>
             </div>
           </div>

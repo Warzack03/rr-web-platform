@@ -35,7 +35,7 @@ export function AdminMetricCard({
         <div className="space-y-3">
           <p className="rr-kicker text-[color:var(--rr-muted)]">{label}</p>
           <div className="space-y-1">
-            <p className="rr-display text-[2.45rem] leading-none text-white">{value}</p>
+            <p className="rr-display text-[2.25rem] leading-none text-white">{value}</p>
             {detail ? (
               <p className="text-[0.95rem] leading-5 text-[color:var(--rr-muted)]">{detail}</p>
             ) : null}
@@ -43,7 +43,7 @@ export function AdminMetricCard({
         </div>
 
         {icon ? (
-          <div className="flex h-11 w-11 items-center justify-center rounded-[8px] border border-white/10 bg-white/5 text-[color:var(--rr-gold)]">
+          <div className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-white/10 bg-white/5 text-[color:var(--rr-gold)]">
             {icon}
           </div>
         ) : null}

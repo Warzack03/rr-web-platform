@@ -412,6 +412,51 @@ export const adminMockPlayers: AdminPlayer[] = [
     advancedLabel: "3 tiros a puerta",
   },
   {
+    id: "player-rb-1",
+    name: "Diego Cano",
+    teamSlug: "raimon-b",
+    number: 1,
+    position: "POR",
+    foot: "Derecha",
+    country: "ES",
+    goals: 0,
+    assists: 0,
+    yellowCards: 0,
+    redCards: 0,
+    mvp: 1,
+    cleanSheets: 4,
+  },
+  {
+    id: "player-rb-2",
+    name: "Adrian Vera",
+    teamSlug: "raimon-b",
+    number: 8,
+    position: "MED",
+    foot: "Derecha",
+    country: "ES",
+    goals: 3,
+    assists: 4,
+    yellowCards: 2,
+    redCards: 0,
+    mvp: 1,
+    cleanSheets: 0,
+  },
+  {
+    id: "player-rb-3",
+    name: "Mario Cintas",
+    teamSlug: "raimon-b",
+    number: 9,
+    position: "DEL",
+    foot: "Izquierda",
+    country: "ES",
+    goals: 7,
+    assists: 2,
+    yellowCards: 1,
+    redCards: 0,
+    mvp: 2,
+    cleanSheets: 0,
+  },
+  {
     id: "player-5",
     name: "Adrian Reyes",
     teamSlug: "juvenil-a",
@@ -843,7 +888,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
 
     return {
       heading: assignedTeam?.name ?? "Equipo asignado",
-      intro: "",
+      intro: "Resumen corto para dia de partido: proximo paso, resultado reciente y accesos rapidos del equipo asignado.",
       metrics: [
         {
           label: "Proximo paso",
@@ -888,7 +933,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
   if (role === "MANAGER") {
     return {
       heading: "Control deportivo y publico",
-      intro: "",
+      intro: "Vision operativa para coordinar equipos, contenido y calendario sin mezclar tareas de superadmin.",
       metrics: [
         {
           label: "Temporada activa",
@@ -939,7 +984,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
 
   return {
     heading: "Control global del backoffice",
-    intro: "",
+    intro: "Vista global del estado deportivo, usuarios internos e importaciones antes de abrir el resto de secciones.",
     metrics: [
       {
         label: "Temporada activa",

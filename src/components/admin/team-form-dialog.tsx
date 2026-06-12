@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { X } from "lucide-react";
 import { z } from "zod";
+import { AdminPanel } from "@/components/admin/admin-panel";
 import { TeamCoachEditor } from "@/components/admin/team-coach-editor";
 import {
   normalizeTeamManagementTeam,
@@ -142,6 +143,28 @@ function toFormState(team: TeamManagementTeam): TeamFormState {
   };
 }
 
+function SectionHeader({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="rr-kicker text-[color:var(--rr-gold)]">{eyebrow}</p>
+      <h3 className="text-[1.05rem] font-semibold text-white">{title}</h3>
+      {description ? (
+        <p className="text-[0.9rem] leading-6 text-[color:var(--rr-muted)]">
+          {description}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export function TeamFormDialog({
   open,
   mode,
@@ -244,20 +267,24 @@ export function TeamFormDialog({
         <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.08)] px-5 py-5 sm:px-6">
           <div className="space-y-2">
             <p className="rr-kicker text-[color:var(--rr-gold)]">
-              {mode === "create" ? "Nuevo equipo" : mode === "coaches" ? "Entrenadores" : "Editar equipo"}
+              {mode === "create"
+                ? "Nuevo equipo"
+                : mode === "coaches"
+                  ? "Responsables visibles"
+                  : "Editar equipo"}
             </p>
             <div>
               <h2 className="rr-display text-[2.4rem] leading-[0.92] text-white">
                 {mode === "create"
                   ? "Crear equipo"
                   : mode === "coaches"
-                    ? `Coaches de ${team?.name ?? "equipo"}`
+                    ? `Entrenadores de ${team?.name ?? "equipo"}`
                     : team?.name ?? "Editar equipo"}
               </h2>
               <p className="mt-2 max-w-2xl text-[0.95rem] leading-6 text-[color:var(--rr-muted)]">
                 {mode === "coaches"
-                  ? "Gestiona perfiles visibles y vincula una cuenta interna existente cuando haga falta."
-                  : "Formulario mock listo para validar la UX del backoffice sin tocar persistencia real."}
+                  ? "Ajusta perfiles visibles y la cuenta interna responsable."
+                  : "Separa identidad, contexto deportivo y estado publico antes de guardar."}
               </p>
             </div>
           </div>
@@ -272,201 +299,316 @@ export function TeamFormDialog({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 px-5 py-5 sm:px-6 sm:py-6">
+        <form onSubmit={handleSubmit} className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
           {mode !== "coaches" ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <label className="grid gap-2 md:col-span-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Nombre</span>
-                <input
-                  type="text"
-                  value={formState.name}
-                  onChange={(event) => updateFormState("name", event.target.value)}
-                  className={fieldClassName}
-                  placeholder="Juvenil A"
+            <AdminPanel className="p-4 sm:p-5">
+              <div className="space-y-4">
+                <SectionHeader
+                  eyebrow="Identidad"
+                  title="Nombre, slug y recursos visuales"
+                  description="Define primero como se presentara este equipo."
                 />
-                {errors.name ? <span className="text-[0.82rem] text-[#ff8d8d]">{errors.name}</span> : null}
-              </label>
 
-              <label className="grid gap-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Slug</span>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={formState.slug}
-                    onChange={(event) => {
-                      setSlugTouched(true);
-                      updateFormState("slug", slugify(event.target.value));
-                    }}
-                    className={`${fieldClassName} flex-1`}
-                    placeholder="juvenil-a"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSlugTouched(true);
-                      updateFormState("slug", slugify(formState.name));
-                    }}
-                    className="inline-flex min-h-11 items-center rounded-[8px] border border-white/10 px-3 text-[0.8rem] text-[color:var(--rr-muted)] transition hover:text-white"
-                  >
-                    Auto
-                  </button>
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <label className="grid gap-2 md:col-span-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Nombre
+                    </span>
+                    <input
+                      type="text"
+                      value={formState.name}
+                      onChange={(event) =>
+                        updateFormState("name", event.target.value)
+                      }
+                      className={fieldClassName}
+                      placeholder="Juvenil A"
+                    />
+                    {errors.name ? (
+                      <span className="text-[0.82rem] text-[#ff8d8d]">
+                        {errors.name}
+                      </span>
+                    ) : null}
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Slug
+                    </span>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={formState.slug}
+                        onChange={(event) => {
+                          setSlugTouched(true);
+                          updateFormState("slug", slugify(event.target.value));
+                        }}
+                        className={`${fieldClassName} flex-1`}
+                        placeholder="juvenil-a"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSlugTouched(true);
+                          updateFormState("slug", slugify(formState.name));
+                        }}
+                        className="inline-flex min-h-11 items-center rounded-[8px] border border-white/10 px-3 text-[0.8rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                      >
+                        Auto
+                      </button>
+                    </div>
+                    {errors.slug ? (
+                      <span className="text-[0.82rem] text-[#ff8d8d]">
+                        {errors.slug}
+                      </span>
+                    ) : null}
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Orden
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formState.displayOrder}
+                      onChange={(event) =>
+                        updateFormState(
+                          "displayOrder",
+                          Number(event.target.value || 0),
+                        )
+                      }
+                      className={fieldClassName}
+                    />
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Logo
+                    </span>
+                    <select
+                      value={formState.logoUrl}
+                      onChange={(event) =>
+                        updateFormState("logoUrl", event.target.value)
+                      }
+                      className={fieldClassName}
+                    >
+                      <option value="mock://team-logo/nuevo-equipo">
+                        Placeholder
+                      </option>
+                      <option value="mock://team-logo/escudo-principal">
+                        Escudo principal
+                      </option>
+                      <option value="mock://team-logo/escudo-academia">
+                        Escudo academia
+                      </option>
+                    </select>
+                  </label>
+
+                  <label className="grid gap-2 md:col-span-2 xl:col-span-3">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Banner
+                    </span>
+                    <select
+                      value={formState.bannerUrl}
+                      onChange={(event) =>
+                        updateFormState("bannerUrl", event.target.value)
+                      }
+                      className={fieldClassName}
+                    >
+                      <option value="mock://team-banner/nuevo-equipo">
+                        Placeholder
+                      </option>
+                      <option value="mock://team-banner/campo-nocturno">
+                        Campo nocturno
+                      </option>
+                      <option value="mock://team-banner/gradiente-club">
+                        Gradiente club
+                      </option>
+                    </select>
+                  </label>
                 </div>
-                {errors.slug ? <span className="text-[0.82rem] text-[#ff8d8d]">{errors.slug}</span> : null}
-              </label>
-
-              <label className="grid gap-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Categoria</span>
-                <select
-                  value={formState.category}
-                  onChange={(event) => updateFormState("category", event.target.value)}
-                  className={fieldClassName}
-                >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="grid gap-2 md:col-span-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Competicion</span>
-                <input
-                  type="text"
-                  value={formState.competition}
-                  onChange={(event) => updateFormState("competition", event.target.value)}
-                  className={fieldClassName}
-                  placeholder="Liga Juvenil Preferente"
-                />
-                {errors.competition ? (
-                  <span className="text-[0.82rem] text-[#ff8d8d]">{errors.competition}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Temporada</span>
-                <select
-                  value={formState.season}
-                  onChange={(event) => updateFormState("season", event.target.value)}
-                  className={fieldClassName}
-                >
-                  {seasons.map((season) => (
-                    <option key={season} value={season}>
-                      {season}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="grid gap-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Rama</span>
-                <select
-                  value={formState.branch}
-                  onChange={(event) => updateFormState("branch", event.target.value)}
-                  className={fieldClassName}
-                >
-                  {branches.map((branch) => (
-                    <option key={branch} value={branch}>
-                      {branch}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="grid gap-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Orden</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={formState.displayOrder}
-                  onChange={(event) =>
-                    updateFormState("displayOrder", Number(event.target.value || 0))
-                  }
-                  className={fieldClassName}
-                />
-              </label>
-
-              <label className="grid gap-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Logo</span>
-                <select
-                  value={formState.logoUrl}
-                  onChange={(event) => updateFormState("logoUrl", event.target.value)}
-                  className={fieldClassName}
-                >
-                  <option value="mock://team-logo/nuevo-equipo">Placeholder</option>
-                  <option value="mock://team-logo/escudo-principal">Escudo principal</option>
-                  <option value="mock://team-logo/escudo-academia">Escudo academia</option>
-                </select>
-              </label>
-
-              <label className="grid gap-2 md:col-span-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Banner</span>
-                <select
-                  value={formState.bannerUrl}
-                  onChange={(event) => updateFormState("bannerUrl", event.target.value)}
-                  className={fieldClassName}
-                >
-                  <option value="mock://team-banner/nuevo-equipo">Placeholder</option>
-                  <option value="mock://team-banner/campo-nocturno">Campo nocturno</option>
-                  <option value="mock://team-banner/gradiente-club">Gradiente club</option>
-                </select>
-              </label>
-            </div>
+              </div>
+            </AdminPanel>
           ) : null}
 
           {mode !== "coaches" ? (
-            <div className="grid gap-3 md:grid-cols-3">
-              <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
-                <input
-                  type="checkbox"
-                  checked={formState.publicVisible}
-                  onChange={(event) => updateFormState("publicVisible", event.target.checked)}
-                  className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
+            <AdminPanel className="p-4 sm:p-5">
+              <div className="space-y-4">
+                <SectionHeader
+                  eyebrow="Contexto deportivo"
+                  title="Competicion y estructura"
+                  description="Agrupa aqui solo lo que define el encaje deportivo del equipo."
                 />
-                Visible en la web
-              </label>
 
-              <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
-                <input
-                  type="checkbox"
-                  checked={formState.active}
-                  onChange={(event) => updateFormState("active", event.target.checked)}
-                  className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
-                />
-                Equipo activo
-              </label>
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <label className="grid gap-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Categoria
+                    </span>
+                    <select
+                      value={formState.category}
+                      onChange={(event) =>
+                        updateFormState("category", event.target.value)
+                      }
+                      className={fieldClassName}
+                    >
+                      {categories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-              <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
-                <input
-                  type="checkbox"
-                  checked={formState.isFirstTeam}
-                  onChange={(event) => updateFormState("isFirstTeam", event.target.checked)}
-                  className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
-                />
-                Marcar como Primer Equipo
-              </label>
-            </div>
+                  <label className="grid gap-2 md:col-span-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Competicion
+                    </span>
+                    <input
+                      type="text"
+                      value={formState.competition}
+                      onChange={(event) =>
+                        updateFormState("competition", event.target.value)
+                      }
+                      className={fieldClassName}
+                      placeholder="Liga Juvenil Preferente"
+                    />
+                    {errors.competition ? (
+                      <span className="text-[0.82rem] text-[#ff8d8d]">
+                        {errors.competition}
+                      </span>
+                    ) : null}
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Temporada
+                    </span>
+                    <select
+                      value={formState.season}
+                      onChange={(event) =>
+                        updateFormState("season", event.target.value)
+                      }
+                      className={fieldClassName}
+                    >
+                      {seasons.map((season) => (
+                        <option key={season} value={season}>
+                          {season}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Rama
+                    </span>
+                    <select
+                      value={formState.branch}
+                      onChange={(event) =>
+                        updateFormState("branch", event.target.value)
+                      }
+                      className={fieldClassName}
+                    >
+                      {branches.map((branch) => (
+                        <option key={branch} value={branch}>
+                          {branch}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </AdminPanel>
           ) : null}
 
-          <TeamCoachEditor
-            coaches={formState.coaches}
-            coachRoleOptions={teamCoachRoleOptions}
-            availableCoachUsers={coachUserOptions}
-            responsibleCoachUserId={formState.responsibleCoachUserId}
-            onResponsibleCoachUserIdChange={(nextValue) =>
-              updateFormState("responsibleCoachUserId", nextValue)
-            }
-            onChange={(nextCoaches) => updateFormState("coaches", nextCoaches)}
-          />
-          {errors.coaches ? <span className="text-[0.82rem] text-[#ff8d8d]">{errors.coaches}</span> : null}
+          {mode !== "coaches" ? (
+            <AdminPanel className="p-4 sm:p-5">
+              <div className="space-y-4">
+                <SectionHeader
+                  eyebrow="Estado publico"
+                  title="Visibilidad y comportamiento"
+                  description="Deja aqui lo que afecta a la web y al uso operativo."
+                />
+
+                <div className="grid gap-3 md:grid-cols-3">
+                  <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+                    <input
+                      type="checkbox"
+                      checked={formState.publicVisible}
+                      onChange={(event) =>
+                        updateFormState("publicVisible", event.target.checked)
+                      }
+                      className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
+                    />
+                    Visible en la web
+                  </label>
+
+                  <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+                    <input
+                      type="checkbox"
+                      checked={formState.active}
+                      onChange={(event) =>
+                        updateFormState("active", event.target.checked)
+                      }
+                      className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
+                    />
+                    Equipo activo
+                  </label>
+
+                  <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+                    <input
+                      type="checkbox"
+                      checked={formState.isFirstTeam}
+                      onChange={(event) =>
+                        updateFormState("isFirstTeam", event.target.checked)
+                      }
+                      className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
+                    />
+                    Marcar como Primer Equipo
+                  </label>
+                </div>
+              </div>
+            </AdminPanel>
+          ) : null}
+
+          <AdminPanel className="p-4 sm:p-5">
+            <div className="space-y-4">
+              <SectionHeader
+                eyebrow="Responsables"
+                title="Entrenadores visibles y cuenta interna"
+                description="Define quien aparece en la web y que usuario responde en el backoffice."
+              />
+
+              <TeamCoachEditor
+                coaches={formState.coaches}
+                coachRoleOptions={teamCoachRoleOptions}
+                availableCoachUsers={coachUserOptions}
+                responsibleCoachUserId={formState.responsibleCoachUserId}
+                onResponsibleCoachUserIdChange={(nextValue) =>
+                  updateFormState("responsibleCoachUserId", nextValue)
+                }
+                onChange={(nextCoaches) => updateFormState("coaches", nextCoaches)}
+              />
+              {errors.coaches ? (
+                <span className="text-[0.82rem] text-[#ff8d8d]">
+                  {errors.coaches}
+                </span>
+              ) : null}
+            </div>
+          </AdminPanel>
 
           <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-              Los cambios se guardan en estado local mock para validar la operativa del backoffice.
+              Guardado local mock para validar la operativa.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button type="button" onClick={onClose} className="rr-button rr-button-secondary text-[0.8rem]">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
                 Cancelar
               </button>
               <button type="submit" className="rr-button rr-button-primary text-[0.8rem]">

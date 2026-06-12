@@ -22,7 +22,7 @@ export function AdminStatusBadge({
   return (
     <span
       className={cn(
-        "rr-kicker inline-flex min-h-8 items-center gap-2 border px-3 py-1.5 text-[0.72rem]",
+        "rr-kicker inline-flex min-h-8 items-center gap-2 rounded-full border px-3 py-1.5 text-[0.72rem]",
         toneClasses[tone],
       )}
     >

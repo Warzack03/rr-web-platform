@@ -27,7 +27,7 @@ export function StandingsSelector({
             Selector de clasificacion
           </p>
           <p className="text-[0.94rem] leading-6 text-[color:var(--rr-muted)]">
-            Elige la tabla que quieres revisar o editar.
+            Elige la tabla activa antes de editar filas o guardar cambios.
           </p>
         </div>
 

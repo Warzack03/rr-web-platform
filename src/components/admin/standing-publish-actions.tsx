@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, ClipboardCopy, Eye, RefreshCcw } from "lucide-react";
+import { ClipboardCopy, Eye, RefreshCcw, Save } from "lucide-react";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { StandingStatusBadge } from "@/components/admin/standing-status-badge";
 import {
@@ -15,10 +15,9 @@ type StandingPublishActionsProps = {
   role: AdminRole;
   standing: StandingManagementTable;
   validationErrors: string[];
-  onSaveDraft: () => void;
-  onPublish: () => void;
-  onUnpublish: () => void;
-  onMarkReview: () => void;
+  hasUnsavedChanges: boolean;
+  onSave: () => void;
+  onDiscard: () => void;
   onDuplicate: () => void;
   onReset: () => void;
 };
@@ -27,10 +26,9 @@ export function StandingPublishActions({
   role,
   standing,
   validationErrors,
-  onSaveDraft,
-  onPublish,
-  onUnpublish,
-  onMarkReview,
+  hasUnsavedChanges,
+  onSave,
+  onDiscard,
   onDuplicate,
   onReset,
 }: StandingPublishActionsProps) {
@@ -43,7 +41,7 @@ export function StandingPublishActions({
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="rr-kicker text-[color:var(--rr-gold)]">
-              Publicacion
+              Guardado manual
             </p>
             <StandingStatusBadge status={standing.status} />
           </div>
@@ -52,16 +50,19 @@ export function StandingPublishActions({
               {standing.teamName}
             </p>
             <p className="text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
+              {standing.competition}
+            </p>
+            <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
               {formatStandingUpdatedLabel(standing)}
             </p>
           </div>
           {validationErrors.length > 0 ? (
-            <p className="text-[0.9rem] leading-6 text-[#ffc3bc]">
-              Hay {validationErrors.length} validaciones pendientes antes de cerrar esta tabla.
-            </p>
+            <div className="rounded-[10px] border border-[rgba(214,64,69,0.34)] bg-[rgba(214,64,69,0.08)] px-3 py-3 text-[0.9rem] text-[#ffc3bc]">
+              Hay {validationErrors.length} validaciones pendientes antes de guardar esta tabla.
+            </div>
           ) : (
             <p className="text-[0.9rem] leading-6 text-[color:var(--rr-muted)]">
-              La web publica solo deberia consumir la version marcada como publicada.
+              Guarda cuando la tabla quede lista. Esta pantalla no necesita un flujo editorial complejo.
             </p>
           )}
         </div>
@@ -69,30 +70,22 @@ export function StandingPublishActions({
         <div className="grid gap-2">
           <button
             type="button"
-            onClick={onSaveDraft}
-            className="rr-button rr-button-secondary justify-center text-[0.82rem]"
-          >
-            Guardar borrador
-          </button>
-          <button
-            type="button"
-            onClick={onPublish}
+            onClick={onSave}
             className="rr-button rr-button-primary justify-center text-[0.82rem]"
           >
-            Publicar
+            <Save className="h-4 w-4" />
+            {hasUnsavedChanges ? "Guardar cambios" : "Guardar de nuevo"}
           </button>
           <button
             type="button"
-            onClick={standing.status === "published" ? onUnpublish : onMarkReview}
+            onClick={onDiscard}
             className="rr-button rr-button-secondary justify-center text-[0.82rem]"
           >
-            {standing.status === "published"
-              ? "Despublicar"
-              : "Marcar para revision"}
+            Cancelar cambios
           </button>
         </div>
 
-        <div className="grid gap-2">
+        <div className="grid gap-2 border-t border-[rgba(255,255,255,0.08)] pt-4">
           <Link
             href={publicHref}
             className="rr-button rr-button-secondary justify-center text-[0.82rem]"
@@ -120,13 +113,6 @@ export function StandingPublishActions({
               Resetear mock
             </button>
           ) : null}
-          <Link
-            href={publicHref}
-            className="inline-flex items-center justify-center gap-2 text-[0.84rem] text-[color:var(--rr-muted)] transition hover:text-white"
-          >
-            Abrir vista previa
-            <ArrowUpRight className="h-4 w-4 text-[color:var(--rr-gold)]" />
-          </Link>
         </div>
       </div>
     </AdminPanel>

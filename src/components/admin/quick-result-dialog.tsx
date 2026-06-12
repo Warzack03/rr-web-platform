@@ -82,11 +82,11 @@ export function QuickResultDialog({
           <div className="space-y-2">
             <p className="rr-kicker text-[color:var(--rr-gold)]">Resultado rapido</p>
             <div>
-              <h2 className="rr-display text-[2.2rem] leading-[0.92] text-white">
+              <h2 className="rr-display text-[1.95rem] leading-[0.94] text-white sm:text-[2.15rem]">
                 {currentMatch.teamName} vs {currentMatch.opponentName}
               </h2>
-              <p className="mt-2 text-[0.95rem] leading-6 text-[color:var(--rr-muted)]">
-                Flujo rapido para entrenador y actualizacion agil desde movil.
+              <p className="mt-2 text-[0.92rem] leading-5 text-[color:var(--rr-muted)]">
+                Cierra el marcador y vuelve a la jornada.
               </p>
             </div>
           </div>
@@ -102,6 +102,10 @@ export function QuickResultDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 px-5 py-5 sm:px-6 sm:py-6">
+          <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+            {currentMatch.matchday} · {currentMatch.venue}
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
             <label className="grid gap-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">{currentMatch.teamName}</span>
@@ -111,7 +115,7 @@ export function QuickResultDialog({
                 inputMode="numeric"
                 value={ownScore}
                 onChange={(event) => setOwnScore(event.target.value)}
-                className={`${fieldClassName} text-center text-[1.8rem] font-semibold`}
+                className={`${fieldClassName} text-center text-[2rem] font-semibold sm:text-[2.2rem]`}
               />
               {errors.ownScore ? (
                 <span className="text-[0.82rem] text-[#ff8d8d]">{errors.ownScore}</span>
@@ -130,7 +134,7 @@ export function QuickResultDialog({
                 inputMode="numeric"
                 value={opponentScore}
                 onChange={(event) => setOpponentScore(event.target.value)}
-                className={`${fieldClassName} text-center text-[1.8rem] font-semibold`}
+                className={`${fieldClassName} text-center text-[2rem] font-semibold sm:text-[2.2rem]`}
               />
               {errors.opponentScore ? (
                 <span className="text-[0.82rem] text-[#ff8d8d]">{errors.opponentScore}</span>
@@ -148,14 +152,9 @@ export function QuickResultDialog({
             />
           </label>
 
-          <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
-            Guardar este resultado cambia el estado a jugado y deja listo el enlace hacia
-            clasificaciones o estadisticas.
-          </div>
-
           <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-              Ideal para uso movil durante el cierre de jornada.
+              Accion pensada para cierre rapido desde movil.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">

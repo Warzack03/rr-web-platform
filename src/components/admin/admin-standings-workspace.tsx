@@ -4,7 +4,6 @@ import Link from "next/link";
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
 import {
   AlertTriangle,
-  CheckCircle2,
   ClipboardList,
   Eye,
   ListChecks,
@@ -13,10 +12,13 @@ import {
   Trophy,
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
+import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
+import { AdminCoachTeamSwitcher } from "@/components/admin/admin-coach-team-switcher";
 import { EditableStandingTable } from "@/components/admin/editable-standing-table";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
+import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
 import { StandingPublishActions } from "@/components/admin/standing-publish-actions";
 import {
   StandingsFilters,
@@ -57,7 +59,6 @@ const initialFilters: StandingsFiltersValue = {
   team: "all",
   competition: "all",
   category: "all",
-  status: "all",
   search: "",
 };
 
@@ -118,6 +119,18 @@ function getStandingValidationErrors(standing: StandingManagementTable) {
   }
 
   return rowErrors;
+}
+
+function getStandingRowErrorMap(standing: StandingManagementTable) {
+  return standing.rows.reduce<Record<string, string[]>>((errorsByRow, row, index) => {
+    const rowErrors = getRowValidationErrors(row, index);
+
+    if (rowErrors.length > 0) {
+      errorsByRow[row.id] = rowErrors;
+    }
+
+    return errorsByRow;
+  }, {});
 }
 
 function getRoleActorLabel(role: AdminRole, coachTeamSlug: string) {
@@ -225,10 +238,6 @@ export function AdminStandingsWorkspace({
       return false;
     }
 
-    if (filters.status !== "all" && table.status !== filters.status) {
-      return false;
-    }
-
     if (!deferredSearch) {
       return true;
     }
@@ -276,6 +285,9 @@ export function AdminStandingsWorkspace({
   const validationErrors = selectedStanding
     ? getStandingValidationErrors(selectedStanding)
     : [];
+  const rowErrors = selectedStanding
+    ? getStandingRowErrorMap(selectedStanding)
+    : {};
   const hasUnsavedChanges =
     Boolean(selectedStanding && savedSelectedStanding) &&
     JSON.stringify(selectedStanding) !== JSON.stringify(savedSelectedStanding);
@@ -283,8 +295,8 @@ export function AdminStandingsWorkspace({
   const publishedCount = scopedTables.filter(
     (standing) => standing.status === "published",
   ).length;
-  const reviewCount = scopedTables.filter(
-    (standing) => standing.status === "review",
+  const attentionCount = scopedTables.filter(
+    (standing) => standing.status !== "published",
   ).length;
   const teamsWithStandingCount = new Set(
     scopedTables.map((standing) => standing.teamSlug),
@@ -477,7 +489,7 @@ export function AdminStandingsWorkspace({
     });
   }
 
-  function persistSelectedStanding(nextStatus: StandingManagementTable["status"]) {
+  function persistSelectedStanding() {
     if (!selectedStanding || !savedSelectedStanding) {
       return;
     }
@@ -490,7 +502,7 @@ export function AdminStandingsWorkspace({
 
     const updatedStanding = normalizeStandingTable({
       ...selectedStanding,
-      status: nextStatus,
+      status: "published",
       updatedAt: new Date().toISOString(),
       updatedBy: getRoleActorLabel(role, coachTeamSlug),
     });
@@ -510,13 +522,7 @@ export function AdminStandingsWorkspace({
       });
     });
 
-    pushBanner(
-      nextStatus === "published"
-        ? "Clasificacion publicada en mock."
-        : nextStatus === "review"
-          ? "Clasificacion marcada para revision."
-          : "Borrador guardado.",
-    );
+    pushBanner("Clasificacion guardada.");
   }
 
   function discardChanges() {
@@ -530,7 +536,7 @@ export function AdminStandingsWorkspace({
       return nextDrafts;
     });
 
-    pushBanner("Cambios descartados.");
+    pushBanner("Cambios cancelados.");
   }
 
   function createStanding() {
@@ -647,7 +653,11 @@ export function AdminStandingsWorkspace({
       <AdminPageHeader
         eyebrow={role === "COACH" ? "Edicion rapida" : "Gestion manual"}
         title="Clasificaciones"
-        description="Gestion manual de tablas por equipo y competicion."
+        description={
+          role === "COACH"
+            ? "Ajusta la tabla de tu equipo con un flujo corto, guardado manual claro y prioridad mobile."
+            : "Gestion manual de tablas por equipo y competicion, con guardado simple y vista publica a un paso."
+        }
         actions={
           canCreateStanding ? (
             <button
@@ -663,89 +673,52 @@ export function AdminStandingsWorkspace({
       />
 
       {banner ? (
-        <AdminPanel
-          className={
-            banner.tone === "danger"
-              ? "border-[rgba(214,64,69,0.34)] px-4 py-3"
-              : "border-[rgba(253,203,88,0.3)] px-4 py-3"
-          }
-        >
-          <div className="flex items-center gap-3 text-[0.92rem] text-white">
-            <CheckCircle2
-              className={
-                banner.tone === "danger"
-                  ? "h-4.5 w-4.5 text-[#ffb4ab]"
-                  : "h-4.5 w-4.5 text-[color:var(--rr-gold)]"
-              }
-            />
-            {banner.message}
-          </div>
-        </AdminPanel>
+        <AdminFeedbackBanner
+          message={banner.message}
+          tone={banner.tone === "danger" ? "danger" : "success"}
+        />
       ) : null}
 
       {role === "COACH" ? (
-        <AdminPanel className="border-[rgba(52,112,200,0.24)] px-5 py-4">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <ShieldCheck className="mt-1 h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
-                <div className="space-y-1">
-                  <p className="text-[0.94rem] text-white">
-                    Solo ves la clasificacion del equipo asignado en esta simulacion.
-                  </p>
-                  <p className="text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
-                    Priorizamos actualizacion rapida, estado de publicacion y acceso a partidos,
-                    estadisticas y vista publica.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  href={`/admin/partidos?team=${selectedCoachTeam?.slug ?? ""}`}
-                  className="rr-button rr-button-secondary text-[0.8rem]"
-                >
-                  Ver partidos
-                </Link>
-                <Link
-                  href={`/admin/estadisticas?team=${selectedCoachTeam?.slug ?? ""}`}
-                  className="rr-button rr-button-secondary text-[0.8rem]"
-                >
-                  Ir a estadisticas
-                </Link>
-                {selectedStanding ? (
-                  <Link
-                    href={getStandingPublicHref(selectedStanding)}
-                    className="rr-button rr-button-secondary text-[0.8rem]"
-                  >
-                    Vista publica
-                  </Link>
-                ) : null}
-              </div>
-            </div>
-
-            <label className="grid gap-2">
-              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-                Equipo mock
-              </span>
-              <select
-                value={coachTeamSlug}
-                onChange={(event) => {
-                  const nextCoachTeamSlug = event.target.value;
-                  setCoachTeamSlug(nextCoachTeamSlug);
-                  setFilters(initialFilters);
-                }}
-                className="min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+        <AdminScopePanel
+          eyebrow="Flujo de entrenador"
+          title="Tabla manual simplificada"
+          description="Solo ves una clasificacion a la vez. Lo importante aqui es actualizar filas, guardar sin dudas y tener a mano partidos, estadisticas y vista publica."
+          actions={
+            <>
+              <Link
+                href={`/admin/partidos?team=${selectedCoachTeam?.slug ?? ""}`}
+                className="rr-button rr-button-secondary text-[0.8rem]"
               >
-                {coachPreviewTeamOptions.map((team) => (
-                  <option key={team.slug} value={team.slug}>
-                    {team.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </AdminPanel>
+                Ver partidos
+              </Link>
+              <Link
+                href={`/admin/estadisticas?team=${selectedCoachTeam?.slug ?? ""}`}
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
+                Ir a estadisticas
+              </Link>
+              {selectedStanding ? (
+                <Link
+                  href={getStandingPublicHref(selectedStanding)}
+                  className="rr-button rr-button-secondary text-[0.8rem]"
+                >
+                  Vista publica
+                </Link>
+              ) : null}
+            </>
+          }
+          aside={
+            <AdminCoachTeamSwitcher
+              options={coachPreviewTeamOptions}
+              value={coachTeamSlug}
+              onChange={(nextCoachTeamSlug) => {
+                setCoachTeamSlug(nextCoachTeamSlug);
+                setFilters(initialFilters);
+              }}
+            />
+          }
+        />
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -757,9 +730,9 @@ export function AdminStandingsWorkspace({
           icon={<ClipboardList className="h-5 w-5" />}
         />
         <AdminMetricCard
-          label="Publicadas"
+          label="Listas para web"
           value={publishedCount.toString()}
-          detail="Listas para consumo publico"
+          detail="Ultima version ya guardada"
           tone="blue"
           icon={<Eye className="h-5 w-5" />}
         />
@@ -771,9 +744,9 @@ export function AdminStandingsWorkspace({
           icon={<Trophy className="h-5 w-5" />}
         />
         <AdminMetricCard
-          label="Pendientes"
-          value={reviewCount.toString()}
-          detail="Necesitan ultima revision"
+          label="Requieren repaso"
+          value={attentionCount.toString()}
+          detail="Tablas aun no cerradas"
           tone="danger"
           icon={<ListChecks className="h-5 w-5" />}
         />
@@ -919,10 +892,9 @@ export function AdminStandingsWorkspace({
               role={role}
               standing={selectedStanding}
               validationErrors={validationErrors}
-              onSaveDraft={() => persistSelectedStanding("draft")}
-              onPublish={() => persistSelectedStanding("published")}
-              onUnpublish={() => persistSelectedStanding("draft")}
-              onMarkReview={() => persistSelectedStanding("review")}
+              hasUnsavedChanges={hasUnsavedChanges}
+              onSave={persistSelectedStanding}
+              onDiscard={discardChanges}
               onDuplicate={duplicateStanding}
               onReset={resetStanding}
             />
@@ -943,7 +915,7 @@ export function AdminStandingsWorkspace({
                     href={getStandingPublicHref(selectedStanding)}
                     className="inline-flex items-center gap-2 text-[0.86rem] text-[color:var(--rr-muted)] transition hover:text-white"
                   >
-                    Abrir publica
+                    Ver en web
                   </Link>
                 </div>
               </div>
@@ -953,6 +925,7 @@ export function AdminStandingsWorkspace({
           <EditableStandingTable
             standing={selectedStanding}
             validationErrors={validationErrors}
+            rowErrors={rowErrors}
             onUpdateField={updateRowField}
             onToggleOwnTeam={toggleOwnTeam}
             onAddRow={addRow}
@@ -966,7 +939,7 @@ export function AdminStandingsWorkspace({
       {screenState === "ready" && hasUnsavedChanges ? (
         <UnsavedChangesBar
           onDiscard={discardChanges}
-          onSaveDraft={() => persistSelectedStanding("draft")}
+          onSave={persistSelectedStanding}
         />
       ) : null}
     </div>

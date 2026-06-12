@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, CircleDot, Eye, PenSquare, Radio, Trophy, Video } from "lucide-react";
+import { ArrowUpRight, ChevronDown, CircleDot, Eye, PenSquare, Radio, Trophy, Video } from "lucide-react";
 import { AdminListCard } from "@/components/admin/admin-list-card";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { AdminTable } from "@/components/admin/admin-table";
@@ -26,6 +26,11 @@ type MatchListProps = {
   onManageHighlights: (match: MatchManagementMatch) => void;
 };
 
+type MatchActionSpec = {
+  label: string;
+  onClick: () => void;
+};
+
 function getStatusBadgeProps(status: MatchVisualStatus) {
   switch (status) {
     case "live":
@@ -35,6 +40,26 @@ function getStatusBadgeProps(status: MatchVisualStatus) {
     default:
       return { label: "Pendiente", tone: "gold" as const, pulse: false };
   }
+}
+
+function getCoachPrimaryAction(
+  match: MatchManagementMatch,
+  onEdit: (match: MatchManagementMatch) => void,
+  onQuickResult: (match: MatchManagementMatch) => void,
+): MatchActionSpec {
+  const visualStatus = getVisualMatchStatus(match.status);
+
+  if (visualStatus === "pending") {
+    return {
+      label: "Editar previa",
+      onClick: () => onEdit(match),
+    };
+  }
+
+  return {
+    label: visualStatus === "live" ? "Actualizar marcador" : "Revisar resultado",
+    onClick: () => onQuickResult(match),
+  };
 }
 
 function MatchActions({
@@ -57,16 +82,22 @@ function MatchActions({
   const visualStatus = getVisualMatchStatus(match.status);
   const canManageLive = role !== "COACH" && match.isFirstTeam;
   const canManageHighlights = role !== "COACH" && match.isFirstTeam && visualStatus === "played";
+  const isCoach = role === "COACH";
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Link
-        href={getMatchPublicHref(match)}
-        className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+      <button
+        type="button"
+        onClick={() => onQuickResult(match)}
+        className={
+          isCoach
+            ? "rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
+            : "inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+        }
       >
-        <Eye className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-        Ver publico
-      </Link>
+        <Trophy className="h-3.5 w-3.5" />
+        {visualStatus === "played" ? "Actualizar resultado" : "Marcar jugado"}
+      </button>
 
       <button
         type="button"
@@ -74,16 +105,7 @@ function MatchActions({
         className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-[rgba(253,203,88,0.22)] px-3 text-[0.82rem] text-white transition hover:bg-[rgba(253,203,88,0.08)]"
       >
         <PenSquare className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-        {role === "COACH" ? "Editar previa" : "Editar"}
-      </button>
-
-      <button
-        type="button"
-        onClick={() => onQuickResult(match)}
-        className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-      >
-        <Trophy className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-        {visualStatus === "played" ? "Actualizar resultado" : "Marcar jugado"}
+        {isCoach ? "Editar previa" : "Editar"}
       </button>
 
       {visualStatus !== "pending" ? (
@@ -119,7 +141,7 @@ function MatchActions({
         </button>
       ) : null}
 
-      {role === "COACH" ? (
+      {isCoach ? (
         <>
           <Link
             href={`/admin/clasificaciones?team=${match.teamSlug}`}
@@ -137,6 +159,14 @@ function MatchActions({
           </Link>
         </>
       ) : null}
+
+      <Link
+        href={getMatchPublicHref(match)}
+        className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+      >
+        <Eye className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+        Ver publico
+      </Link>
     </div>
   );
 }
@@ -225,6 +255,8 @@ export function MatchList({
         {matches.map((match) => {
           const visualStatus = getVisualMatchStatus(match.status);
           const statusBadge = getStatusBadgeProps(visualStatus);
+          const isCoach = role === "COACH";
+          const coachPrimaryAction = getCoachPrimaryAction(match, onEdit, onQuickResult);
 
           return (
             <AdminListCard
@@ -251,15 +283,84 @@ export function MatchList({
                     <p>{match.detailAvailable ? "Detalle publico listo" : "Detalle publico aun sin abrir"}</p>
                     {match.highlightsUrl ? <p>Highlights asociados</p> : null}
                   </div>
-                  <MatchActions
-                    role={role}
-                    match={match}
-                    onEdit={onEdit}
-                    onQuickResult={onQuickResult}
-                    onSetPending={onSetPending}
-                    onSetLive={onSetLive}
-                    onManageHighlights={onManageHighlights}
-                  />
+                  {isCoach ? (
+                    <div className="space-y-3">
+                      <button
+                        type="button"
+                        onClick={coachPrimaryAction.onClick}
+                        className="rr-button rr-button-primary w-full justify-center text-[0.8rem]"
+                      >
+                        {coachPrimaryAction.label}
+                      </button>
+
+                      <details className="rounded-[10px] border border-white/10 bg-white/3 px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-white">
+                          Mas acciones
+                          <ChevronDown className="h-4 w-4 text-[color:var(--rr-gold)]" />
+                        </summary>
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => onEdit(match)}
+                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                          >
+                            <PenSquare className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+                            Previa
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onQuickResult(match)}
+                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                          >
+                            <Trophy className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+                            Resultado
+                          </button>
+                          {visualStatus !== "pending" ? (
+                            <button
+                              type="button"
+                              onClick={() => onSetPending(match)}
+                              className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                            >
+                              <CircleDot className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+                              Pendiente
+                            </button>
+                          ) : null}
+                          <Link
+                            href={`/admin/clasificaciones?team=${match.teamSlug}`}
+                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                          >
+                            <ArrowUpRight className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+                            Clasificacion
+                          </Link>
+                          <Link
+                            href={`/admin/estadisticas?team=${match.teamSlug}&match=${match.id}`}
+                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                          >
+                            <ArrowUpRight className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+                            Estadisticas
+                          </Link>
+                          <Link
+                            href={getMatchPublicHref(match)}
+                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                          >
+                            <Eye className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+                            Ver publico
+                          </Link>
+                        </div>
+                      </details>
+                    </div>
+                  ) : (
+                    <MatchActions
+                      role={role}
+                      match={match}
+                      onEdit={onEdit}
+                      onQuickResult={onQuickResult}
+                      onSetPending={onSetPending}
+                      onSetLive={onSetLive}
+                      onManageHighlights={onManageHighlights}
+                    />
+                  )}
                 </div>
               }
             />

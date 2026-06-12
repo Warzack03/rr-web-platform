@@ -7,8 +7,8 @@ type TeamVisibilityBadgeProps = {
 export function TeamVisibilityBadge({ publicVisible }: TeamVisibilityBadgeProps) {
   return (
     <AdminStatusBadge
-      label={publicVisible ? "Publico" : "Privado"}
-      tone={publicVisible ? "gold" : "slate"}
+      label={publicVisible ? "Visible web" : "Oculto web"}
+      tone={publicVisible ? "gold" : "danger"}
     />
   );
 }

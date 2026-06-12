@@ -5,12 +5,12 @@ import { AdminPanel } from "@/components/admin/admin-panel";
 
 type UnsavedChangesBarProps = {
   onDiscard: () => void;
-  onSaveDraft: () => void;
+  onSave: () => void;
 };
 
 export function UnsavedChangesBar({
   onDiscard,
-  onSaveDraft,
+  onSave,
 }: UnsavedChangesBarProps) {
   return (
     <AdminPanel className="sticky bottom-4 z-10 border-[rgba(253,203,88,0.32)] px-4 py-4">
@@ -22,7 +22,7 @@ export function UnsavedChangesBar({
               Hay cambios sin guardar en esta clasificacion.
             </p>
             <p className="text-[0.9rem] leading-6 text-[color:var(--rr-muted)]">
-              Puedes guardarlos como borrador o descartarlos antes de salir de esta tabla.
+              Guardalos ahora o cancela los cambios antes de salir de esta tabla.
             </p>
           </div>
         </div>
@@ -37,10 +37,10 @@ export function UnsavedChangesBar({
           </button>
           <button
             type="button"
-            onClick={onSaveDraft}
+            onClick={onSave}
             className="rr-button rr-button-primary text-[0.82rem]"
           >
-            Guardar borrador
+            Guardar cambios
           </button>
         </div>
       </div>

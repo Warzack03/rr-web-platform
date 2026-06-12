@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 type StandingMobileCardProps = {
   row: StandingManagementRow;
+  errors: string[];
   index: number;
   totalRows: number;
   canRemove: boolean;
@@ -35,6 +36,7 @@ const inputClassName =
 
 export function StandingMobileCard({
   row,
+  errors,
   index,
   totalRows,
   canRemove,
@@ -48,6 +50,9 @@ export function StandingMobileCard({
     <AdminPanel
       className={cn(
         "p-4 lg:hidden",
+        errors.length > 0
+          ? "border-[rgba(214,64,69,0.34)]"
+          : undefined,
         row.isOwnTeam
           ? "border-[rgba(253,203,88,0.38)] bg-[linear-gradient(180deg,rgba(48,37,10,0.92),rgba(11,21,37,0.96))]"
           : undefined,
@@ -56,9 +61,16 @@ export function StandingMobileCard({
       <div className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-2">
-            <p className="rr-kicker text-[color:var(--rr-gold)]">
-              Posicion {row.position}
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="rr-kicker text-[color:var(--rr-gold)]">
+                Posicion {row.position}
+              </p>
+              {row.isOwnTeam ? (
+                <span className="rounded-full border border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] px-2 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--rr-gold)]">
+                  Equipo propio
+                </span>
+              ) : null}
+            </div>
             <input
               type="text"
               value={row.teamName}
@@ -66,7 +78,11 @@ export function StandingMobileCard({
                 onUpdateField(row.id, "teamName", event.target.value)
               }
               placeholder="Nombre del equipo"
-              className={`${inputClassName} w-full min-w-0`}
+              className={cn(
+                inputClassName,
+                "w-full min-w-0",
+                errors.length > 0 ? "border-[rgba(214,64,69,0.4)]" : undefined,
+              )}
             />
           </div>
 
@@ -92,6 +108,12 @@ export function StandingMobileCard({
           </div>
         </div>
 
+        {errors.length > 0 ? (
+          <div className="rounded-[10px] border border-[rgba(214,64,69,0.34)] bg-[rgba(214,64,69,0.08)] px-3 py-3 text-[0.86rem] text-[#ffc3bc]">
+            {errors[0]}
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-2 gap-3">
           {[
             { label: "PJ", field: "played", value: row.played },
@@ -101,7 +123,7 @@ export function StandingMobileCard({
             { label: "GF", field: "goalsFor", value: row.goalsFor },
             { label: "GC", field: "goalsAgainst", value: row.goalsAgainst },
             { label: "Pts", field: "points", value: row.points },
-            { label: "DG", field: "position", value: row.goalDifference, readOnly: true },
+            { label: "DG", value: row.goalDifference, readOnly: true },
           ].map((item) => (
             <label key={item.label} className="grid gap-1">
               <span className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
@@ -147,7 +169,7 @@ export function StandingMobileCard({
             )}
           >
             <Star className="h-4 w-4" />
-            {row.isOwnTeam ? "Equipo propio" : "Marcar propio"}
+            {row.isOwnTeam ? "Equipo propio" : "Marcar como propio"}
           </button>
 
           {canRemove ? (

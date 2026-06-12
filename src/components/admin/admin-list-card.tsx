@@ -21,7 +21,7 @@ export function AdminListCard({
       <div className="space-y-3">
         {eyebrow ? <p className="rr-kicker text-[color:var(--rr-gold)]">{eyebrow}</p> : null}
         <div className="space-y-1.5">
-          <h3 className="rr-display text-[1.9rem] leading-[0.95] text-white">{title}</h3>
+          <h3 className="rr-display text-[1.6rem] leading-[0.98] text-white">{title}</h3>
           {description ? (
             <p className="text-[0.96rem] leading-5 text-[color:var(--rr-muted)]">{description}</p>
           ) : null}

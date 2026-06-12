@@ -123,20 +123,20 @@ export function TeamFilters({
           </label>
 
           <label className="grid gap-2">
-            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Visible</span>
+            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Web</span>
             <select
               value={value.visibility}
               onChange={(event) => updateField("visibility", event.target.value as TeamFiltersValue["visibility"])}
               className={fieldClassName}
             >
               <option value="all">Todos</option>
-              <option value="visible">Solo publicos</option>
-              <option value="hidden">Solo privados</option>
+              <option value="visible">Solo visibles</option>
+              <option value="hidden">Solo ocultos</option>
             </select>
           </label>
 
           <label className="grid gap-2">
-            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Activo</span>
+            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Estado</span>
             <select
               value={value.activity}
               onChange={(event) => updateField("activity", event.target.value as TeamFiltersValue["activity"])}

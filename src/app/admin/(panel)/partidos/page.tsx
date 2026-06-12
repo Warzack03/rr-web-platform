@@ -6,6 +6,7 @@ type AdminMatchesPageProps = {
   searchParams: Promise<{
     previewRole?: string | string[];
     ui?: string | string[];
+    team?: string | string[];
   }>;
 };
 
@@ -28,9 +29,10 @@ export default async function AdminMatchesPage({
 
   return (
     <AdminMatchesWorkspace
-      key={`${previewRole}-${initialUiState}`}
+      key={`${previewRole}-${initialUiState}-${getSingleValue(resolvedSearchParams.team) ?? "all"}`}
       role={previewRole}
       initialUiState={initialUiState}
+      initialSelectedTeamSlug={getSingleValue(resolvedSearchParams.team)}
     />
   );
 }

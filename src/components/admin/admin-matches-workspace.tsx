@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
-import { AlertTriangle, CalendarClock, CheckCircle2, CircleDotDashed, Plus, Radio, Trophy } from "lucide-react";
+import { AlertTriangle, CalendarClock, CircleDotDashed, Plus, Radio, Trophy } from "lucide-react";
+import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
+import { AdminCoachTeamSwitcher } from "@/components/admin/admin-coach-team-switcher";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { MatchFilters, type MatchFiltersValue } from "@/components/admin/match-filters";
 import { MatchFormDialog } from "@/components/admin/match-form-dialog";
 import { MatchList } from "@/components/admin/match-list";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
+import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
 import { QuickResultDialog } from "@/components/admin/quick-result-dialog";
 import {
   coachPreviewTeamSlugs,
@@ -28,6 +32,7 @@ import type { AdminRole } from "@/lib/admin/roles";
 type AdminMatchesWorkspaceProps = {
   role: AdminRole;
   initialUiState?: "ready" | "error";
+  initialSelectedTeamSlug?: string;
 };
 
 type ScreenState = "loading" | "ready" | "error";
@@ -70,9 +75,34 @@ function isWithinNextSevenDays(dateValue: string) {
   return date >= start && date <= end;
 }
 
+function getCoachFocusMatch(matches: MatchManagementMatch[]) {
+  return (
+    matches.find(
+      (match) =>
+        match.status === "played" &&
+        (match.ownScore === null || match.opponentScore === null),
+    ) ??
+    matches.find((match) => match.status === "live") ??
+    matches.find((match) => getVisualMatchStatus(match.status) === "pending") ??
+    matches.find((match) => match.status === "played") ??
+    matches[0]
+  );
+}
+
+function getCoachPrimaryActionLabel(match: MatchManagementMatch) {
+  const visualStatus = getVisualMatchStatus(match.status);
+
+  if (visualStatus === "pending") {
+    return "Editar previa";
+  }
+
+  return visualStatus === "live" ? "Actualizar marcador" : "Revisar resultado";
+}
+
 export function AdminMatchesWorkspace({
   role,
   initialUiState = "ready",
+  initialSelectedTeamSlug,
 }: AdminMatchesWorkspaceProps) {
   const [allMatches, setAllMatches] = useState(() =>
     sortMatchManagementMatches(getAllMatchManagementMatches()),
@@ -82,7 +112,11 @@ export function AdminMatchesWorkspace({
   const [quickResultMatchId, setQuickResultMatchId] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
   const [screenState, setScreenState] = useState<ScreenState>("loading");
-  const [coachTeamSlug, setCoachTeamSlug] = useState<string>(coachPreviewTeamSlugs[0]);
+  const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
+    coachPreviewTeamSlugs.includes(initialSelectedTeamSlug as (typeof coachPreviewTeamSlugs)[number])
+      ? (initialSelectedTeamSlug as string)
+      : coachPreviewTeamSlugs[0],
+  );
   const deferredSearch = useDeferredValue(filters.search.trim().toLowerCase());
 
   useEffect(() => {
@@ -174,6 +208,7 @@ export function AdminMatchesWorkspace({
       match.status === "played" && (match.ownScore === null || match.opponentScore === null),
   ).length;
   const coachAssignedTeam = allowedTeams[0];
+  const coachFocusMatch = role === "COACH" ? getCoachFocusMatch(scopedMatches) : undefined;
 
   const selectedDialogMatch =
     dialogState && "matchId" in dialogState
@@ -258,7 +293,11 @@ export function AdminMatchesWorkspace({
       <AdminPageHeader
         eyebrow="Calendario operativo"
         title={role === "COACH" ? "Partidos de tu equipo" : "Partidos"}
-        description=""
+        description={
+          role === "COACH"
+            ? "Prioriza la previa, el resultado y el salto rapido hacia clasificacion o estadisticas desde movil."
+            : "Ordena el calendario por equipo y estado con acciones claras para previa, resultado y seguimiento publico."
+        }
         actions={
           <button
             type="button"
@@ -271,54 +310,116 @@ export function AdminMatchesWorkspace({
         }
       />
 
-      {bannerMessage ? (
-        <AdminPanel className="border-[rgba(253,203,88,0.3)] px-4 py-3">
-          <div className="flex items-center gap-3 text-[0.92rem] text-white">
-            <CheckCircle2 className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
-            {bannerMessage}
+      {bannerMessage ? <AdminFeedbackBanner message={bannerMessage} /> : null}
+
+      {role === "COACH" ? (
+        <AdminScopePanel
+          eyebrow="Flujo de entrenador"
+          title="Cerrar jornada sin navegar de mas"
+          description="Tu accion principal aqui es dejar listo el proximo partido o marcar el resultado. El resto del flujo salta directo a clasificacion y estadisticas del mismo equipo."
+          actions={
+            <>
+              <Link
+                href={`/admin/clasificaciones?team=${coachAssignedTeam?.slug ?? ""}`}
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
+                Editar clasificacion
+              </Link>
+              <Link
+                href={`/admin/estadisticas?team=${coachAssignedTeam?.slug ?? ""}`}
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
+                Editar estadisticas
+              </Link>
+            </>
+          }
+          aside={
+            <AdminCoachTeamSwitcher
+              options={coachPreviewTeamOptions}
+              value={coachTeamSlug}
+              onChange={(nextTeamSlug) => {
+                setCoachTeamSlug(nextTeamSlug);
+                setFilters(initialFilters);
+              }}
+            />
+          }
+        />
+      ) : null}
+
+      {role === "COACH" && coachFocusMatch ? (
+        <AdminPanel className="border-[rgba(253,203,88,0.24)] p-5 sm:p-6">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="space-y-2">
+                <p className="rr-kicker text-[color:var(--rr-gold)]">Siguiente paso</p>
+                <div>
+                  <h2 className="text-[1.12rem] font-semibold text-white sm:text-[1.25rem]">
+                    {coachFocusMatch.teamName} vs {coachFocusMatch.opponentName}
+                  </h2>
+                  <p className="mt-1 text-[0.92rem] leading-5 text-[color:var(--rr-muted)]">
+                    {coachFocusMatch.matchday} · {formatMatchDateLabel(coachFocusMatch)} · {coachFocusMatch.venue}
+                  </p>
+                </div>
+              </div>
+
+              <AdminStatusBadge
+                label={
+                  getVisualMatchStatus(coachFocusMatch.status) === "live"
+                    ? "En vivo"
+                    : getVisualMatchStatus(coachFocusMatch.status) === "played"
+                      ? "Jugado"
+                      : "Pendiente"
+                }
+                tone={
+                  getVisualMatchStatus(coachFocusMatch.status) === "live"
+                    ? "danger"
+                    : getVisualMatchStatus(coachFocusMatch.status) === "played"
+                      ? "success"
+                      : "gold"
+                }
+                pulse={getVisualMatchStatus(coachFocusMatch.status) === "live"}
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+              <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+                {getVisualMatchStatus(coachFocusMatch.status) === "pending"
+                  ? "Completa rival, fecha y campo antes del fin de semana."
+                  : "Actualiza el marcador y deja listo el salto a estadisticas o clasificacion."}
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  getVisualMatchStatus(coachFocusMatch.status) === "pending"
+                    ? setDialogState({ mode: "edit", matchId: coachFocusMatch.id })
+                    : setQuickResultMatchId(coachFocusMatch.id)
+                }
+                className="rr-button rr-button-primary justify-center text-[0.82rem]"
+              >
+                {getCoachPrimaryActionLabel(coachFocusMatch)}
+              </button>
+            </div>
           </div>
         </AdminPanel>
       ) : null}
 
       {role === "COACH" ? (
-        <AdminPanel className="border-[rgba(52,112,200,0.24)] px-5 py-4">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-end">
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  href={`/admin/clasificaciones?team=${coachAssignedTeam?.slug ?? ""}`}
-                  className="rr-button rr-button-secondary text-[0.8rem]"
-                >
-                  Editar clasificacion
-                </Link>
-                <Link
-                  href={`/admin/estadisticas?team=${coachAssignedTeam?.slug ?? ""}`}
-                  className="rr-button rr-button-secondary text-[0.8rem]"
-                >
-                  Editar estadisticas
-                </Link>
-              </div>
-            </div>
-
-            <label className="grid gap-2">
-              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Equipo mock</span>
-              <select
-                value={coachTeamSlug}
-                onChange={(event) => {
-                  setCoachTeamSlug(event.target.value);
-                  setFilters(initialFilters);
-                }}
-                className="min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
-              >
-                {coachPreviewTeamOptions.map((team) => (
-                  <option key={team.slug} value={team.slug}>
-                    {team.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </AdminPanel>
+        <MatchFilters
+          value={{
+            ...filters,
+            status: effectiveStatusFilter,
+          }}
+          seasons={seasons}
+          teams={allowedTeams.map((team) => ({ slug: team.slug, name: team.name }))}
+          competitions={competitions}
+          totalMatches={scopedMatches.length}
+          filteredMatches={filteredMatches.length}
+          showTeamFilter={false}
+          allowLiveFilter={allowLiveFilter}
+          onChange={setFilters}
+          onReset={() => setFilters(initialFilters)}
+        />
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -356,21 +457,23 @@ export function AdminMatchesWorkspace({
         />
       </div>
 
-      <MatchFilters
-        value={{
-          ...filters,
-          status: effectiveStatusFilter,
-        }}
-        seasons={seasons}
-        teams={allowedTeams.map((team) => ({ slug: team.slug, name: team.name }))}
-        competitions={competitions}
-        totalMatches={scopedMatches.length}
-        filteredMatches={filteredMatches.length}
-        showTeamFilter={role !== "COACH" && allowedTeams.length > 1}
-        allowLiveFilter={allowLiveFilter}
-        onChange={setFilters}
-        onReset={() => setFilters(initialFilters)}
-      />
+      {role !== "COACH" ? (
+        <MatchFilters
+          value={{
+            ...filters,
+            status: effectiveStatusFilter,
+          }}
+          seasons={seasons}
+          teams={allowedTeams.map((team) => ({ slug: team.slug, name: team.name }))}
+          competitions={competitions}
+          totalMatches={scopedMatches.length}
+          filteredMatches={filteredMatches.length}
+          showTeamFilter={allowedTeams.length > 1}
+          allowLiveFilter={allowLiveFilter}
+          onChange={setFilters}
+          onReset={() => setFilters(initialFilters)}
+        />
+      ) : null}
 
       {screenState === "loading" ? (
         <div className="space-y-4">

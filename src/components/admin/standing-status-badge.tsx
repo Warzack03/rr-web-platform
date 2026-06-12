@@ -13,15 +13,15 @@ const statusConfig: Record<
   }
 > = {
   draft: {
-    label: "Borrador",
+    label: "Sin guardar",
     tone: "slate",
   },
   published: {
-    label: "Publicada",
+    label: "Guardada",
     tone: "success",
   },
   review: {
-    label: "Pendiente de revision",
+    label: "Revisar",
     tone: "gold",
   },
 };

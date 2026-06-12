@@ -19,6 +19,7 @@ export type AdminNavItem = {
   href: string;
   label: string;
   section: AdminSectionKey;
+  status: "active" | "preview";
 };
 
 export const roleLabels: Record<UserRole, string> = {
@@ -28,18 +29,26 @@ export const roleLabels: Record<UserRole, string> = {
 };
 
 export const adminNavigation: AdminNavItem[] = [
-  { href: "/admin", label: "Dashboard", section: "dashboard" },
-  { href: "/admin/temporadas", label: "Temporadas", section: "seasons" },
-  { href: "/admin/equipos", label: "Equipos", section: "teams" },
-  { href: "/admin/jugadores", label: "Jugadores", section: "players" },
-  { href: "/admin/asignaciones", label: "Asignaciones", section: "assignments" },
-  { href: "/admin/partidos", label: "Partidos", section: "matches" },
-  { href: "/admin/clasificaciones", label: "Clasificaciones", section: "standings" },
-  { href: "/admin/estadisticas", label: "Estadisticas", section: "stats" },
-  { href: "/admin/noticias", label: "Noticias", section: "news" },
-  { href: "/admin/media", label: "Media", section: "media" },
-  { href: "/admin/importaciones", label: "Importaciones", section: "imports" },
-  { href: "/admin/usuarios", label: "Usuarios", section: "users" },
+  { href: "/admin", label: "Dashboard", section: "dashboard", status: "active" },
+  { href: "/admin/partidos", label: "Partidos", section: "matches", status: "active" },
+  { href: "/admin/clasificaciones", label: "Clasificaciones", section: "standings", status: "active" },
+  { href: "/admin/estadisticas", label: "Estadisticas", section: "stats", status: "active" },
+  { href: "/admin/equipos", label: "Equipos", section: "teams", status: "active" },
+  { href: "/admin/noticias", label: "Noticias", section: "news", status: "preview" },
+  { href: "/admin/jugadores", label: "Jugadores", section: "players", status: "preview" },
+  { href: "/admin/asignaciones", label: "Asignaciones", section: "assignments", status: "preview" },
+  { href: "/admin/temporadas", label: "Temporadas", section: "seasons", status: "preview" },
+  { href: "/admin/media", label: "Media", section: "media", status: "preview" },
+  { href: "/admin/importaciones", label: "Importaciones", section: "imports", status: "preview" },
+  { href: "/admin/usuarios", label: "Usuarios", section: "users", status: "preview" },
+];
+
+const coachNavigation: AdminNavItem[] = [
+  { href: "/admin", label: "Mi jornada", section: "dashboard", status: "active" },
+  { href: "/admin/partidos", label: "Partidos", section: "matches", status: "active" },
+  { href: "/admin/clasificaciones", label: "Clasificacion", section: "standings", status: "active" },
+  { href: "/admin/estadisticas", label: "Estadisticas", section: "stats", status: "active" },
+  { href: "/admin/equipos", label: "Mi equipo", section: "teams", status: "active" },
 ];
 
 const adminSectionRoles: Record<AdminSectionKey, UserRole[]> = {
@@ -63,5 +72,6 @@ export function canAccessAdminSection(role: UserRole, section: AdminSectionKey) 
 }
 
 export function getAdminNavigationForRole(role: UserRole) {
-  return adminNavigation.filter((item) => canAccessAdminSection(role, item.section));
+  const navigation = role === UserRole.COACH ? coachNavigation : adminNavigation;
+  return navigation.filter((item) => canAccessAdminSection(role, item.section));
 }
