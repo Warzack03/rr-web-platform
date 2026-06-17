@@ -844,6 +844,20 @@ export function getAcademyPlayerHref(teamSlug: string, playerSlug: string): stri
     : undefined;
 }
 
+export function findAcademyPlayersBySlug(playerSlug: string): AcademySquadPlayer[] {
+  return Object.values(ACADEMY_TEAM_ROSTERS).flatMap((seed) =>
+    seed.players.filter((player) => player.slug === playerSlug),
+  );
+}
+
+export function getAcademyPlayerSlugs(): string[] {
+  return Array.from(
+    new Set(
+      Object.values(ACADEMY_TEAM_ROSTERS).flatMap((seed) => seed.players.map((player) => player.slug)),
+    ),
+  );
+}
+
 export function getAcademyPlayerStaticParams(): Array<{
   teamSlug: string;
   playerSlug: string;
