@@ -4,12 +4,14 @@ import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PremiumPlayerCard } from "@/components/public/premium-player-card";
 import { SquadPageTitle } from "@/components/public/squad-page-title";
 import { SquadSection } from "@/components/public/squad-section";
+import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { TeamRoutePlaceholder } from "@/components/public/team-route-placeholder";
 import {
   getAcademyPlayerHref,
   getAcademyTeamSquadContent,
 } from "@/lib/public/player-profile-content";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
+import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 
 type TeamPlaceholderPageProps = {
   params: Promise<{
@@ -84,6 +86,11 @@ export default async function TeamSquadPage({
 
         <section className="relative mx-auto w-full max-w-[1344px] px-5 py-14 md:px-8 md:py-18 xl:px-16">
           <SquadPageTitle title={squad.pageTitle} />
+          <TeamSectionNavigation
+            links={getTeamSectionLinks({ teamType: "academy", teamSlug })}
+            activeKey="squad"
+            className="mt-8 justify-center"
+          />
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <span className="rr-kicker border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-3 py-2 text-[0.76rem] text-[color:var(--rr-muted)]">

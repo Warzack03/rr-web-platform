@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { CalendarPageTitle } from "@/components/public/calendar-page-title";
 import { TeamCalendar } from "@/components/public/team-calendar";
+import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { getAcademyTeamCalendarContent } from "@/lib/public/team-calendar-content";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
+import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 
 type TeamPlaceholderPageProps = {
   params: Promise<{
@@ -59,6 +61,11 @@ export default async function AcademyTeamCalendarPage({
             subtitle={calendar.subtitle}
             backHref={`/equipos/${teamSummary.slug}`}
             backLabel={`Volver a ${teamSummary.name}`}
+          />
+          <TeamSectionNavigation
+            links={getTeamSectionLinks({ teamType: "academy", teamSlug })}
+            activeKey="calendar"
+            className="mt-8"
           />
           <TeamCalendar
             matchdays={calendar.matchdays}

@@ -3,10 +3,12 @@ import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PremiumPlayerCard } from "@/components/public/premium-player-card";
 import { SquadPageTitle } from "@/components/public/squad-page-title";
 import { SquadSection } from "@/components/public/squad-section";
+import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import {
   getFirstTeamPlayerHref,
   getFirstTeamSquadContent,
 } from "@/lib/public/first-team-squad-content";
+import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 
 export const metadata: Metadata = {
   title: "Plantilla | Primer Equipo",
@@ -41,6 +43,11 @@ export default function FirstTeamSquadPage() {
 
         <section className="relative mx-auto w-full max-w-[1344px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
           <SquadPageTitle title={squad.pageTitle} />
+          <TeamSectionNavigation
+            links={getTeamSectionLinks({ teamType: "first-team" })}
+            activeKey="squad"
+            className="mt-8 justify-center"
+          />
 
           <div className="mt-16 space-y-[4.5rem] md:mt-20 md:space-y-24">
             <SquadSection title="Porteros">

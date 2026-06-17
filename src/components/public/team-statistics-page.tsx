@@ -1,0 +1,799 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { startTransition, useDeferredValue, useMemo, useState } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  BarChart3,
+  ChevronDown,
+  ChevronLeft,
+  RotateCcw,
+  Search,
+  Shield,
+  TableProperties,
+} from "lucide-react";
+import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
+import type { PublicPlayerProfile, PublicPlayerType } from "@/lib/public/player-profile-content";
+import {
+  formatStatValue,
+  getPlayerDetailHref,
+  getPlayerLabel,
+  getStatsColumns,
+  sortPlayers,
+  type SortDirection,
+  type StatSortKey,
+  type StatsColumn,
+  type TeamStatisticsPageContent,
+} from "@/lib/public/team-statistics-content";
+import { cn } from "@/lib/utils";
+
+type TeamStatisticsPageProps = {
+  content: TeamStatisticsPageContent;
+};
+
+export function TeamStatisticsPage({ content }: TeamStatisticsPageProps) {
+  const [searchValue, setSearchValue] = useState("");
+  const [activeSection, setActiveSection] = useState<PublicPlayerType>("field");
+  const [sortKey, setSortKey] = useState<StatSortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [showMobileTable, setShowMobileTable] = useState(false);
+  const deferredSearch = useDeferredValue(searchValue);
+
+  const players = activeSection === "field" ? content.fieldPlayers : content.goalkeepers;
+  const columns = useMemo(
+    () => getStatsColumns(content.teamType, activeSection),
+    [activeSection, content.teamType],
+  );
+  const activeSortKey = sortKey && columns.some((column) => column.key === sortKey) ? sortKey : null;
+
+  const filteredPlayers = useMemo(() => {
+    const normalizedQuery = deferredSearch.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      return players;
+    }
+
+    return players.filter((player) => getPlayerLabel(player).toLowerCase().includes(normalizedQuery));
+  }, [deferredSearch, players]);
+
+  const sortedPlayers = useMemo(
+    () => sortPlayers(filteredPlayers, activeSortKey, sortDirection),
+    [activeSortKey, filteredPlayers, sortDirection],
+  );
+
+  const quickSortOptions = useMemo(
+    () => getQuickSortOptions(content.teamType, activeSection),
+    [activeSection, content.teamType],
+  );
+
+  const handleSortSelection = (nextKey: StatSortKey, defaultDirection: SortDirection = "desc") => {
+    if (nextKey === activeSortKey) {
+      setSortDirection((currentDirection) => (currentDirection === "asc" ? "desc" : "asc"));
+      return;
+    }
+
+    setSortKey(nextKey);
+    setSortDirection(defaultDirection);
+  };
+
+  const handleTableSort = (nextKey: StatSortKey) => {
+    handleSortSelection(nextKey, nextKey === "player" ? "asc" : "desc");
+  };
+
+  return (
+    <div className="relative overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.14),transparent_56%)]" />
+      <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(52,112,200,0.08),transparent_28%)]" />
+
+      <section className="relative mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
+        <TeamStatsHeader content={content} />
+
+        <TeamStatsControls
+          searchValue={searchValue}
+          activeSection={activeSection}
+          sortKey={activeSortKey}
+          sortDirection={sortDirection}
+          quickSortOptions={quickSortOptions}
+          resultCount={sortedPlayers.length}
+          onSearchChange={(value) => {
+            startTransition(() => setSearchValue(value));
+          }}
+          onSectionChange={setActiveSection}
+          onSortSelection={handleSortSelection}
+          onSortDirectionToggle={() =>
+            setSortDirection((currentDirection) => (currentDirection === "asc" ? "desc" : "asc"))
+          }
+          onClearSort={() => {
+            setSortKey(null);
+            setSortDirection("desc");
+          }}
+          showMobileTable={showMobileTable}
+          onMobileTableToggle={() => setShowMobileTable((currentValue) => !currentValue)}
+        />
+
+        {sortedPlayers.length > 0 ? (
+          <>
+            <PlayerStatsMobileCards
+              className="mt-8 lg:hidden"
+              players={sortedPlayers}
+              teamType={content.teamType}
+              playerType={activeSection}
+              columns={columns}
+            />
+
+            <div className={cn("mt-6 lg:hidden", showMobileTable ? "block" : "hidden")}>
+              <PlayerStatsTable
+                players={sortedPlayers}
+                columns={columns}
+                sortKey={activeSortKey}
+                sortDirection={sortDirection}
+                onSort={handleTableSort}
+                compact
+              />
+            </div>
+
+            <PlayerStatsTable
+              className="mt-8 hidden lg:block"
+              players={sortedPlayers}
+              columns={columns}
+              sortKey={activeSortKey}
+              sortDirection={sortDirection}
+              onSort={handleTableSort}
+            />
+          </>
+        ) : (
+          <StatisticsEmptyState
+            className="mt-8"
+            title={searchValue ? "Sin resultados" : activeSection === "field" ? "Jugadores pendientes" : "Porteros pendientes"}
+            description={
+              searchValue
+                ? "Prueba con otro nombre o posicion para encontrar al jugador."
+                : activeSection === "field"
+                  ? "Todavia no hay estadisticas publicadas para los jugadores de campo."
+                  : "Todavia no hay estadisticas publicadas para los porteros."
+            }
+          />
+        )}
+      </section>
+    </div>
+  );
+}
+
+export function TeamStatsHeader({ content }: TeamStatisticsPageProps) {
+  return (
+    <header className="max-w-[58rem]">
+      <Link
+        href={content.backHref}
+        className="rr-kicker inline-flex items-center gap-2 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-[color:var(--rr-gold)]"
+      >
+        <ChevronLeft className="h-4 w-4" strokeWidth={1.9} />
+        <span>{content.backLabel}</span>
+      </Link>
+
+      <p className="rr-kicker mt-6 text-[0.82rem] text-[color:var(--rr-gold)]">Estadisticas</p>
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        {content.category ? (
+          <span className="rr-chip border-[color:var(--rr-border-strong)] text-[color:var(--rr-gold)]">
+            {content.category}
+          </span>
+        ) : null}
+        <span className="rr-chip border-[color:var(--rr-border-strong)] text-[color:var(--rr-gold)]">
+          {content.competition}
+        </span>
+        <span className="rr-chip text-[color:var(--rr-muted)]">{content.season}</span>
+      </div>
+
+      <h1 className="rr-display mt-6 text-[4rem] leading-[0.9] text-white sm:text-[5rem] lg:text-[6.1rem]">
+        {content.title}
+      </h1>
+      <p className="mt-4 max-w-[42rem] text-[1.16rem] text-[color:var(--rr-muted)] md:text-[1.3rem]">
+        {content.subtitle}
+      </p>
+      <div className="rr-bolt-divider mt-7 max-w-[20rem]" />
+
+      <TeamSectionNavigation links={content.navLinks} activeKey="statistics" className="mt-8" />
+    </header>
+  );
+}
+
+type TeamStatsControlsProps = {
+  searchValue: string;
+  activeSection: PublicPlayerType;
+  sortKey: StatSortKey | null;
+  sortDirection: SortDirection;
+  quickSortOptions: Array<{ key: StatSortKey; label: string }>;
+  resultCount: number;
+  showMobileTable: boolean;
+  onSearchChange: (value: string) => void;
+  onSectionChange: (value: PublicPlayerType) => void;
+  onSortSelection: (value: StatSortKey, defaultDirection?: SortDirection) => void;
+  onSortDirectionToggle: () => void;
+  onClearSort: () => void;
+  onMobileTableToggle: () => void;
+};
+
+export function TeamStatsControls({
+  searchValue,
+  activeSection,
+  sortKey,
+  sortDirection,
+  quickSortOptions,
+  resultCount,
+  showMobileTable,
+  onSearchChange,
+  onSectionChange,
+  onSortSelection,
+  onSortDirectionToggle,
+  onClearSort,
+  onMobileTableToggle,
+}: TeamStatsControlsProps) {
+  return (
+    <section className="rr-panel mt-10 px-5 py-5 md:px-6 md:py-6">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-end">
+        <div className="space-y-5">
+          <label className="block">
+            <span className="rr-kicker mb-2.5 block text-[0.74rem] text-[color:var(--rr-muted)]">
+              Buscar jugador
+            </span>
+            <span className="relative flex items-center">
+              <Search className="pointer-events-none absolute left-4 h-4 w-4 text-[color:var(--rr-muted)]" />
+              <input
+                type="search"
+                value={searchValue}
+                onChange={(event) => onSearchChange(event.target.value)}
+                placeholder="Nombre del jugador"
+                className="h-12 w-full border border-[color:var(--rr-border)] bg-[rgba(7,22,41,0.58)] pl-11 pr-4 text-[1rem] text-white outline-none transition placeholder:text-[color:var(--rr-muted)] focus:border-[color:var(--rr-border-strong)]"
+              />
+            </span>
+          </label>
+
+          <PlayerStatsTabs activeSection={activeSection} onSectionChange={onSectionChange} />
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="rr-kicker text-[0.74rem] text-[color:var(--rr-gold)]">Orden rapido</p>
+              <p className="mt-1 text-[1rem] text-[color:var(--rr-muted)]">
+                {resultCount} {resultCount === 1 ? "resultado" : "resultados"}
+              </p>
+            </div>
+            {sortKey ? (
+              <p className="text-right text-[0.95rem] text-[color:var(--rr-muted)]">
+                Orden actual: <span className="text-white">{quickSortOptions.find((option) => option.key === sortKey)?.label ?? "Tabla"}</span>
+              </p>
+            ) : (
+              <p className="text-right text-[0.95rem] text-[color:var(--rr-muted)]">Sin orden manual</p>
+            )}
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {quickSortOptions.map((option) => {
+              const isActive = sortKey === option.key;
+
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => onSortSelection(option.key)}
+                  className={cn(
+                    "inline-flex min-h-11 items-center justify-between gap-3 border px-4 py-3 text-left transition",
+                    isActive
+                      ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.1)] text-white"
+                      : "border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] text-white hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "rr-kicker text-[0.74rem]",
+                      isActive ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
+                    )}
+                  >
+                    {option.label}
+                  </span>
+                  {isActive ? (
+                    sortDirection === "asc" ? (
+                      <ArrowUp className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+                    ) : (
+                      <ArrowDown className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+                    )
+                  ) : (
+                    <ArrowUpDown className="h-4 w-4 text-[color:var(--rr-muted)]" strokeWidth={1.9} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={onSortDirectionToggle}
+              disabled={!sortKey}
+              className={cn(
+                "inline-flex h-12 items-center justify-center gap-2 border px-4 text-white transition",
+                sortKey
+                  ? "border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
+                  : "cursor-not-allowed border-white/8 bg-[rgba(255,255,255,0.02)] text-[color:var(--rr-muted)]/60",
+              )}
+            >
+              {sortDirection === "asc" ? (
+                <ArrowUp className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+              ) : (
+                <ArrowDown className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+              )}
+              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                {sortDirection === "asc" ? "Asc" : "Desc"}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onClearSort}
+              disabled={!sortKey}
+              className={cn(
+                "inline-flex h-12 items-center justify-center gap-2 border px-4 text-white transition",
+                sortKey
+                  ? "border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
+                  : "cursor-not-allowed border-white/8 bg-[rgba(255,255,255,0.02)] text-[color:var(--rr-muted)]/60",
+              )}
+            >
+              <RotateCcw className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Limpiar orden</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onMobileTableToggle}
+              className="inline-flex h-12 items-center justify-center gap-2 border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 text-white transition hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)] lg:hidden"
+            >
+              <TableProperties className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                {showMobileTable ? "Ocultar tabla" : "Ver tabla completa"}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type PlayerStatsTabsProps = {
+  activeSection: PublicPlayerType;
+  onSectionChange: (value: PublicPlayerType) => void;
+};
+
+export function PlayerStatsTabs({ activeSection, onSectionChange }: PlayerStatsTabsProps) {
+  const items = [
+    { value: "field" as const, label: "Jugadores" },
+    { value: "goalkeeper" as const, label: "Porteros" },
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      {items.map((item) => {
+        const isActive = item.value === activeSection;
+
+        return (
+          <button
+            key={item.value}
+            type="button"
+            onClick={() => onSectionChange(item.value)}
+            className={cn(
+              "inline-flex min-h-11 items-center gap-2 border px-4 py-3 transition",
+              isActive
+                ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.1)] text-white"
+                : "border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] text-white hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]",
+            )}
+          >
+            <span
+              className={cn(
+                "rr-kicker text-[0.78rem]",
+                isActive ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
+              )}
+            >
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+type PlayerStatsTableProps = {
+  players: PublicPlayerProfile[];
+  columns: StatsColumn[];
+  sortKey: StatSortKey | null;
+  sortDirection: SortDirection;
+  onSort: (key: StatSortKey) => void;
+  compact?: boolean;
+  className?: string;
+};
+
+export function PlayerStatsTable({
+  players,
+  columns,
+  sortKey,
+  sortDirection,
+  onSort,
+  compact = false,
+  className,
+}: PlayerStatsTableProps) {
+  return (
+    <section className={cn("rr-panel overflow-hidden", className)}>
+      <div className="overflow-x-auto">
+        <table className={cn("w-full min-w-[52rem] border-collapse", compact && "min-w-[48rem]")}>
+          <thead>
+            <tr className="border-b border-white/10 bg-[rgba(255,255,255,0.03)]">
+              {columns.map((column, index) => (
+                <SortableStatHeader
+                  key={column.key}
+                  column={column}
+                  isActive={sortKey === column.key}
+                  sortDirection={sortDirection}
+                  onSort={onSort}
+                  sticky={index === 0}
+                />
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {players.map((player) => (
+              <tr
+                key={player.id}
+                className="border-t border-white/8 transition hover:bg-[rgba(255,255,255,0.025)]"
+              >
+                {columns.map((column, index) =>
+                  index === 0 ? (
+                    <PlayerIdentityCell key={column.key} player={player} sticky />
+                  ) : (
+                    <StatValue key={column.key} player={player} statKey={column.key} />
+                  ),
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+type SortableStatHeaderProps = {
+  column: StatsColumn;
+  isActive: boolean;
+  sortDirection: SortDirection;
+  onSort: (key: StatSortKey) => void;
+  sticky?: boolean;
+};
+
+export function SortableStatHeader({
+  column,
+  isActive,
+  sortDirection,
+  onSort,
+  sticky = false,
+}: SortableStatHeaderProps) {
+  const Icon = isActive ? (sortDirection === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+
+  return (
+    <th
+      className={cn(
+        "px-3 py-4 text-left text-[0.8rem] md:px-4",
+        sticky && "sticky left-0 z-20 bg-[rgba(20,34,54,0.98)]",
+      )}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(column.key)}
+        className="inline-flex items-center gap-2 text-left text-[color:var(--rr-muted)] transition hover:text-white"
+      >
+        <span className="rr-kicker whitespace-nowrap">{column.label}</span>
+        <Icon
+          className={cn("h-4 w-4", isActive ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]")}
+          strokeWidth={1.9}
+        />
+      </button>
+    </th>
+  );
+}
+
+type StatValueProps = {
+  player: PublicPlayerProfile;
+  statKey: StatSortKey;
+};
+
+export function StatValue({ player, statKey }: StatValueProps) {
+  return (
+    <td className="px-3 py-4 text-right text-[1rem] text-[color:var(--rr-muted)] md:px-4">
+      {formatStatValue(player, statKey)}
+    </td>
+  );
+}
+
+type PlayerIdentityCellProps = {
+  player: PublicPlayerProfile;
+  sticky?: boolean;
+};
+
+export function PlayerIdentityCell({ player, sticky = false }: PlayerIdentityCellProps) {
+  const href = getPlayerDetailHref(player);
+
+  return (
+    <td
+      className={cn(
+        "min-w-[15rem] px-3 py-4 md:px-4",
+        sticky && "sticky left-0 z-10 bg-[rgba(17,29,46,0.98)]",
+      )}
+    >
+      <Link href={href} className="group flex items-center gap-3">
+        <div className="relative h-14 w-12 shrink-0 overflow-hidden border border-white/10 bg-[rgba(255,255,255,0.03)]">
+          {player.imageUrl ? (
+            <Image src={player.imageUrl} alt={player.name} fill sizes="48px" className="object-cover object-top" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.02)]">
+              <Shield className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0">
+          <p className="truncate text-[1.04rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">
+            {getPlayerLabel(player)}
+          </p>
+          <p className="mt-1 text-[0.95rem] text-[color:var(--rr-muted)]">
+            {player.number ? `${String(player.number).padStart(2, "0")} · ` : ""}
+            {player.playerType === "goalkeeper" ? "Portero" : player.position}
+          </p>
+        </div>
+      </Link>
+    </td>
+  );
+}
+
+type PlayerStatsMobileCardsProps = {
+  players: PublicPlayerProfile[];
+  teamType: TeamStatisticsPageContent["teamType"];
+  playerType: PublicPlayerType;
+  columns: StatsColumn[];
+  className?: string;
+};
+
+export function PlayerStatsMobileCards({
+  players,
+  teamType,
+  playerType,
+  columns,
+  className,
+}: PlayerStatsMobileCardsProps) {
+  return (
+    <div className={cn("grid gap-4", className)}>
+      {players.map((player) => (
+        <PlayerStatsCard
+          key={player.id}
+          player={player}
+          teamType={teamType}
+          playerType={playerType}
+          columns={columns}
+        />
+      ))}
+    </div>
+  );
+}
+
+type PlayerStatsCardProps = {
+  player: PublicPlayerProfile;
+  teamType: TeamStatisticsPageContent["teamType"];
+  playerType: PublicPlayerType;
+  columns: StatsColumn[];
+};
+
+export function PlayerStatsCard({
+  player,
+  teamType,
+  playerType,
+  columns,
+}: PlayerStatsCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const href = getPlayerDetailHref(player);
+  const summaryStats = getMobileSummaryStats(player, teamType, playerType);
+  const expandedStats = getExpandedStats(player, columns, summaryStats.map((item) => item.key));
+
+  return (
+    <article className="rr-panel overflow-hidden px-4 py-4">
+      <div className="flex items-start gap-4">
+        <Link href={href} className="relative block h-24 w-20 shrink-0 overflow-hidden border border-white/10">
+          {player.imageUrl ? (
+            <Image src={player.imageUrl} alt={player.name} fill sizes="80px" className="object-cover object-top" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.03)]">
+              <Shield className="h-6 w-6 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
+            </div>
+          )}
+        </Link>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <Link href={href} className="block">
+                <h3 className="rr-display text-[2.2rem] leading-[0.9] text-white">{getPlayerLabel(player)}</h3>
+              </Link>
+              <p className="mt-1 text-[0.98rem] text-[color:var(--rr-muted)]">
+                {player.playerType === "goalkeeper" ? "Portero" : player.position} · {player.stats.matchesPlayed} PJ
+              </p>
+            </div>
+            <span className="rr-kicker border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-2 py-1 text-[0.72rem] text-[color:var(--rr-gold)]">
+              #{String(player.number).padStart(2, "0")}
+            </span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {summaryStats.map((item) => (
+              <div key={item.key} className="border border-white/8 bg-[rgba(255,255,255,0.03)] px-3 py-3">
+                <p className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">{item.label}</p>
+                <p className="mt-2 text-[1.25rem] font-semibold text-white">{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => setExpanded((currentValue) => !currentValue)}
+              className="inline-flex min-h-10 items-center gap-2 border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 text-white transition hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
+            >
+              <span className="rr-kicker text-[0.72rem] text-[color:var(--rr-muted)]">
+                {expanded ? "Ocultar estadisticas" : "Ver mas estadisticas"}
+              </span>
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 text-[color:var(--rr-gold)] transition",
+                  expanded && "rotate-180",
+                )}
+                strokeWidth={1.9}
+              />
+            </button>
+
+            <Link
+              href={href}
+              className="inline-flex min-h-10 items-center gap-2 border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 text-white transition hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
+            >
+              <span className="rr-kicker text-[0.72rem] text-[color:var(--rr-muted)]">Ver ficha</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {expanded && expandedStats.length ? (
+        <PlayerStatsExpandedDetails className="mt-4" items={expandedStats} />
+      ) : null}
+    </article>
+  );
+}
+
+type PlayerStatsExpandedDetailsProps = {
+  items: Array<{ key: StatSortKey; label: string; value: string }>;
+  className?: string;
+};
+
+export function PlayerStatsExpandedDetails({
+  items,
+  className,
+}: PlayerStatsExpandedDetailsProps) {
+  return (
+    <div className={cn("grid gap-3 border-t border-white/8 pt-4 sm:grid-cols-2", className)}>
+      {items.map((item) => (
+        <div key={item.key} className="border border-white/8 bg-[rgba(255,255,255,0.02)] px-3 py-3">
+          <p className="rr-kicker text-[0.66rem] text-[color:var(--rr-muted)]">{item.label}</p>
+          <p className="mt-2 text-[1.02rem] font-semibold text-white">{item.value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StatisticsEmptyState({
+  title,
+  description,
+  className,
+}: {
+  title: string;
+  description: string;
+  className?: string;
+}) {
+  return (
+    <section className={cn("rr-panel max-w-[36rem] p-8", className)}>
+      <div className="inline-flex h-12 w-12 items-center justify-center border border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)]">
+        <BarChart3 className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
+      </div>
+      <h2 className="rr-display mt-5 text-[2.7rem] leading-none text-white">{title}</h2>
+      <p className="mt-3 text-[1.05rem] text-[color:var(--rr-muted)]">{description}</p>
+    </section>
+  );
+}
+
+function getMobileSummaryStats(
+  player: PublicPlayerProfile,
+  teamType: TeamStatisticsPageContent["teamType"],
+  playerType: PublicPlayerType,
+) {
+  if (playerType === "goalkeeper") {
+    const baseItems: Array<{ key: StatSortKey; label: string; value: string }> = [
+      { key: "cleanSheets" as const, label: "Imbatidos", value: formatStatValue(player, "cleanSheets") },
+      { key: "mvps" as const, label: "MVP's", value: formatStatValue(player, "mvps") },
+      {
+        key: "goalContributions" as const,
+        label: "G+A",
+        value: formatStatValue(player, "goalContributions"),
+      },
+    ];
+
+    if (teamType === "first-team") {
+      baseItems.splice(1, 0, {
+        key: "saves" as const,
+        label: "Paradas",
+        value: formatStatValue(player, "saves"),
+      });
+    }
+
+    return baseItems;
+  }
+
+  return [
+    { key: "goals" as const, label: "Goles", value: formatStatValue(player, "goals") },
+    { key: "assists" as const, label: "Asistencias", value: formatStatValue(player, "assists") },
+    { key: "mvps" as const, label: "MVP's", value: formatStatValue(player, "mvps") },
+    { key: "goalContributions" as const, label: "G+A", value: formatStatValue(player, "goalContributions") },
+  ];
+}
+
+function getExpandedStats(
+  player: PublicPlayerProfile,
+  columns: StatsColumn[],
+  excludedKeys: StatSortKey[],
+) {
+  return columns
+    .filter(
+      (column) =>
+        column.key !== "player" &&
+        column.key !== "matchesPlayed" &&
+        !excludedKeys.includes(column.key),
+    )
+    .map((column) => ({
+      key: column.key,
+      label: column.label,
+      value: formatStatValue(player, column.key),
+    }));
+}
+
+function getQuickSortOptions(teamType: TeamStatisticsPageContent["teamType"], playerType: PublicPlayerType) {
+  if (playerType === "goalkeeper") {
+    return teamType === "first-team"
+      ? [
+          { key: "cleanSheets" as const, label: "Imbatidos" },
+          { key: "goalsAgainstPerMatch" as const, label: "E/P" },
+          { key: "saves" as const, label: "Paradas" },
+          { key: "mvps" as const, label: "MVP's" },
+        ]
+      : [
+          { key: "cleanSheets" as const, label: "Imbatidos" },
+          { key: "goalsAgainstPerMatch" as const, label: "E/P" },
+          { key: "cleanSheetRate" as const, label: "Ratio" },
+          { key: "mvps" as const, label: "MVP's" },
+        ];
+  }
+
+  return [
+    { key: "goals" as const, label: "Goles" },
+    { key: "goalContributions" as const, label: "G+A" },
+    { key: "goalsPerMatch" as const, label: "G/P" },
+    { key: "mvps" as const, label: "MVP's" },
+  ];
+}

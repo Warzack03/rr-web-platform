@@ -1,25 +1,9 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import {
-  CalendarDays,
-  ChevronLeft,
-  Clock3,
-  Shield,
-  Trophy,
-  Users,
-} from "lucide-react";
-import type {
-  StandingRowData,
-  TeamStandingsNavLink,
-  TeamStandingsPageContent,
-} from "@/lib/public/team-standings-content";
+import { ChevronLeft, Clock3, Shield, Trophy } from "lucide-react";
+import type { StandingRowData, TeamStandingsPageContent } from "@/lib/public/team-standings-content";
+import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { cn } from "@/lib/utils";
-
-const NAV_ICONS = {
-  Equipo: Shield,
-  Calendario: CalendarDays,
-  Plantilla: Users,
-} satisfies Record<TeamStandingsNavLink["label"], typeof Shield>;
 
 type TeamStandingsPageProps = {
   content: TeamStandingsPageContent;
@@ -63,11 +47,7 @@ export function TeamStandingsPage({ content }: TeamStandingsPageProps) {
           <div className="rr-bolt-divider mt-7 max-w-[21rem]" />
         </header>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          {content.navLinks.map((link) => (
-            <StandingsNavLink key={link.href} link={link} />
-          ))}
-        </div>
+        <TeamSectionNavigation links={content.navLinks} activeKey="standing" className="mt-8" />
 
         <div className="mt-10">
           {content.rows.length > 0 ? (
@@ -81,20 +61,6 @@ export function TeamStandingsPage({ content }: TeamStandingsPageProps) {
         </div>
       </section>
     </div>
-  );
-}
-
-function StandingsNavLink({ link }: { link: TeamStandingsNavLink }) {
-  const Icon = NAV_ICONS[link.label];
-
-  return (
-    <Link
-      href={link.href}
-      className="inline-flex min-h-11 items-center gap-2 border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-[1rem] text-white transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
-    >
-      <Icon className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
-      <span className="rr-kicker text-[0.84rem] text-[color:var(--rr-muted)]">{link.label}</span>
-    </Link>
   );
 }
 
