@@ -2,7 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { startTransition, useDeferredValue, useMemo, useState } from "react";
+import {
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+  type ButtonHTMLAttributes,
+  type FormEvent,
+} from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -18,6 +25,14 @@ import {
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import type { PublicPlayerProfile, PublicPlayerType } from "@/lib/public/player-profile-content";
 import {
+  buildTeamStatisticsUrl,
+  normalizeTeamStatisticsState,
+  parseTeamStatisticsInitialState,
+  TEAM_STATISTICS_ACTIONS,
+  TEAM_STATISTICS_PARAM_NAMES,
+  type TeamStatisticsInitialState,
+} from "@/lib/public/team-statistics-url-state";
+import {
   formatStatValue,
   getPlayerDetailHref,
   getPlayerLabel,
@@ -27,27 +42,96 @@ import {
   type StatSortKey,
   type StatsColumn,
   type TeamStatisticsPageContent,
-} from "@/lib/public/team-statistics-content";
+} from "@/lib/public/team-statistics-utils";
 import { cn } from "@/lib/utils";
 
 type TeamStatisticsPageProps = {
   content: TeamStatisticsPageContent;
+  initialState: TeamStatisticsInitialState;
 };
 
-export function TeamStatisticsPage({ content }: TeamStatisticsPageProps) {
-  const [searchValue, setSearchValue] = useState("");
-  const [activeSection, setActiveSection] = useState<PublicPlayerType>("field");
-  const [sortKey, setSortKey] = useState<StatSortKey | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const [showMobileTable, setShowMobileTable] = useState(false);
-  const deferredSearch = useDeferredValue(searchValue);
+type PressableButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
-  const players = activeSection === "field" ? content.fieldPlayers : content.goalkeepers;
-  const columns = useMemo(
-    () => getStatsColumns(content.teamType, activeSection),
-    [activeSection, content.teamType],
+function PressableButton({
+  children,
+  className,
+  disabled = false,
+  type = "button",
+  ...props
+}: PressableButtonProps) {
+  return (
+    <button
+      {...props}
+      type={type}
+      disabled={disabled}
+      className={cn(
+        "touch-manipulation select-none",
+        disabled ? "cursor-not-allowed" : "cursor-pointer",
+        className,
+      )}
+    >
+      {children}
+    </button>
   );
-  const activeSortKey = sortKey && columns.some((column) => column.key === sortKey) ? sortKey : null;
+}
+
+function TeamStatisticsStateFields({
+  state,
+}: {
+  state: TeamStatisticsInitialState;
+}) {
+  return (
+    <>
+      <button type="submit" tabIndex={-1} aria-hidden="true" className="sr-only">
+        Aplicar
+      </button>
+      <input
+        type="hidden"
+        name={TEAM_STATISTICS_PARAM_NAMES.section}
+        value={state.activeSection}
+      />
+      <input
+        type="hidden"
+        name={TEAM_STATISTICS_PARAM_NAMES.sortKey}
+        value={state.sortKey ?? ""}
+      />
+      <input
+        type="hidden"
+        name={TEAM_STATISTICS_PARAM_NAMES.sortDirection}
+        value={state.sortDirection}
+      />
+      <input
+        type="hidden"
+        name={TEAM_STATISTICS_PARAM_NAMES.showMobileTable}
+        value={state.showMobileTable ? "1" : "0"}
+      />
+    </>
+  );
+}
+
+export function TeamStatisticsPage({
+  content,
+  initialState,
+}: TeamStatisticsPageProps) {
+  const pagePath =
+    content.teamType === "first-team"
+      ? "/primer-equipo/estadisticas"
+      : `/equipos/${content.teamSlug}/estadisticas`;
+  const [statsState, setStatsState] = useState(() =>
+    normalizeTeamStatisticsState(initialState, content.teamType),
+  );
+  const deferredSearch = useDeferredValue(statsState.searchValue);
+
+  const players =
+    statsState.activeSection === "field" ? content.fieldPlayers : content.goalkeepers;
+  const columns = useMemo(
+    () => getStatsColumns(content.teamType, statsState.activeSection),
+    [content.teamType, statsState.activeSection],
+  );
+  const activeSortKey =
+    statsState.sortKey && columns.some((column) => column.key === statsState.sortKey)
+      ? statsState.sortKey
+      : null;
 
   const filteredPlayers = useMemo(() => {
     const normalizedQuery = deferredSearch.trim().toLowerCase();
@@ -56,114 +140,164 @@ export function TeamStatisticsPage({ content }: TeamStatisticsPageProps) {
       return players;
     }
 
-    return players.filter((player) => getPlayerLabel(player).toLowerCase().includes(normalizedQuery));
+    return players.filter((player) =>
+      getPlayerLabel(player).toLowerCase().includes(normalizedQuery),
+    );
   }, [deferredSearch, players]);
 
   const sortedPlayers = useMemo(
-    () => sortPlayers(filteredPlayers, activeSortKey, sortDirection),
-    [activeSortKey, filteredPlayers, sortDirection],
+    () => sortPlayers(filteredPlayers, activeSortKey, statsState.sortDirection),
+    [activeSortKey, filteredPlayers, statsState.sortDirection],
   );
 
   const quickSortOptions = useMemo(
-    () => getQuickSortOptions(content.teamType, activeSection),
-    [activeSection, content.teamType],
+    () => getQuickSortOptions(content.teamType, statsState.activeSection),
+    [content.teamType, statsState.activeSection],
   );
 
-  const handleSortSelection = (nextKey: StatSortKey, defaultDirection: SortDirection = "desc") => {
-    if (nextKey === activeSortKey) {
-      setSortDirection((currentDirection) => (currentDirection === "asc" ? "desc" : "asc"));
-      return;
-    }
+  useEffect(() => {
+    const nextUrl = buildTeamStatisticsUrl(pagePath, statsState, content.teamType);
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
 
-    setSortKey(nextKey);
-    setSortDirection(defaultDirection);
+    if (currentUrl !== nextUrl) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${nextUrl}${window.location.hash}`,
+      );
+    }
+  }, [content.teamType, pagePath, statsState]);
+
+  const handleSearchChange = (value: string) => {
+    setStatsState((currentState) =>
+      normalizeTeamStatisticsState(
+        {
+          ...currentState,
+          searchValue: value,
+        },
+        content.teamType,
+      ),
+    );
   };
 
-  const handleTableSort = (nextKey: StatSortKey) => {
-    handleSortSelection(nextKey, nextKey === "player" ? "asc" : "desc");
+  const handleStatsControlsSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      const formData = new FormData(event.currentTarget);
+      const nativeSubmitEvent = event.nativeEvent as SubmitEvent;
+      const submitter = nativeSubmitEvent.submitter;
+
+      if (submitter instanceof HTMLButtonElement && submitter.name) {
+        formData.set(submitter.name, submitter.value);
+      }
+
+      const nextState = parseTeamStatisticsInitialState(
+        formDataToSearchParams(formData),
+        content.teamType,
+      );
+
+      setStatsState(nextState);
+    } catch (error) {
+      console.error("Failed to handle statistics form submit", error);
+    }
   };
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.14),transparent_56%)]" />
-      <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(52,112,200,0.08),transparent_28%)]" />
+    <div className="relative isolate overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.14),transparent_56%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-24 z-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(52,112,200,0.08),transparent_28%)]"
+      />
 
-      <section className="relative mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
+      <section className="relative z-10 mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
         <TeamStatsHeader content={content} />
 
-        <TeamStatsControls
-          searchValue={searchValue}
-          activeSection={activeSection}
-          sortKey={activeSortKey}
-          sortDirection={sortDirection}
-          quickSortOptions={quickSortOptions}
-          resultCount={sortedPlayers.length}
-          onSearchChange={(value) => {
-            startTransition(() => setSearchValue(value));
-          }}
-          onSectionChange={setActiveSection}
-          onSortSelection={handleSortSelection}
-          onSortDirectionToggle={() =>
-            setSortDirection((currentDirection) => (currentDirection === "asc" ? "desc" : "asc"))
-          }
-          onClearSort={() => {
-            setSortKey(null);
-            setSortDirection("desc");
-          }}
-          showMobileTable={showMobileTable}
-          onMobileTableToggle={() => setShowMobileTable((currentValue) => !currentValue)}
-        />
+        <form
+          method="get"
+          action={pagePath}
+          onSubmit={handleStatsControlsSubmit}
+        >
+          <TeamStatisticsStateFields state={statsState} />
 
-        {sortedPlayers.length > 0 ? (
-          <>
-            <PlayerStatsMobileCards
-              className="mt-8 lg:hidden"
-              players={sortedPlayers}
-              teamType={content.teamType}
-              playerType={activeSection}
-              columns={columns}
-            />
+          <TeamStatsControls
+            searchValue={statsState.searchValue}
+            activeSection={statsState.activeSection}
+            sortKey={activeSortKey}
+            sortDirection={statsState.sortDirection}
+            quickSortOptions={quickSortOptions}
+            resultCount={sortedPlayers.length}
+            showMobileTable={statsState.showMobileTable}
+            onSearchChange={handleSearchChange}
+          />
 
-            <div className={cn("mt-6 lg:hidden", showMobileTable ? "block" : "hidden")}>
+          {sortedPlayers.length > 0 ? (
+            <>
+              <PlayerStatsMobileCards
+                className="mt-8 lg:hidden"
+                players={sortedPlayers}
+                teamType={content.teamType}
+                playerType={statsState.activeSection}
+                columns={columns}
+              />
+
+              <div
+                className={cn(
+                  "mt-6 lg:hidden",
+                  statsState.showMobileTable ? "block" : "hidden",
+                )}
+              >
+                <PlayerStatsTable
+                  players={sortedPlayers}
+                  columns={columns}
+                  sortKey={activeSortKey}
+                  sortDirection={statsState.sortDirection}
+                  compact
+                />
+              </div>
+
               <PlayerStatsTable
+                className="mt-8 hidden lg:block"
                 players={sortedPlayers}
                 columns={columns}
                 sortKey={activeSortKey}
-                sortDirection={sortDirection}
-                onSort={handleTableSort}
-                compact
+                sortDirection={statsState.sortDirection}
               />
-            </div>
-
-            <PlayerStatsTable
-              className="mt-8 hidden lg:block"
-              players={sortedPlayers}
-              columns={columns}
-              sortKey={activeSortKey}
-              sortDirection={sortDirection}
-              onSort={handleTableSort}
+            </>
+          ) : (
+            <StatisticsEmptyState
+              className="mt-8"
+              title={
+                statsState.searchValue
+                  ? "Sin resultados"
+                  : statsState.activeSection === "field"
+                    ? "Jugadores pendientes"
+                    : "Porteros pendientes"
+              }
+              description={
+                statsState.searchValue
+                  ? "Prueba con otro nombre o posicion para encontrar al jugador."
+                  : statsState.activeSection === "field"
+                    ? "Todavia no hay estadisticas publicadas para los jugadores de campo."
+                    : "Todavia no hay estadisticas publicadas para los porteros."
+              }
             />
-          </>
-        ) : (
-          <StatisticsEmptyState
-            className="mt-8"
-            title={searchValue ? "Sin resultados" : activeSection === "field" ? "Jugadores pendientes" : "Porteros pendientes"}
-            description={
-              searchValue
-                ? "Prueba con otro nombre o posicion para encontrar al jugador."
-                : activeSection === "field"
-                  ? "Todavia no hay estadisticas publicadas para los jugadores de campo."
-                  : "Todavia no hay estadisticas publicadas para los porteros."
-            }
-          />
-        )}
+          )}
+        </form>
       </section>
     </div>
   );
 }
 
-export function TeamStatsHeader({ content }: TeamStatisticsPageProps) {
+export function TeamStatsHeader({ content }: { content: TeamStatisticsPageContent }) {
   return (
     <header className="max-w-[58rem]">
       <Link
@@ -174,7 +308,9 @@ export function TeamStatsHeader({ content }: TeamStatisticsPageProps) {
         <span>{content.backLabel}</span>
       </Link>
 
-      <p className="rr-kicker mt-6 text-[0.82rem] text-[color:var(--rr-gold)]">Estadisticas</p>
+      <p className="rr-kicker mt-6 text-[0.82rem] text-[color:var(--rr-gold)]">
+        Estadisticas
+      </p>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {content.category ? (
@@ -196,7 +332,11 @@ export function TeamStatsHeader({ content }: TeamStatisticsPageProps) {
       </p>
       <div className="rr-bolt-divider mt-7 max-w-[20rem]" />
 
-      <TeamSectionNavigation links={content.navLinks} activeKey="statistics" className="mt-8" />
+      <TeamSectionNavigation
+        links={content.navLinks}
+        activeKey="statistics"
+        className="mt-8"
+      />
     </header>
   );
 }
@@ -210,11 +350,6 @@ type TeamStatsControlsProps = {
   resultCount: number;
   showMobileTable: boolean;
   onSearchChange: (value: string) => void;
-  onSectionChange: (value: PublicPlayerType) => void;
-  onSortSelection: (value: StatSortKey, defaultDirection?: SortDirection) => void;
-  onSortDirectionToggle: () => void;
-  onClearSort: () => void;
-  onMobileTableToggle: () => void;
 };
 
 export function TeamStatsControls({
@@ -226,11 +361,6 @@ export function TeamStatsControls({
   resultCount,
   showMobileTable,
   onSearchChange,
-  onSectionChange,
-  onSortSelection,
-  onSortDirectionToggle,
-  onClearSort,
-  onMobileTableToggle,
 }: TeamStatsControlsProps) {
   return (
     <section className="rr-panel mt-10 px-5 py-5 md:px-6 md:py-6">
@@ -244,6 +374,7 @@ export function TeamStatsControls({
               <Search className="pointer-events-none absolute left-4 h-4 w-4 text-[color:var(--rr-muted)]" />
               <input
                 type="search"
+                name={TEAM_STATISTICS_PARAM_NAMES.search}
                 value={searchValue}
                 onChange={(event) => onSearchChange(event.target.value)}
                 placeholder="Nombre del jugador"
@@ -252,23 +383,30 @@ export function TeamStatsControls({
             </span>
           </label>
 
-          <PlayerStatsTabs activeSection={activeSection} onSectionChange={onSectionChange} />
+          <PlayerStatsTabs activeSection={activeSection} />
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="rr-kicker text-[0.74rem] text-[color:var(--rr-gold)]">Orden rapido</p>
+              <p className="rr-kicker text-[0.74rem] text-[color:var(--rr-gold)]">
+                Orden rapido
+              </p>
               <p className="mt-1 text-[1rem] text-[color:var(--rr-muted)]">
                 {resultCount} {resultCount === 1 ? "resultado" : "resultados"}
               </p>
             </div>
             {sortKey ? (
               <p className="text-right text-[0.95rem] text-[color:var(--rr-muted)]">
-                Orden actual: <span className="text-white">{quickSortOptions.find((option) => option.key === sortKey)?.label ?? "Tabla"}</span>
+                Orden actual:{" "}
+                <span className="text-white">
+                  {quickSortOptions.find((option) => option.key === sortKey)?.label ?? "Tabla"}
+                </span>
               </p>
             ) : (
-              <p className="text-right text-[0.95rem] text-[color:var(--rr-muted)]">Sin orden manual</p>
+              <p className="text-right text-[0.95rem] text-[color:var(--rr-muted)]">
+                Sin orden manual
+              </p>
             )}
           </div>
 
@@ -277,10 +415,11 @@ export function TeamStatsControls({
               const isActive = sortKey === option.key;
 
               return (
-                <button
+                <PressableButton
                   key={option.key}
-                  type="button"
-                  onClick={() => onSortSelection(option.key)}
+                  type="submit"
+                  name={TEAM_STATISTICS_PARAM_NAMES.action}
+                  value={TEAM_STATISTICS_ACTIONS.sort(option.key)}
                   className={cn(
                     "inline-flex min-h-11 items-center justify-between gap-3 border px-4 py-3 text-left transition",
                     isActive
@@ -298,65 +437,88 @@ export function TeamStatsControls({
                   </span>
                   {isActive ? (
                     sortDirection === "asc" ? (
-                      <ArrowUp className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+                      <ArrowUp
+                        className="h-4 w-4 text-[color:var(--rr-gold)]"
+                        strokeWidth={1.9}
+                      />
                     ) : (
-                      <ArrowDown className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+                      <ArrowDown
+                        className="h-4 w-4 text-[color:var(--rr-gold)]"
+                        strokeWidth={1.9}
+                      />
                     )
                   ) : (
-                    <ArrowUpDown className="h-4 w-4 text-[color:var(--rr-muted)]" strokeWidth={1.9} />
+                    <ArrowUpDown
+                      className="h-4 w-4 text-[color:var(--rr-muted)]"
+                      strokeWidth={1.9}
+                    />
                   )}
-                </button>
+                </PressableButton>
               );
             })}
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={onSortDirectionToggle}
+            <PressableButton
+              type="submit"
+              name={TEAM_STATISTICS_PARAM_NAMES.action}
+              value={TEAM_STATISTICS_ACTIONS.toggleSortDirection}
               disabled={!sortKey}
               className={cn(
                 "inline-flex h-12 items-center justify-center gap-2 border px-4 text-white transition",
                 sortKey
                   ? "border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
-                  : "cursor-not-allowed border-white/8 bg-[rgba(255,255,255,0.02)] text-[color:var(--rr-muted)]/60",
+                  : "border-white/8 bg-[rgba(255,255,255,0.02)] text-[color:var(--rr-muted)]/60",
               )}
             >
               {sortDirection === "asc" ? (
                 <ArrowUp className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
               ) : (
-                <ArrowDown className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+                <ArrowDown
+                  className="h-4 w-4 text-[color:var(--rr-gold)]"
+                  strokeWidth={1.9}
+                />
               )}
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                 {sortDirection === "asc" ? "Asc" : "Desc"}
               </span>
-            </button>
+            </PressableButton>
 
-            <button
-              type="button"
-              onClick={onClearSort}
+            <PressableButton
+              type="submit"
+              name={TEAM_STATISTICS_PARAM_NAMES.action}
+              value={TEAM_STATISTICS_ACTIONS.clearSort}
               disabled={!sortKey}
               className={cn(
                 "inline-flex h-12 items-center justify-center gap-2 border px-4 text-white transition",
                 sortKey
                   ? "border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
-                  : "cursor-not-allowed border-white/8 bg-[rgba(255,255,255,0.02)] text-[color:var(--rr-muted)]/60",
+                  : "border-white/8 bg-[rgba(255,255,255,0.02)] text-[color:var(--rr-muted)]/60",
               )}
             >
-              <RotateCcw className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
-              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Limpiar orden</span>
-            </button>
+              <RotateCcw
+                className="h-4 w-4 text-[color:var(--rr-gold)]"
+                strokeWidth={1.9}
+              />
+              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                Limpiar orden
+              </span>
+            </PressableButton>
 
-            <button
-              type="button"
-              onClick={onMobileTableToggle}
+            <PressableButton
+              type="submit"
+              name={TEAM_STATISTICS_PARAM_NAMES.action}
+              value={TEAM_STATISTICS_ACTIONS.toggleMobileTable}
               className="inline-flex h-12 items-center justify-center gap-2 border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 text-white transition hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)] lg:hidden"
             >
-              <TableProperties className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
+              <TableProperties
+                className="h-4 w-4 text-[color:var(--rr-gold)]"
+                strokeWidth={1.9}
+              />
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                 {showMobileTable ? "Ocultar tabla" : "Ver tabla completa"}
               </span>
-            </button>
+            </PressableButton>
           </div>
         </div>
       </div>
@@ -364,12 +526,11 @@ export function TeamStatsControls({
   );
 }
 
-type PlayerStatsTabsProps = {
+export function PlayerStatsTabs({
+  activeSection,
+}: {
   activeSection: PublicPlayerType;
-  onSectionChange: (value: PublicPlayerType) => void;
-};
-
-export function PlayerStatsTabs({ activeSection, onSectionChange }: PlayerStatsTabsProps) {
+}) {
   const items = [
     { value: "field" as const, label: "Jugadores" },
     { value: "goalkeeper" as const, label: "Porteros" },
@@ -381,10 +542,11 @@ export function PlayerStatsTabs({ activeSection, onSectionChange }: PlayerStatsT
         const isActive = item.value === activeSection;
 
         return (
-          <button
+          <PressableButton
             key={item.value}
-            type="button"
-            onClick={() => onSectionChange(item.value)}
+            type="submit"
+            name={TEAM_STATISTICS_PARAM_NAMES.action}
+            value={TEAM_STATISTICS_ACTIONS.section(item.value)}
             className={cn(
               "inline-flex min-h-11 items-center gap-2 border px-4 py-3 transition",
               isActive
@@ -400,7 +562,7 @@ export function PlayerStatsTabs({ activeSection, onSectionChange }: PlayerStatsT
             >
               {item.label}
             </span>
-          </button>
+          </PressableButton>
         );
       })}
     </div>
@@ -412,7 +574,6 @@ type PlayerStatsTableProps = {
   columns: StatsColumn[];
   sortKey: StatSortKey | null;
   sortDirection: SortDirection;
-  onSort: (key: StatSortKey) => void;
   compact?: boolean;
   className?: string;
 };
@@ -422,7 +583,6 @@ export function PlayerStatsTable({
   columns,
   sortKey,
   sortDirection,
-  onSort,
   compact = false,
   className,
 }: PlayerStatsTableProps) {
@@ -438,7 +598,6 @@ export function PlayerStatsTable({
                   column={column}
                   isActive={sortKey === column.key}
                   sortDirection={sortDirection}
-                  onSort={onSort}
                   sticky={index === 0}
                 />
               ))}
@@ -470,7 +629,6 @@ type SortableStatHeaderProps = {
   column: StatsColumn;
   isActive: boolean;
   sortDirection: SortDirection;
-  onSort: (key: StatSortKey) => void;
   sticky?: boolean;
 };
 
@@ -478,7 +636,6 @@ export function SortableStatHeader({
   column,
   isActive,
   sortDirection,
-  onSort,
   sticky = false,
 }: SortableStatHeaderProps) {
   const Icon = isActive ? (sortDirection === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
@@ -490,27 +647,32 @@ export function SortableStatHeader({
         sticky && "sticky left-0 z-20 bg-[rgba(20,34,54,0.98)]",
       )}
     >
-      <button
-        type="button"
-        onClick={() => onSort(column.key)}
+      <PressableButton
+        type="submit"
+        name={TEAM_STATISTICS_PARAM_NAMES.action}
+        value={TEAM_STATISTICS_ACTIONS.sort(column.key)}
         className="inline-flex items-center gap-2 text-left text-[color:var(--rr-muted)] transition hover:text-white"
       >
         <span className="rr-kicker whitespace-nowrap">{column.label}</span>
         <Icon
-          className={cn("h-4 w-4", isActive ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]")}
+          className={cn(
+            "h-4 w-4",
+            isActive ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
+          )}
           strokeWidth={1.9}
         />
-      </button>
+      </PressableButton>
     </th>
   );
 }
 
-type StatValueProps = {
+export function StatValue({
+  player,
+  statKey,
+}: {
   player: PublicPlayerProfile;
   statKey: StatSortKey;
-};
-
-export function StatValue({ player, statKey }: StatValueProps) {
+}) {
   return (
     <td className="px-3 py-4 text-right text-[1rem] text-[color:var(--rr-muted)] md:px-4">
       {formatStatValue(player, statKey)}
@@ -518,12 +680,13 @@ export function StatValue({ player, statKey }: StatValueProps) {
   );
 }
 
-type PlayerIdentityCellProps = {
+export function PlayerIdentityCell({
+  player,
+  sticky = false,
+}: {
   player: PublicPlayerProfile;
   sticky?: boolean;
-};
-
-export function PlayerIdentityCell({ player, sticky = false }: PlayerIdentityCellProps) {
+}) {
   const href = getPlayerDetailHref(player);
 
   return (
@@ -536,7 +699,13 @@ export function PlayerIdentityCell({ player, sticky = false }: PlayerIdentityCel
       <Link href={href} className="group flex items-center gap-3">
         <div className="relative h-14 w-12 shrink-0 overflow-hidden border border-white/10 bg-[rgba(255,255,255,0.03)]">
           {player.imageUrl ? (
-            <Image src={player.imageUrl} alt={player.name} fill sizes="48px" className="object-cover object-top" />
+            <Image
+              src={player.imageUrl}
+              alt={player.name}
+              fill
+              sizes="48px"
+              className="object-cover object-top"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.02)]">
               <Shield className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
@@ -604,14 +773,24 @@ export function PlayerStatsCard({
   const [expanded, setExpanded] = useState(false);
   const href = getPlayerDetailHref(player);
   const summaryStats = getMobileSummaryStats(player, teamType, playerType);
-  const expandedStats = getExpandedStats(player, columns, summaryStats.map((item) => item.key));
+  const expandedStats = getExpandedStats(
+    player,
+    columns,
+    summaryStats.map((item) => item.key),
+  );
 
   return (
     <article className="rr-panel overflow-hidden px-4 py-4">
       <div className="flex items-start gap-4">
         <Link href={href} className="relative block h-24 w-20 shrink-0 overflow-hidden border border-white/10">
           {player.imageUrl ? (
-            <Image src={player.imageUrl} alt={player.name} fill sizes="80px" className="object-cover object-top" />
+            <Image
+              src={player.imageUrl}
+              alt={player.name}
+              fill
+              sizes="80px"
+              className="object-cover object-top"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.03)]">
               <Shield className="h-6 w-6 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
@@ -623,10 +802,13 @@ export function PlayerStatsCard({
           <div className="flex items-start justify-between gap-3">
             <div>
               <Link href={href} className="block">
-                <h3 className="rr-display text-[2.2rem] leading-[0.9] text-white">{getPlayerLabel(player)}</h3>
+                <h3 className="rr-display text-[2.2rem] leading-[0.9] text-white">
+                  {getPlayerLabel(player)}
+                </h3>
               </Link>
               <p className="mt-1 text-[0.98rem] text-[color:var(--rr-muted)]">
-                {player.playerType === "goalkeeper" ? "Portero" : player.position} · {player.stats.matchesPlayed} PJ
+                {player.playerType === "goalkeeper" ? "Portero" : player.position} ·{" "}
+                {player.stats.matchesPlayed} PJ
               </p>
             </div>
             <span className="rr-kicker border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-2 py-1 text-[0.72rem] text-[color:var(--rr-gold)]">
@@ -636,16 +818,20 @@ export function PlayerStatsCard({
 
           <div className="mt-4 grid grid-cols-2 gap-3">
             {summaryStats.map((item) => (
-              <div key={item.key} className="border border-white/8 bg-[rgba(255,255,255,0.03)] px-3 py-3">
-                <p className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">{item.label}</p>
+              <div
+                key={item.key}
+                className="border border-white/8 bg-[rgba(255,255,255,0.03)] px-3 py-3"
+              >
+                <p className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
+                  {item.label}
+                </p>
                 <p className="mt-2 text-[1.25rem] font-semibold text-white">{item.value}</p>
               </div>
             ))}
           </div>
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
+            <PressableButton
               onClick={() => setExpanded((currentValue) => !currentValue)}
               className="inline-flex min-h-10 items-center gap-2 border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 text-white transition hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
             >
@@ -659,13 +845,15 @@ export function PlayerStatsCard({
                 )}
                 strokeWidth={1.9}
               />
-            </button>
+            </PressableButton>
 
             <Link
               href={href}
               className="inline-flex min-h-10 items-center gap-2 border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 text-white transition hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
             >
-              <span className="rr-kicker text-[0.72rem] text-[color:var(--rr-muted)]">Ver ficha</span>
+              <span className="rr-kicker text-[0.72rem] text-[color:var(--rr-muted)]">
+                Ver ficha
+              </span>
             </Link>
           </div>
         </div>
@@ -678,20 +866,20 @@ export function PlayerStatsCard({
   );
 }
 
-type PlayerStatsExpandedDetailsProps = {
-  items: Array<{ key: StatSortKey; label: string; value: string }>;
-  className?: string;
-};
-
 export function PlayerStatsExpandedDetails({
   items,
   className,
-}: PlayerStatsExpandedDetailsProps) {
+}: {
+  items: Array<{ key: StatSortKey; label: string; value: string }>;
+  className?: string;
+}) {
   return (
     <div className={cn("grid gap-3 border-t border-white/8 pt-4 sm:grid-cols-2", className)}>
       {items.map((item) => (
         <div key={item.key} className="border border-white/8 bg-[rgba(255,255,255,0.02)] px-3 py-3">
-          <p className="rr-kicker text-[0.66rem] text-[color:var(--rr-muted)]">{item.label}</p>
+          <p className="rr-kicker text-[0.66rem] text-[color:var(--rr-muted)]">
+            {item.label}
+          </p>
           <p className="mt-2 text-[1.02rem] font-semibold text-white">{item.value}</p>
         </div>
       ))}
@@ -723,13 +911,13 @@ function getMobileSummaryStats(
   player: PublicPlayerProfile,
   teamType: TeamStatisticsPageContent["teamType"],
   playerType: PublicPlayerType,
-) {
+): Array<{ key: StatSortKey; label: string; value: string }> {
   if (playerType === "goalkeeper") {
     const baseItems: Array<{ key: StatSortKey; label: string; value: string }> = [
-      { key: "cleanSheets" as const, label: "Imbatidos", value: formatStatValue(player, "cleanSheets") },
-      { key: "mvps" as const, label: "MVP's", value: formatStatValue(player, "mvps") },
+      { key: "cleanSheets", label: "Imbatidos", value: formatStatValue(player, "cleanSheets") },
+      { key: "mvps", label: "MVP's", value: formatStatValue(player, "mvps") },
       {
-        key: "goalContributions" as const,
+        key: "goalContributions",
         label: "G+A",
         value: formatStatValue(player, "goalContributions"),
       },
@@ -737,7 +925,7 @@ function getMobileSummaryStats(
 
     if (teamType === "first-team") {
       baseItems.splice(1, 0, {
-        key: "saves" as const,
+        key: "saves",
         label: "Paradas",
         value: formatStatValue(player, "saves"),
       });
@@ -747,10 +935,14 @@ function getMobileSummaryStats(
   }
 
   return [
-    { key: "goals" as const, label: "Goles", value: formatStatValue(player, "goals") },
-    { key: "assists" as const, label: "Asistencias", value: formatStatValue(player, "assists") },
-    { key: "mvps" as const, label: "MVP's", value: formatStatValue(player, "mvps") },
-    { key: "goalContributions" as const, label: "G+A", value: formatStatValue(player, "goalContributions") },
+    { key: "goals", label: "Goles", value: formatStatValue(player, "goals") },
+    { key: "assists", label: "Asistencias", value: formatStatValue(player, "assists") },
+    { key: "mvps", label: "MVP's", value: formatStatValue(player, "mvps") },
+    {
+      key: "goalContributions",
+      label: "G+A",
+      value: formatStatValue(player, "goalContributions"),
+    },
   ];
 }
 
@@ -773,7 +965,10 @@ function getExpandedStats(
     }));
 }
 
-function getQuickSortOptions(teamType: TeamStatisticsPageContent["teamType"], playerType: PublicPlayerType) {
+function getQuickSortOptions(
+  teamType: TeamStatisticsPageContent["teamType"],
+  playerType: PublicPlayerType,
+) {
   if (playerType === "goalkeeper") {
     return teamType === "first-team"
       ? [
@@ -796,4 +991,16 @@ function getQuickSortOptions(teamType: TeamStatisticsPageContent["teamType"], pl
     { key: "goalsPerMatch" as const, label: "G/P" },
     { key: "mvps" as const, label: "MVP's" },
   ];
+}
+
+function formDataToSearchParams(formData: FormData) {
+  const params = new URLSearchParams();
+
+  formData.forEach((value, key) => {
+    if (typeof value === "string") {
+      params.append(key, value);
+    }
+  });
+
+  return params;
 }

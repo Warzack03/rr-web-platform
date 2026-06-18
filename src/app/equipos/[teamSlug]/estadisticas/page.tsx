@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamStatisticsPage } from "@/components/public/team-statistics-page";
 import { getAcademyTeamStatisticsPageContent } from "@/lib/public/team-statistics-content";
+import { parseTeamStatisticsInitialState } from "@/lib/public/team-statistics-url-state";
 
 type TeamStatisticsRouteProps = {
   params: Promise<{
     teamSlug: string;
   }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export async function generateMetadata({
@@ -30,8 +32,10 @@ export async function generateMetadata({
 
 export default async function AcademyTeamStatisticsRoute({
   params,
+  searchParams,
 }: TeamStatisticsRouteProps) {
   const { teamSlug } = await params;
+  const resolvedSearchParams = await searchParams;
   const content = await getAcademyTeamStatisticsPageContent(teamSlug);
 
   if (!content) {
@@ -40,7 +44,10 @@ export default async function AcademyTeamStatisticsRoute({
 
   return (
     <PublicSiteLayout activeNav="equipos">
-      <TeamStatisticsPage content={content} />
+      <TeamStatisticsPage
+        content={content}
+        initialState={parseTeamStatisticsInitialState(resolvedSearchParams, content.teamType)}
+      />
     </PublicSiteLayout>
   );
 }
