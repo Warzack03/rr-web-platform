@@ -445,7 +445,7 @@ export function AdminStandingsWorkspace({
 
     if (
       !window.confirm(
-        "Esta accion elimina la fila solo en mock. Quieres continuar?",
+        "Esta accion elimina la fila solo en esta vista previa. Quieres continuar?",
       )
     ) {
       return;
@@ -562,7 +562,7 @@ export function AdminStandingsWorkspace({
     );
 
     if (!newStanding) {
-      pushBanner("No hemos podido preparar la clasificacion mock.", "danger");
+      pushBanner("No hemos podido preparar la clasificacion en vista previa.", "danger");
       return;
     }
 
@@ -577,7 +577,7 @@ export function AdminStandingsWorkspace({
       }));
     });
 
-    pushBanner("Nueva clasificacion mock lista para editar.");
+    pushBanner("Nueva clasificacion lista para editar. Guardado local de prueba.");
   }
 
   function duplicateStanding() {
@@ -615,7 +615,7 @@ export function AdminStandingsWorkspace({
 
     if (
       !window.confirm(
-        "Se restaurara la version seed de esta tabla en mock. Continuar?",
+        "Se restaurara la version inicial de prueba de esta tabla. Continuar?",
       )
     ) {
       return;
@@ -626,7 +626,7 @@ export function AdminStandingsWorkspace({
     );
 
     if (!seedStanding) {
-      pushBanner("No hay una version seed disponible para esta tabla.", "danger");
+      pushBanner("No hay una version inicial de prueba disponible para esta tabla.", "danger");
       return;
     }
 
@@ -645,7 +645,7 @@ export function AdminStandingsWorkspace({
       });
     });
 
-    pushBanner("Clasificacion restaurada al mock inicial.");
+    pushBanner("Clasificacion restaurada a la version inicial de prueba.");
   }
 
   return (
@@ -816,7 +816,7 @@ export function AdminStandingsWorkspace({
           <div className="max-w-2xl space-y-3">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-[color:var(--rr-gold)]" />
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Estado mock</p>
+              <p className="rr-kicker text-[color:var(--rr-gold)]">Vista previa</p>
             </div>
             <h2 className="rr-display text-[2rem] leading-[0.95] text-white">
               No hemos podido cargar la gestion de clasificaciones
@@ -839,7 +839,7 @@ export function AdminStandingsWorkspace({
       {screenState === "ready" && scopedTables.length === 0 ? (
         <AdminEmptyState
           title="Sin clasificaciones cargadas"
-          description="Cuando conectemos datos reales o ampliemos mocks, esta pantalla mostrara tablas manuales por equipo, temporada y competicion."
+          description="Cuando conectemos datos reales o ampliemos los datos de prueba, esta pantalla mostrara tablas manuales por equipo, temporada y competicion."
           action={
             canCreateStanding ? (
               <button

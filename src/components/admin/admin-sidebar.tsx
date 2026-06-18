@@ -29,30 +29,38 @@ export function AdminSidebar({
   function renderNavItem(item: AdminNavItem) {
     const Icon = getAdminNavIcon(item.section);
     const active = isCurrentPath(pathname, item.href);
+    const isPreview = item.status === "preview";
 
     return (
       <Link
         key={item.href}
         href={item.href}
         className={cn(
-          "flex min-h-11 items-center gap-3 rounded-[10px] px-4 py-2.5 text-[0.94rem] transition",
+          "flex items-center gap-3 rounded-[10px] transition",
           active
-            ? "border border-[rgba(253,203,88,0.26)] bg-[rgba(253,203,88,0.1)] text-white"
-            : item.status === "preview"
-              ? "border border-transparent text-[color:var(--rr-muted)] opacity-88 hover:border-white/8 hover:bg-white/5 hover:text-white"
-              : "border border-transparent text-[color:var(--rr-muted)] hover:border-white/8 hover:bg-white/5 hover:text-white",
+            ? isPreview
+              ? "min-h-10 border border-white/10 bg-[rgba(255,255,255,0.05)] px-3 py-2 text-white"
+              : "min-h-11 border border-[rgba(253,203,88,0.26)] bg-[rgba(253,203,88,0.1)] px-4 py-2.5 text-white"
+            : isPreview
+              ? "min-h-10 border border-transparent px-3 py-2 text-[color:var(--rr-muted)] opacity-72 hover:bg-white/4 hover:text-white"
+              : "min-h-11 border border-transparent px-4 py-2.5 text-[color:var(--rr-muted)] hover:border-white/8 hover:bg-white/5 hover:text-white",
         )}
       >
         <Icon
           className={cn(
-            "h-4.5 w-4.5 shrink-0",
-            active ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
+            "shrink-0",
+            isPreview ? "h-4 w-4" : "h-4.5 w-4.5",
+            active && !isPreview
+              ? "text-[color:var(--rr-gold)]"
+              : "text-[color:var(--rr-muted)]",
           )}
         />
-        <span className="font-medium">{item.label}</span>
-        {item.status === "preview" ? (
-          <span className="ml-auto inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[0.64rem] uppercase tracking-[0.12em] text-[color:var(--rr-muted)]">
-            Preview
+        <span className={cn("font-medium", isPreview ? "text-[0.88rem]" : undefined)}>
+          {item.label}
+        </span>
+        {isPreview ? (
+          <span className="ml-auto inline-flex items-center rounded-full border border-white/8 bg-transparent px-1.5 py-0.5 text-[0.58rem] uppercase tracking-[0.12em] text-[color:var(--rr-muted)]">
+            Vista previa
           </span>
         ) : null}
       </Link>
@@ -82,10 +90,15 @@ export function AdminSidebar({
 
         {previewItems.length > 0 ? (
           <div className="space-y-2 border-t border-[rgba(255,255,255,0.08)] pt-4">
-            <p className="px-4 text-[0.72rem] uppercase tracking-[0.16em] text-[color:var(--rr-muted)]">
-              Vista previa
-            </p>
-            <div className="space-y-1">
+            <div className="space-y-1 px-4">
+              <p className="text-[0.68rem] uppercase tracking-[0.16em] text-[color:var(--rr-muted)] opacity-80">
+                Vista previa
+              </p>
+              <p className="text-[0.78rem] leading-5 text-[color:var(--rr-muted)] opacity-72">
+                Modulos definidos, pero aun sin flujo completo.
+              </p>
+            </div>
+            <div className="space-y-0.5">
               {previewItems.map(renderNavItem)}
             </div>
           </div>

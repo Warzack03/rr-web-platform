@@ -110,7 +110,7 @@ export function StandingPublishActions({
               className="rr-button rr-button-secondary justify-center text-[0.82rem]"
             >
               <RefreshCcw className="h-4 w-4" />
-              Resetear mock
+              Restaurar prueba inicial
             </button>
           ) : null}
         </div>

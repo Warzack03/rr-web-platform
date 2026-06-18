@@ -142,7 +142,7 @@ export function AdminStatsWorkspace({
   function saveStats() {
     setSavedPlayers(allPlayers.map((player) => ({ ...player })));
     setLastSavedAt(new Date());
-    pushBanner("Estadisticas guardadas en mock.");
+    pushBanner("Estadisticas guardadas. Guardado local de prueba.");
   }
 
   function handleUpdatePlayer(
@@ -314,7 +314,7 @@ export function AdminStatsWorkspace({
           <div className="max-w-2xl space-y-3">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-[color:var(--rr-gold)]" />
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Estado mock</p>
+              <p className="rr-kicker text-[color:var(--rr-gold)]">Vista previa</p>
             </div>
             <h2 className="rr-display text-[2rem] leading-[0.95] text-white">
               No hemos podido cargar la carga de estadisticas
@@ -336,7 +336,7 @@ export function AdminStatsWorkspace({
       {screenState === "ready" && players.length === 0 ? (
         <AdminEmptyState
           title="Sin jugadores para editar"
-          description="Amplia los mocks o cambia de equipo para revisar la carga de estadisticas."
+          description="Amplia los datos de prueba o cambia de equipo para revisar la carga de estadisticas."
         />
       ) : null}
 

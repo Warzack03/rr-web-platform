@@ -282,7 +282,7 @@ export function MatchFormDialog({
               <p className="mt-2 max-w-xl text-[0.94rem] leading-5 text-[color:var(--rr-muted)]">
                 {isCoach
                   ? "Completa rival, fecha, campo y estado sin salir del flujo movil."
-                  : "Formulario mock para validar calendario, previa y resultado sin tocar persistencia real."}
+                  : "Formulario en vista previa para validar calendario, previa y resultado sin tocar persistencia real."}
               </p>
             </div>
           </div>
@@ -546,7 +546,7 @@ export function MatchFormDialog({
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
               {isCoach
                 ? "Guarda la previa o el cambio de estado y vuelve a la jornada."
-                : "Guardado local mock para revisar permisos, responsive y flujo operativo."}
+                : "Guardado local de prueba para revisar permisos, responsive y flujo operativo."}
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">

@@ -600,7 +600,7 @@ export function TeamFormDialog({
 
           <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-              Guardado local mock para validar la operativa.
+              Guardado local de prueba para validar la operativa.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">

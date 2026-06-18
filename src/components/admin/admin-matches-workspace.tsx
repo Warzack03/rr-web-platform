@@ -237,7 +237,9 @@ export function AdminMatchesWorkspace({
     });
 
     pushBanner(
-      dialogState?.mode === "create" ? "Partido creado en mock." : "Partido actualizado.",
+      dialogState?.mode === "create"
+        ? "Partido creado. Guardado local de prueba."
+        : "Partido actualizado. Guardado local de prueba.",
     );
   }
 
@@ -514,7 +516,7 @@ export function AdminMatchesWorkspace({
           <div className="max-w-2xl space-y-3">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-[color:var(--rr-gold)]" />
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Estado mock</p>
+              <p className="rr-kicker text-[color:var(--rr-gold)]">Vista previa</p>
             </div>
             <h2 className="rr-display text-[2rem] leading-[0.95] text-white">
               No hemos podido cargar la gestion de partidos

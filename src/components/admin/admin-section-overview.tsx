@@ -133,7 +133,7 @@ export function AdminSectionOverview({
           <div className="grid gap-5 xl:grid-cols-[1.12fr_0.88fr]">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
-                <AdminStatusBadge label="Preview" tone="gold" />
+                <AdminStatusBadge label="Vista previa" tone="gold" />
                 <p className="rr-kicker text-[color:var(--rr-gold)]">
                   Modulo no operativo todavia
                 </p>
@@ -247,7 +247,7 @@ export function AdminSectionOverview({
                 </p>
               </div>
               <p className="mt-2 text-[0.9rem] leading-6 text-[color:var(--rr-muted)]">
-                Las rutas preview siguen visibles por alcance de producto, pero ya no se presentan como pantallas cerradas.
+                Las rutas de vista previa siguen visibles por alcance de producto, pero ya no se presentan como pantallas cerradas.
               </p>
             </div>
           </div>

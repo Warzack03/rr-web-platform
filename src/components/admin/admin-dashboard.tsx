@@ -429,7 +429,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
         }
       />
 
-      <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+      <div className="grid gap-3 xl:grid-cols-[1.16fr_0.84fr]">
         <AdminPanel className="p-5 sm:p-6">
           <div className="space-y-5">
             <div className="flex items-center justify-between gap-3">
@@ -448,7 +448,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
               {incidents.map((incident) => (
                 <div
                   key={incident.title}
-                  className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4"
+                  className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3.5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
@@ -461,12 +461,12 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                     </div>
                     <AdminStatusBadge label={incident.cta} tone={incident.tone} />
                   </div>
-                  <p className="mt-3 text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
+                  <p className="mt-2 text-[0.9rem] leading-5 text-[color:var(--rr-muted)]">
                     {incident.detail}
                   </p>
                   <Link
                     href={incident.href}
-                    className="mt-4 inline-flex text-[0.86rem] font-semibold text-[color:var(--rr-gold)] transition hover:text-white"
+                    className="mt-3 inline-flex text-[0.84rem] font-semibold text-[color:var(--rr-gold)] transition hover:text-white"
                   >
                     {incident.cta}
                   </Link>
@@ -476,14 +476,14 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
           </div>
         </AdminPanel>
 
-        <AdminPanel className="p-5 sm:p-6">
-          <div className="space-y-5">
+        <AdminPanel className="p-4 sm:p-5">
+          <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="rr-kicker text-[color:var(--rr-gold)]">
                   Atajos del dia
                 </p>
-                <h2 className="text-[1.35rem] font-semibold text-white">
+                <h2 className="text-[1.22rem] font-semibold text-white">
                   Acciones frecuentes
                 </h2>
               </div>
@@ -497,6 +497,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                   href={action.href}
                   label={action.label}
                   accent={action.accent}
+                  compact
                 />
               ))}
             </div>
@@ -504,7 +505,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
         </AdminPanel>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {view.metrics.map((metric, index) => (
           <AdminMetricCard
             key={metric.label}
@@ -513,19 +514,20 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
             detail={metric.detail}
             tone={metric.tone}
             icon={getMetricIcon(index)}
+            compact
           />
         ))}
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1fr_1fr_0.9fr]">
-        <AdminPanel className="p-5 sm:p-6">
+        <AdminPanel className="p-4 sm:p-5">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="rr-kicker text-[color:var(--rr-gold)]">
                   Partidos a vigilar
                 </p>
-                <h2 className="text-[1.25rem] font-semibold text-white">
+                <h2 className="text-[1.16rem] font-semibold text-white">
                   Agenda en seguimiento
                 </h2>
               </div>
@@ -539,7 +541,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                 return (
                   <div
                     key={match.id}
-                    className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4"
+                    className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3.5"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <p className="text-[1rem] font-semibold text-white">
@@ -551,10 +553,10 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                         pulse={badge.pulse}
                       />
                     </div>
-                    <p className="mt-2 text-[0.9rem] text-[color:var(--rr-muted)]">
+                    <p className="mt-1.5 text-[0.88rem] text-[color:var(--rr-muted)]">
                       {match.matchday} - {match.dateLabel}
                     </p>
-                    <p className="mt-1 text-[0.9rem] text-[color:var(--rr-muted)]">
+                    <p className="mt-0.5 text-[0.88rem] text-[color:var(--rr-muted)]">
                       {match.venue}
                       {match.scoreLabel ? ` - ${match.scoreLabel}` : ""}
                     </p>
@@ -572,14 +574,14 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
           </div>
         </AdminPanel>
 
-        <AdminPanel className="p-5 sm:p-6">
+        <AdminPanel className="p-4 sm:p-5">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="rr-kicker text-[color:var(--rr-gold)]">
                   {role === "SUPERADMIN" ? "Importaciones" : "Noticias"}
                 </p>
-                <h2 className="text-[1.25rem] font-semibold text-white">
+                <h2 className="text-[1.16rem] font-semibold text-white">
                   {role === "SUPERADMIN" ? "Estado del feed" : "Contenido a cerrar"}
                 </h2>
               </div>
@@ -595,7 +597,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                 ? imports.slice(0, 3).map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4"
+                      className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3.5"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="text-[0.98rem] font-semibold text-white">
@@ -618,7 +620,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                           }
                         />
                       </div>
-                      <p className="mt-2 text-[0.9rem] text-[color:var(--rr-muted)]">
+                      <p className="mt-1.5 text-[0.88rem] text-[color:var(--rr-muted)]">
                         {item.seasonName} - {item.updatedLabel}
                       </p>
                     </div>
@@ -626,7 +628,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                 : draftNews.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4"
+                      className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3.5"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="text-[0.98rem] font-semibold text-white">
@@ -634,7 +636,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                         </p>
                         <AdminStatusBadge label="Borrador" tone="gold" />
                       </div>
-                      <p className="mt-2 text-[0.9rem] text-[color:var(--rr-muted)]">
+                      <p className="mt-1.5 text-[0.88rem] text-[color:var(--rr-muted)]">
                         {item.updatedLabel}
                       </p>
                     </div>
@@ -650,14 +652,14 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
           </div>
         </AdminPanel>
 
-        <AdminPanel className="p-5 sm:p-6">
+        <AdminPanel className="p-4 sm:p-5">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="rr-kicker text-[color:var(--rr-gold)]">
                   Equipos en foco
                 </p>
-                <h2 className="text-[1.25rem] font-semibold text-white">
+                <h2 className="text-[1.16rem] font-semibold text-white">
                   Estructura visible
                 </h2>
               </div>
@@ -668,7 +670,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
               {visibleTeams.map((team) => (
                 <div
                   key={team.slug}
-                  className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4"
+                  className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3.5"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <p className="text-[0.98rem] font-semibold text-white">
@@ -679,10 +681,10 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                       tone={team.visible ? "gold" : "slate"}
                     />
                   </div>
-                  <p className="mt-2 text-[0.9rem] text-[color:var(--rr-muted)]">
+                  <p className="mt-1.5 text-[0.88rem] text-[color:var(--rr-muted)]">
                     {team.competition}
                   </p>
-                  <p className="mt-1 text-[0.9rem] text-[color:var(--rr-muted)]">
+                  <p className="mt-0.5 text-[0.88rem] text-[color:var(--rr-muted)]">
                     {team.playerCount} jugadores
                   </p>
                 </div>

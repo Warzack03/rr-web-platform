@@ -30,7 +30,7 @@ export function AdminRoleSwitcher({
   }
 
   return (
-    <label className="flex min-w-[13rem] flex-col gap-1 text-left">
+    <label className="flex min-w-0 flex-1 flex-col gap-1 text-left sm:min-w-[13rem] sm:flex-none">
       <span className="rr-kicker text-[0.7rem] text-[color:var(--rr-muted)]">Vista</span>
       <select
         value={previewRole}

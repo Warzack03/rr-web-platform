@@ -46,7 +46,7 @@ function TeamActions({
             className="rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
           >
             <ShieldCheck className="h-3.5 w-3.5" />
-            Ir a partidos
+            Abrir partidos del equipo
           </Link>
         </div>
 
@@ -55,20 +55,20 @@ function TeamActions({
             href={`/admin/clasificaciones?team=${team.slug}`}
             className="inline-flex items-center gap-2 transition hover:text-white"
           >
-            Ver clasificacion
+            Consultar clasificacion
           </Link>
           <Link
             href={`/admin/estadisticas?team=${team.slug}`}
             className="inline-flex items-center gap-2 transition hover:text-white"
           >
-            Ver estadisticas
+            Consultar estadisticas
           </Link>
           <Link
             href={getPublicPath(team)}
             className="inline-flex items-center gap-2 transition hover:text-white"
           >
             <Eye className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-            Ver publico
+            Ver pagina publica
           </Link>
         </div>
       </div>
@@ -154,7 +154,7 @@ function TeamCoachSummary({
         </p>
       ) : (
         <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-          Consulta de contexto. La estructura global no se edita desde aqui.
+          Solo consulta. La estructura global no se edita desde aqui.
         </p>
       )}
       {team.visibleCoaches.length > 0 ? (
@@ -255,7 +255,7 @@ export function TeamList({
                   ) : null}
                   {role === "COACH" ? (
                     <p className="mt-2">
-                      No puedes editar estructura, visibilidad ni responsables desde esta vista.
+                      Solo consultas contexto. Para actuar, salta a partidos, clasificacion o estadisticas.
                     </p>
                   ) : null}
                 </div>

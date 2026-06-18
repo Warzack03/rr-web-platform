@@ -17,6 +17,7 @@ import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import {
   TeamFilters,
   type TeamFiltersValue,
@@ -207,7 +208,9 @@ export function AdminTeamsWorkspace({
     });
 
     pushBanner(
-      dialogState?.mode === "create" ? "Equipo creado en mock." : "Cambios guardados.",
+      dialogState?.mode === "create"
+        ? "Equipo creado. Guardado local de prueba."
+        : "Cambios guardados. Guardado local de prueba.",
     );
   }
 
@@ -255,11 +258,11 @@ export function AdminTeamsWorkspace({
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
-        eyebrow="Estructura deportiva"
+        eyebrow={role === "COACH" ? "Solo consulta" : "Estructura deportiva"}
         title={role === "COACH" ? "Mi equipo" : "Equipos"}
         description={
           role === "COACH"
-            ? "Consulta el contexto publico de tu equipo y usa esta pantalla como apoyo rapido, no como panel de gestion global."
+            ? "Consulta el contexto publico y deportivo de tu equipo. Desde aqui no editas estructura global: solo revisas contexto y saltas al modulo que toca."
             : "Controla visibilidad, responsables y contexto deportivo sin salir del patron operativo del backoffice."
         }
         actions={
@@ -282,28 +285,36 @@ export function AdminTeamsWorkspace({
         <AdminScopePanel
           eyebrow="Consulta de entrenador"
           title="Solo contexto de tu equipo"
-          description="Aqui no gestionas estructura global. Revisa identidad publica, responsables visibles y salta a partidos, clasificacion o estadisticas."
+          description="Revisa identidad publica, responsables visibles y estado general del equipo. Para actuar, salta a partidos, clasificacion o estadisticas."
           actions={
             <>
               <Link
                 href="/admin/partidos"
                 className="rr-button rr-button-secondary text-[0.8rem]"
               >
-                Ir a partidos
+                Abrir partidos del equipo
               </Link>
               <Link
                 href="/admin/clasificaciones"
                 className="rr-button rr-button-secondary text-[0.8rem]"
               >
-                Ir a clasificacion
+                Consultar clasificacion
               </Link>
               <Link
                 href="/admin/estadisticas"
                 className="rr-button rr-button-secondary text-[0.8rem]"
               >
-                Ir a estadisticas
+                Consultar estadisticas
               </Link>
             </>
+          }
+          aside={
+            <div className="rounded-[10px] border border-white/10 bg-white/5 px-4 py-3">
+              <AdminStatusBadge label="Solo consulta" tone="slate" />
+              <p className="mt-2 text-[0.84rem] leading-5 text-[color:var(--rr-muted)]">
+                Sin cambios de estructura, visibilidad o responsables desde esta vista.
+              </p>
+            </div>
           }
         />
       ) : null}
@@ -421,7 +432,7 @@ export function AdminTeamsWorkspace({
           <div className="max-w-2xl space-y-3">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-[color:var(--rr-gold)]" />
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Estado mock</p>
+              <p className="rr-kicker text-[color:var(--rr-gold)]">Vista previa</p>
             </div>
             <h2 className="rr-display text-[2rem] leading-[0.95] text-white">
               No hemos podido cargar la gestion de equipos
@@ -444,7 +455,7 @@ export function AdminTeamsWorkspace({
       {screenState === "ready" && teams.length === 0 ? (
         <AdminEmptyState
           title="No hay equipos cargados"
-          description="Cuando conectemos la fuente real o anadas mocks, esta pantalla mostrara la estructura deportiva del club."
+          description="Cuando conectemos la fuente real o anadamos datos de prueba, esta pantalla mostrara la estructura deportiva del club."
           action={
             canManageTeams ? (
               <button

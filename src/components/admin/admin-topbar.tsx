@@ -46,47 +46,53 @@ export function AdminTopbar({
 
   return (
     <header className="sticky top-0 z-20 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(7,18,31,0.88)] backdrop-blur-md">
-      <div className="flex flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="flex flex-col gap-2 px-4 py-2.5 sm:gap-3 sm:px-6 sm:py-3 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             <p className="rr-kicker text-[0.76rem] text-[color:var(--rr-gold)]">Backoffice deportivo</p>
-            <h1 className="text-[1.25rem] font-semibold text-white sm:text-[1.45rem]">
+            <h1 className="text-[1.12rem] font-semibold text-white sm:text-[1.45rem]">
               {currentLabel}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-2 text-[0.82rem] text-[color:var(--rr-muted)]">
-              <span className="inline-flex min-h-8 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 text-white">
+            <div className="flex flex-wrap items-center gap-1.5 text-[0.78rem] text-[color:var(--rr-muted)] sm:gap-2 sm:text-[0.82rem]">
+              <span className="inline-flex min-h-8 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 text-white sm:px-3">
                 <Shield className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
                 {roleLabel}
               </span>
               {activeTeam ? (
-                <span className="inline-flex min-h-8 items-center rounded-full border border-[rgba(253,203,88,0.24)] bg-[rgba(253,203,88,0.08)] px-3 text-[color:var(--rr-gold)]">
+                <span className="inline-flex min-h-8 items-center rounded-full border border-[rgba(253,203,88,0.24)] bg-[rgba(253,203,88,0.08)] px-2.5 text-[color:var(--rr-gold)] sm:px-3">
                   Equipo: {formatSlugLabel(activeTeam)}
                 </span>
               ) : null}
               {activeSeason ? (
-                <span className="inline-flex min-h-8 items-center rounded-full border border-white/10 bg-white/5 px-3">
+                <span className="hidden min-h-8 items-center rounded-full border border-white/10 bg-white/5 px-3 md:inline-flex">
                   Temporada: {activeSeason}
                 </span>
               ) : null}
               {isPreviewMode ? (
-                <span className="inline-flex min-h-8 items-center rounded-full border border-white/10 bg-white/5 px-3">
-                  Vista de prueba
+                <span className="hidden min-h-8 items-center rounded-full border border-white/10 bg-white/5 px-3 text-[0.78rem] opacity-80 sm:inline-flex">
+                  Vista previa
                 </span>
               ) : null}
-              <span className="inline-flex min-h-8 items-center gap-2 rounded-full border border-transparent px-1">
+              <span className="hidden min-h-8 items-center gap-2 rounded-full border border-transparent px-1 lg:inline-flex">
                 <UserCircle2 className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
                 {displayName}
               </span>
             </div>
+
+            {isPreviewMode ? (
+              <p className="text-[0.74rem] text-[color:var(--rr-muted)] sm:hidden">
+                Vista previa
+              </p>
+            ) : null}
           </div>
 
-          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center lg:items-start">
+          <div className="flex w-full items-center gap-2 sm:w-auto sm:flex-row sm:items-center lg:items-start">
             <Link
               href="/"
-              className="inline-flex min-h-10 items-center gap-2 rounded-[10px] border border-white/10 bg-white/5 px-4 text-[0.9rem] text-[color:var(--rr-muted)] transition hover:text-white"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-white/10 bg-white/5 text-[0.9rem] text-[color:var(--rr-muted)] transition hover:text-white sm:min-h-10 sm:w-auto sm:gap-2 sm:px-4"
             >
-              Ver publico
+              <span className="hidden sm:inline">Ver publico</span>
               <ArrowUpRight className="h-4 w-4 text-[color:var(--rr-gold)]" />
             </Link>
 
@@ -94,7 +100,7 @@ export function AdminTopbar({
           </div>
         </div>
 
-        <div className="text-[0.82rem] text-[color:var(--rr-muted)]">
+        <div className="hidden text-[0.82rem] text-[color:var(--rr-muted)] sm:block">
           Opera con foco en contexto, permisos y salida publica visible.
         </div>
       </div>
