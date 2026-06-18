@@ -52,6 +52,12 @@ export default async function FirstTeamPage() {
             icon: PageHeroIcons.standing,
             variant: "secondary",
           },
+          {
+            href: teamSummary.links.statistics,
+            label: "Estadisticas",
+            icon: PageHeroIcons.statistics,
+            variant: "secondary",
+          },
         ]}
         backgroundImageUrl={teamSummary.heroImageUrl}
         backgroundPosition={teamSummary.heroImagePosition}

@@ -24,6 +24,7 @@ export type PublicPlayerStats = {
 export type PublicPlayerProfile = {
   id: string;
   slug: string;
+  displayName?: string;
   firstName: string;
   lastName: string;
   name: string;
@@ -90,7 +91,256 @@ function inferPlayerGroupFromPosition(position: string): PublicPlayerGroup {
   return "mediocentros";
 }
 
-const ACADEMY_TEAM_ROSTERS: Record<string, AcademyTeamRosterSeed> = {
+type AcademyDepthTemplate = Omit<
+  AcademySquadPlayer,
+  "id" | "teamSlug" | "teamLabel" | "seasonLabel" | "teamType" | "statsLevel"
+>;
+
+const ACADEMY_GOALKEEPER_DEPTH_TEMPLATES: AcademyDepthTemplate[] = [
+  {
+    slug: "owen-frost",
+    firstName: "Owen",
+    lastName: "Frost",
+    name: "Owen Frost",
+    number: 13,
+    country: "Francia",
+    countryFlag: "FR",
+    position: "Portero",
+    dominantFoot: "left",
+    imageUrl: "/images/mock/first-team/teo-ibarra.svg",
+    playerType: "goalkeeper",
+    stats: {
+      matchesPlayed: 6,
+      goals: 0,
+      assists: 0,
+      goalsAgainst: 5,
+      yellowCards: 0,
+      redCards: 0,
+      cleanSheets: 2,
+      ownGoals: 0,
+      mvps: 1,
+    },
+  },
+  {
+    slug: "mateo-rios",
+    firstName: "Mateo",
+    lastName: "Rios",
+    name: "Mateo Rios",
+    number: 25,
+    country: "Espana",
+    countryFlag: "ES",
+    position: "Portero",
+    dominantFoot: "right",
+    imageUrl: undefined,
+    playerType: "goalkeeper",
+    stats: {
+      matchesPlayed: 4,
+      goals: 0,
+      assists: 0,
+      goalsAgainst: 4,
+      yellowCards: 0,
+      redCards: 0,
+      cleanSheets: 1,
+      ownGoals: 0,
+      mvps: 0,
+    },
+  },
+];
+
+const ACADEMY_FIELD_DEPTH_TEMPLATES: AcademyDepthTemplate[] = [
+  {
+    slug: "liam-doyle",
+    firstName: "Liam",
+    lastName: "Doyle",
+    name: "Liam Doyle",
+    number: 12,
+    country: "Irlanda",
+    countryFlag: "IE",
+    position: "Defensa",
+    dominantFoot: "right",
+    imageUrl: "/images/mock/first-team/dario-kestrel.svg",
+    playerType: "field",
+    group: "defensas",
+    stats: {
+      matchesPlayed: 9,
+      goals: 1,
+      assists: 1,
+      yellowCards: 2,
+      redCards: 0,
+      ownGoals: 0,
+      mvps: 0,
+    },
+  },
+  {
+    slug: "marco-rivera",
+    firstName: "Marco",
+    lastName: "Rivera",
+    name: "Marco Rivera",
+    number: 14,
+    country: "Espana",
+    countryFlag: "ES",
+    position: "Lateral",
+    dominantFoot: "left",
+    imageUrl: "/images/mock/first-team/leo-serrano.svg",
+    playerType: "field",
+    group: "defensas",
+    stats: {
+      matchesPlayed: 10,
+      goals: 0,
+      assists: 2,
+      yellowCards: 1,
+      redCards: 0,
+      ownGoals: 0,
+      mvps: 0,
+    },
+  },
+  {
+    slug: "hugo-costa",
+    firstName: "Hugo",
+    lastName: "Costa",
+    name: "Hugo Costa",
+    number: 15,
+    country: "Portugal",
+    countryFlag: "PT",
+    position: "Mediocentro",
+    dominantFoot: "both",
+    imageUrl: "/images/mock/first-team/teo-ibarra.svg",
+    playerType: "field",
+    group: "mediocentros",
+    stats: {
+      matchesPlayed: 11,
+      goals: 2,
+      assists: 3,
+      yellowCards: 2,
+      redCards: 0,
+      ownGoals: 0,
+      mvps: 1,
+    },
+  },
+  {
+    slug: "ivan-orozco",
+    firstName: "Ivan",
+    lastName: "Orozco",
+    name: "Ivan Orozco",
+    number: 17,
+    country: "Espana",
+    countryFlag: "ES",
+    position: "Mediapunta",
+    dominantFoot: "right",
+    imageUrl: "/images/mock/first-team/noah-carden.svg",
+    playerType: "field",
+    group: "mediocentros",
+    stats: {
+      matchesPlayed: 10,
+      goals: 3,
+      assists: 2,
+      yellowCards: 1,
+      redCards: 0,
+      ownGoals: 0,
+      mvps: 1,
+    },
+  },
+  {
+    slug: "leo-santos",
+    firstName: "Leo",
+    lastName: "Santos",
+    name: "Leo Santos",
+    number: 19,
+    country: "Brasil",
+    countryFlag: "BR",
+    position: "Extremo",
+    dominantFoot: "right",
+    imageUrl: undefined,
+    playerType: "field",
+    group: "delanteros",
+    stats: {
+      matchesPlayed: 9,
+      goals: 3,
+      assists: 2,
+      yellowCards: 0,
+      redCards: 0,
+      ownGoals: 0,
+      mvps: 1,
+    },
+  },
+  {
+    slug: "diego-salvat",
+    firstName: "Diego",
+    lastName: "Salvat",
+    name: "Diego Salvat",
+    number: 21,
+    country: "Argentina",
+    countryFlag: "AR",
+    position: "Delantero",
+    dominantFoot: "left",
+    imageUrl: "/images/mock/first-team/dario-kestrel.svg",
+    playerType: "field",
+    group: "delanteros",
+    stats: {
+      matchesPlayed: 8,
+      goals: 4,
+      assists: 1,
+      yellowCards: 1,
+      redCards: 0,
+      ownGoals: 0,
+      mvps: 1,
+    },
+  },
+];
+
+function buildAcademyDepthPlayers(
+  teamSlug: string,
+  teamLabel: string,
+  seasonLabel: string,
+  templates: AcademyDepthTemplate[],
+) {
+  return templates.map((template) =>
+    createAcademyPlayer({
+      ...template,
+      id: `${teamSlug}-${template.slug}`,
+      teamSlug,
+      teamLabel,
+      seasonLabel,
+    }),
+  );
+}
+
+function ensureMinimumAcademyDepth(
+  teamSlug: string,
+  teamLabel: string,
+  seasonLabel: string,
+  players: AcademySquadPlayer[],
+) {
+  const goalkeepers = players.filter((player) => player.playerType === "goalkeeper");
+  const fieldPlayers = players.filter((player) => player.playerType === "field");
+  const nextPlayers = [...players];
+
+  if (goalkeepers.length < 2) {
+    nextPlayers.push(
+      ...buildAcademyDepthPlayers(
+        teamSlug,
+        teamLabel,
+        seasonLabel,
+        ACADEMY_GOALKEEPER_DEPTH_TEMPLATES.slice(0, 2 - goalkeepers.length),
+      ),
+    );
+  }
+
+  if (fieldPlayers.length < 8) {
+    nextPlayers.push(
+      ...buildAcademyDepthPlayers(
+        teamSlug,
+        teamLabel,
+        seasonLabel,
+        ACADEMY_FIELD_DEPTH_TEMPLATES.slice(0, 8 - fieldPlayers.length),
+      ),
+    );
+  }
+
+  return nextPlayers;
+}
+
+const ACADEMY_TEAM_ROSTER_SEEDS: Record<string, AcademyTeamRosterSeed> = {
   "raimon-b": {
     teamLabel: "Raimon B",
     seasonLabel: "Temporada 2023/24",
@@ -115,6 +365,7 @@ const ACADEMY_TEAM_ROSTERS: Record<string, AcademyTeamRosterSeed> = {
           matchesPlayed: 16,
           goals: 0,
           assists: 1,
+          goalsAgainst: 14,
           yellowCards: 1,
           redCards: 0,
           cleanSheets: 7,
@@ -278,6 +529,7 @@ const ACADEMY_TEAM_ROSTERS: Record<string, AcademyTeamRosterSeed> = {
           matchesPlayed: 12,
           goals: 0,
           assists: 0,
+          goalsAgainst: 9,
           yellowCards: 0,
           redCards: 0,
           cleanSheets: 5,
@@ -415,6 +667,7 @@ const ACADEMY_TEAM_ROSTERS: Record<string, AcademyTeamRosterSeed> = {
           matchesPlayed: 10,
           goals: 0,
           assists: 0,
+          goalsAgainst: 11,
           yellowCards: 1,
           redCards: 0,
           cleanSheets: 3,
@@ -552,6 +805,7 @@ const ACADEMY_TEAM_ROSTERS: Record<string, AcademyTeamRosterSeed> = {
           matchesPlayed: 9,
           goals: 0,
           assists: 0,
+          goalsAgainst: 7,
           yellowCards: 0,
           redCards: 0,
           cleanSheets: 4,
@@ -689,6 +943,7 @@ const ACADEMY_TEAM_ROSTERS: Record<string, AcademyTeamRosterSeed> = {
           matchesPlayed: 8,
           goals: 0,
           assists: 0,
+          goalsAgainst: 5,
           yellowCards: 0,
           redCards: 0,
           cleanSheets: 4,
@@ -804,6 +1059,16 @@ const ACADEMY_TEAM_ROSTERS: Record<string, AcademyTeamRosterSeed> = {
   },
 };
 
+const ACADEMY_TEAM_ROSTERS: Record<string, AcademyTeamRosterSeed> = Object.fromEntries(
+  Object.entries(ACADEMY_TEAM_ROSTER_SEEDS).map(([teamSlug, seed]) => [
+    teamSlug,
+    {
+      ...seed,
+      players: ensureMinimumAcademyDepth(teamSlug, seed.teamLabel, seed.seasonLabel, seed.players),
+    },
+  ]),
+);
+
 export function getAcademyTeamSquadContent(teamSlug: string): AcademySquadContent | null {
   const seed = ACADEMY_TEAM_ROSTERS[teamSlug];
 
@@ -842,6 +1107,20 @@ export function getAcademyPlayerHref(teamSlug: string, playerSlug: string): stri
   return getAcademyPlayerDetail(teamSlug, playerSlug)
     ? `/equipos/${teamSlug}/jugadores/${playerSlug}`
     : undefined;
+}
+
+export function findAcademyPlayersBySlug(playerSlug: string): AcademySquadPlayer[] {
+  return Object.values(ACADEMY_TEAM_ROSTERS).flatMap((seed) =>
+    seed.players.filter((player) => player.slug === playerSlug),
+  );
+}
+
+export function getAcademyPlayerSlugs(): string[] {
+  return Array.from(
+    new Set(
+      Object.values(ACADEMY_TEAM_ROSTERS).flatMap((seed) => seed.players.map((player) => player.slug)),
+    ),
+  );
 }
 
 export function getAcademyPlayerStaticParams(): Array<{

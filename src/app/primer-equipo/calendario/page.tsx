@@ -3,6 +3,8 @@ import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { CalendarPageTitle } from "@/components/public/calendar-page-title";
 import { TeamCalendar } from "@/components/public/team-calendar";
 import { getFirstTeamCalendarContent } from "@/lib/public/team-calendar-content";
+import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
+import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 
 export const metadata: Metadata = {
   title: "Calendario | Primer Equipo",
@@ -20,6 +22,11 @@ export default function FirstTeamCalendarPage() {
 
         <section className="relative mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
           <CalendarPageTitle title={calendar.pageTitle} subtitle={calendar.subtitle} />
+          <TeamSectionNavigation
+            links={getTeamSectionLinks({ teamType: "first-team" })}
+            activeKey="calendar"
+            className="mt-8"
+          />
           <TeamCalendar
             matchdays={calendar.matchdays}
             teamType="first-team"
