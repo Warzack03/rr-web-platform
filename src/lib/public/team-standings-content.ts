@@ -2,6 +2,7 @@ import {
   getPublicAcademyTeamPageContent,
   getPublicTeamPageContent,
 } from "@/lib/public/team-page-content";
+import { getTeamSectionLinks, type TeamSectionNavLink } from "@/lib/public/team-section-links";
 
 export type StandingRowData = {
   position: number;
@@ -17,11 +18,6 @@ export type StandingRowData = {
   isClub?: boolean;
 };
 
-export type TeamStandingsNavLink = {
-  label: "Equipo" | "Calendario" | "Plantilla";
-  href: string;
-};
-
 export type TeamStandingsPageContent = {
   slug: string;
   variant: "first-team" | "academy";
@@ -33,7 +29,7 @@ export type TeamStandingsPageContent = {
   updatedAt?: string;
   backHref: string;
   backLabel: string;
-  navLinks: TeamStandingsNavLink[];
+  navLinks: TeamSectionNavLink[];
   rows: StandingRowData[];
 };
 
@@ -192,11 +188,7 @@ export async function getFirstTeamStandingsContent(): Promise<TeamStandingsPageC
     updatedAt: FIRST_TEAM_STANDINGS.updatedAt,
     backHref: "/primer-equipo",
     backLabel: "Volver al Primer Equipo",
-    navLinks: [
-      { label: "Equipo", href: "/primer-equipo" },
-      { label: "Calendario", href: teamSummary.links.calendar },
-      { label: "Plantilla", href: teamSummary.links.squad },
-    ],
+    navLinks: getTeamSectionLinks({ teamType: "first-team" }),
     rows: sortRows(FIRST_TEAM_STANDINGS.rows),
   };
 }
@@ -223,11 +215,7 @@ export async function getAcademyTeamStandingsContent(
     updatedAt: standings?.updatedAt,
     backHref: `/equipos/${teamSummary.slug}`,
     backLabel: `Volver a ${teamSummary.name}`,
-    navLinks: [
-      { label: "Equipo", href: `/equipos/${teamSummary.slug}` },
-      { label: "Calendario", href: teamSummary.links.calendar },
-      { label: "Plantilla", href: teamSummary.links.squad },
-    ],
+    navLinks: getTeamSectionLinks({ teamType: "academy", teamSlug: teamSummary.slug }),
     rows: sortRows(standings?.rows ?? createFallbackAcademyRows(teamSummary.name)),
   };
 }

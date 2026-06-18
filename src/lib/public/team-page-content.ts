@@ -46,6 +46,7 @@ export type PublicTeamPageContent = {
     squad: string;
     calendar: string;
     standing: string;
+    statistics: string;
   };
   nextMatch: {
     home: TeamStub;
@@ -101,6 +102,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
       squad: "/primer-equipo/plantilla",
       calendar: "/primer-equipo/calendario",
       standing: "/primer-equipo/clasificacion",
+      statistics: "/primer-equipo/estadisticas",
     },
     nextMatch: {
       home: { name: "Rising Raimon", highlight: true },
@@ -170,6 +172,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
       squad: "/equipos/raimon-b/plantilla",
       calendar: "/equipos/raimon-b/calendario",
       standing: "/equipos/raimon-b/clasificacion",
+      statistics: "/equipos/raimon-b/estadisticas",
     },
     nextMatch: {
       home: { name: "Raimon B", highlight: true },
@@ -249,6 +252,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
       squad: "/equipos/juvenil-a/plantilla",
       calendar: "/equipos/juvenil-a/calendario",
       standing: "/equipos/juvenil-a/clasificacion",
+      statistics: "/equipos/juvenil-a/estadisticas",
     },
     nextMatch: {
       home: { name: "Juvenil A", highlight: true },
@@ -322,6 +326,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
       squad: "/equipos/juvenil-b/plantilla",
       calendar: "/equipos/juvenil-b/calendario",
       standing: "/equipos/juvenil-b/clasificacion",
+      statistics: "/equipos/juvenil-b/estadisticas",
     },
     nextMatch: {
       home: { name: "Juvenil B", highlight: true },
@@ -388,6 +393,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
       squad: "/equipos/cadete-a/plantilla",
       calendar: "/equipos/cadete-a/calendario",
       standing: "/equipos/cadete-a/clasificacion",
+      statistics: "/equipos/cadete-a/estadisticas",
     },
     nextMatch: {
       home: { name: "Cadete A", highlight: true },
@@ -454,6 +460,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
       squad: "/equipos/infantil-a/plantilla",
       calendar: "/equipos/infantil-a/calendario",
       standing: "/equipos/infantil-a/clasificacion",
+      statistics: "/equipos/infantil-a/estadisticas",
     },
     nextMatch: {
       home: { name: "Infantil A", highlight: true },

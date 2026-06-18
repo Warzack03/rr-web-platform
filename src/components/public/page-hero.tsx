@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, ChartNoAxesColumn, UserRound, Users } from "lucide-react";
+import { BarChart3, CalendarDays, ChartNoAxesColumn, UserRound, Users } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
 
 type HeroChip = {
@@ -34,6 +34,7 @@ export function PageHero({
   variant = "first-team",
 }: PageHeroProps) {
   const coachLabel = coaches.length > 1 ? "Entrenadores" : "Entrenador";
+  const hasFourActions = actions.length >= 4;
   const titleClassName =
     variant === "academy"
       ? "text-[3.8rem] leading-[0.92] sm:text-[4.8rem] lg:text-[5.7rem]"
@@ -87,12 +88,23 @@ export function PageHero({
             </div>
           </div>
 
-          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:flex-wrap lg:justify-end">
+          <div
+            className={
+              hasFourActions
+                ? "grid w-full gap-3 sm:grid-cols-2 lg:max-w-[31rem] xl:flex xl:w-auto xl:max-w-none xl:flex-row xl:flex-nowrap xl:justify-end"
+                : "flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:flex-wrap lg:justify-end"
+            }
+          >
             {actions.map((action) => {
               const Icon = action.icon;
 
               return (
-                <CTAButton key={action.href} href={action.href} variant={action.variant ?? "primary"}>
+                <CTAButton
+                  key={action.href}
+                  href={action.href}
+                  variant={action.variant ?? "primary"}
+                  className={hasFourActions ? "w-full xl:w-auto" : undefined}
+                >
                   <Icon className="h-4 w-4" strokeWidth={1.9} />
                   {action.label}
                 </CTAButton>
@@ -109,4 +121,5 @@ export const PageHeroIcons = {
   squad: Users,
   calendar: CalendarDays,
   standing: ChartNoAxesColumn,
+  statistics: BarChart3,
 };
