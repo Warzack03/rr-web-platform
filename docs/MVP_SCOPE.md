@@ -7,7 +7,7 @@ Create the first serious version of the Rising Raimon public sports website and 
 
 ### Admin/backoffice
 - Admin login/logout.
-- Basic roles: superadmin, editor/manager.
+- Single owner/admin user for MVP operation.
 - Seasons management.
 - Teams management.
 - Players management.
@@ -21,6 +21,7 @@ Create the first serious version of the Rising Raimon public sports website and 
 - Media upload/selection for public images.
 - Import seasonal snapshot from `rr-management`.
 - Preview or validate import before applying.
+- Current backoffice direction: see `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md`.
 
 ### Public website
 - Home page.

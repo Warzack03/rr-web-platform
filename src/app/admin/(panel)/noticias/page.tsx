@@ -1,12 +1,9 @@
 import { AdminSectionOverview } from "@/components/admin/admin-section-overview";
-import { isAdminRole, type AdminRole } from "@/lib/admin/roles";
+import { OWNER_ADMIN_ROLE } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
-
-function getActualRole(role: string): AdminRole {
-  return isAdminRole(role) ? role : "COACH";
-}
 
 export default async function AdminNewsPage() {
   const user = await requireAdminSectionAccess("news");
-  return <AdminSectionOverview section="noticias" role={getActualRole(user.role)} />;
+  void user;
+  return <AdminSectionOverview section="noticias" role={OWNER_ADMIN_ROLE} />;
 }

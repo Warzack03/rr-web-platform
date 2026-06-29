@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { z } from "zod";
 import { MatchStatusSelector } from "@/components/admin/match-status-selector";
 import {
+  getCoachMatchVisualStatus,
   getStoredMatchStatus,
   getVisualMatchStatus,
   type MatchManagementMatch,
@@ -85,7 +86,10 @@ function createDefaultState(availableTeams: MatchManagementTeam[]): MatchFormSta
   };
 }
 
-function createStateFromMatch(match: MatchManagementMatch): MatchFormState {
+function createStateFromMatch(
+  match: MatchManagementMatch,
+  role: AdminRole,
+): MatchFormState {
   return {
     teamSlug: match.teamSlug,
     season: match.season,
@@ -96,7 +100,10 @@ function createStateFromMatch(match: MatchManagementMatch): MatchFormState {
     date: match.date,
     time: match.time,
     venue: match.venue,
-    status: getVisualMatchStatus(match.status),
+    status:
+      role === "COACH"
+        ? getCoachMatchVisualStatus(match)
+        : getVisualMatchStatus(match.status),
     ownScore: match.ownScore === null ? "" : String(match.ownScore),
     opponentScore: match.opponentScore === null ? "" : String(match.opponentScore),
     highlightsUrl: match.highlightsUrl ?? "",
@@ -128,7 +135,7 @@ export function MatchFormDialog({
   onSave,
 }: MatchFormDialogProps) {
   const [formState, setFormState] = useState<MatchFormState>(() =>
-    match ? createStateFromMatch(match) : createDefaultState(availableTeams),
+    match ? createStateFromMatch(match, role) : createDefaultState(availableTeams),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -139,6 +146,7 @@ export function MatchFormDialog({
   const selectedTeam =
     availableTeams.find((team) => team.slug === formState.teamSlug) ?? availableTeams[0];
   const canManageHighlights = role !== "COACH" && selectedTeam?.isFirstTeam;
+  const allowLiveStatus = role !== "COACH" && Boolean(selectedTeam?.isFirstTeam);
   const lockTeam = role === "COACH" || availableTeams.length <= 1;
   const isCoach = role === "COACH";
 
@@ -203,16 +211,16 @@ export function MatchFormDialog({
     }
 
     if (parsedValue.data.status === "played") {
-      if (ownScore === null || Number.isNaN(ownScore)) {
+      if (ownScore === null || Number.isNaN(ownScore) || ownScore < 0) {
         nextErrors.ownScore = "Introduce los goles propios.";
       }
 
-      if (opponentScore === null || Number.isNaN(opponentScore)) {
+      if (opponentScore === null || Number.isNaN(opponentScore) || opponentScore < 0) {
         nextErrors.opponentScore = "Introduce los goles del rival.";
       }
     }
 
-    if (parsedValue.data.status === "live" && !selectedTeam?.isFirstTeam) {
+    if (parsedValue.data.status === "live" && !allowLiveStatus) {
       nextErrors.status = "El estado en vivo solo se usa en el Primer Equipo.";
     }
 
@@ -457,12 +465,12 @@ export function MatchFormDialog({
             <div className="space-y-1">
               <p className="rr-kicker text-[color:var(--rr-gold)]">Estado</p>
               <p className="text-[0.92rem] text-[color:var(--rr-muted)]">
-                En cantera no se muestra ni se guarda el estado en vivo.
+                En esta vista no se usa el estado en vivo.
               </p>
             </div>
             <MatchStatusSelector
               value={formState.status}
-              allowLive={Boolean(selectedTeam?.isFirstTeam)}
+              allowLive={allowLiveStatus}
               onChange={(nextStatus) => updateField("status", nextStatus)}
             />
             {errors.status ? <span className="text-[0.82rem] text-[#ff8d8d]">{errors.status}</span> : null}
@@ -475,6 +483,7 @@ export function MatchFormDialog({
                 <input
                   type="number"
                   min={0}
+                  step={1}
                   inputMode="numeric"
                   value={formState.ownScore}
                   onChange={(event) => updateField("ownScore", event.target.value)}
@@ -490,6 +499,7 @@ export function MatchFormDialog({
                 <input
                   type="number"
                   min={0}
+                  step={1}
                   inputMode="numeric"
                   value={formState.opponentScore}
                   onChange={(event) => updateField("opponentScore", event.target.value)}

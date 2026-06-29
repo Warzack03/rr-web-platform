@@ -59,6 +59,17 @@ select {
   font: inherit;
 }
 
+.rr-number-input-clean {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.rr-number-input-clean::-webkit-outer-spin-button,
+.rr-number-input-clean::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 ::selection {
   background: rgba(253, 203, 88, 0.26);
   color: var(--rr-text);

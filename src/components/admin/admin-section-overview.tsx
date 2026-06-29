@@ -18,70 +18,70 @@ type AdminSectionOverviewProps = {
 };
 
 type SectionMeta = {
-  status: "preview" | "active";
+  status: "mock" | "active";
   supportCopy: string;
   recommendations: Array<{ href: string; label: string }>;
 };
 
 const sectionMetaMap: Record<string, SectionMeta> = {
   temporadas: {
-    status: "preview",
+    status: "mock",
     supportCopy:
-      "Este modulo aun funciona como vista previa de alcance. Sirve para validar estructura, tono y prioridades antes de implementar el flujo completo.",
+      "Mock de alcance para validar temporada activa, historico y calendario antes de conectar datos reales.",
     recommendations: [
       { href: "/admin/equipos", label: "Seguir con equipos" },
       { href: "/admin/partidos", label: "Ir a partidos" },
     ],
   },
   jugadores: {
-    status: "preview",
+    status: "mock",
     supportCopy:
-      "La base de informacion ya esta definida, pero la operativa completa de jugadores todavia no esta construida en esta ruta.",
+      "Aqui se define lo que necesitas para perfiles y cromos: foto, dorsal, nombre publico, posicion, pais, pie, visibilidad y stats visibles.",
     recommendations: [
       { href: "/admin/equipos", label: "Ver equipos" },
       { href: "/admin/estadisticas", label: "Ir a estadisticas" },
     ],
   },
   asignaciones: {
-    status: "preview",
+    status: "mock",
     supportCopy:
-      "Esta pantalla resume el alcance del modulo, pero aun no debe interpretarse como flujo cerrado de trabajo.",
+      "Mock para ordenar jugadores por equipo y temporada sin mover historicos ni estadisticas ya registradas.",
     recommendations: [
       { href: "/admin/equipos", label: "Ver equipos" },
       { href: "/admin/clasificaciones", label: "Ir a clasificaciones" },
     ],
   },
   noticias: {
-    status: "preview",
+    status: "mock",
     supportCopy:
-      "Noticias sigue visible por relevancia de producto, pero la ruta todavia es una vista previa y no un editor final.",
+      "Mock del editor de actualidad para portada, equipo relacionado, cover, extracto y video externo cuando proceda.",
     recommendations: [
       { href: "/admin", label: "Volver al dashboard" },
       { href: "/admin/media", label: "Revisar media" },
     ],
   },
   media: {
-    status: "preview",
+    status: "mock",
     supportCopy:
-      "Media aun no tiene biblioteca operativa completa. Usa esta pantalla solo como referencia de alcance y prioridades.",
+      "Mock de biblioteca visual para fotos de jugador, logos, banners, covers y placeholders.",
     recommendations: [
       { href: "/admin/noticias", label: "Ver noticias" },
       { href: "/admin/equipos", label: "Ver equipos" },
     ],
   },
   importaciones: {
-    status: "preview",
+    status: "mock",
     supportCopy:
-      "Importaciones muestra el proceso esperado, pero todavia no es un flujo listo para operacion real desde esta UI.",
+      "Mock del futuro flujo de importacion con validacion, diff y merge seguro desde rr-management.",
     recommendations: [
       { href: "/admin", label: "Volver al dashboard" },
       { href: "/admin/usuarios", label: "Ver usuarios" },
     ],
   },
   usuarios: {
-    status: "preview",
+    status: "mock",
     supportCopy:
-      "Usuarios se mantiene visible para fijar el alcance del rol superadmin, pero sigue en modo vista previa.",
+      "Este modulo queda fuera del nuevo enfoque de administrador unico y no debe aparecer como trabajo principal.",
     recommendations: [
       { href: "/admin", label: "Volver al dashboard" },
       { href: "/admin/equipos", label: "Ver equipos" },
@@ -106,16 +106,16 @@ export function AdminSectionOverview({
 }: AdminSectionOverviewProps) {
   const overview = getSectionOverview(section, role);
   const sectionMeta = getSectionMeta(section);
-  const isPreview = sectionMeta.status === "preview";
+  const isMock = sectionMeta.status === "mock";
 
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
-        eyebrow={isPreview ? "Vista previa" : overview.eyebrow}
+        eyebrow={isMock ? "Mock de alcance" : overview.eyebrow}
         title={overview.title}
         description={
-          isPreview
-            ? `${overview.description} Esta ruta aun no forma parte del flujo operativo principal.`
+          isMock
+            ? `${overview.description} Esta ruta todavia usa mocks para cerrar campos y prioridades.`
             : overview.description
         }
         actions={
@@ -128,18 +128,18 @@ export function AdminSectionOverview({
         }
       />
 
-      {isPreview ? (
+      {isMock ? (
         <AdminPanel className="border-[rgba(253,203,88,0.24)] p-5 sm:p-6">
           <div className="grid gap-5 xl:grid-cols-[1.12fr_0.88fr]">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
-                <AdminStatusBadge label="Vista previa" tone="gold" />
+                <AdminStatusBadge label="Mock" tone="gold" />
                 <p className="rr-kicker text-[color:var(--rr-gold)]">
-                  Modulo no operativo todavia
+                  Mock antes de datos reales
                 </p>
               </div>
               <h2 className="text-[1.3rem] font-semibold text-white">
-                Esta ruta existe para validar alcance, no para operar el dia a dia
+                Esta ruta existe para decidir que controlar y como editarlo
               </h2>
               <p className="text-[0.95rem] leading-6 text-[color:var(--rr-muted)]">
                 {sectionMeta.supportCopy}
@@ -155,18 +155,18 @@ export function AdminSectionOverview({
                   </p>
                 </div>
                 <p className="mt-2 text-[0.9rem] leading-6 text-[color:var(--rr-muted)]">
-                  Revisar estructura, nombres, campos clave y prioridades antes de construir el flujo final.
+                  Revisar estructura, campos clave, prioridades y como se reflejara despues en la web publica.
                 </p>
               </div>
               <div className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4">
                 <div className="flex items-center gap-3">
                   <AlertTriangle className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
                   <p className="text-[0.95rem] font-semibold text-white">
-                    Lo que no deberia parecer
+                    Lo que no toca todavia
                   </p>
                 </div>
                 <p className="mt-2 text-[0.9rem] leading-6 text-[color:var(--rr-muted)]">
-                  Un CRUD terminado o un modulo listo para operacion diaria.
+                  Guardado real, subida final de archivos o integracion definitiva con base de datos.
                 </p>
               </div>
             </div>
@@ -219,10 +219,10 @@ export function AdminSectionOverview({
                 Siguiente destino
               </p>
               <h2 className="mt-2 text-[1.28rem] font-semibold text-white">
-                Vuelve a un modulo operativo
+                Siguiente modulo recomendado
               </h2>
               <p className="mt-2 text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
-                Para mantener foco y confianza, salta desde aqui a una ruta ya operativa del backoffice.
+                Sigue el flujo natural del administrador unico sin depender de roles.
               </p>
             </div>
 
@@ -247,7 +247,7 @@ export function AdminSectionOverview({
                 </p>
               </div>
               <p className="mt-2 text-[0.9rem] leading-6 text-[color:var(--rr-muted)]">
-                Las rutas de vista previa siguen visibles por alcance de producto, pero ya no se presentan como pantallas cerradas.
+                Mientras sigamos con mocks, la pantalla debe servir para validar el modelo de datos y el flujo de uso.
               </p>
             </div>
           </div>

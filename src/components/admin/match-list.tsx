@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, ChevronDown, CircleDot, Eye, PenSquare, Radio, Trophy, Video } from "lucide-react";
+import { ArrowUpRight, Eye, PenSquare, Trophy, Video } from "lucide-react";
 import { AdminListCard } from "@/components/admin/admin-list-card";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { AdminTable } from "@/components/admin/admin-table";
 import {
   formatMatchDateLabel,
+  getCoachMatchVisualStatus,
   getMatchLocationLabel,
   getMatchPublicHref,
   getMatchResultLabel,
   getVisualMatchStatus,
+  type CoachMatchVisualStatus,
   type MatchManagementMatch,
   type MatchVisualStatus,
 } from "@/lib/admin/match-management-mocks";
@@ -19,19 +21,15 @@ import type { AdminRole } from "@/lib/admin/roles";
 type MatchListProps = {
   role: AdminRole;
   matches: MatchManagementMatch[];
+  selectedMatchId?: string;
+  onViewMatch: (match: MatchManagementMatch) => void;
   onEdit: (match: MatchManagementMatch) => void;
   onQuickResult: (match: MatchManagementMatch) => void;
   onSetPending: (match: MatchManagementMatch) => void;
-  onSetLive: (match: MatchManagementMatch) => void;
   onManageHighlights: (match: MatchManagementMatch) => void;
 };
 
-type MatchActionSpec = {
-  label: string;
-  onClick: () => void;
-};
-
-function getStatusBadgeProps(status: MatchVisualStatus) {
+function getStatusBadgeProps(status: MatchVisualStatus | CoachMatchVisualStatus) {
   switch (status) {
     case "live":
       return { label: "En vivo", tone: "danger" as const, pulse: true };
@@ -42,24 +40,10 @@ function getStatusBadgeProps(status: MatchVisualStatus) {
   }
 }
 
-function getCoachPrimaryAction(
-  match: MatchManagementMatch,
-  onEdit: (match: MatchManagementMatch) => void,
-  onQuickResult: (match: MatchManagementMatch) => void,
-): MatchActionSpec {
-  const visualStatus = getVisualMatchStatus(match.status);
-
-  if (visualStatus === "pending") {
-    return {
-      label: "Editar previa",
-      onClick: () => onEdit(match),
-    };
-  }
-
-  return {
-    label: visualStatus === "live" ? "Actualizar marcador" : "Revisar resultado",
-    onClick: () => onQuickResult(match),
-  };
+function getCoachResultLabel(match: MatchManagementMatch) {
+  return getCoachMatchVisualStatus(match) === "played"
+    ? getMatchResultLabel(match)
+    : "Sin resultado";
 }
 
 function MatchActions({
@@ -68,7 +52,6 @@ function MatchActions({
   onEdit,
   onQuickResult,
   onSetPending,
-  onSetLive,
   onManageHighlights,
 }: {
   role: AdminRole;
@@ -76,24 +59,18 @@ function MatchActions({
   onEdit: (match: MatchManagementMatch) => void;
   onQuickResult: (match: MatchManagementMatch) => void;
   onSetPending: (match: MatchManagementMatch) => void;
-  onSetLive: (match: MatchManagementMatch) => void;
   onManageHighlights: (match: MatchManagementMatch) => void;
 }) {
   const visualStatus = getVisualMatchStatus(match.status);
-  const canManageLive = role !== "COACH" && match.isFirstTeam;
-  const canManageHighlights = role !== "COACH" && match.isFirstTeam && visualStatus === "played";
-  const isCoach = role === "COACH";
+  const canManageHighlights =
+    role !== "COACH" && match.isFirstTeam && visualStatus === "played";
 
   return (
     <div className="flex flex-wrap gap-2">
       <button
         type="button"
         onClick={() => onQuickResult(match)}
-        className={
-          isCoach
-            ? "rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
-            : "inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-        }
+        className="rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
       >
         <Trophy className="h-3.5 w-3.5" />
         {visualStatus === "played" ? "Actualizar resultado" : "Marcar jugado"}
@@ -102,31 +79,19 @@ function MatchActions({
       <button
         type="button"
         onClick={() => onEdit(match)}
-        className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-[rgba(253,203,88,0.22)] px-3 text-[0.82rem] text-white transition hover:bg-[rgba(253,203,88,0.08)]"
+        className="rr-button rr-button-secondary min-h-9 px-3 text-[0.78rem]"
       >
-        <PenSquare className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-        {isCoach ? "Editar previa" : "Editar"}
+        <PenSquare className="h-3.5 w-3.5" />
+        Editar
       </button>
 
       {visualStatus !== "pending" ? (
         <button
           type="button"
           onClick={() => onSetPending(match)}
-          className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+          className="rr-button rr-button-secondary min-h-9 px-3 text-[0.78rem]"
         >
-          <CircleDot className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
           Pendiente
-        </button>
-      ) : null}
-
-      {canManageLive && visualStatus !== "live" ? (
-        <button
-          type="button"
-          onClick={() => onSetLive(match)}
-          className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-        >
-          <Radio className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-          En vivo
         </button>
       ) : null}
 
@@ -134,37 +99,18 @@ function MatchActions({
         <button
           type="button"
           onClick={() => onManageHighlights(match)}
-          className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+          className="rr-button rr-button-secondary min-h-9 px-3 text-[0.78rem]"
         >
-          <Video className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+          <Video className="h-3.5 w-3.5" />
           Highlights
         </button>
       ) : null}
 
-      {isCoach ? (
-        <>
-          <Link
-            href={`/admin/clasificaciones?team=${match.teamSlug}`}
-            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-          >
-            <ArrowUpRight className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-            Clasificacion
-          </Link>
-          <Link
-            href={`/admin/estadisticas?team=${match.teamSlug}&match=${match.id}`}
-            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-          >
-            <ArrowUpRight className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-            Estadisticas
-          </Link>
-        </>
-      ) : null}
-
       <Link
         href={getMatchPublicHref(match)}
-        className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
+        className="rr-button rr-button-secondary min-h-9 px-3 text-[0.78rem]"
       >
-        <Eye className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
+        <Eye className="h-3.5 w-3.5" />
         Ver publico
       </Link>
     </div>
@@ -174,15 +120,20 @@ function MatchActions({
 export function MatchList({
   role,
   matches,
+  selectedMatchId,
+  onViewMatch,
   onEdit,
   onQuickResult,
   onSetPending,
-  onSetLive,
   onManageHighlights,
 }: MatchListProps) {
+  const isCoach = role === "COACH";
   const rows = matches.map((match) => {
-    const visualStatus = getVisualMatchStatus(match.status);
+    const visualStatus = isCoach
+      ? getCoachMatchVisualStatus(match)
+      : getVisualMatchStatus(match.status);
     const statusBadge = getStatusBadgeProps(visualStatus);
+    const isSelected = match.id === selectedMatchId;
 
     return {
       date: (
@@ -202,7 +153,9 @@ export function MatchList({
       opponent: (
         <div className="space-y-1">
           <p>{match.opponentName}</p>
-          <p className="text-[0.88rem] text-[color:var(--rr-muted)]">{getMatchLocationLabel(match)}</p>
+          <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
+            {getMatchLocationLabel(match)}
+          </p>
         </div>
       ),
       competition: (
@@ -220,7 +173,7 @@ export function MatchList({
       ),
       result: (
         <div className="space-y-1">
-          <p>{getMatchResultLabel(match)}</p>
+          <p>{isCoach ? getCoachResultLabel(match) : getMatchResultLabel(match)}</p>
           <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
             {match.previewAvailable ? "Previa lista" : "Previa pendiente"}
           </p>
@@ -231,18 +184,41 @@ export function MatchList({
           <p>{match.venue}</p>
           <div className="flex flex-wrap gap-2">
             {match.detailAvailable ? <AdminStatusBadge label="Detalle" tone="blue" /> : null}
-            {match.highlightsUrl ? <AdminStatusBadge label="Highlights" tone="gold" /> : null}
+            {!isCoach && match.highlightsUrl ? (
+              <AdminStatusBadge label="Highlights" tone="gold" />
+            ) : null}
           </div>
         </div>
       ),
-      actions: (
+      actions: isCoach ? (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => onViewMatch(match)}
+            className={
+              isSelected
+                ? "rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
+                : "rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
+            }
+          >
+            <ArrowUpRight className="h-3.5 w-3.5" />
+            Ver partido
+          </button>
+          <Link
+            href={getMatchPublicHref(match)}
+            className="rr-button rr-button-secondary min-h-9 px-3 text-[0.78rem]"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Ver publico
+          </Link>
+        </div>
+      ) : (
         <MatchActions
           role={role}
           match={match}
           onEdit={onEdit}
           onQuickResult={onQuickResult}
           onSetPending={onSetPending}
-          onSetLive={onSetLive}
           onManageHighlights={onManageHighlights}
         />
       ),
@@ -253,10 +229,11 @@ export function MatchList({
     <>
       <div className="grid gap-3 lg:hidden">
         {matches.map((match) => {
-          const visualStatus = getVisualMatchStatus(match.status);
+          const visualStatus = isCoach
+            ? getCoachMatchVisualStatus(match)
+            : getVisualMatchStatus(match.status);
           const statusBadge = getStatusBadgeProps(visualStatus);
-          const isCoach = role === "COACH";
-          const coachPrimaryAction = getCoachPrimaryAction(match, onEdit, onQuickResult);
+          const isSelected = match.id === selectedMatchId;
 
           return (
             <AdminListCard
@@ -271,8 +248,13 @@ export function MatchList({
                     tone={statusBadge.tone}
                     pulse={statusBadge.pulse}
                   />
-                  <AdminStatusBadge label={getMatchResultLabel(match)} tone="blue" />
-                  {!match.date ? <AdminStatusBadge label="Fecha por confirmar" tone="slate" /> : null}
+                  <AdminStatusBadge
+                    label={isCoach ? getCoachResultLabel(match) : getMatchResultLabel(match)}
+                    tone="blue"
+                  />
+                  {!match.date ? (
+                    <AdminStatusBadge label="Fecha por confirmar" tone="slate" />
+                  ) : null}
                 </>
               }
               footer={
@@ -280,75 +262,35 @@ export function MatchList({
                   <div className="grid gap-3 rounded-[10px] border border-white/8 bg-white/4 p-3 text-[0.9rem] text-[color:var(--rr-muted)]">
                     <p>{getMatchLocationLabel(match)}</p>
                     <p>{match.previewAvailable ? "Previa disponible" : "Previa pendiente"}</p>
-                    <p>{match.detailAvailable ? "Detalle publico listo" : "Detalle publico aun sin abrir"}</p>
-                    {match.highlightsUrl ? <p>Highlights asociados</p> : null}
+                    <p>
+                      {match.detailAvailable
+                        ? "Detalle publico listo"
+                        : "Detalle publico aun sin abrir"}
+                    </p>
                   </div>
+
                   {isCoach ? (
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                       <button
                         type="button"
-                        onClick={coachPrimaryAction.onClick}
+                        onClick={() => onViewMatch(match)}
                         className="rr-button rr-button-primary w-full justify-center text-[0.8rem]"
                       >
-                        {coachPrimaryAction.label}
+                        <ArrowUpRight className="h-4 w-4" />
+                        Ver partido
                       </button>
-
-                      <details className="rounded-[10px] border border-white/10 bg-white/3 px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
-                        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-white">
-                          Mas acciones
-                          <ChevronDown className="h-4 w-4 text-[color:var(--rr-gold)]" />
-                        </summary>
-
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => onEdit(match)}
-                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-                          >
-                            <PenSquare className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-                            Previa
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onQuickResult(match)}
-                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-                          >
-                            <Trophy className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-                            Resultado
-                          </button>
-                          {visualStatus !== "pending" ? (
-                            <button
-                              type="button"
-                              onClick={() => onSetPending(match)}
-                              className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-                            >
-                              <CircleDot className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-                              Pendiente
-                            </button>
-                          ) : null}
-                          <Link
-                            href={`/admin/clasificaciones?team=${match.teamSlug}`}
-                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-                          >
-                            <ArrowUpRight className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-                            Clasificacion
-                          </Link>
-                          <Link
-                            href={`/admin/estadisticas?team=${match.teamSlug}&match=${match.id}`}
-                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-                          >
-                            <ArrowUpRight className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-                            Estadisticas
-                          </Link>
-                          <Link
-                            href={getMatchPublicHref(match)}
-                            className="inline-flex min-h-9 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-white"
-                          >
-                            <Eye className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-                            Ver publico
-                          </Link>
-                        </div>
-                      </details>
+                      <Link
+                        href={getMatchPublicHref(match)}
+                        className="rr-button rr-button-secondary w-full justify-center text-[0.8rem]"
+                      >
+                        <Eye className="h-4 w-4" />
+                        Ver publico
+                      </Link>
+                      {isSelected ? (
+                        <p className="text-[0.82rem] text-[color:var(--rr-gold)]">
+                          Partido abierto abajo.
+                        </p>
+                      ) : null}
                     </div>
                   ) : (
                     <MatchActions
@@ -357,7 +299,6 @@ export function MatchList({
                       onEdit={onEdit}
                       onQuickResult={onQuickResult}
                       onSetPending={onSetPending}
-                      onSetLive={onSetLive}
                       onManageHighlights={onManageHighlights}
                     />
                   )}

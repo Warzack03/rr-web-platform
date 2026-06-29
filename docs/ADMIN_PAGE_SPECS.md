@@ -4,7 +4,13 @@
 
 The backoffice manages the public sports website data. It does not manage ecommerce, payments, orders or buyer accounts.
 
-The admin should be practical, role-aware and efficient. It should not contain long explanatory text. Use clear labels, filters, tables, forms and action buttons.
+The admin should be practical, owner-focused and efficient. It should not contain long explanatory text. Use clear labels, filters, tables, forms and action buttons.
+
+## Current direction
+
+The MVP backoffice is now focused on one owner/admin user. Existing role documentation below remains useful as technical history, but product-facing admin UI should behave as a single administrator panel.
+
+See `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md` for the current control model.
 
 ## Roles
 

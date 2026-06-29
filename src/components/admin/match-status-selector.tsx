@@ -38,7 +38,9 @@ export function MatchStatusSelector({
 }: MatchStatusSelectorProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
-      {statusOptions.map((option) => {
+      {statusOptions
+        .filter((option) => allowLive || option.value !== "live")
+        .map((option) => {
         const disabled = option.value === "live" && !allowLive;
         const active = value === option.value;
 

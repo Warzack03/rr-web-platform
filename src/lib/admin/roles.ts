@@ -1,12 +1,12 @@
 export type AdminRole = "SUPERADMIN" | "MANAGER" | "COACH";
 
 export const adminRoleLabels: Record<AdminRole, string> = {
-  SUPERADMIN: "Superadmin",
-  MANAGER: "Manager",
-  COACH: "Entrenador",
+  SUPERADMIN: "Administrador",
+  MANAGER: "Administrador",
+  COACH: "Administrador",
 };
 
-export const adminPreviewRoleOptions: AdminRole[] = ["SUPERADMIN", "MANAGER", "COACH"];
+export const OWNER_ADMIN_ROLE: AdminRole = "SUPERADMIN";
 
 export function isAdminRole(value: string | undefined): value is AdminRole {
   return value === "SUPERADMIN" || value === "MANAGER" || value === "COACH";

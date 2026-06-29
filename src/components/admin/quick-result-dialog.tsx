@@ -86,7 +86,7 @@ export function QuickResultDialog({
                 {currentMatch.teamName} vs {currentMatch.opponentName}
               </h2>
               <p className="mt-2 text-[0.92rem] leading-5 text-[color:var(--rr-muted)]">
-                Cierra el marcador y vuelve a la jornada.
+                Guarda el resultado y sigue con la jornada.
               </p>
             </div>
           </div>
@@ -112,6 +112,7 @@ export function QuickResultDialog({
               <input
                 type="number"
                 min={0}
+                step={1}
                 inputMode="numeric"
                 value={ownScore}
                 onChange={(event) => setOwnScore(event.target.value)}
@@ -131,6 +132,7 @@ export function QuickResultDialog({
               <input
                 type="number"
                 min={0}
+                step={1}
                 inputMode="numeric"
                 value={opponentScore}
                 onChange={(event) => setOpponentScore(event.target.value)}
@@ -154,7 +156,7 @@ export function QuickResultDialog({
 
           <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-              Accion pensada para cierre rapido desde movil.
+              Cambio rapido de resultado.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">

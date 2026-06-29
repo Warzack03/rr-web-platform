@@ -7,7 +7,6 @@ export type StandingsFiltersValue = {
   season: string;
   team: string;
   competition: string;
-  category: string;
   search: string;
 };
 
@@ -16,7 +15,6 @@ type StandingsFiltersProps = {
   seasons: string[];
   teams: Array<{ slug: string; name: string }>;
   competitions: string[];
-  categories: string[];
   totalStandings: number;
   filteredStandings: number;
   showTeamFilter: boolean;
@@ -32,7 +30,6 @@ export function StandingsFilters({
   seasons,
   teams,
   competitions,
-  categories,
   totalStandings,
   filteredStandings,
   showTeamFilter,
@@ -142,23 +139,6 @@ export function StandingsFilters({
             </select>
           </label>
 
-          <label className="grid gap-2">
-            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-              Categoria
-            </span>
-            <select
-              value={value.category}
-              onChange={(event) => updateField("category", event.target.value)}
-              className={fieldClassName}
-            >
-              <option value="all">Todas</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
       </div>
     </AdminPanel>

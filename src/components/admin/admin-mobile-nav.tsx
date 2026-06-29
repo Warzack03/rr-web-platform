@@ -154,7 +154,7 @@ export function AdminMobileNav({
             </nav>
 
             <div className="border-t border-white/10 px-5 py-4 text-[0.84rem] text-[color:var(--rr-muted)]">
-              Los modulos de vista previa siguen visibles para referencia, no como flujo principal.
+              Panel unico para actualizar lo que despues se ve en la web publica.
             </div>
           </div>
         </div>

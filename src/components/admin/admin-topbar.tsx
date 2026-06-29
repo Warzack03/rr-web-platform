@@ -4,14 +4,11 @@ import Link from "next/link";
 import { ArrowUpRight, Shield, UserCircle2 } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { AdminNavItem } from "@/server/auth/permissions";
-import { AdminRoleSwitcher } from "@/components/admin/admin-role-switcher";
-import { getPreviewRole, type AdminRole } from "@/lib/admin/roles";
 
 type AdminTopbarProps = {
   displayName: string;
   roleLabel: string;
   navItems: AdminNavItem[];
-  actualRole: AdminRole;
 };
 
 function getCurrentLabel(pathname: string, navItems: AdminNavItem[]) {
@@ -34,15 +31,12 @@ export function AdminTopbar({
   displayName,
   roleLabel,
   navItems,
-  actualRole,
 }: AdminTopbarProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentLabel = getCurrentLabel(pathname, navItems);
-  const previewRole = getPreviewRole(searchParams.get("previewRole") ?? undefined, actualRole);
   const activeTeam = searchParams.get("team");
   const activeSeason = searchParams.get("season");
-  const isPreviewMode = previewRole !== actualRole;
 
   return (
     <header className="sticky top-0 z-20 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(7,18,31,0.88)] backdrop-blur-md">
@@ -69,22 +63,11 @@ export function AdminTopbar({
                   Temporada: {activeSeason}
                 </span>
               ) : null}
-              {isPreviewMode ? (
-                <span className="hidden min-h-8 items-center rounded-full border border-white/10 bg-white/5 px-3 text-[0.78rem] opacity-80 sm:inline-flex">
-                  Vista previa
-                </span>
-              ) : null}
               <span className="hidden min-h-8 items-center gap-2 rounded-full border border-transparent px-1 lg:inline-flex">
                 <UserCircle2 className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
                 {displayName}
               </span>
             </div>
-
-            {isPreviewMode ? (
-              <p className="text-[0.74rem] text-[color:var(--rr-muted)] sm:hidden">
-                Vista previa
-              </p>
-            ) : null}
           </div>
 
           <div className="flex w-full items-center gap-2 sm:w-auto sm:flex-row sm:items-center lg:items-start">
@@ -95,13 +78,7 @@ export function AdminTopbar({
               <span className="hidden sm:inline">Ver publico</span>
               <ArrowUpRight className="h-4 w-4 text-[color:var(--rr-gold)]" />
             </Link>
-
-            <AdminRoleSwitcher actualRole={actualRole} previewRole={previewRole} />
           </div>
-        </div>
-
-        <div className="hidden text-[0.82rem] text-[color:var(--rr-muted)] sm:block">
-          Opera con foco en contexto, permisos y salida publica visible.
         </div>
       </div>
     </header>

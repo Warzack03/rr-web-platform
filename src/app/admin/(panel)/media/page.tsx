@@ -1,12 +1,8 @@
-import { AdminSectionOverview } from "@/components/admin/admin-section-overview";
-import { isAdminRole, type AdminRole } from "@/lib/admin/roles";
+import { AdminMediaWorkspace } from "@/components/admin/admin-media-workspace";
 import { requireAdminSectionAccess } from "@/server/auth/session";
-
-function getActualRole(role: string): AdminRole {
-  return isAdminRole(role) ? role : "COACH";
-}
 
 export default async function AdminMediaPage() {
   const user = await requireAdminSectionAccess("media");
-  return <AdminSectionOverview section="media" role={getActualRole(user.role)} />;
+  void user;
+  return <AdminMediaWorkspace />;
 }

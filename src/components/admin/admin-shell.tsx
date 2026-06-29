@@ -3,14 +3,12 @@ import type { AdminNavItem } from "@/server/auth/permissions";
 import { AdminMobileNav } from "@/components/admin/admin-mobile-nav";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminTopbar } from "@/components/admin/admin-topbar";
-import type { AdminRole } from "@/lib/admin/roles";
 
 type AdminShellProps = {
   children: ReactNode;
   navItems: AdminNavItem[];
   displayName: string;
   roleLabel: string;
-  actualRole: AdminRole;
 };
 
 export function AdminShell({
@@ -18,7 +16,6 @@ export function AdminShell({
   navItems,
   displayName,
   roleLabel,
-  actualRole,
 }: AdminShellProps) {
   return (
     <div className="rr-shell min-h-screen bg-[linear-gradient(180deg,#102543_0%,var(--rr-bg)_42%,#081120_100%)]">
@@ -42,7 +39,6 @@ export function AdminShell({
             displayName={displayName}
             roleLabel={roleLabel}
             navItems={navItems}
-            actualRole={actualRole}
           />
 
           <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">{children}</main>

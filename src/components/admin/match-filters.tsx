@@ -67,7 +67,7 @@ export function MatchFilters({
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-          <label className="grid gap-2 xl:col-span-2">
+          <label className="grid gap-2">
             <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Rival</span>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--rr-gold)]" />

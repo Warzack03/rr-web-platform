@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Star, Trash2 } from "lucide-react";
+import { Minus, Plus, Star } from "lucide-react";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import type { StandingManagementRow } from "@/lib/admin/standings-management-mocks";
 import { cn } from "@/lib/utils";
@@ -8,51 +8,128 @@ import { cn } from "@/lib/utils";
 type StandingMobileCardProps = {
   row: StandingManagementRow;
   errors: string[];
-  index: number;
-  totalRows: number;
-  canRemove: boolean;
+  canToggleOwnTeam: boolean;
   onUpdateField: (
     rowId: string,
     field:
-      | "teamName"
       | "played"
       | "won"
       | "drawn"
       | "lost"
       | "goalsFor"
-      | "goalsAgainst"
-      | "points"
-      | "position",
-    value: string | number,
+      | "goalsAgainst",
+    value: number,
   ) => void;
   onToggleOwnTeam: (rowId: string) => void;
-  onRemove: (rowId: string) => void;
-  onMoveUp: (rowId: string) => void;
-  onMoveDown: (rowId: string) => void;
 };
 
-const inputClassName =
-  "min-h-10 rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 text-[0.95rem] text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
+type EditableStandingField =
+  | "played"
+  | "won"
+  | "drawn"
+  | "lost"
+  | "goalsFor"
+  | "goalsAgainst";
+
+const editableStandingFields: {
+  label: string;
+  field: EditableStandingField;
+  getValue: (row: StandingManagementRow) => number;
+}[] = [
+  { label: "PJ", field: "played", getValue: (row) => row.played },
+  { label: "G", field: "won", getValue: (row) => row.won },
+  { label: "E", field: "drawn", getValue: (row) => row.drawn },
+  { label: "P", field: "lost", getValue: (row) => row.lost },
+  { label: "GF", field: "goalsFor", getValue: (row) => row.goalsFor },
+  { label: "GC", field: "goalsAgainst", getValue: (row) => row.goalsAgainst },
+];
+
+function getTeamInitials(teamName: string) {
+  return teamName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((chunk) => chunk.charAt(0))
+    .join("")
+    .toUpperCase();
+}
+
+function isRenderableCrest(crestSrc?: string) {
+  return Boolean(
+    crestSrc &&
+      (crestSrc.startsWith("http") ||
+        crestSrc.startsWith("/") ||
+        crestSrc.startsWith("data:")),
+  );
+}
+
+function StandingMobileStepper({
+  label,
+  rowId,
+  field,
+  value,
+  onUpdateField,
+}: {
+  label: string;
+  rowId: string;
+  field: EditableStandingField;
+  value: number;
+  onUpdateField: StandingMobileCardProps["onUpdateField"];
+}) {
+  function updateValue(nextValue: number) {
+    onUpdateField(rowId, field, Math.max(0, nextValue));
+  }
+
+  return (
+    <label className="grid gap-1">
+      <span className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
+        {label}
+      </span>
+      <div className="grid grid-cols-[2.4rem_minmax(0,1fr)_2.4rem] items-center overflow-hidden rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)]">
+        <button
+          type="button"
+          onClick={() => updateValue(value - 1)}
+          className="inline-flex h-10 items-center justify-center border-r border-white/10 bg-white/5 text-white disabled:cursor-not-allowed disabled:opacity-40"
+          disabled={value <= 0}
+          aria-label={`Restar ${label}`}
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <input
+          type="number"
+          min={0}
+          step={1}
+          inputMode="numeric"
+          value={value}
+          onChange={(event) => updateValue(Number(event.target.value))}
+          className="rr-number-input-clean h-10 border-0 bg-transparent px-1 text-center text-[1rem] font-semibold text-white outline-none"
+          aria-label={label}
+        />
+        <button
+          type="button"
+          onClick={() => updateValue(value + 1)}
+          className="inline-flex h-10 items-center justify-center border-l border-[rgba(253,203,88,0.18)] bg-[rgba(253,203,88,0.1)] text-[color:var(--rr-gold)]"
+          aria-label={`Sumar ${label}`}
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+    </label>
+  );
+}
 
 export function StandingMobileCard({
   row,
   errors,
-  index,
-  totalRows,
-  canRemove,
+  canToggleOwnTeam,
   onUpdateField,
   onToggleOwnTeam,
-  onRemove,
-  onMoveUp,
-  onMoveDown,
 }: StandingMobileCardProps) {
   return (
     <AdminPanel
       className={cn(
         "p-4 lg:hidden",
-        errors.length > 0
-          ? "border-[rgba(214,64,69,0.34)]"
-          : undefined,
+        errors.length > 0 ? "border-[rgba(214,64,69,0.34)]" : undefined,
         row.isOwnTeam
           ? "border-[rgba(253,203,88,0.38)] bg-[linear-gradient(180deg,rgba(48,37,10,0.92),rgba(11,21,37,0.96))]"
           : undefined,
@@ -60,52 +137,28 @@ export function StandingMobileCard({
     >
       <div className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/6 text-[0.8rem] font-semibold text-white">
+              {isRenderableCrest(row.crestSrc) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={row.crestSrc} alt="" className="h-full w-full object-cover" />
+              ) : (
+                getTeamInitials(row.teamName)
+              )}
+            </div>
+            <div className="space-y-1">
               <p className="rr-kicker text-[color:var(--rr-gold)]">
                 Posicion {row.position}
               </p>
-              {row.isOwnTeam ? (
-                <span className="rounded-full border border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] px-2 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--rr-gold)]">
-                  Equipo propio
-                </span>
-              ) : null}
+              <p className="font-semibold text-white">{row.teamName}</p>
             </div>
-            <input
-              type="text"
-              value={row.teamName}
-              onChange={(event) =>
-                onUpdateField(row.id, "teamName", event.target.value)
-              }
-              placeholder="Nombre del equipo"
-              className={cn(
-                inputClassName,
-                "w-full min-w-0",
-                errors.length > 0 ? "border-[rgba(214,64,69,0.4)]" : undefined,
-              )}
-            />
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onMoveUp(row.id)}
-              disabled={index === 0}
-              className="rr-button rr-button-secondary px-3 text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
-              aria-label="Subir fila"
-            >
-              <ArrowUp className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onMoveDown(row.id)}
-              disabled={index === totalRows - 1}
-              className="rr-button rr-button-secondary px-3 text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
-              aria-label="Bajar fila"
-            >
-              <ArrowDown className="h-4 w-4" />
-            </button>
-          </div>
+          {row.isOwnTeam ? (
+            <span className="rounded-full border border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] px-2 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--rr-gold)]">
+              Equipo propio
+            </span>
+          ) : null}
         </div>
 
         {errors.length > 0 ? (
@@ -115,51 +168,35 @@ export function StandingMobileCard({
         ) : null}
 
         <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: "PJ", field: "played", value: row.played },
-            { label: "G", field: "won", value: row.won },
-            { label: "E", field: "drawn", value: row.drawn },
-            { label: "P", field: "lost", value: row.lost },
-            { label: "GF", field: "goalsFor", value: row.goalsFor },
-            { label: "GC", field: "goalsAgainst", value: row.goalsAgainst },
-            { label: "Pts", field: "points", value: row.points },
-            { label: "DG", value: row.goalDifference, readOnly: true },
-          ].map((item) => (
-            <label key={item.label} className="grid gap-1">
-              <span className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
-                {item.label}
-              </span>
-              <input
-                type="number"
-                min={0}
-                value={item.value}
-                readOnly={Boolean(item.readOnly)}
-                onChange={(event) =>
-                  item.readOnly
-                    ? undefined
-                    : onUpdateField(
-                        row.id,
-                        item.field as
-                          | "played"
-                          | "won"
-                          | "drawn"
-                          | "lost"
-                          | "goalsFor"
-                          | "goalsAgainst"
-                          | "points",
-                        Number(event.target.value),
-                      )
-                }
-                className={cn(
-                  inputClassName,
-                  item.readOnly ? "cursor-default border-white/5 text-[color:var(--rr-muted)]" : undefined,
-                )}
-              />
-            </label>
+          {editableStandingFields.map((item) => (
+            <StandingMobileStepper
+              key={item.label}
+              label={item.label}
+              rowId={row.id}
+              field={item.field}
+              value={item.getValue(row)}
+              onUpdateField={onUpdateField}
+            />
           ))}
+          <div className="grid gap-1">
+            <span className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
+              DG
+            </span>
+            <div className="min-h-10 rounded-[8px] border border-white/5 bg-white/5 px-3 py-2 text-[0.95rem] text-[color:var(--rr-muted)]">
+              {row.goalDifference}
+            </div>
+          </div>
+          <div className="grid gap-1">
+            <span className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
+              Pts
+            </span>
+            <div className="min-h-10 rounded-[8px] border border-white/5 bg-white/5 px-3 py-2 text-[0.95rem] text-[color:var(--rr-muted)]">
+              {row.points}
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {canToggleOwnTeam ? (
           <button
             type="button"
             onClick={() => onToggleOwnTeam(row.id)}
@@ -171,18 +208,7 @@ export function StandingMobileCard({
             <Star className="h-4 w-4" />
             {row.isOwnTeam ? "Equipo propio" : "Marcar como propio"}
           </button>
-
-          {canRemove ? (
-            <button
-              type="button"
-              onClick={() => onRemove(row.id)}
-              className="rr-button rr-button-secondary text-[0.78rem]"
-            >
-              <Trash2 className="h-4 w-4" />
-              Eliminar
-            </button>
-          ) : null}
-        </div>
+        ) : null}
       </div>
     </AdminPanel>
   );

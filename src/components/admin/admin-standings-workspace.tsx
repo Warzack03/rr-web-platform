@@ -4,10 +4,12 @@ import Link from "next/link";
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
 import {
   AlertTriangle,
+  ClipboardCopy,
   ClipboardList,
   Eye,
   ListChecks,
-  Plus,
+  RefreshCcw,
+  Save,
   ShieldCheck,
   Trophy,
 } from "lucide-react";
@@ -19,29 +21,24 @@ import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
-import { StandingPublishActions } from "@/components/admin/standing-publish-actions";
 import {
   StandingsFilters,
   type StandingsFiltersValue,
 } from "@/components/admin/standings-filters";
-import { StandingsSelector } from "@/components/admin/standings-selector";
-import { StandingStatusBadge } from "@/components/admin/standing-status-badge";
 import { UnsavedChangesBar } from "@/components/admin/unsaved-changes-bar";
 import type {
   StandingManagementRow,
   StandingManagementTable,
 } from "@/lib/admin/standings-management-mocks";
 import {
-  buildBlankStandingRows,
-  formatStandingUpdatedLabel,
   getAllStandingsManagementTables,
   getCoachPreviewStandingTeamOptions,
   getResolvedStandingsCoachPreviewTeamSlug,
   getStandingPublicHref,
   getStandingsManagementTeamsForRole,
+  normalizeAndSortStandingRows,
   normalizeStandingTable,
   sortStandingsManagementTables,
-  standingsManagementTeams,
 } from "@/lib/admin/standings-management-mocks";
 import type { AdminRole } from "@/lib/admin/roles";
 
@@ -58,7 +55,6 @@ const initialFilters: StandingsFiltersValue = {
   season: "all",
   team: "all",
   competition: "all",
-  category: "all",
   search: "",
 };
 
@@ -77,15 +73,6 @@ function createBanner(message: string, tone: BannerTone) {
 
 function getRowValidationErrors(row: StandingManagementRow, index: number) {
   const errors: string[] = [];
-
-  if (!row.teamName.trim()) {
-    errors.push(`La fila ${index + 1} necesita nombre de equipo.`);
-  }
-
-  if (row.position < 1) {
-    errors.push(`La fila ${index + 1} necesita una posicion mayor que 0.`);
-  }
-
   const numericFields = [
     ["PJ", row.played],
     ["G", row.won],
@@ -93,7 +80,6 @@ function getRowValidationErrors(row: StandingManagementRow, index: number) {
     ["P", row.lost],
     ["GF", row.goalsFor],
     ["GC", row.goalsAgainst],
-    ["Pts", row.points],
   ] as const;
 
   numericFields.forEach(([label, value]) => {
@@ -141,40 +127,6 @@ function getRoleActorLabel(role: AdminRole, coachTeamSlug: string) {
   return coachTeamSlug === "juvenil-a" ? "Ivan Lobo" : "Sergio Mena";
 }
 
-function createEmptyStanding(
-  teamSlug: string,
-  role: AdminRole,
-  coachTeamSlug: string,
-  existingTables: StandingManagementTable[],
-) {
-  const team = standingsManagementTeams.find((item) => item.slug === teamSlug);
-
-  if (!team) {
-    return null;
-  }
-
-  const duplicateCount = existingTables.filter(
-    (standing) => standing.teamSlug === teamSlug,
-  ).length;
-
-  return normalizeStandingTable({
-    id: `standing-${team.slug}-draft-${existingTables.length + 1}`,
-    season: team.season,
-    teamId: team.id,
-    teamSlug: team.slug,
-    teamName: team.name,
-    competition:
-      duplicateCount === 0
-        ? team.competition
-        : `${team.competition} - Jornada ${duplicateCount + 1}`,
-    category: team.category,
-    status: "draft",
-    updatedAt: new Date().toISOString(),
-    updatedBy: getRoleActorLabel(role, coachTeamSlug),
-    rows: buildBlankStandingRows(team.name),
-  });
-}
-
 export function AdminStandingsWorkspace({
   role,
   initialUiState = "ready",
@@ -214,10 +166,6 @@ export function AdminStandingsWorkspace({
   const competitions = Array.from(
     new Set(scopedTables.map((table) => table.competition)),
   );
-  const categories = Array.from(
-    new Set(scopedTables.map((table) => table.category)),
-  );
-
   const filteredTables = scopedTables.filter((table) => {
     if (filters.season !== "all" && table.season !== filters.season) {
       return false;
@@ -231,10 +179,6 @@ export function AdminStandingsWorkspace({
       filters.competition !== "all" &&
       table.competition !== filters.competition
     ) {
-      return false;
-    }
-
-    if (filters.category !== "all" && table.category !== filters.category) {
       return false;
     }
 
@@ -275,7 +219,6 @@ export function AdminStandingsWorkspace({
     filteredTables[0]?.id ??
     scopedTables[0]?.id ??
     "";
-
   const selectedStanding =
     filteredTables.find((table) => table.id === selectedStandingId) ??
     scopedTables.find((table) => table.id === selectedStandingId);
@@ -301,7 +244,6 @@ export function AdminStandingsWorkspace({
   const teamsWithStandingCount = new Set(
     scopedTables.map((standing) => standing.teamSlug),
   ).size;
-  const canCreateStanding = role !== "COACH";
   const selectedCoachTeam = allowedTeams[0];
 
   function pushBanner(message: string, tone: BannerTone = "success") {
@@ -317,6 +259,7 @@ export function AdminStandingsWorkspace({
 
     setDraftTables((currentDrafts) => {
       const baseStanding = currentDrafts[selectedStanding.id] ?? selectedStanding;
+
       return {
         ...currentDrafts,
         [selectedStanding.id]: normalizeStandingTable(transform(baseStanding)),
@@ -324,85 +267,28 @@ export function AdminStandingsWorkspace({
     });
   }
 
-  function moveRowToPosition(
-    rows: StandingManagementRow[],
-    rowId: string,
-    nextPosition: number,
-  ) {
-    const orderedRows = [...rows];
-    const sourceIndex = orderedRows.findIndex((row) => row.id === rowId);
-
-    if (sourceIndex === -1) {
-      return rows;
-    }
-
-    const [row] = orderedRows.splice(sourceIndex, 1);
-    const targetIndex = Math.min(
-      Math.max(nextPosition - 1, 0),
-      orderedRows.length,
-    );
-
-    orderedRows.splice(targetIndex, 0, row);
-    return orderedRows.map((item, index) => ({
-      ...item,
-      position: index + 1,
-    }));
-  }
-
   function updateRowField(
     rowId: string,
     field:
-      | "teamName"
       | "played"
       | "won"
       | "drawn"
       | "lost"
       | "goalsFor"
-      | "goalsAgainst"
-      | "points"
-      | "position",
-    value: string | number,
+      | "goalsAgainst",
+    value: number,
   ) {
-    updateSelectedStanding((standing) => {
-      if (field === "position") {
-        return {
-          ...standing,
-          rows: moveRowToPosition(
-            standing.rows,
-            rowId,
-            typeof value === "number" && Number.isFinite(value)
-              ? Math.max(1, Math.trunc(value))
-              : 1,
-          ),
-        };
-      }
-
-      const rows = standing.rows.map((row) => {
-        if (row.id !== rowId) {
-          return row;
-        }
-
-        if (field === "teamName") {
-          return {
-            ...row,
-            teamName: String(value),
-          };
-        }
-
-        return {
-          ...row,
-          [field]:
-            typeof value === "number" && Number.isFinite(value)
-              ? Math.max(0, Math.trunc(value))
-              : 0,
-        };
-      });
-
-      return {
-        ...standing,
-        rows,
-      };
-    });
+    updateSelectedStanding((standing) => ({
+      ...standing,
+      rows: standing.rows.map((row) =>
+        row.id === rowId
+          ? {
+              ...row,
+              [field]: Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0,
+            }
+          : row,
+      ),
+    }));
   }
 
   function toggleOwnTeam(rowId: string) {
@@ -415,86 +301,13 @@ export function AdminStandingsWorkspace({
     }));
   }
 
-  function addRow() {
-    updateSelectedStanding((standing) => ({
-      ...standing,
-      rows: [
-        ...standing.rows,
-        {
-          id: `standing-row-new-${standing.rows.length + 1}`,
-          position: standing.rows.length + 1,
-          teamName: `Nuevo rival ${standing.rows.length}`,
-          played: 0,
-          won: 0,
-          drawn: 0,
-          lost: 0,
-          goalsFor: 0,
-          goalsAgainst: 0,
-          goalDifference: 0,
-          points: 0,
-          isOwnTeam: false,
-        },
-      ],
-    }));
-  }
-
-  function removeRow(rowId: string) {
-    if (!selectedStanding) {
-      return;
-    }
-
-    if (
-      !window.confirm(
-        "Esta accion elimina la fila solo en esta vista previa. Quieres continuar?",
-      )
-    ) {
-      return;
-    }
-
-    updateSelectedStanding((standing) => ({
-      ...standing,
-      rows: standing.rows.filter((row) => row.id !== rowId),
-    }));
-  }
-
-  function moveRow(rowId: string, direction: -1 | 1) {
-    if (!selectedStanding) {
-      return;
-    }
-
-    const sourceIndex = selectedStanding.rows.findIndex((row) => row.id === rowId);
-
-    if (sourceIndex === -1) {
-      return;
-    }
-
-    updateSelectedStanding((standing) => {
-      const orderedRows = [...standing.rows];
-      const targetIndex = sourceIndex + direction;
-
-      if (targetIndex < 0 || targetIndex >= orderedRows.length) {
-        return standing;
-      }
-
-      const [row] = orderedRows.splice(sourceIndex, 1);
-      orderedRows.splice(targetIndex, 0, row);
-
-      return {
-        ...standing,
-        rows: orderedRows.map((item, index) => ({
-          ...item,
-          position: index + 1,
-        })),
-      };
-    });
-  }
-
   function persistSelectedStanding() {
     if (!selectedStanding || !savedSelectedStanding) {
       return;
     }
 
     const errors = getStandingValidationErrors(selectedStanding);
+
     if (errors.length > 0) {
       pushBanner(errors[0], "danger");
       return;
@@ -502,6 +315,7 @@ export function AdminStandingsWorkspace({
 
     const updatedStanding = normalizeStandingTable({
       ...selectedStanding,
+      rows: normalizeAndSortStandingRows(selectedStanding.rows),
       status: "published",
       updatedAt: new Date().toISOString(),
       updatedBy: getRoleActorLabel(role, coachTeamSlug),
@@ -537,47 +351,6 @@ export function AdminStandingsWorkspace({
     });
 
     pushBanner("Cambios cancelados.");
-  }
-
-  function createStanding() {
-    const availableTeam =
-      allowedTeams.find(
-        (team) =>
-          !savedTables.some(
-            (standing) =>
-              standing.teamSlug === team.slug && standing.season === team.season,
-          ),
-      ) ?? allowedTeams[0];
-
-    if (!availableTeam) {
-      pushBanner("No hay equipos disponibles para crear otra tabla.", "danger");
-      return;
-    }
-
-    const newStanding = createEmptyStanding(
-      availableTeam.slug,
-      role,
-      coachTeamSlug,
-      savedTables,
-    );
-
-    if (!newStanding) {
-      pushBanner("No hemos podido preparar la clasificacion en vista previa.", "danger");
-      return;
-    }
-
-    startTransition(() => {
-      setSavedTables((currentTables) =>
-        sortStandingsManagementTables([...currentTables, newStanding]),
-      );
-      setRequestedStandingId(newStanding.id);
-      setFilters((currentFilters) => ({
-        ...currentFilters,
-        team: role === "COACH" ? currentFilters.team : newStanding.teamSlug,
-      }));
-    });
-
-    pushBanner("Nueva clasificacion lista para editar. Guardado local de prueba.");
   }
 
   function duplicateStanding() {
@@ -621,12 +394,13 @@ export function AdminStandingsWorkspace({
       return;
     }
 
-    const seedStanding = seedTables.find(
-      (table) => table.id === selectedStanding.id,
-    );
+    const seedStanding = seedTables.find((table) => table.id === selectedStanding.id);
 
     if (!seedStanding) {
-      pushBanner("No hay una version inicial de prueba disponible para esta tabla.", "danger");
+      pushBanner(
+        "No hay una version inicial de prueba disponible para esta tabla.",
+        "danger",
+      );
       return;
     }
 
@@ -651,24 +425,12 @@ export function AdminStandingsWorkspace({
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
-        eyebrow={role === "COACH" ? "Edicion rapida" : "Gestion manual"}
+        eyebrow={role === "COACH" ? "Tabla manual" : "Gestion manual"}
         title="Clasificaciones"
         description={
           role === "COACH"
-            ? "Ajusta la tabla de tu equipo con un flujo corto, guardado manual claro y prioridad mobile."
-            : "Gestion manual de tablas por equipo y competicion, con guardado simple y vista publica a un paso."
-        }
-        actions={
-          canCreateStanding ? (
-            <button
-              type="button"
-              onClick={createStanding}
-              className="rr-button rr-button-primary text-[0.84rem]"
-            >
-              <Plus className="h-4 w-4" />
-              Crear clasificacion
-            </button>
-          ) : undefined
+            ? "Edita la tabla de tu equipo y guarda."
+            : "Gestion manual de tablas por equipo y competicion."
         }
       />
 
@@ -682,8 +444,8 @@ export function AdminStandingsWorkspace({
       {role === "COACH" ? (
         <AdminScopePanel
           eyebrow="Flujo de entrenador"
-          title="Tabla manual simplificada"
-          description="Solo ves una clasificacion a la vez. Lo importante aqui es actualizar filas, guardar sin dudas y tener a mano partidos, estadisticas y vista publica."
+          title="Clasificacion compacta"
+          description="Actualiza PJ, G, E, P, GF y GC. El orden final se ajusta al guardar."
           actions={
             <>
               <Link
@@ -764,7 +526,6 @@ export function AdminStandingsWorkspace({
         seasons={seasons}
         teams={allowedTeams.map((team) => ({ slug: team.slug, name: team.name }))}
         competitions={competitions}
-        categories={categories}
         totalStandings={scopedTables.length}
         filteredStandings={filteredTables.length}
         showTeamFilter={role !== "COACH" && allowedTeams.length > 1}
@@ -790,24 +551,19 @@ export function AdminStandingsWorkspace({
               </AdminPanel>
             ))}
           </div>
-          <div className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-            <AdminPanel className="p-5">
-              <div className="space-y-3">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="h-20 animate-pulse rounded-[10px] bg-white/6"
-                  />
-                ))}
-              </div>
-            </AdminPanel>
-            <AdminPanel className="p-5">
-              <div className="space-y-3">
-                <div className="h-12 animate-pulse rounded-[10px] bg-white/6" />
-                <div className="h-48 animate-pulse rounded-[10px] bg-white/6" />
-              </div>
-            </AdminPanel>
+          <div className="grid gap-4 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <AdminPanel key={index} className="p-5">
+                <div className="space-y-3">
+                  <div className="h-12 animate-pulse rounded-[10px] bg-white/6" />
+                  <div className="h-24 animate-pulse rounded-[10px] bg-white/6" />
+                </div>
+              </AdminPanel>
+            ))}
           </div>
+          <AdminPanel className="p-5">
+            <div className="h-64 animate-pulse rounded-[10px] bg-white/6" />
+          </AdminPanel>
         </div>
       ) : null}
 
@@ -822,8 +578,8 @@ export function AdminStandingsWorkspace({
               No hemos podido cargar la gestion de clasificaciones
             </h2>
             <p className="text-[0.96rem] leading-6 text-[color:var(--rr-muted)]">
-              La pantalla contempla un error operativo para validar mensajes, layout y
-              recuperacion antes de conectar datos reales.
+              La pantalla contempla un error operativo para validar mensajes,
+              layout y recuperacion antes de conectar datos reales.
             </p>
             <button
               type="button"
@@ -839,18 +595,7 @@ export function AdminStandingsWorkspace({
       {screenState === "ready" && scopedTables.length === 0 ? (
         <AdminEmptyState
           title="Sin clasificaciones cargadas"
-          description="Cuando conectemos datos reales o ampliemos los datos de prueba, esta pantalla mostrara tablas manuales por equipo, temporada y competicion."
-          action={
-            canCreateStanding ? (
-              <button
-                type="button"
-                onClick={createStanding}
-                className="rr-button rr-button-primary text-[0.82rem]"
-              >
-                Crear clasificacion
-              </button>
-            ) : undefined
-          }
+          description="Cuando ampliemos los datos de prueba, esta pantalla mostrara tablas manuales por equipo."
         />
       ) : null}
 
@@ -880,58 +625,77 @@ export function AdminStandingsWorkspace({
       {screenState === "ready" &&
       filteredTables.length > 0 &&
       selectedStanding ? (
-        <div className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-          <div className="space-y-4">
-            <StandingsSelector
-              standings={filteredTables}
-              selectedStandingId={selectedStanding.id}
-              onSelect={setRequestedStandingId}
-            />
-
-            <StandingPublishActions
-              role={role}
-              standing={selectedStanding}
-              validationErrors={validationErrors}
-              hasUnsavedChanges={hasUnsavedChanges}
-              onSave={persistSelectedStanding}
-              onDiscard={discardChanges}
-              onDuplicate={duplicateStanding}
-              onReset={resetStanding}
-            />
-
-            <AdminPanel className="p-5 sm:p-6">
-              <div className="space-y-3">
-                <p className="rr-kicker text-[color:var(--rr-gold)]">
-                  Resumen seleccionado
+        <div className="space-y-4">
+          <div className="flex flex-col gap-3 border-b border-white/10 px-1 pb-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-1">
+              <p className="rr-kicker text-[color:var(--rr-gold)]">
+                {selectedStanding.teamName}
+              </p>
+              <p className="text-[0.92rem] text-[color:var(--rr-muted)]">
+                {selectedStanding.competition} - {selectedStanding.season}
+              </p>
+              {validationErrors.length > 0 ? (
+                <p className="text-[0.86rem] text-[#ffc3bc]">
+                  {validationErrors.length} validaciones pendientes antes de guardar.
                 </p>
-                <div className="space-y-2 text-[0.94rem] text-[color:var(--rr-muted)]">
-                  <p>{selectedStanding.teamName}</p>
-                  <p>{selectedStanding.competition}</p>
-                  <p>{formatStandingUpdatedLabel(selectedStanding)}</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <StandingStatusBadge status={selectedStanding.status} />
-                  <Link
-                    href={getStandingPublicHref(selectedStanding)}
-                    className="inline-flex items-center gap-2 text-[0.86rem] text-[color:var(--rr-muted)] transition hover:text-white"
-                  >
-                    Ver en web
-                  </Link>
-                </div>
-              </div>
-            </AdminPanel>
+              ) : null}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={persistSelectedStanding}
+                className="rr-button rr-button-primary min-h-10 px-3 py-2 text-[0.76rem]"
+              >
+                <Save className="h-4 w-4" />
+                {hasUnsavedChanges ? "Guardar" : "Guardar de nuevo"}
+              </button>
+              {hasUnsavedChanges ? (
+                <button
+                  type="button"
+                  onClick={discardChanges}
+                  className="rr-button rr-button-secondary min-h-10 px-3 py-2 text-[0.76rem]"
+                >
+                  Cancelar
+                </button>
+              ) : null}
+              <Link
+                href={getStandingPublicHref(selectedStanding)}
+                className="rr-button rr-button-secondary min-h-10 px-3 py-2 text-[0.76rem]"
+              >
+                <Eye className="h-4 w-4" />
+                Ver web
+              </Link>
+              {role !== "COACH" ? (
+                <button
+                  type="button"
+                  onClick={duplicateStanding}
+                  className="rr-button rr-button-secondary min-h-10 px-3 py-2 text-[0.76rem]"
+                >
+                  <ClipboardCopy className="h-4 w-4" />
+                  Duplicar
+                </button>
+              ) : null}
+              {role !== "COACH" ? (
+                <button
+                  type="button"
+                  onClick={resetStanding}
+                  className="rr-button rr-button-secondary min-h-10 px-3 py-2 text-[0.76rem]"
+                >
+                  <RefreshCcw className="h-4 w-4" />
+                  Restaurar
+                </button>
+              ) : null}
+            </div>
           </div>
 
           <EditableStandingTable
             standing={selectedStanding}
             validationErrors={validationErrors}
             rowErrors={rowErrors}
+            canToggleOwnTeam={role !== "COACH"}
             onUpdateField={updateRowField}
             onToggleOwnTeam={toggleOwnTeam}
-            onAddRow={addRow}
-            onRemoveRow={removeRow}
-            onMoveRowUp={(rowId) => moveRow(rowId, -1)}
-            onMoveRowDown={(rowId) => moveRow(rowId, 1)}
           />
         </div>
       ) : null}

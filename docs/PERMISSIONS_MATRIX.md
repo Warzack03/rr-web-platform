@@ -1,5 +1,11 @@
 # PERMISSIONS_MATRIX.md
 
+## Current status
+
+Superseded for product-facing MVP UI by `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md`.
+
+The matrix below is retained as technical history in case role-based access is reintroduced later.
+
 ## Roles
 
 - `superadmin`

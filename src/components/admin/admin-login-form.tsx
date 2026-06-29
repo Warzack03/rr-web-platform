@@ -13,16 +13,10 @@ type AdminLoginFormProps = {
 
 const demoAccounts = [
   {
-    id: "manager-demo",
-    displayName: "Manager Demo",
-    roleLabel: "Manager",
-    username: "manager",
-  },
-  {
-    id: "coach-primer-demo",
-    displayName: "Entrenador Primer Equipo",
-    roleLabel: "Entrenador",
-    username: "entrenador_primer_equipo",
+    id: "admin-demo",
+    displayName: "Administrador",
+    roleLabel: "Control total",
+    username: "superadmin",
   },
 ] as const;
 
@@ -79,7 +73,7 @@ export function AdminLoginForm({
               Backoffice deportivo
             </h1>
             <p className="max-w-xl text-[1rem] leading-6 text-[color:var(--rr-muted)]">
-              Acceso para superadmin, manager y entrenador con la misma identidad visual que la parte publica.
+              Acceso unico para controlar la informacion deportiva que se publica en la web.
             </p>
           </div>
 
@@ -132,7 +126,7 @@ export function AdminLoginForm({
           <div>
             <p className="rr-kicker text-[color:var(--rr-gold)]">Cuentas demo</p>
             <h2 className="rr-display mt-2 text-[2.25rem] leading-[0.94] text-white">
-              Pruebas rapidas
+              Entrada rapida
             </h2>
           </div>
 
@@ -153,8 +147,7 @@ export function AdminLoginForm({
           </div>
 
           <div className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.94rem] leading-6 text-[color:var(--rr-muted)]">
-            Manager y entrenador usan <span className="font-semibold text-white">ChangeMe123!</span>.
-            El superadmin inicial usa la clave de <span className="font-semibold text-white">ADMIN_INITIAL_PASSWORD</span>.
+            La cuenta inicial usa <span className="font-semibold text-white">ADMIN_INITIAL_PASSWORD</span> si existe, o <span className="font-semibold text-white">ChangeMe123!</span> en local.
           </div>
         </div>
       </div>

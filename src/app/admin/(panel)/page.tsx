@@ -1,28 +1,14 @@
 import { AdminDashboard } from "@/components/admin/admin-dashboard";
-import { getPreviewRole, isAdminRole, type AdminRole } from "@/lib/admin/roles";
+import { OWNER_ADMIN_ROLE } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 
 type AdminDashboardPageProps = {
-  searchParams: Promise<{
-    previewRole?: string | string[];
-  }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function getSingleValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function getActualRole(role: string): AdminRole {
-  return isAdminRole(role) ? role : "COACH";
-}
-
-export default async function AdminDashboardPage({
-  searchParams,
-}: AdminDashboardPageProps) {
+export default async function AdminDashboardPage({}: AdminDashboardPageProps) {
   const user = await requireAdminSectionAccess("dashboard");
-  const resolvedSearchParams = await searchParams;
-  const actualRole = getActualRole(user.role);
-  const previewRole = getPreviewRole(getSingleValue(resolvedSearchParams.previewRole), actualRole);
+  void user;
 
-  return <AdminDashboard role={previewRole} />;
+  return <AdminDashboard role={OWNER_ADMIN_ROLE} />;
 }

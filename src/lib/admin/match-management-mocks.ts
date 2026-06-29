@@ -4,6 +4,7 @@ import { adminTeamManagementTeams } from "@/lib/admin/team-management-mocks";
 
 export type MatchManagementStatus = "scheduled" | "live" | "played" | "postponed";
 export type MatchVisualStatus = "pending" | "live" | "played";
+export type CoachMatchVisualStatus = "pending" | "played";
 
 export type MatchManagementTeam = {
   id: string;
@@ -298,6 +299,18 @@ export function getVisualMatchStatus(status: MatchManagementStatus): MatchVisual
   return "pending";
 }
 
+export function hasMatchResult(
+  match: Pick<MatchManagementMatch, "ownScore" | "opponentScore">,
+) {
+  return match.ownScore !== null && match.opponentScore !== null;
+}
+
+export function getCoachMatchVisualStatus(
+  match: Pick<MatchManagementMatch, "ownScore" | "opponentScore">,
+): CoachMatchVisualStatus {
+  return hasMatchResult(match) ? "played" : "pending";
+}
+
 export function getStoredMatchStatus(
   status: MatchVisualStatus,
   hasConfirmedDate: boolean,
@@ -362,6 +375,26 @@ export function sortMatchManagementMatches(matches: MatchManagementMatch[]) {
     const rightTimestamp = getMatchSortTimestamp(right);
 
     if (leftVisualStatus === "played") {
+      return rightTimestamp - leftTimestamp;
+    }
+
+    return leftTimestamp - rightTimestamp;
+  });
+}
+
+export function sortCoachMatchManagementMatches(matches: MatchManagementMatch[]) {
+  return [...matches].sort((left, right) => {
+    const leftStatus = getCoachMatchVisualStatus(left);
+    const rightStatus = getCoachMatchVisualStatus(right);
+
+    if (leftStatus !== rightStatus) {
+      return leftStatus === "pending" ? -1 : 1;
+    }
+
+    const leftTimestamp = getMatchSortTimestamp(left);
+    const rightTimestamp = getMatchSortTimestamp(right);
+
+    if (leftStatus === "played") {
       return rightTimestamp - leftTimestamp;
     }
 

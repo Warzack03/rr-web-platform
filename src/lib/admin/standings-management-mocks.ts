@@ -12,12 +12,15 @@ export type StandingManagementTeam = {
   competition: string;
   category: string;
   isFirstTeam: boolean;
+  crestSrc?: string;
 };
 
 export type StandingManagementRow = {
   id: string;
   position: number;
   teamName: string;
+  teamSlug?: string;
+  crestSrc?: string;
   played: number;
   won: number;
   drawn: number;
@@ -68,6 +71,7 @@ export const standingsManagementTeams: StandingManagementTeam[] = adminTeamManag
     competition: team.competition,
     category: team.category,
     isFirstTeam: team.isFirstTeam,
+    crestSrc: team.logoUrl,
   }));
 
 export const coachPreviewStandingTeamSlugs = ["raimon-b", "juvenil-a"] as const;
@@ -94,38 +98,69 @@ function computeGoalDifference(goalsFor: number, goalsAgainst: number) {
   return toSafeInt(goalsFor) - toSafeInt(goalsAgainst);
 }
 
-function normalizeStandingRows(rows: StandingManagementRow[]) {
-  const sortedRows = [...rows]
-    .map((row, index) => ({
-      ...row,
-      position: toSafeInt(row.position || index + 1, 1),
-      played: toSafeInt(row.played),
-      won: toSafeInt(row.won),
-      drawn: toSafeInt(row.drawn),
-      lost: toSafeInt(row.lost),
-      goalsFor: toSafeInt(row.goalsFor),
-      goalsAgainst: toSafeInt(row.goalsAgainst),
-      points: toSafeInt(row.points),
-      isOwnTeam: Boolean(row.isOwnTeam),
-      teamName: row.teamName.trim(),
-    }))
-    .sort((left, right) => {
-      if (left.position !== right.position) {
-        return left.position - right.position;
-      }
+function computeStandingPoints(won: number, drawn: number) {
+  return toSafeInt(won) * 3 + toSafeInt(drawn);
+}
 
-      if (left.isOwnTeam !== right.isOwnTeam) {
-        return left.isOwnTeam ? -1 : 1;
-      }
+function sanitizeStandingRow(
+  row: StandingManagementRow,
+  index: number,
+): StandingManagementRow {
+  const teamName = row.teamName.trim();
+  const played = toSafeInt(row.played);
+  const won = toSafeInt(row.won);
+  const drawn = toSafeInt(row.drawn);
+  const lost = toSafeInt(row.lost);
+  const goalsFor = toSafeInt(row.goalsFor);
+  const goalsAgainst = toSafeInt(row.goalsAgainst);
 
-      return left.teamName.localeCompare(right.teamName);
-    });
-
-  return sortedRows.map((row, index) => ({
+  return {
     ...row,
     position: index + 1,
-    goalDifference: computeGoalDifference(row.goalsFor, row.goalsAgainst),
-  }));
+    teamName,
+    teamSlug: row.teamSlug?.trim() || undefined,
+    crestSrc: row.crestSrc?.trim() || undefined,
+    played,
+    won,
+    drawn,
+    lost,
+    goalsFor,
+    goalsAgainst,
+    goalDifference: computeGoalDifference(goalsFor, goalsAgainst),
+    points: computeStandingPoints(won, drawn),
+    isOwnTeam: Boolean(row.isOwnTeam),
+  };
+}
+
+export function normalizeStandingRows(rows: StandingManagementRow[]) {
+  return rows.map((row, index) => sanitizeStandingRow(row, index));
+}
+
+export function normalizeAndSortStandingRows(rows: StandingManagementRow[]) {
+  return normalizeStandingRows(rows)
+    .sort((left, right) => {
+      if (left.points !== right.points) {
+        return right.points - left.points;
+      }
+
+      if (left.goalDifference !== right.goalDifference) {
+        return right.goalDifference - left.goalDifference;
+      }
+
+      if (left.goalsFor !== right.goalsFor) {
+        return right.goalsFor - left.goalsFor;
+      }
+
+      if (left.goalsAgainst !== right.goalsAgainst) {
+        return left.goalsAgainst - right.goalsAgainst;
+      }
+
+      return left.teamName.localeCompare(right.teamName, "es");
+    })
+    .map((row, index) => ({
+      ...row,
+      position: index + 1,
+    }));
 }
 
 export function normalizeStandingTable(
@@ -154,6 +189,8 @@ function createStandingRow(
     id: row.id ?? `standing-row-${index + 1}-${row.teamName.toLowerCase().replace(/\s+/g, "-")}`,
     position: row.position,
     teamName: row.teamName,
+    teamSlug: row.teamSlug,
+    crestSrc: row.crestSrc,
     played: row.played,
     won: row.won,
     drawn: row.drawn,
@@ -192,7 +229,18 @@ function createStandingTable(
     teamId: team.id,
     teamName: team.name,
     category: team.category,
-    rows: table.rows.map((row, index) => createStandingRow(row, index)),
+    rows: table.rows.map((row, index) =>
+      createStandingRow(
+        row.isOwnTeam
+          ? {
+              ...row,
+              teamSlug: row.teamSlug ?? team.slug,
+              crestSrc: row.crestSrc ?? team.crestSrc,
+            }
+          : row,
+        index,
+      ),
+    ),
   });
 }
 
@@ -574,11 +622,15 @@ export function formatStandingUpdatedLabel(
 }
 
 export function buildBlankStandingRows(teamName: string) {
+  const team = standingsManagementTeams.find((item) => item.name === teamName);
+
   return normalizeStandingRows([
     {
       id: `${teamName.toLowerCase().replace(/\s+/g, "-")}-own`,
       position: 1,
       teamName,
+      teamSlug: team?.slug,
+      crestSrc: team?.crestSrc,
       played: 0,
       won: 0,
       drawn: 0,

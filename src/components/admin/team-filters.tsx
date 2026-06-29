@@ -5,7 +5,6 @@ import { AdminPanel } from "@/components/admin/admin-panel";
 
 export type TeamFiltersValue = {
   season: string;
-  category: string;
   branch: string;
   visibility: "all" | "visible" | "hidden";
   activity: "all" | "active" | "inactive";
@@ -15,7 +14,6 @@ export type TeamFiltersValue = {
 type TeamFiltersProps = {
   value: TeamFiltersValue;
   seasons: string[];
-  categories: string[];
   branches: string[];
   totalTeams: number;
   filteredTeams: number;
@@ -29,7 +27,6 @@ const fieldClassName =
 export function TeamFilters({
   value,
   seasons,
-  categories,
   branches,
   totalTeams,
   filteredTeams,
@@ -85,22 +82,6 @@ export function TeamFilters({
               {seasons.map((season) => (
                 <option key={season} value={season}>
                   {season}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="grid gap-2">
-            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Categoria</span>
-            <select
-              value={value.category}
-              onChange={(event) => updateField("category", event.target.value)}
-              className={fieldClassName}
-            >
-              <option value="all">Todas</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
                 </option>
               ))}
             </select>

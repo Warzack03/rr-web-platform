@@ -46,7 +46,6 @@ type DialogState =
 
 const initialFilters: TeamFiltersValue = {
   season: "all",
-  category: "all",
   branch: "all",
   visibility: "all",
   activity: "all",
@@ -104,10 +103,6 @@ export function AdminTeamsWorkspace({
   const filteredTeams = sortTeams(
     teams.filter((team) => {
       if (filters.season !== "all" && team.season !== filters.season) {
-        return false;
-      }
-
-      if (filters.category !== "all" && team.category !== filters.category) {
         return false;
       }
 
@@ -390,7 +385,6 @@ export function AdminTeamsWorkspace({
         <TeamFilters
           value={filters}
           seasons={seasons}
-          categories={categories}
           branches={branches}
           totalTeams={teams.length}
           filteredTeams={filteredTeams.length}

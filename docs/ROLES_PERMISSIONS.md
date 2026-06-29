@@ -1,5 +1,11 @@
 # ROLES_PERMISSIONS.md
 
+## Current status
+
+Superseded for product-facing MVP UI by `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md`.
+
+The role model below is retained as technical history in case multi-user access is reintroduced later.
+
 ## Roles
 
 ### Superadmin
