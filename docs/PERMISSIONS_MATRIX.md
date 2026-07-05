@@ -38,7 +38,7 @@ The matrix below is retained as technical history in case role-based access is r
 | Set team public visibility | Yes | Yes | No |
 | Upload team logo/banner | Yes | Yes | No |
 | Add visible team coaches | Yes | Yes | No |
-| Assign existing coach to team | Yes | Yes | No |
+| Assign team scope to coach user | Yes | Yes | No |
 | Create/edit players | Yes | Yes | No |
 | Upload player photos | Yes | Yes | No |
 | Create/edit assignments | Yes | Yes | No |

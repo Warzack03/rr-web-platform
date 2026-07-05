@@ -16,11 +16,7 @@ export default async function AdminPanelLayout({
   const navItems = getAdminNavigationForRole(user.role);
 
   return (
-    <AdminShell
-      navItems={navItems}
-      displayName={user.displayName}
-      roleLabel="Administrador"
-    >
+    <AdminShell navItems={navItems}>
       {children}
     </AdminShell>
   );

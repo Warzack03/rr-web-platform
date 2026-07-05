@@ -327,7 +327,7 @@ Pulir `Equipos` para que sea mas claro para manager/superadmin y menos ambiguo p
 
 #### 6.3 Formulario de equipo
 
-- [x] Separar mejor identidad, competicion, visibilidad y responsables
+- [x] Separar mejor identidad, competicion, visibilidad y entrenadores
 - [x] Reducir copy innecesaria dentro del dialogo
 - [x] Mejorar priorizacion de campos
 
@@ -338,10 +338,12 @@ Pulir `Equipos` para que sea mas claro para manager/superadmin y menos ambiguo p
 
 ### Notas de iteracion
 
-- La lista de equipos ahora prioriza contexto deportivo, estado publico y responsable antes que columnas mas tecnicas.
+- La lista de equipos ahora prioriza contexto deportivo, estado publico y entrenadores antes que columnas mas tecnicas.
 - En movil y desktop se ha reducido el ruido de acciones: `Editar equipo` queda como accion principal y el resto baja de intensidad visual.
 - La vista del coach pasa a sentirse de consulta y apoyo operativo, con metricas propias y sin filtros ni lenguaje de gestion global.
-- El formulario queda dividido en bloques de `Identidad`, `Contexto deportivo`, `Estado publico` y `Responsables`.
+- El formulario queda dividido en bloques de `Identidad`, `Contexto deportivo`, `Estado publico` y `Entrenadores`.
+- Se elimina la card superior dedicada a `Primer Equipo` para compactar la pantalla.
+- Los entrenadores dejan de modelarse en UI como cuentas vinculadas y pasan a ser datos informativos del equipo.
 
 ---
 

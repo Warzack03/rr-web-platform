@@ -84,7 +84,11 @@ function inferPlayerGroupFromPosition(position: string): PublicPlayerGroup {
     return "defensas";
   }
 
-  if (normalizedPosition.includes("delantero") || normalizedPosition.includes("extremo")) {
+  if (
+    normalizedPosition.includes("delantero") ||
+    normalizedPosition.includes("extremo") ||
+    normalizedPosition.includes("banda")
+  ) {
     return "delanteros";
   }
 

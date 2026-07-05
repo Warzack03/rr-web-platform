@@ -1,15 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { AdminNavItem } from "@/server/auth/permissions";
 import { getAdminNavIcon } from "@/components/admin/admin-nav-icons";
 import { cn } from "@/lib/utils";
 
 type AdminSidebarProps = {
-  displayName: string;
-  roleLabel: string;
   navItems: AdminNavItem[];
 };
 
@@ -17,11 +14,7 @@ function isCurrentPath(pathname: string, href: string) {
   return href === "/admin" ? pathname === href : pathname.startsWith(href);
 }
 
-export function AdminSidebar({
-  displayName,
-  roleLabel,
-  navItems,
-}: AdminSidebarProps) {
+export function AdminSidebar({ navItems }: AdminSidebarProps) {
   const pathname = usePathname();
   const activeItems = navItems.filter((item) => item.status === "active");
   const previewItems = navItems.filter((item) => item.status === "preview");
@@ -75,12 +68,6 @@ export function AdminSidebar({
         <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
           Panel de trabajo para web publica y competicion.
         </p>
-
-        <div className="mt-4 rounded-[10px] border border-white/10 bg-white/5 px-4 py-3">
-          <p className="rr-kicker text-[0.68rem] text-[color:var(--rr-gold)]">{roleLabel}</p>
-          <p className="mt-2 text-[0.96rem] font-semibold text-white">{displayName}</p>
-          <p className="mt-1 text-[0.82rem] text-[color:var(--rr-muted)]">Sesion activa</p>
-        </div>
       </div>
 
       <nav className="flex-1 space-y-4 px-3 py-4">
@@ -104,16 +91,6 @@ export function AdminSidebar({
           </div>
         ) : null}
       </nav>
-
-      <div className="border-t border-[rgba(255,255,255,0.08)] p-3">
-        <Link
-          href="/admin/login"
-          className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-[0.9rem] text-[color:var(--rr-muted)] transition hover:text-white"
-        >
-          <span>Cambiar sesion</span>
-          <LogOut className="h-4 w-4 text-[color:var(--rr-gold)]" />
-        </Link>
-      </div>
     </aside>
   );
 }

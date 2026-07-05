@@ -10,8 +10,6 @@ import { cn } from "@/lib/utils";
 
 type AdminMobileNavProps = {
   navItems: AdminNavItem[];
-  displayName: string;
-  roleLabel: string;
 };
 
 function isCurrentPath(pathname: string, href: string) {
@@ -36,8 +34,6 @@ function formatSlugLabel(value: string) {
 
 export function AdminMobileNav({
   navItems,
-  displayName,
-  roleLabel,
 }: AdminMobileNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -104,9 +100,6 @@ export function AdminMobileNav({
                   <p className="rr-kicker text-[color:var(--rr-gold)]">Backoffice</p>
                   <div>
                     <p className="text-[1rem] font-semibold text-white">{currentLabel}</p>
-                    <p className="mt-1 text-[0.86rem] text-[color:var(--rr-muted)]">
-                      Sesion de {displayName}
-                    </p>
                   </div>
                 </div>
                 <button
@@ -120,9 +113,6 @@ export function AdminMobileNav({
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="inline-flex min-h-8 items-center rounded-full border border-white/10 bg-white/5 px-3 text-[0.78rem] text-white">
-                  {roleLabel}
-                </span>
                 {activeTeam ? (
                   <span className="inline-flex min-h-8 items-center rounded-full border border-[rgba(253,203,88,0.24)] bg-[rgba(253,203,88,0.08)] px-3 text-[0.78rem] text-[color:var(--rr-gold)]">
                     Equipo: {formatSlugLabel(activeTeam)}

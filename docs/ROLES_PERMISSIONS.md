@@ -63,15 +63,7 @@ Cannot:
 
 ## Coach accounts
 
-A team can show multiple public coaches. MVP expects only one coach account per team.
-
-Naming convention:
-
-```text
-entrenador_<team_slug>
-```
-
-Visible coaches may exist as plain public names even if they do not have user accounts.
+Visible coaches are informative team data. They do not imply a linked backoffice account.
 
 ## Team assignment permissions
 

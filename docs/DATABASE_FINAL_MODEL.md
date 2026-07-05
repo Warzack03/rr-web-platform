@@ -183,7 +183,7 @@ Fields:
 
 - `id`
 - `email` unique
-- `username` unique, for coach accounts like `entrenador_juvenil_a`
+- `username` unique
 - `passwordHash`
 - `displayName`
 - `role`: `SUPERADMIN`, `MANAGER`, `COACH`
@@ -200,7 +200,7 @@ Rules:
 
 ### CoachTeamPermission
 
-Purpose: grant a coach account editing permission over one or more `SeasonTeam` records.
+Purpose: optional permission mapping for restricted coach users over one or more `SeasonTeam` records.
 
 Fields:
 
@@ -214,9 +214,8 @@ Fields:
 
 Rules:
 
-- Usually one coach account per team.
-- The account can be named `entrenador_<team_code_or_slug>`.
 - Visible coaches on the website are stored separately in `TeamCoach`.
+- Public coaches do not require linked user accounts.
 
 ### SiteSettings
 
@@ -427,7 +426,7 @@ Fields:
 Rules:
 
 - A team may have several visible coaches.
-- Only one of them usually has a coach account.
+- Visible coaches do not require coach accounts.
 - Managers maintain this information.
 
 ### Competition

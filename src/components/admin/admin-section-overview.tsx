@@ -36,19 +36,19 @@ const sectionMetaMap: Record<string, SectionMeta> = {
   jugadores: {
     status: "mock",
     supportCopy:
-      "Aqui se define lo que necesitas para perfiles y cromos: foto, dorsal, nombre publico, posicion, pais, pie, visibilidad y stats visibles.",
+      "Aqui se remata la ficha publica final de cada jugador: nombre, slug, foto, pais, pie y la vista previa del cromo.",
     recommendations: [
-      { href: "/admin/equipos", label: "Ver equipos" },
+      { href: "/admin/asignaciones", label: "Abrir plantilla" },
       { href: "/admin/estadisticas", label: "Ir a estadisticas" },
     ],
   },
   asignaciones: {
     status: "mock",
     supportCopy:
-      "Mock para ordenar jugadores por equipo y temporada sin mover historicos ni estadisticas ya registradas.",
+      "La plantilla es el centro operativo: alta por equipo, dorsal, posicion publica y visibilidad sin mover historicos ni estadisticas ya registradas.",
     recommendations: [
+      { href: "/admin/jugadores", label: "Abrir fichas y cromos" },
       { href: "/admin/equipos", label: "Ver equipos" },
-      { href: "/admin/clasificaciones", label: "Ir a clasificaciones" },
     ],
   },
   noticias: {

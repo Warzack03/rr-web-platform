@@ -64,8 +64,17 @@ const publicControlAreas: ControlArea[] = [
     tone: "gold",
   },
   {
-    title: "Jugadores y cromos",
-    detail: "Foto, dorsal, nombre publico, posicion, pais, pie y visibilidad.",
+    title: "Plantilla",
+    detail: "Altas por equipo, dorsal, posicion publica, capitanias y visibilidad en la plantilla.",
+    href: "/admin/asignaciones",
+    cta: "Abrir plantilla",
+    icon: UsersRound,
+    status: "Desktop",
+    tone: "blue",
+  },
+  {
+    title: "Fichas y cromos",
+    detail: "Ficha publica final, slug, foto, pie, pais, dorsal y variante del cromo.",
     href: "/admin/jugadores",
     cta: "Revisar perfiles",
     icon: UsersRound,
@@ -73,8 +82,8 @@ const publicControlAreas: ControlArea[] = [
     tone: "slate",
   },
   {
-    title: "Equipos y plantillas",
-    detail: "Estructura publica, entrenadores visibles, competicion y asignaciones.",
+    title: "Equipos",
+    detail: "Estructura publica, entrenadores visibles, competicion y contexto deportivo.",
     href: "/admin/equipos",
     cta: "Gestionar equipos",
     icon: Shield,
@@ -117,14 +126,11 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
       <AdminPageHeader
         eyebrow="Administrador unico"
         title="Control de la web publica"
-        description="Panel de propietario para preparar lo que se ve en la web: equipos, jornada, clasificaciones, estadisticas, jugadores, cromos, noticias y media."
+        description="Panel de propietario para preparar lo que se ve en la web: equipos, plantilla, fichas, jornada, clasificaciones, estadisticas, noticias y media."
         actions={
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link href="/admin/partidos" className="rr-button rr-button-primary text-[0.84rem]">
               Cerrar jornada
-            </Link>
-            <Link href="/" className="rr-button rr-button-secondary text-[0.84rem]">
-              Ver publico
             </Link>
           </div>
         }
@@ -302,12 +308,12 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
                 Mocks primero, datos reales despues
               </h2>
               <p className="mt-2 text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
-                El backoffice debe quedar preparado para editar mocks con la misma forma que tendran los datos reales: equipos, asignaciones, partidos, tablas, stats, media y noticias.
+                El backoffice debe quedar preparado para editar mocks con la misma forma que tendran los datos reales: equipos, plantilla, fichas de jugador, partidos, tablas, stats, media y noticias.
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
-              <AdminQuickAction href="/admin/jugadores" label="Definir ficha de jugador" />
-              <AdminQuickAction href="/admin/asignaciones" label="Ordenar plantillas" accent="slate" />
+              <AdminQuickAction href="/admin/jugadores" label="Editar ficha publica" />
+              <AdminQuickAction href="/admin/asignaciones" label="Abrir plantilla" accent="slate" />
               <AdminQuickAction href="/admin/media" label="Preparar fotos" accent="slate" />
               <AdminQuickAction href="/admin/noticias" label="Revisar noticias" />
             </div>

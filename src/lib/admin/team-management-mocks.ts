@@ -11,15 +11,6 @@ export type TeamManagementCoach = {
   name: string;
   roleLabel: TeamCoachRoleLabel;
   publicVisible: boolean;
-  linkedUserId?: string;
-  linkedUsername?: string;
-};
-
-export type TeamResponsibleCoachUser = {
-  id: string;
-  displayName: string;
-  username: string;
-  roleLabel: string;
 };
 
 export type TeamManagementTeam = {
@@ -35,8 +26,6 @@ export type TeamManagementTeam = {
   isFirstTeam: boolean;
   displayOrder: number;
   coaches: TeamManagementCoach[];
-  responsibleCoachUserId?: string;
-  responsibleCoachUser?: TeamResponsibleCoachUser;
   logoUrl: string;
   bannerUrl: string;
   playerCount: number;
@@ -52,49 +41,34 @@ export const teamCoachRoleOptions: TeamCoachRoleLabel[] = [
   "Ayudante",
 ];
 
-function buildResponsibleCoachUser(
-  responsibleCoachUserId?: string,
-): TeamResponsibleCoachUser | undefined {
-  if (!responsibleCoachUserId) {
-    return undefined;
-  }
-
-  const linkedUser = adminMockUsers.find((user) => user.id === responsibleCoachUserId && user.username);
-
-  if (!linkedUser?.username) {
-    return undefined;
-  }
-
-  return {
-    id: linkedUser.id,
-    displayName: linkedUser.displayName,
-    username: linkedUser.username,
-    roleLabel: linkedUser.roleLabel,
-  };
+function getBranchLabel(isFirstTeam: boolean) {
+  return isFirstTeam ? "Primer equipo" : "Cantera";
 }
 
-export function normalizeTeamManagementTeam(team: TeamManagementTeam): TeamManagementTeam {
-  const visibleCoaches = team.coaches.filter((coach) => coach.publicVisible).map((coach) => coach.name);
+export function normalizeTeamManagementTeam(
+  team: TeamManagementTeam,
+): TeamManagementTeam {
+  const visibleCoaches = team.coaches
+    .filter((coach) => coach.publicVisible)
+    .map((coach) => coach.name);
   const primaryCoach =
-    team.coaches.find((coach) => coach.roleLabel === "Entrenador principal")?.name ??
+    team.coaches.find((coach) => coach.roleLabel === "Entrenador principal")
+      ?.name ??
     visibleCoaches[0] ??
     "Sin asignar";
 
   return {
     ...team,
-    responsibleCoachUser: buildResponsibleCoachUser(team.responsibleCoachUserId),
+    branch: getBranchLabel(team.isFirstTeam),
     primaryCoach,
     visibleCoaches,
   };
 }
 
-function createTeam(
-  team: Omit<TeamManagementTeam, "primaryCoach" | "visibleCoaches" | "responsibleCoachUser">,
-) {
+function createTeam(team: Omit<TeamManagementTeam, "primaryCoach" | "visibleCoaches">) {
   return normalizeTeamManagementTeam({
     ...team,
     primaryCoach: "",
-    responsibleCoachUser: undefined,
     visibleCoaches: [],
   });
 }
@@ -105,7 +79,7 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
     slug: "primer-equipo",
     name: "Primer Equipo",
     category: "Senior",
-    competition: "Liga Autonomica Senior · Grupo 2",
+    competition: "Liga Autonomica Senior - Grupo 2",
     season: "2026/2027",
     branch: "Senior",
     publicVisible: true,
@@ -118,8 +92,6 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
         name: "Marcos Varela",
         roleLabel: "Entrenador principal",
         publicVisible: true,
-        linkedUserId: "user-coach-primer-equipo",
-        linkedUsername: "entrenador_primer_equipo",
       },
       {
         id: "coach-primer-lucia-serrano",
@@ -134,11 +106,10 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
         publicVisible: true,
       },
     ],
-    responsibleCoachUserId: "user-coach-primer-equipo",
     logoUrl: "mock://team-logo/primer-equipo",
     bannerUrl: "mock://team-banner/primer-equipo",
     playerCount: 22,
-    nextMatchLabel: "Dom 15 Jun · 18:00 · Escuela Sur Madrid",
+    nextMatchLabel: "Dom 15 Jun - 18:00 - Escuela Sur Madrid",
     accent: "from-[rgba(253,203,88,0.18)] to-[rgba(253,203,88,0.03)]",
   }),
   createTeam({
@@ -159,8 +130,6 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
         name: "Sergio Mena",
         roleLabel: "Entrenador principal",
         publicVisible: true,
-        linkedUserId: "user-coach-raimon-b",
-        linkedUsername: "entrenador_raimon_b",
       },
       {
         id: "coach-raimon-claudia-torres",
@@ -169,11 +138,10 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
         publicVisible: true,
       },
     ],
-    responsibleCoachUserId: "user-coach-raimon-b",
     logoUrl: "mock://team-logo/raimon-b",
     bannerUrl: "mock://team-banner/raimon-b",
     playerCount: 19,
-    nextMatchLabel: "Sab 14 Jun · 19:30 · CD Moratalaz B",
+    nextMatchLabel: "Sab 14 Jun - 19:30 - CD Moratalaz B",
     accent: "from-[rgba(52,112,200,0.22)] to-[rgba(52,112,200,0.04)]",
   }),
   createTeam({
@@ -194,8 +162,6 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
         name: "Ivan Lobo",
         roleLabel: "Entrenador principal",
         publicVisible: true,
-        linkedUserId: "user-coach-juvenil-a",
-        linkedUsername: "entrenador_juvenil_a",
       },
       {
         id: "coach-juvenil-a-lucia-serrano",
@@ -204,11 +170,10 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
         publicVisible: true,
       },
     ],
-    responsibleCoachUserId: "user-coach-juvenil-a",
     logoUrl: "mock://team-logo/juvenil-a",
     bannerUrl: "mock://team-banner/juvenil-a",
     playerCount: 20,
-    nextMatchLabel: "Sab 14 Jun · 11:00 · EF Retiro",
+    nextMatchLabel: "Sab 14 Jun - 11:00 - EF Retiro",
     accent: "from-[rgba(255,255,255,0.1)] to-[rgba(255,255,255,0.02)]",
   }),
   createTeam({
@@ -240,7 +205,7 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
     logoUrl: "mock://team-logo/juvenil-b",
     bannerUrl: "mock://team-banner/juvenil-b",
     playerCount: 18,
-    nextMatchLabel: "Dom 15 Jun · 10:00 · Colegio Norte",
+    nextMatchLabel: "Dom 15 Jun - 10:00 - Colegio Norte",
     accent: "from-[rgba(253,203,88,0.12)] to-[rgba(255,255,255,0.02)]",
   }),
   createTeam({
@@ -272,7 +237,7 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
     logoUrl: "mock://team-logo/cadete-a",
     bannerUrl: "mock://team-banner/cadete-a",
     playerCount: 18,
-    nextMatchLabel: "Sab 14 Jun · 09:30 · AD Chamberi",
+    nextMatchLabel: "Sab 14 Jun - 09:30 - AD Chamberi",
     accent: "from-[rgba(52,112,200,0.16)] to-[rgba(255,255,255,0.02)]",
   }),
   createTeam({
@@ -331,14 +296,10 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
 
 export const adminTeamManagementSeasons = adminMockSeasons;
 
-export function getAssignableCoachUsers() {
-  return adminMockUsers.filter((user) => user.role === "COACH" && user.username && user.email);
-}
-
 export function getCoachPreviewUser() {
   return (
     adminMockUsers.find((user) => user.id === "user-coach-primer-equipo") ??
-    getAssignableCoachUsers()[0]
+    adminMockUsers.find((user) => user.role === "COACH")
   );
 }
 

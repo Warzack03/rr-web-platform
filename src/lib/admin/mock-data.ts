@@ -42,12 +42,25 @@ export type AdminTeam = {
   accent: string;
 };
 
+export type AdminPlayerPosition = "POR" | "DEF" | "MED" | "DEL" | "BAN";
+
+export const adminPlayerPositionOptions: Array<{
+  value: AdminPlayerPosition;
+  label: string;
+}> = [
+  { value: "POR", label: "Portero" },
+  { value: "DEF", label: "Defensa" },
+  { value: "MED", label: "Medio" },
+  { value: "DEL", label: "Delantero" },
+  { value: "BAN", label: "Banda" },
+];
+
 export type AdminPlayer = {
   id: string;
   name: string;
   teamSlug: string;
   number: number;
-  position: "POR" | "DEF" | "MED" | "DEL";
+  position: AdminPlayerPosition;
   foot: "Derecha" | "Izquierda" | "Ambas";
   country: string;
   minutes: number;
@@ -233,19 +246,19 @@ export const adminMockSeasons: AdminSeason[] = [
     id: "season-2026-2027",
     name: "2026/2027",
     status: "active",
-    dateRange: "Sep 2026 · Jun 2027",
+    dateRange: "Sep 2026 - Jun 2027",
   },
   {
     id: "season-2025-2026",
     name: "2025/2026",
     status: "archived",
-    dateRange: "Sep 2025 · Jun 2026",
+    dateRange: "Sep 2025 - Jun 2026",
   },
   {
     id: "season-2024-2025",
     name: "2024/2025",
     status: "archived",
-    dateRange: "Sep 2024 · Jun 2025",
+    dateRange: "Sep 2024 - Jun 2025",
   },
 ];
 
@@ -255,7 +268,7 @@ export const adminMockTeams: AdminTeam[] = [
     slug: "primer-equipo",
     name: "Primer Equipo",
     category: "Senior",
-    competition: "Liga Autonomica Senior · Grupo 2",
+    competition: "Liga Autonomica Senior - Grupo 2",
     season: "2026/2027",
     branch: "Madrid",
     visible: true,
@@ -264,7 +277,7 @@ export const adminMockTeams: AdminTeam[] = [
     primaryCoach: "Entrenador Primer Equipo",
     visibleCoaches: ["Marcos Varela", "Lucia Serrano", "Diego Roman"],
     playerCount: 22,
-    nextMatchLabel: "Dom 15 Jun · 18:00 · Escuela Sur Madrid",
+    nextMatchLabel: "Dom 15 Jun - 18:00 - Escuela Sur Madrid",
     accent: "from-[rgba(253,203,88,0.18)] to-[rgba(253,203,88,0.03)]",
   },
   {
@@ -281,7 +294,7 @@ export const adminMockTeams: AdminTeam[] = [
     primaryCoach: "Sergio Mena",
     visibleCoaches: ["Sergio Mena", "Claudia Torres"],
     playerCount: 19,
-    nextMatchLabel: "Sab 14 Jun · 19:30 · CD Moratalaz B",
+    nextMatchLabel: "Sab 14 Jun - 19:30 - CD Moratalaz B",
     accent: "from-[rgba(52,112,200,0.22)] to-[rgba(52,112,200,0.04)]",
   },
   {
@@ -298,7 +311,7 @@ export const adminMockTeams: AdminTeam[] = [
     primaryCoach: "Ivan Lobo",
     visibleCoaches: ["Ivan Lobo", "Lucia Serrano"],
     playerCount: 20,
-    nextMatchLabel: "Sab 14 Jun · 11:00 · EF Retiro",
+    nextMatchLabel: "Sab 14 Jun - 11:00 - EF Retiro",
     accent: "from-[rgba(255,255,255,0.1)] to-[rgba(255,255,255,0.02)]",
   },
   {
@@ -315,7 +328,7 @@ export const adminMockTeams: AdminTeam[] = [
     primaryCoach: "Noelia Cabal",
     visibleCoaches: ["Noelia Cabal"],
     playerCount: 18,
-    nextMatchLabel: "Dom 15 Jun · 10:00 · Colegio Norte",
+    nextMatchLabel: "Dom 15 Jun - 10:00 - Colegio Norte",
     accent: "from-[rgba(253,203,88,0.12)] to-[rgba(255,255,255,0.02)]",
   },
   {
@@ -332,7 +345,7 @@ export const adminMockTeams: AdminTeam[] = [
     primaryCoach: "Rafa Nieto",
     visibleCoaches: ["Rafa Nieto", "Marta Solis"],
     playerCount: 18,
-    nextMatchLabel: "Sab 14 Jun · 09:30 · AD Chamberi",
+    nextMatchLabel: "Sab 14 Jun - 09:30 - AD Chamberi",
     accent: "from-[rgba(52,112,200,0.16)] to-[rgba(255,255,255,0.02)]",
   },
   {
@@ -667,12 +680,12 @@ export const adminMockMatches: AdminMatch[] = [
     teamName: "Primer Equipo",
     opponentName: "Escuela Sur Madrid",
     matchday: "Jornada 28",
-    dateLabel: "Dom 15 Jun · 18:00",
+    dateLabel: "Dom 15 Jun - 18:00",
     venue: "Campo Rising Raimon",
     status: "live",
     home: true,
     scoreLabel: "1 - 0",
-    liveNote: "62' · Presion alta y dominio territorial",
+    liveNote: "62' - Presion alta y dominio territorial",
   },
   {
     id: "match-102",
@@ -680,7 +693,7 @@ export const adminMockMatches: AdminMatch[] = [
     teamName: "Primer Equipo",
     opponentName: "CD Hortaleza",
     matchday: "Jornada 29",
-    dateLabel: "Dom 22 Jun · 17:00",
+    dateLabel: "Dom 22 Jun - 17:00",
     venue: "Ciudad Deportiva Sur",
     status: "scheduled",
     home: false,
@@ -691,7 +704,7 @@ export const adminMockMatches: AdminMatch[] = [
     teamName: "Raimon B",
     opponentName: "CD Moratalaz B",
     matchday: "Jornada 24",
-    dateLabel: "Sab 14 Jun · 19:30",
+    dateLabel: "Sab 14 Jun - 19:30",
     venue: "Municipal Moratalaz",
     status: "scheduled",
     home: false,
@@ -702,7 +715,7 @@ export const adminMockMatches: AdminMatch[] = [
     teamName: "Juvenil A",
     opponentName: "EF Retiro",
     matchday: "Jornada 21",
-    dateLabel: "Sab 14 Jun · 11:00",
+    dateLabel: "Sab 14 Jun - 11:00",
     venue: "Polideportivo Este",
     status: "postponed",
     home: true,
@@ -713,7 +726,7 @@ export const adminMockMatches: AdminMatch[] = [
     teamName: "Juvenil B",
     opponentName: "Colegio Norte",
     matchday: "Jornada 18",
-    dateLabel: "Dom 15 Jun · 10:00",
+    dateLabel: "Dom 15 Jun - 10:00",
     venue: "Colegio Norte",
     status: "scheduled",
     home: false,
@@ -724,7 +737,7 @@ export const adminMockMatches: AdminMatch[] = [
     teamName: "Cadete A",
     opponentName: "AD Chamberi",
     matchday: "Jornada 20",
-    dateLabel: "Sab 14 Jun · 09:30",
+    dateLabel: "Sab 14 Jun - 09:30",
     venue: "Campo Chamberi",
     status: "played",
     home: false,
@@ -890,14 +903,14 @@ export const adminMockMedia: AdminMediaItem[] = [
     id: "media-1",
     label: "Logo Principal 2026",
     type: "logo",
-    updatedLabel: "Hoy · SVG",
+    updatedLabel: "Hoy - SVG",
     format: "SVG",
   },
   {
     id: "media-2",
     label: "Banner Primer Equipo",
     type: "banner",
-    updatedLabel: "Ayer · 2400x900",
+    updatedLabel: "Ayer - 2400x900",
     format: "PNG",
   },
   {
@@ -929,7 +942,7 @@ export const adminMockImports: AdminImportItem[] = [
     seasonName: "2026/2027",
     status: "completed",
     fileName: "rrm-season-2026-06-01.zip",
-    updatedLabel: "Aplicada · hace 2 dias",
+    updatedLabel: "Aplicada - hace 2 dias",
     conflictCount: 0,
   },
   {
@@ -1030,7 +1043,7 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
       focusCards: [
         {
           title: "Jugadores a mano",
-          value: topPlayers.map((player) => player.name).join(" · "),
+          value: topPlayers.map((player) => player.name).join(" - "),
           detail: "Referencia directa para registrar la aportacion ofensiva.",
         },
         {
@@ -1165,45 +1178,45 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
           },
           {
             title: "Temporadas",
-            items: adminMockSeasons.map((season) => `${season.name} · ${season.status}`),
+            items: adminMockSeasons.map((season) => `${season.name} - ${season.status}`),
           },
         ],
       };
     case "jugadores":
       return {
-        title: "Jugadores",
-        eyebrow: isCoach ? "Consulta rapida" : "Plantilla publica",
+        title: "Fichas y cromos",
+        eyebrow: isCoach ? "Consulta rapida" : "Perfil publico",
         description: "",
         metrics: [
-          { label: "Jugadores", value: adminMockPlayers.length.toString(), detail: "Porteros y jugadores de campo", tone: "gold" },
-          { label: "Con stats", value: "10", detail: "Datos basicos y avanzados", tone: "blue" },
+          { label: "Jugadores", value: adminMockPlayers.length.toString(), detail: "Perfiles del club", tone: "gold" },
+          { label: "Con cromo", value: "10", detail: "Ficha simple o premium", tone: "blue" },
         ],
         highlights: [
           {
-            title: "Equipo visible",
+            title: "Perfiles visibles",
             items: getPlayersForRole(role)
               .slice(0, 4)
-              .map((player) => `${player.number} · ${player.name} · ${player.position}`),
+              .map((player) => `${player.number} - ${player.name} - ${player.position}`),
           },
           {
             title: "Ficha publica",
-            items: ["Nombre publico", "Dorsal", "Posicion", "Pais", "Visibilidad", "Foto via media"],
+            items: ["Nombre publico", "Slug", "Dorsal", "Posicion", "Pais", "Foto y cromo"],
           },
         ],
       };
     case "asignaciones":
       return {
-        title: "Asignaciones",
-        eyebrow: "Relacion jugador-equipo",
-        description: "Organiza la relacion entre jugador, equipo y temporada.",
+        title: "Plantilla",
+        eyebrow: "Operacion por equipo",
+        description: "Organiza la plantilla activa por equipo y temporada.",
         metrics: [
-          { label: "Equipos cubiertos", value: "6", detail: "Con categorias diferentes", tone: "gold" },
-          { label: "Cambios manuales", value: "2", detail: "Casos que requeriran confirmacion", tone: "slate" },
+          { label: "Equipos cubiertos", value: "6", detail: "Con plantilla activa", tone: "gold" },
+          { label: "Altas manuales", value: "2", detail: "Casos que requeriran confirmacion", tone: "slate" },
         ],
         highlights: [
           {
             title: "Campos clave",
-            items: ["Alta por temporada", "Dorsal por asignacion", "Capitan", "Orden visual"],
+            items: ["Alta por temporada", "Dorsal por asignacion", "Posicion publica", "Capitan"],
           },
           {
             title: "Notas",
@@ -1223,7 +1236,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
         highlights: [
           {
             title: "Actualizacion",
-            items: adminMockStandings.map((standing) => `${standing.title} · ${standing.updatedLabel}`),
+            items: adminMockStandings.map((standing) => `${standing.title} - ${standing.updatedLabel}`),
           },
           {
             title: "Campos clave",
@@ -1243,7 +1256,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
         highlights: [
           {
             title: "Titulares",
-            items: adminMockNews.map((item) => `${item.title} · ${item.updatedLabel}`),
+            items: adminMockNews.map((item) => `${item.title} - ${item.updatedLabel}`),
           },
           {
             title: "Campos clave",
@@ -1263,7 +1276,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
         highlights: [
           {
             title: "Ultimos recursos",
-            items: adminMockMedia.map((item) => `${item.label} · ${item.updatedLabel}`),
+            items: adminMockMedia.map((item) => `${item.label} - ${item.updatedLabel}`),
           },
           {
             title: "Usos",
@@ -1283,7 +1296,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
         highlights: [
           {
             title: "Ultimos lotes",
-            items: adminMockImports.map((item) => `${item.fileName} · ${item.updatedLabel}`),
+            items: adminMockImports.map((item) => `${item.fileName} - ${item.updatedLabel}`),
           },
           {
             title: "Proceso",
@@ -1303,7 +1316,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
         highlights: [
           {
             title: "Usuarios",
-            items: adminMockUsers.map((user) => `${user.displayName} · ${user.roleLabel}`),
+            items: adminMockUsers.map((user) => `${user.displayName} - ${user.roleLabel}`),
           },
           {
             title: "Acciones",
@@ -1352,3 +1365,4 @@ export function getMediaTypeLabel(type: AdminMediaType) {
       return "Placeholder";
   }
 }
+

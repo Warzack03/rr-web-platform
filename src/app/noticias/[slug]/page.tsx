@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsArticlePage } from "@/components/public/news-article-page";
 import {
-  getPublicNewsArticleBySlug,
-  getRelatedPublicNewsArticles,
-  PUBLIC_NEWS_ARTICLES,
-} from "@/lib/public/news-content";
+  getPublicNewsArticles,
+  getResolvedPublicNewsArticleBySlug,
+  getResolvedRelatedPublicNewsArticles,
+} from "@/server/services/public/news-content";
 
 type NewsDetailPageProps = {
   params: Promise<{
@@ -15,14 +15,16 @@ type NewsDetailPageProps = {
 };
 
 export async function generateStaticParams() {
-  return PUBLIC_NEWS_ARTICLES.map((article) => ({
+  const articles = await getPublicNewsArticles();
+
+  return articles.map((article) => ({
     slug: article.slug,
   }));
 }
 
 export async function generateMetadata({ params }: NewsDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = getPublicNewsArticleBySlug(slug);
+  const article = await getResolvedPublicNewsArticleBySlug(slug);
 
   if (!article) {
     return {
@@ -38,13 +40,13 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;
-  const article = getPublicNewsArticleBySlug(slug);
+  const article = await getResolvedPublicNewsArticleBySlug(slug);
 
   if (!article) {
     notFound();
   }
 
-  const relatedArticles = getRelatedPublicNewsArticles(slug);
+  const relatedArticles = await getResolvedRelatedPublicNewsArticles(slug);
 
   return (
     <PublicSiteLayout activeNav="noticias">

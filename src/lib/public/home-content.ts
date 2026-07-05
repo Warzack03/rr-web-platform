@@ -9,6 +9,11 @@ import {
 import type { StandingRowData } from "@/lib/public/team-standings-content";
 import { getFirstTeamStandingsContent } from "@/lib/public/team-standings-content";
 import { getTeamsDirectoryContent } from "@/lib/public/teams-directory-content";
+import { getPublicHomeDbSections } from "@/server/services/public/home";
+import {
+  getFeaturedPublicNewsArticle,
+  getLatestPublicNewsArticles,
+} from "@/server/services/public/news-content";
 
 export type HomeHeroContent = {
   eyebrow: string;
@@ -76,7 +81,7 @@ export type PublicHomePageContent = {
   };
 };
 
-export async function getPublicHomePageContent(): Promise<PublicHomePageContent | null> {
+async function getMockPublicHomePageContent(): Promise<PublicHomePageContent | null> {
   const [firstTeam, standings] = await Promise.all([
     getPublicTeamPageContent("primer-equipo"),
     getFirstTeamStandingsContent(),
@@ -162,6 +167,31 @@ export async function getPublicHomePageContent(): Promise<PublicHomePageContent 
         category: team.category,
         competition: team.competition,
       })),
+    },
+  };
+}
+
+export async function getPublicHomePageContent(): Promise<PublicHomePageContent | null> {
+  const mockContent = await getMockPublicHomePageContent();
+
+  if (!mockContent) {
+    return null;
+  }
+
+  const [dbSections, featuredNews, latestNews] = await Promise.all([
+    getPublicHomeDbSections(),
+    getFeaturedPublicNewsArticle(),
+    getLatestPublicNewsArticles(2),
+  ]);
+
+  return {
+    ...mockContent,
+    firstTeam: dbSections?.firstTeam ?? mockContent.firstTeam,
+    academy: dbSections?.academy ?? mockContent.academy,
+    news: {
+      ...mockContent.news,
+      featured: featuredNews ?? mockContent.news.featured,
+      latest: latestNews.length > 0 ? latestNews : mockContent.news.latest,
     },
   };
 }

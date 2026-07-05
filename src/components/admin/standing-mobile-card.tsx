@@ -16,6 +16,7 @@ type StandingMobileCardProps = {
       | "won"
       | "drawn"
       | "lost"
+      | "sanctionPoints"
       | "goalsFor"
       | "goalsAgainst",
     value: number,
@@ -28,6 +29,7 @@ type EditableStandingField =
   | "won"
   | "drawn"
   | "lost"
+  | "sanctionPoints"
   | "goalsFor"
   | "goalsAgainst";
 
@@ -40,6 +42,7 @@ const editableStandingFields: {
   { label: "G", field: "won", getValue: (row) => row.won },
   { label: "E", field: "drawn", getValue: (row) => row.drawn },
   { label: "P", field: "lost", getValue: (row) => row.lost },
+  { label: "PTS SA", field: "sanctionPoints", getValue: (row) => row.sanctionPoints },
   { label: "GF", field: "goalsFor", getValue: (row) => row.goalsFor },
   { label: "GC", field: "goalsAgainst", getValue: (row) => row.goalsAgainst },
 ];
@@ -156,7 +159,7 @@ export function StandingMobileCard({
 
           {row.isOwnTeam ? (
             <span className="rounded-full border border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] px-2 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--rr-gold)]">
-              Equipo propio
+              Equipo del club
             </span>
           ) : null}
         </div>
@@ -204,9 +207,14 @@ export function StandingMobileCard({
               "rr-button text-[0.78rem]",
               row.isOwnTeam ? "rr-button-primary" : "rr-button-secondary",
             )}
+            aria-label={
+              row.isOwnTeam
+                ? "Quitar marca de equipo del club"
+                : "Marcar equipo del club"
+            }
           >
             <Star className="h-4 w-4" />
-            {row.isOwnTeam ? "Equipo propio" : "Marcar como propio"}
+            {row.isOwnTeam ? "Equipo del club" : "Marcar equipo del club"}
           </button>
         ) : null}
       </div>

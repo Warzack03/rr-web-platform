@@ -25,6 +25,7 @@ export type StandingManagementRow = {
   won: number;
   drawn: number;
   lost: number;
+  sanctionPoints: number;
   goalsFor: number;
   goalsAgainst: number;
   goalDifference: number;
@@ -98,8 +99,8 @@ function computeGoalDifference(goalsFor: number, goalsAgainst: number) {
   return toSafeInt(goalsFor) - toSafeInt(goalsAgainst);
 }
 
-function computeStandingPoints(won: number, drawn: number) {
-  return toSafeInt(won) * 3 + toSafeInt(drawn);
+function computeStandingPoints(won: number, drawn: number, sanctionPoints: number) {
+  return toSafeInt(won) * 3 + toSafeInt(drawn) - toSafeInt(sanctionPoints);
 }
 
 function sanitizeStandingRow(
@@ -111,6 +112,7 @@ function sanitizeStandingRow(
   const won = toSafeInt(row.won);
   const drawn = toSafeInt(row.drawn);
   const lost = toSafeInt(row.lost);
+  const sanctionPoints = toSafeInt(row.sanctionPoints);
   const goalsFor = toSafeInt(row.goalsFor);
   const goalsAgainst = toSafeInt(row.goalsAgainst);
 
@@ -124,10 +126,11 @@ function sanitizeStandingRow(
     won,
     drawn,
     lost,
+    sanctionPoints,
     goalsFor,
     goalsAgainst,
     goalDifference: computeGoalDifference(goalsFor, goalsAgainst),
-    points: computeStandingPoints(won, drawn),
+    points: computeStandingPoints(won, drawn, sanctionPoints),
     isOwnTeam: Boolean(row.isOwnTeam),
   };
 }
@@ -166,15 +169,9 @@ export function normalizeAndSortStandingRows(rows: StandingManagementRow[]) {
 export function normalizeStandingTable(
   table: StandingManagementTable,
 ): StandingManagementTable {
-  const normalizedRows = normalizeStandingRows(table.rows);
-  const ownTeamRowIndex = normalizedRows.findIndex((row) => row.isOwnTeam);
-
   return {
     ...table,
-    rows: normalizedRows.map((row, index) => ({
-      ...row,
-      isOwnTeam: ownTeamRowIndex === -1 ? row.isOwnTeam : index === ownTeamRowIndex,
-    })),
+    rows: normalizeStandingRows(table.rows),
   };
 }
 
@@ -195,6 +192,7 @@ function createStandingRow(
     won: row.won,
     drawn: row.drawn,
     lost: row.lost,
+    sanctionPoints: row.sanctionPoints,
     goalsFor: row.goalsFor,
     goalsAgainst: row.goalsAgainst,
     goalDifference:
@@ -261,6 +259,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 21,
         drawn: 3,
         lost: 3,
+        sanctionPoints: 0,
         goalsFor: 58,
         goalsAgainst: 21,
         points: 66,
@@ -273,6 +272,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 19,
         drawn: 4,
         lost: 4,
+        sanctionPoints: 0,
         goalsFor: 49,
         goalsAgainst: 25,
         points: 61,
@@ -285,6 +285,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 18,
         drawn: 5,
         lost: 4,
+        sanctionPoints: 0,
         goalsFor: 46,
         goalsAgainst: 28,
         points: 59,
@@ -297,6 +298,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 15,
         drawn: 6,
         lost: 6,
+        sanctionPoints: 0,
         goalsFor: 44,
         goalsAgainst: 31,
         points: 51,
@@ -309,6 +311,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 14,
         drawn: 4,
         lost: 9,
+        sanctionPoints: 0,
         goalsFor: 39,
         goalsAgainst: 34,
         points: 46,
@@ -332,6 +335,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 11,
         drawn: 3,
         lost: 1,
+        sanctionPoints: 0,
         goalsFor: 32,
         goalsAgainst: 12,
         points: 36,
@@ -344,6 +348,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 10,
         drawn: 4,
         lost: 1,
+        sanctionPoints: 0,
         goalsFor: 28,
         goalsAgainst: 14,
         points: 34,
@@ -356,6 +361,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 10,
         drawn: 2,
         lost: 3,
+        sanctionPoints: 0,
         goalsFor: 25,
         goalsAgainst: 15,
         points: 32,
@@ -368,6 +374,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 9,
         drawn: 4,
         lost: 2,
+        sanctionPoints: 0,
         goalsFor: 22,
         goalsAgainst: 11,
         points: 31,
@@ -380,6 +387,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 8,
         drawn: 5,
         lost: 2,
+        sanctionPoints: 0,
         goalsFor: 19,
         goalsAgainst: 14,
         points: 29,
@@ -392,6 +400,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 8,
         drawn: 2,
         lost: 5,
+        sanctionPoints: 0,
         goalsFor: 24,
         goalsAgainst: 20,
         points: 26,
@@ -415,6 +424,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 15,
         drawn: 3,
         lost: 2,
+        sanctionPoints: 0,
         goalsFor: 42,
         goalsAgainst: 16,
         points: 48,
@@ -427,6 +437,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 14,
         drawn: 4,
         lost: 2,
+        sanctionPoints: 0,
         goalsFor: 38,
         goalsAgainst: 18,
         points: 46,
@@ -439,6 +450,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 13,
         drawn: 4,
         lost: 3,
+        sanctionPoints: 0,
         goalsFor: 35,
         goalsAgainst: 19,
         points: 43,
@@ -451,6 +463,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 10,
         drawn: 5,
         lost: 5,
+        sanctionPoints: 0,
         goalsFor: 27,
         goalsAgainst: 21,
         points: 35,
@@ -474,6 +487,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 14,
         drawn: 2,
         lost: 2,
+        sanctionPoints: 0,
         goalsFor: 41,
         goalsAgainst: 15,
         points: 44,
@@ -486,6 +500,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 13,
         drawn: 3,
         lost: 2,
+        sanctionPoints: 0,
         goalsFor: 36,
         goalsAgainst: 17,
         points: 42,
@@ -498,6 +513,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 11,
         drawn: 4,
         lost: 3,
+        sanctionPoints: 0,
         goalsFor: 29,
         goalsAgainst: 19,
         points: 37,
@@ -510,6 +526,7 @@ const standingsManagementTables: StandingManagementTable[] = [
         won: 8,
         drawn: 5,
         lost: 5,
+        sanctionPoints: 0,
         goalsFor: 24,
         goalsAgainst: 22,
         points: 29,
@@ -635,6 +652,7 @@ export function buildBlankStandingRows(teamName: string) {
       won: 0,
       drawn: 0,
       lost: 0,
+      sanctionPoints: 0,
       goalsFor: 0,
       goalsAgainst: 0,
       goalDifference: 0,
@@ -649,6 +667,7 @@ export function buildBlankStandingRows(teamName: string) {
       won: 0,
       drawn: 0,
       lost: 0,
+      sanctionPoints: 0,
       goalsFor: 0,
       goalsAgainst: 0,
       goalDifference: 0,
@@ -663,6 +682,7 @@ export function buildBlankStandingRows(teamName: string) {
       won: 0,
       drawn: 0,
       lost: 0,
+      sanctionPoints: 0,
       goalsFor: 0,
       goalsAgainst: 0,
       goalDifference: 0,

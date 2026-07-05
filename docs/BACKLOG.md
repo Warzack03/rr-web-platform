@@ -71,7 +71,7 @@
 - First Team flag.
 - Public visibility.
 - Visible coaches.
-- Coach account assignment.
+- Informative coach management.
 
 ## Epic 8 - Players and assignments
 

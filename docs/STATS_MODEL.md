@@ -7,6 +7,18 @@
 - Goal participation = goals + assists.
 - Do not allow negative stats.
 - Derived metrics must avoid division by zero.
+- The source of truth is the match-level stat line; season totals are derived from it.
+- `matchesPlayed` should be derived from participation in matches, not edited as a manual aggregate in the main admin flow.
+
+## Admin backoffice flow
+
+- The selected match is the active edit context.
+- The admin should be able to mark whether each player played that match.
+- If a player did not play, that match contributes `0` stats and does not add `PJ`.
+- The same screen should still keep season totals and derived metrics visible.
+- The model should also allow occasional appearances for players outside the
+  regular roster of that team, keeping those stats attached to the
+  player + team-context + season + match where they occurred.
 
 ## First Team field player stats
 

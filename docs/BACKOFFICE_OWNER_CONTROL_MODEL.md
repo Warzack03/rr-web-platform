@@ -11,8 +11,8 @@ The product no longer needs separate day-to-day roles for `manager` or `entrenad
 To keep the public website healthy, the admin needs control over:
 
 - Seasons and active public context.
-- Teams: name, slug, category, competition, visibility, order, logo, banner and public coaches.
-- Team rosters: player assignment by season/team, dorsal, position, captain/order and active state.
+- Teams: name, slug, category, competition, visibility, order, logo, banner and informative public coaches.
+- Team rosters: player assignment by season/team, dorsal, position, captain and active state.
 - Players: public name, slug, photo, position, dominant foot, country/flag, dorsal, visibility and card-ready fields.
 - Matches: opponent, home/away, date/time, venue, matchday, status, result and First Team video URL.
 - Standings: complete manual table per team/competition.
@@ -40,3 +40,12 @@ Mobile-critical:
 ## MVP discipline
 
 Continue with mocks until the admin flows and public data shape are stable. Real persistence should follow the same data shape already visible in the mocks.
+
+## Current module split
+
+- `Plantilla` is the operational module for creating and managing a team's
+  active roster.
+- `Fichas y cromos` is the advanced module for the final public player profile
+  and card preview.
+- The product should guide the admin from roster work into public profile work,
+  not make them feel like two unrelated systems.

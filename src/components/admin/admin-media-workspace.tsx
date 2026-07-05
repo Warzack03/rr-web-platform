@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   FileImage,
   ImagePlus,
-  Link2,
   Search,
   Shield,
   UserRound,
 } from "lucide-react";
+import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
@@ -21,6 +21,9 @@ import {
 import { cn } from "@/lib/utils";
 
 type MediaFilter = "all" | AdminMediaType;
+type EditableAdminMediaItem = AdminMediaItem & {
+  previewUrl?: string;
+};
 
 const mediaTypeOptions: Array<{ value: MediaFilter; label: string }> = [
   { value: "all", label: "Todo" },
@@ -67,10 +70,12 @@ function getMediaIcon(type: AdminMediaType) {
 }
 
 export function AdminMediaWorkspace() {
-  const [mediaItems] = useState<AdminMediaItem[]>(adminMockMedia);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [mediaItems, setMediaItems] = useState<EditableAdminMediaItem[]>(adminMockMedia);
   const [selectedId, setSelectedId] = useState(mediaItems[0]?.id ?? "");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<MediaFilter>("all");
+  const [feedback, setFeedback] = useState<string | null>(null);
   const selectedItem =
     mediaItems.find((item) => item.id === selectedId) ?? mediaItems[0];
 
@@ -88,6 +93,48 @@ export function AdminMediaWorkspace() {
     });
   }, [mediaItems, search, typeFilter]);
 
+  function inferUploadType(file: File): AdminMediaType {
+    if (typeFilter !== "all") {
+      return typeFilter;
+    }
+
+    if (file.type === "image/svg+xml") {
+      return "logo";
+    }
+
+    return selectedItem?.type ?? "player-photo";
+  }
+
+  function handleOpenUpload() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFileSelection(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const nextType = inferUploadType(file);
+    const format = file.name.split(".").pop()?.toUpperCase() ?? file.type ?? "Archivo";
+    const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+    const nextItem: EditableAdminMediaItem = {
+      id: `media-local-${Date.now()}`,
+      label: file.name.replace(/\.[^/.]+$/, ""),
+      type: nextType,
+      updatedLabel: "Subida local pendiente",
+      format,
+      previewUrl,
+    };
+
+    setMediaItems((currentItems) => [nextItem, ...currentItems]);
+    setSelectedId(nextItem.id);
+    setFeedback("Archivo anadido a la biblioteca mock. Aun no se guarda en base de datos.");
+    window.setTimeout(() => setFeedback(null), 2600);
+    event.target.value = "";
+  }
+
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
@@ -95,11 +142,25 @@ export function AdminMediaWorkspace() {
         title="Biblioteca visual"
         description="Organiza fotos, logos, banners y recursos que alimentan fichas, cromos, equipos y noticias."
         actions={
-          <button type="button" className="rr-button rr-button-primary text-[0.84rem]">
+          <button
+            type="button"
+            onClick={handleOpenUpload}
+            className="rr-button rr-button-primary text-[0.84rem]"
+          >
             Preparar subida
           </button>
         }
       />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.svg"
+        onChange={handleFileSelection}
+        className="hidden"
+      />
+
+      {feedback ? <AdminFeedbackBanner message={feedback} /> : null}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_24rem]">
         <AdminPanel className="p-4 sm:p-5">
@@ -192,13 +253,23 @@ export function AdminMediaWorkspace() {
               {selectedItem ? (
                 <>
                   <div className="rounded-[14px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.12),transparent_40%),rgba(255,255,255,0.04)] px-5 py-8 text-center">
-                    <FileImage className="mx-auto h-12 w-12 text-[color:var(--rr-gold)]" />
-                    <p className="mt-4 text-[0.96rem] font-semibold text-white">
-                      Preview pendiente
-                    </p>
-                    <p className="mt-2 text-[0.86rem] leading-5 text-[color:var(--rr-muted)]">
-                      En datos reales aqui se vera miniatura, dimensiones y ruta publica.
-                    </p>
+                    {selectedItem.previewUrl ? (
+                      <img
+                        src={selectedItem.previewUrl}
+                        alt={selectedItem.label}
+                        className="mx-auto max-h-56 w-auto rounded-[12px] border border-white/10 object-contain"
+                      />
+                    ) : (
+                      <>
+                        <FileImage className="mx-auto h-12 w-12 text-[color:var(--rr-gold)]" />
+                        <p className="mt-4 text-[0.96rem] font-semibold text-white">
+                          Preview pendiente
+                        </p>
+                        <p className="mt-2 text-[0.86rem] leading-5 text-[color:var(--rr-muted)]">
+                          En datos reales aqui se vera miniatura, dimensiones y ruta publica.
+                        </p>
+                      </>
+                    )}
                   </div>
 
                   <div className="grid gap-3">
@@ -221,26 +292,6 @@ export function AdminMediaWorkspace() {
                   </div>
                 </>
               ) : null}
-            </div>
-          </AdminPanel>
-
-          <AdminPanel className="p-5">
-            <div className="space-y-3">
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Conecta con</p>
-              {[
-                "Jugador y cromo",
-                "Equipo y banner",
-                "Noticias y portada",
-                "Rivales en partidos",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/4 px-4 text-[0.9rem] text-[color:var(--rr-muted)]"
-                >
-                  {item}
-                  <Link2 className="h-4 w-4 text-[color:var(--rr-gold)]" />
-                </div>
-              ))}
             </div>
           </AdminPanel>
         </div>

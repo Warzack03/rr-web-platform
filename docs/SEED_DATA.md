@@ -44,7 +44,7 @@ Use safe local/dev passwords only. Do not commit production passwords.
 ### Coaches
 
 - Primer Equipo: two or three public coaches
-- Only one linked coach account for Primer Equipo: `entrenador_primer_equipo`
+- Coaches are informative team data and do not need linked accounts in seed mode
 
 ### Players
 
@@ -86,4 +86,3 @@ Create:
 - Use obvious fake/demo data.
 - Do not import from production `rr-management` for seeds.
 - Keep seed deterministic where possible.
-

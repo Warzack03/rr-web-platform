@@ -13,15 +13,26 @@ import { PlayerStatsMobileCard } from "@/components/admin/player-stats-mobile-ca
 import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import {
+  hasAdminMatchEntryImpact,
+  cloneAdminStatsState,
+  createInitialAdminStatsState,
   getAdminStatFields,
-  incrementPlayerStat,
+  getMatchEntryForPlayer,
+  getSeasonPlayerTotals,
+  incrementPlayerMatchStat,
   isMobileAutoAdvanceField,
   isGoalkeeperPlayer,
   splitAdminStatFieldsForMobile,
-  updatePlayerStat,
-  type AdminStatFieldKey,
+  togglePlayerMatchParticipation,
+  updatePlayerMatchStat,
+  type AdminEditableStatFieldKey,
+  type AdminMatchPlayerEntry,
 } from "@/lib/admin/admin-stats";
-import { adminMockPlayers, type AdminPlayer } from "@/lib/admin/mock-data";
+import {
+  adminMockPlayers,
+  adminMockTeams,
+  type AdminPlayer,
+} from "@/lib/admin/mock-data";
 import {
   coachPreviewTeamSlugs,
   formatMatchDateLabel,
@@ -46,6 +57,13 @@ type ScreenState = "loading" | "ready" | "error";
 type MobileStatsSection = "outfield" | "goalkeepers";
 type MobileStatsViewMode = "list" | "focused";
 type MobilePlayerReviewState = "pending" | "reviewed" | "edited";
+type VisibleStatsPlayer = AdminPlayer & {
+  contextType: "regular" | "guest";
+  originTeamName?: string;
+};
+
+const initialMatches = getAllMatchManagementMatches();
+const teamNameBySlug = new Map(adminMockTeams.map((team) => [team.slug, team.name]));
 
 function getInitialCoachTeamSlug(initialSelectedTeamSlug?: string) {
   return coachPreviewTeamSlugs.includes(
@@ -78,6 +96,54 @@ function formatSavedTime(value: Date | null) {
   });
 }
 
+function areMatchEntriesEqual(
+  left: AdminMatchPlayerEntry,
+  right: AdminMatchPlayerEntry,
+) {
+  return (
+    left.played === right.played &&
+    left.goals === right.goals &&
+    left.assists === right.assists &&
+    left.mvp === right.mvp &&
+    left.yellowCards === right.yellowCards &&
+    left.redCards === right.redCards &&
+    left.recoveries === right.recoveries &&
+    left.shots === right.shots &&
+    left.shotsOnTarget === right.shotsOnTarget &&
+    left.ownGoals === right.ownGoals &&
+    left.goalsConceded === right.goalsConceded &&
+    left.saves === right.saves &&
+    left.cleanSheets === right.cleanSheets
+  );
+}
+
+function createGuestPlayerContext(
+  player: AdminPlayer,
+  targetTeamSlug: string,
+): VisibleStatsPlayer {
+  return {
+    ...player,
+    teamSlug: targetTeamSlug,
+    minutes: 0,
+    matchesPlayed: 0,
+    goals: 0,
+    assists: 0,
+    yellowCards: 0,
+    redCards: 0,
+    mvp: 0,
+    goalsConceded: 0,
+    saves: 0,
+    cleanSheets: 0,
+    recoveries: 0,
+    shots: 0,
+    shotsOnTarget: 0,
+    ownGoals: 0,
+    advancedLabel: undefined,
+    contextType: "guest",
+    originTeamName: teamNameBySlug.get(player.teamSlug),
+  };
+}
+
 export function AdminStatsWorkspace({
   role,
   initialUiState = "ready",
@@ -86,11 +152,11 @@ export function AdminStatsWorkspace({
 }: AdminStatsWorkspaceProps) {
   const [screenState, setScreenState] = useState<ScreenState>("loading");
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
-  const [allPlayers, setAllPlayers] = useState<AdminPlayer[]>(() =>
-    adminMockPlayers.map((player) => ({ ...player })),
+  const [statsState, setStatsState] = useState(() =>
+    createInitialAdminStatsState(adminMockPlayers, initialMatches),
   );
-  const [savedPlayers, setSavedPlayers] = useState<AdminPlayer[]>(() =>
-    adminMockPlayers.map((player) => ({ ...player })),
+  const [savedStatsState, setSavedStatsState] = useState(() =>
+    createInitialAdminStatsState(adminMockPlayers, initialMatches),
   );
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
@@ -102,6 +168,7 @@ export function AdminStatsWorkspace({
   const [requestedMatchId, setRequestedMatchId] = useState<string>(
     initialSelectedMatchId ?? "",
   );
+  const [pendingGuestPlayerId, setPendingGuestPlayerId] = useState<string>("");
   const [mobileSection, setMobileSection] = useState<MobileStatsSection>(
     "outfield",
   );
@@ -136,37 +203,61 @@ export function AdminStatsWorkspace({
         allowedTeams[0]?.slug ??
         "";
   const selectedTeam = allowedTeams.find((team) => team.slug === resolvedTeamSlug);
-  const rawMatches = getAllMatchManagementMatches().filter(
-    (match) => match.teamSlug === resolvedTeamSlug,
+  const rawMatches = initialMatches.filter(
+    (match) => match.teamSlug === resolvedTeamSlug && match.status === "played",
   );
   const matches =
     role === "COACH"
       ? sortCoachMatchManagementMatches(rawMatches)
       : sortMatchManagementMatches(rawMatches);
   const selectedMatch =
-    matches.find((match) => match.id === requestedMatchId) ??
-    matches.find((match) =>
-      role === "COACH"
-        ? getCoachMatchVisualStatus(match) === "pending"
-        : getVisualMatchStatus(match.status) !== "played",
-    ) ??
-    matches[0];
-  const players = allPlayers.filter((player) => player.teamSlug === resolvedTeamSlug);
-  const savedTeamPlayers = savedPlayers.filter(
+    matches.find((match) => match.id === requestedMatchId) ?? matches[0];
+  const regularTeamPlayers = adminMockPlayers.filter(
     (player) => player.teamSlug === resolvedTeamSlug,
   );
+  const regularTeamPlayerIds = new Set(
+    regularTeamPlayers.map((player) => player.id),
+  );
+  const guestPlayerIds = Array.from(
+    new Set(
+      matches.flatMap((match) =>
+        Object.entries(statsState.matchEntriesByMatchId[match.id] ?? {})
+          .filter(
+            ([playerId, entry]) =>
+              !regularTeamPlayerIds.has(playerId) && hasAdminMatchEntryImpact(entry),
+          )
+          .map(([playerId]) => playerId),
+      ),
+    ),
+  );
+  const guestPlayers = guestPlayerIds
+    .map((playerId) => adminMockPlayers.find((player) => player.id === playerId))
+    .filter((player): player is AdminPlayer => Boolean(player))
+    .map((player) => createGuestPlayerContext(player, resolvedTeamSlug));
+  const visiblePlayerSeeds: VisibleStatsPlayer[] = [
+    ...regularTeamPlayers.map((player) => ({
+      ...player,
+      contextType: "regular" as const,
+    })),
+    ...guestPlayers,
+  ];
+  const addableGuestPlayers = adminMockPlayers.filter(
+    (player) =>
+      player.teamSlug !== resolvedTeamSlug &&
+      !regularTeamPlayerIds.has(player.id) &&
+      !guestPlayerIds.includes(player.id),
+  );
+  const players: VisibleStatsPlayer[] = visiblePlayerSeeds.map((player) => ({
+    ...getSeasonPlayerTotals(player, statsState),
+    contextType: player.contextType,
+    originTeamName: player.originTeamName,
+  }));
   const selectedMatchStatus = selectedMatch
     ? role === "COACH"
       ? getCoachMatchVisualStatus(selectedMatch)
       : getVisualMatchStatus(selectedMatch.status)
     : null;
   const statusBadge = selectedMatchStatus ? getStatusBadge(selectedMatchStatus) : null;
-  const topContributor = [...players].sort(
-    (left, right) =>
-      right.goals + right.assists - (left.goals + left.assists),
-  )[0];
-  const hasUnsavedChanges =
-    JSON.stringify(players) !== JSON.stringify(savedTeamPlayers);
   const goalkeepers = players.filter((player) => isGoalkeeperPlayer(player));
   const outfieldPlayers = players.filter((player) => !isGoalkeeperPlayer(player));
   const outfieldFields = getAdminStatFields({
@@ -205,39 +296,93 @@ export function AdminStatsWorkspace({
   );
   const focusedMobilePlayer = mobileVisiblePlayers[effectiveFocusedPlayerIndex];
 
+  const selectedMatchEntries: Record<string, AdminMatchPlayerEntry> = selectedMatch
+    ? Object.fromEntries(
+        visiblePlayerSeeds.map((player) => [
+          player.id,
+          getMatchEntryForPlayer(statsState, selectedMatch.id, player.id),
+        ]),
+      )
+    : {};
+
+  const savedSelectedMatchEntries: Record<string, AdminMatchPlayerEntry> = selectedMatch
+    ? Object.fromEntries(
+        visiblePlayerSeeds.map((player) => [
+          player.id,
+          getMatchEntryForPlayer(savedStatsState, selectedMatch.id, player.id),
+        ]),
+      )
+    : {};
+
+  const hasUnsavedChanges = Boolean(selectedMatch) &&
+    visiblePlayerSeeds.some((player) => {
+      const currentEntry = selectedMatchEntries[player.id];
+      const savedEntry = savedSelectedMatchEntries[player.id];
+
+      return (
+        currentEntry !== undefined &&
+        savedEntry !== undefined &&
+        !areMatchEntriesEqual(currentEntry, savedEntry)
+      );
+    });
+
+  const selectedMatchPlayedCount = selectedMatch
+    ? visiblePlayerSeeds.filter((player) => selectedMatchEntries[player.id]?.played).length
+    : 0;
+  const selectedMatchActionCount = selectedMatch
+    ? visiblePlayerSeeds.reduce((total, player) => {
+        const entry = selectedMatchEntries[player.id];
+        return total + (entry?.goals ?? 0) + (entry?.assists ?? 0);
+      }, 0)
+    : 0;
+
   function pushBanner(message: string) {
     startTransition(() => setBannerMessage(message));
   }
 
   function saveStats() {
-    setSavedPlayers(allPlayers.map((player) => ({ ...player })));
+    setSavedStatsState(cloneAdminStatsState(statsState));
     setLastSavedAt(new Date());
-    pushBanner("Estadisticas guardadas. Guardado local de prueba.");
+    pushBanner("Participacion y estadisticas del partido guardadas.");
+  }
+
+  function resetReviewContext() {
+    setFocusedPlayerIndex(0);
+    setReviewedPlayerIds([]);
+    setPendingGuestPlayerId("");
   }
 
   function handleUpdatePlayer(
     playerId: string,
-    field: AdminStatFieldKey,
+    field: AdminEditableStatFieldKey,
     value: number,
   ) {
+    if (!selectedMatch) {
+      return;
+    }
+
     setReviewedPlayerIds((currentIds) =>
       currentIds.includes(playerId) ? currentIds : [...currentIds, playerId],
     );
-    setAllPlayers((currentPlayers) =>
-      updatePlayerStat(currentPlayers, playerId, field, value),
+    setStatsState((currentState) =>
+      updatePlayerMatchStat(currentState, selectedMatch.id, playerId, field, value),
     );
   }
 
   function handleAdjustPlayer(
     playerId: string,
-    field: AdminStatFieldKey,
+    field: AdminEditableStatFieldKey,
     delta: number,
   ) {
+    if (!selectedMatch) {
+      return;
+    }
+
     setReviewedPlayerIds((currentIds) =>
       currentIds.includes(playerId) ? currentIds : [...currentIds, playerId],
     );
-    setAllPlayers((currentPlayers) =>
-      incrementPlayerStat(currentPlayers, playerId, field, delta),
+    setStatsState((currentState) =>
+      incrementPlayerMatchStat(currentState, selectedMatch.id, playerId, field, delta),
     );
 
     if (
@@ -254,6 +399,43 @@ export function AdminStatsWorkspace({
     }
   }
 
+  function handleTogglePlayed(playerId: string) {
+    if (!selectedMatch) {
+      return;
+    }
+
+    setReviewedPlayerIds((currentIds) =>
+      currentIds.includes(playerId) ? currentIds : [...currentIds, playerId],
+    );
+    setStatsState((currentState) =>
+      togglePlayerMatchParticipation(currentState, selectedMatch.id, playerId),
+    );
+  }
+
+  function handleAddGuestPlayer() {
+    if (!selectedMatch || !pendingGuestPlayerId) {
+      return;
+    }
+
+    const guestPlayer = adminMockPlayers.find(
+      (player) => player.id === pendingGuestPlayerId,
+    );
+
+    if (!guestPlayer) {
+      return;
+    }
+
+    setReviewedPlayerIds((currentIds) =>
+      currentIds.includes(guestPlayer.id) ? currentIds : [...currentIds, guestPlayer.id],
+    );
+    setStatsState((currentState) =>
+      togglePlayerMatchParticipation(currentState, selectedMatch.id, guestPlayer.id),
+    );
+    setPendingGuestPlayerId("");
+    setMobileSection(isGoalkeeperPlayer(guestPlayer) ? "goalkeepers" : "outfield");
+    pushBanner(`Jugador puntual anadido: ${guestPlayer.name}.`);
+  }
+
   function markPlayerReviewed(playerId: string) {
     setReviewedPlayerIds((currentIds) =>
       currentIds.includes(playerId) ? currentIds : [...currentIds, playerId],
@@ -261,12 +443,16 @@ export function AdminStatsWorkspace({
   }
 
   function getPlayerReviewState(player: AdminPlayer): MobilePlayerReviewState {
-    const savedPlayer = savedTeamPlayers.find(
-      (candidate) => candidate.id === player.id,
-    );
+    if (!selectedMatch) {
+      return "pending";
+    }
+
+    const currentEntry = selectedMatchEntries[player.id];
+    const savedEntry = savedSelectedMatchEntries[player.id];
     const hasChanges =
-      savedPlayer !== undefined &&
-      JSON.stringify(player) !== JSON.stringify(savedPlayer);
+      currentEntry !== undefined &&
+      savedEntry !== undefined &&
+      !areMatchEntriesEqual(currentEntry, savedEntry);
 
     if (hasChanges) {
       return "edited";
@@ -291,7 +477,7 @@ export function AdminStatsWorkspace({
     return window.confirm(
       `Todavia quedan ${pendingPlayerCount} ${
         pendingPlayerCount === 1 ? "jugador pendiente" : "jugadores pendientes"
-      } sin revisar en este partido. ¿Quieres cambiar igualmente?`,
+      } sin revisar en este partido. Quieres cambiar igualmente?`,
     );
   }
 
@@ -313,12 +499,12 @@ export function AdminStatsWorkspace({
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
-        eyebrow={role === "COACH" ? "Partido y plantilla" : "Control de estadisticas"}
+        eyebrow={role === "COACH" ? "Partido y acumulado" : "Control de estadisticas"}
         title="Estadisticas"
         description={
           role === "COACH"
-            ? "Elige partido, edita lo importante y guarda."
-            : "Selecciona equipo y partido para actualizar la tabla."
+            ? "Elige el partido activo, marca quien ha jugado y carga sus stats. El acumulado y las medias se recalculan en la misma pantalla."
+            : "Selecciona equipo y partido activo para cargar la participacion y mantener visible el acumulado de temporada."
         }
         actions={
           <Link
@@ -341,17 +527,20 @@ export function AdminStatsWorkspace({
                   Flujo de entrenador
                 </p>
                 <p className="text-[0.98rem] font-semibold text-white">
-                  Partido, estadisticas y guardado rapido
+                  Partido activo y acumulado a la vista
                 </p>
                 <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-                  Cambia de equipo o vuelve a partidos sin salir del flujo.
+                  Carga quien ha jugado y que ha hecho, sin perder el total de temporada.
                 </p>
               </div>
 
               <AdminCoachTeamSwitcher
                 options={coachPreviewTeamOptions}
                 value={coachTeamSlug}
-                onChange={setCoachTeamSlug}
+                onChange={(nextCoachTeamSlug) => {
+                  setCoachTeamSlug(nextCoachTeamSlug);
+                  resetReviewContext();
+                }}
               />
 
               <div className="grid gap-2">
@@ -374,8 +563,8 @@ export function AdminStatsWorkspace({
           <div className="hidden sm:block">
             <AdminScopePanel
               eyebrow="Flujo de entrenador"
-              title="Una tabla por partido"
-              description="Resultado, estadisticas y clasificacion del mismo equipo."
+              title="Una carga por partido, una lectura acumulada"
+              description="Arriba eliges el partido que estas cerrando. Debajo decides quien ha jugado y ves a la vez el acumulado de temporada."
               actions={
                 <>
                   <Link
@@ -396,7 +585,10 @@ export function AdminStatsWorkspace({
                 <AdminCoachTeamSwitcher
                   options={coachPreviewTeamOptions}
                   value={coachTeamSlug}
-                  onChange={setCoachTeamSlug}
+                  onChange={(nextCoachTeamSlug) => {
+                    setCoachTeamSlug(nextCoachTeamSlug);
+                    resetReviewContext();
+                  }}
                 />
               }
             />
@@ -425,6 +617,9 @@ export function AdminStatsWorkspace({
                 {selectedMatch.matchday} · {formatMatchDateLabel(selectedMatch)} ·{" "}
                 {selectedMatch.venue}
               </p>
+              <p className="text-[0.86rem] text-[color:var(--rr-muted)]">
+                {selectedMatchPlayedCount} de {players.length} jugadores marcados como participantes.
+              </p>
             </div>
 
             <button
@@ -447,25 +642,29 @@ export function AdminStatsWorkspace({
           icon={<ShieldCheck className="h-5 w-5" />}
         />
         <AdminMetricCard
-          label="Partido elegido"
+          label="Partido activo"
           value={selectedMatch?.matchday ?? "-"}
           detail={selectedMatch ? formatMatchDateLabel(selectedMatch) : "Sin partido"}
           tone="blue"
           icon={<Trophy className="h-5 w-5" />}
         />
         <AdminMetricCard
-          label="Jugadores editables"
-          value={players.length.toString()}
-          detail={selectedTeam?.isFirstTeam ? "Campos ampliados" : "Campos base"}
+          label="Han jugado"
+          value={selectedMatch ? selectedMatchPlayedCount.toString() : "-"}
+          detail={
+            selectedMatch
+              ? `de ${players.length} jugadores visibles`
+              : "Sin partido seleccionado"
+          }
           tone="slate"
           icon={<Users className="h-5 w-5" />}
         />
         <AdminMetricCard
-          label="Aportacion actual"
-          value={topContributor ? `#${topContributor.number}` : "-"}
+          label="Jugadores puntuales"
+          value={guestPlayers.length.toString()}
           detail={
-            topContributor
-              ? `${topContributor.name} · ${topContributor.goals + topContributor.assists} acciones`
+            selectedMatch
+              ? `${selectedMatchActionCount} acciones en el partido activo`
               : "Sin referencia"
           }
           tone="gold"
@@ -535,44 +734,45 @@ export function AdminStatsWorkspace({
       {screenState === "ready" && players.length === 0 ? (
         <AdminEmptyState
           title="Sin jugadores para editar"
-          description="Amplia los datos de prueba o cambia de equipo para revisar la tabla."
+          description="Amplia los datos de prueba o cambia de equipo para revisar la carga de partido."
         />
       ) : null}
 
-      {screenState === "ready" && players.length > 0 ? (
+      {screenState === "ready" && players.length > 0 && matches.length === 0 ? (
+        <AdminEmptyState
+          title="Sin partidos jugados"
+          description="Las estadisticas solo se cargan desde partidos ya cerrados."
+        />
+      ) : null}
+
+      {screenState === "ready" && players.length > 0 && selectedMatch ? (
         <div className="space-y-4">
           <AdminPanel className="p-5 sm:p-6">
             <div className="space-y-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div className="space-y-2">
-                  <div className="sm:hidden">
-                    <p className="rr-kicker text-[color:var(--rr-gold)]">Edicion actual</p>
-                    <p className="mt-1 text-[1rem] font-semibold text-white">
-                      {selectedTeam?.name ?? "Sin equipo"}
-                    </p>
-                  </div>
-                  <div className="hidden sm:block">
-                    <p className="rr-kicker text-[color:var(--rr-gold)]">Contexto</p>
-                    <h2 className="rr-display mt-2 text-[1.85rem] leading-[0.96] text-white">
-                      Seleccion activa
-                    </h2>
-                  </div>
+                  <p className="rr-kicker text-[color:var(--rr-gold)]">
+                    Contexto de carga
+                  </p>
+                  <h2 className="text-[1.18rem] font-semibold text-white sm:text-[1.35rem]">
+                    El partido define la participacion. El acumulado permanece visible.
+                  </h2>
+                  <p className="text-[0.9rem] text-[color:var(--rr-muted)]">
+                    Marca quien ha jugado en {selectedMatch.matchday} y carga ahi sus acciones. La temporada y las medias se recalculan al momento.
+                  </p>
                 </div>
-                <div className="rounded-[12px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.9rem] text-[color:var(--rr-muted)]">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span>Ultimo guardado: {formatSavedTime(lastSavedAt)}</span>
-                    <span
-                      className={
-                        hasUnsavedChanges
-                          ? "text-[color:var(--rr-gold)]"
-                          : "text-[color:var(--rr-muted)]"
-                      }
-                    >
-                      {hasUnsavedChanges
-                        ? "Cambios sin guardar"
-                        : "Sin cambios pendientes"}
-                    </span>
-                  </div>
+
+                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.84rem] text-[color:var(--rr-muted)]">
+                  Ultimo guardado:{" "}
+                  <span
+                    className={
+                      hasUnsavedChanges
+                        ? "text-[color:var(--rr-gold)]"
+                        : "text-[color:var(--rr-muted)]"
+                    }
+                  >
+                    {formatSavedTime(lastSavedAt)}
+                  </span>
                 </div>
               </div>
 
@@ -586,13 +786,12 @@ export function AdminStatsWorkspace({
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Equipo
                     </span>
-                  <select
-                    value={resolvedTeamSlug}
-                    onChange={(event) => {
-                      setRequestedTeamSlug(event.target.value);
-                      setFocusedPlayerIndex(0);
-                      setReviewedPlayerIds([]);
-                    }}
+                    <select
+                      value={resolvedTeamSlug}
+                      onChange={(event) => {
+                        setRequestedTeamSlug(event.target.value);
+                        resetReviewContext();
+                      }}
                       className="min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
                     >
                       {allowedTeams.map((team) => (
@@ -606,10 +805,10 @@ export function AdminStatsWorkspace({
 
                 <label className="grid gap-2">
                   <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-                    Partido
+                    Partido activo
                   </span>
                   <select
-                    value={selectedMatch?.id ?? ""}
+                    value={selectedMatch.id}
                     onChange={(event) => {
                       const nextMatchId = event.target.value;
 
@@ -618,8 +817,7 @@ export function AdminStatsWorkspace({
                       }
 
                       setRequestedMatchId(nextMatchId);
-                      setFocusedPlayerIndex(0);
-                      setReviewedPlayerIds([]);
+                      resetReviewContext();
                     }}
                     className="min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
                   >
@@ -633,27 +831,54 @@ export function AdminStatsWorkspace({
                 </label>
               </div>
 
-              {selectedMatch ? (
-                <div className="rounded-[12px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[1rem] font-semibold text-white">
-                        {selectedTeam?.name} vs {selectedMatch.opponentName}
-                      </p>
-                      <p className="mt-1 text-[0.92rem] text-[color:var(--rr-muted)]">
-                        {formatMatchDateLabel(selectedMatch)} · {selectedMatch.venue}
-                      </p>
-                    </div>
-                    {statusBadge ? (
-                      <AdminStatusBadge
-                        label={statusBadge.label}
-                        tone={statusBadge.tone}
-                        pulse={statusBadge.pulse}
-                      />
-                    ) : null}
+              <div className="rounded-[12px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[1rem] font-semibold text-white">
+                      {selectedTeam?.name} vs {selectedMatch.opponentName}
+                    </p>
+                    <p className="mt-1 text-[0.92rem] text-[color:var(--rr-muted)]">
+                      {selectedMatch.matchday} · {formatMatchDateLabel(selectedMatch)} ·{" "}
+                      {selectedMatch.venue}
+                    </p>
                   </div>
+                  {statusBadge ? (
+                    <AdminStatusBadge
+                      label={statusBadge.label}
+                      tone={statusBadge.tone}
+                      pulse={statusBadge.pulse}
+                    />
+                  ) : null}
                 </div>
-              ) : null}
+              </div>
+
+              <div className="grid gap-3 rounded-[12px] border border-[rgba(52,112,200,0.24)] bg-[rgba(52,112,200,0.06)] px-4 py-3 xl:grid-cols-[auto_minmax(16rem,22rem)_auto] xl:items-center">
+                <p className="rr-kicker text-[#9fc4ff]">Jugador puntual</p>
+
+                <div className="grid gap-3 sm:grid-cols-[minmax(16rem,22rem)_auto] xl:col-span-2">
+                  <select
+                    value={pendingGuestPlayerId}
+                    onChange={(event) => setPendingGuestPlayerId(event.target.value)}
+                    className="min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                  >
+                    <option value="">Selecciona un jugador</option>
+                    {addableGuestPlayers.map((player) => (
+                      <option key={player.id} value={player.id}>
+                        {player.name} · {teamNameBySlug.get(player.teamSlug) ?? player.teamSlug}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={handleAddGuestPlayer}
+                    disabled={!pendingGuestPlayerId}
+                    className="rr-button rr-button-secondary justify-center text-[0.82rem] disabled:cursor-not-allowed disabled:opacity-45"
+                  >
+                    Anadir al partido
+                  </button>
+                </div>
+              </div>
             </div>
           </AdminPanel>
 
@@ -662,13 +887,13 @@ export function AdminStatsWorkspace({
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="rr-kicker text-[color:var(--rr-gold)]">
-                    {role === "COACH" ? "Carga rapida" : "Tabla editable"}
+                    {role === "COACH" ? "Carga por partido" : "Partido y temporada"}
                   </p>
                   <h2 className="rr-display mt-2 text-[1.35rem] leading-[0.98] text-white sm:text-[1.85rem] sm:leading-[0.96]">
-                    Estadisticas por jugador
+                    Participacion, acumulado y medias
                   </h2>
                   <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
-                    Abre una ficha, corrige lo importante y guarda al final.
+                    Cada card muestra el total de temporada y, debajo, lo que suma el partido activo.
                   </p>
                 </div>
                 <button
@@ -821,12 +1046,16 @@ export function AdminStatsWorkspace({
                     <PlayerStatsMobileCard
                       key={focusedMobilePlayer.id}
                       player={focusedMobilePlayer}
-                      savedPlayer={savedTeamPlayers.find(
-                        (savedPlayer) => savedPlayer.id === focusedMobilePlayer.id,
-                      )}
+                      matchEntry={selectedMatchEntries[focusedMobilePlayer.id]}
+                      savedMatchEntry={savedSelectedMatchEntries[focusedMobilePlayer.id]}
+                      isGuestPlayer={focusedMobilePlayer.contextType === "guest"}
+                      guestOriginTeamName={focusedMobilePlayer.originTeamName}
                       primaryFields={mobileVisibleFields.primaryFields}
                       secondaryFields={mobileVisibleFields.secondaryFields}
                       reviewState={getPlayerReviewState(focusedMobilePlayer)}
+                      selectedMatchLabel={selectedMatch.matchday}
+                      statsLevel={selectedTeam?.isFirstTeam ? "advanced" : "basic"}
+                      onTogglePlayed={handleTogglePlayed}
                       onUpdatePlayer={handleUpdatePlayer}
                       onAdjustPlayer={handleAdjustPlayer}
                     />
@@ -856,12 +1085,16 @@ export function AdminStatsWorkspace({
                       <PlayerStatsMobileCard
                         key={player.id}
                         player={player}
-                        savedPlayer={savedTeamPlayers.find(
-                          (savedPlayer) => savedPlayer.id === player.id,
-                        )}
+                        matchEntry={selectedMatchEntries[player.id]}
+                        savedMatchEntry={savedSelectedMatchEntries[player.id]}
+                        isGuestPlayer={player.contextType === "guest"}
+                        guestOriginTeamName={player.originTeamName}
                         primaryFields={mobileVisibleFields.primaryFields}
                         secondaryFields={mobileVisibleFields.secondaryFields}
                         reviewState={getPlayerReviewState(player)}
+                        selectedMatchLabel={selectedMatch.matchday}
+                        statsLevel={selectedTeam?.isFirstTeam ? "advanced" : "basic"}
+                        onTogglePlayed={handleTogglePlayed}
                         onUpdatePlayer={handleUpdatePlayer}
                         onAdjustPlayer={handleAdjustPlayer}
                       />
@@ -887,14 +1120,17 @@ export function AdminStatsWorkspace({
                         <PlayerStatsMobileCard
                           key={player.id}
                           player={player}
-                          savedPlayer={savedTeamPlayers.find(
-                            (savedPlayer) => savedPlayer.id === player.id,
-                          )}
+                          matchEntry={selectedMatchEntries[player.id]}
+                          savedMatchEntry={savedSelectedMatchEntries[player.id]}
+                          isGuestPlayer={player.contextType === "guest"}
+                          guestOriginTeamName={player.originTeamName}
                           primaryFields={mobileOutfieldFields.primaryFields}
                           secondaryFields={mobileOutfieldFields.secondaryFields}
                           reviewState={getPlayerReviewState(player)}
-                          defaultShowMore
+                          selectedMatchLabel={selectedMatch.matchday}
+                          statsLevel={selectedTeam?.isFirstTeam ? "advanced" : "basic"}
                           className="h-full"
+                          onTogglePlayed={handleTogglePlayed}
                           onUpdatePlayer={handleUpdatePlayer}
                           onAdjustPlayer={handleAdjustPlayer}
                         />
@@ -919,14 +1155,17 @@ export function AdminStatsWorkspace({
                         <PlayerStatsMobileCard
                           key={player.id}
                           player={player}
-                          savedPlayer={savedTeamPlayers.find(
-                            (savedPlayer) => savedPlayer.id === player.id,
-                          )}
+                          matchEntry={selectedMatchEntries[player.id]}
+                          savedMatchEntry={savedSelectedMatchEntries[player.id]}
+                          isGuestPlayer={player.contextType === "guest"}
+                          guestOriginTeamName={player.originTeamName}
                           primaryFields={mobileGoalkeeperFields.primaryFields}
                           secondaryFields={mobileGoalkeeperFields.secondaryFields}
                           reviewState={getPlayerReviewState(player)}
-                          defaultShowMore
+                          selectedMatchLabel={selectedMatch.matchday}
+                          statsLevel={selectedTeam?.isFirstTeam ? "advanced" : "basic"}
                           className="h-full"
+                          onTogglePlayed={handleTogglePlayed}
                           onUpdatePlayer={handleUpdatePlayer}
                           onAdjustPlayer={handleAdjustPlayer}
                         />
@@ -942,7 +1181,7 @@ export function AdminStatsWorkspace({
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="text-[0.9rem] text-[color:var(--rr-muted)]">
                         {hasUnsavedChanges
-                          ? "Hay cambios pendientes en esta jornada."
+                          ? "Hay cambios pendientes en este partido."
                           : "Todo guardado. Puedes volver a partidos o clasificacion."}
                       </div>
 

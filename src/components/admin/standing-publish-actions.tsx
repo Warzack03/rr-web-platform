@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { ClipboardCopy, Eye, RefreshCcw, Save } from "lucide-react";
+import { ClipboardCopy, RefreshCcw, Save } from "lucide-react";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { StandingStatusBadge } from "@/components/admin/standing-status-badge";
 import {
   formatStandingUpdatedLabel,
-  getStandingPublicHref,
   type StandingManagementTable,
 } from "@/lib/admin/standings-management-mocks";
 import type { AdminRole } from "@/lib/admin/roles";
@@ -32,7 +30,6 @@ export function StandingPublishActions({
   onDuplicate,
   onReset,
 }: StandingPublishActionsProps) {
-  const publicHref = getStandingPublicHref(standing);
   const canCreateGlobal = role !== "COACH";
 
   return (
@@ -86,13 +83,6 @@ export function StandingPublishActions({
         </div>
 
         <div className="grid gap-2 border-t border-[rgba(255,255,255,0.08)] pt-4">
-          <Link
-            href={publicHref}
-            className="rr-button rr-button-secondary justify-center text-[0.82rem]"
-          >
-            <Eye className="h-4 w-4" />
-            Ver clasificacion publica
-          </Link>
           {canCreateGlobal ? (
             <button
               type="button"

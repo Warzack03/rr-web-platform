@@ -9,7 +9,7 @@ import {
   Layers3,
   Plus,
   ShieldCheck,
-  Trophy,
+  Users,
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
@@ -27,10 +27,8 @@ import { TeamList } from "@/components/admin/team-list";
 import type { AdminRole } from "@/lib/admin/roles";
 import {
   adminTeamManagementSeasons,
-  getAssignableCoachUsers,
   normalizeTeamManagementTeam,
   type TeamManagementTeam,
-  type TeamResponsibleCoachUser,
 } from "@/lib/admin/team-management-mocks";
 
 type AdminTeamsWorkspaceProps = {
@@ -52,21 +50,69 @@ const initialFilters: TeamFiltersValue = {
   search: "",
 };
 
-const coachUsers: TeamResponsibleCoachUser[] = getAssignableCoachUsers().map(
-  (user) => ({
-    id: user.id,
-    displayName: user.displayName,
-    username: user.username ?? "",
-    roleLabel: user.roleLabel,
-  }),
-);
-
 function sortTeams(teams: TeamManagementTeam[]) {
   return [...teams].sort(
     (left, right) =>
       left.displayOrder - right.displayOrder ||
       left.name.localeCompare(right.name),
   );
+}
+
+function getCategoryRank(category: string) {
+  const normalizedCategory = category.trim().toLowerCase();
+
+  if (normalizedCategory.startsWith("senior")) {
+    return 1;
+  }
+
+  if (normalizedCategory.startsWith("juvenil")) {
+    return 2;
+  }
+
+  if (normalizedCategory.startsWith("cadete")) {
+    return 3;
+  }
+
+  if (normalizedCategory.startsWith("infantil")) {
+    return 4;
+  }
+
+  if (normalizedCategory.startsWith("alevin")) {
+    return 5;
+  }
+
+  if (normalizedCategory.startsWith("benjamin")) {
+    return 6;
+  }
+
+  if (normalizedCategory.startsWith("prebenjamin")) {
+    return 7;
+  }
+
+  return 99;
+}
+
+function reindexTeamOrders(teams: TeamManagementTeam[]) {
+  return teams
+    .slice()
+    .sort((left, right) => {
+      if (left.isFirstTeam !== right.isFirstTeam) {
+        return left.isFirstTeam ? -1 : 1;
+      }
+
+      const categoryRankDiff = getCategoryRank(left.category) - getCategoryRank(right.category);
+
+      if (categoryRankDiff !== 0) {
+        return categoryRankDiff;
+      }
+
+      if (left.displayOrder !== right.displayOrder) {
+        return left.displayOrder - right.displayOrder;
+      }
+
+      return left.name.localeCompare(right.name);
+    })
+    .map((team, index) => normalizeTeamManagementTeam({ ...team, displayOrder: index + 1 }));
 }
 
 export function AdminTeamsWorkspace({
@@ -147,11 +193,13 @@ export function AdminTeamsWorkspace({
   const seasons = Array.from(new Set(teams.map((team) => team.season)));
   const categories = Array.from(new Set(teams.map((team) => team.category)));
   const branches = Array.from(new Set(teams.map((team) => team.branch)));
+  const competitionOptions = Array.from(
+    new Set(teams.map((team) => team.competition).filter(Boolean)),
+  ).sort((left, right) => left.localeCompare(right));
   const totalTeams = teams.length;
   const visibleTeams = teams.filter((team) => team.publicVisible).length;
   const activeTeams = teams.filter((team) => team.active).length;
   const academyTeams = teams.filter((team) => !team.isFirstTeam).length;
-  const firstTeam = teams.find((team) => team.isFirstTeam);
   const selectedCoachTeam = teams[0];
   const selectedTeam =
     dialogState && "teamId" in dialogState
@@ -197,7 +245,7 @@ export function AdminTeamsWorkspace({
               teamToSave,
             ];
 
-        return sortTeams(nextTeams);
+        return sortTeams(reindexTeamOrders(nextTeams));
       });
       setDialogState(null);
     });
@@ -258,7 +306,7 @@ export function AdminTeamsWorkspace({
         description={
           role === "COACH"
             ? "Consulta el contexto publico y deportivo de tu equipo. Desde aqui no editas estructura global: solo revisas contexto y saltas al modulo que toca."
-            : "Controla visibilidad, responsables y contexto deportivo sin salir del patron operativo del backoffice."
+            : "Controla visibilidad, entrenadores y contexto deportivo sin salir del patron operativo del backoffice."
         }
         actions={
           canManageTeams ? (
@@ -280,7 +328,7 @@ export function AdminTeamsWorkspace({
         <AdminScopePanel
           eyebrow="Consulta de entrenador"
           title="Solo contexto de tu equipo"
-          description="Revisa identidad publica, responsables visibles y estado general del equipo. Para actuar, salta a partidos, clasificacion o estadisticas."
+          description="Revisa identidad publica, entrenadores visibles y estado general del equipo. Para actuar, salta a partidos, clasificacion o estadisticas."
           actions={
             <>
               <Link
@@ -307,7 +355,7 @@ export function AdminTeamsWorkspace({
             <div className="rounded-[10px] border border-white/10 bg-white/5 px-4 py-3">
               <AdminStatusBadge label="Solo consulta" tone="slate" />
               <p className="mt-2 text-[0.84rem] leading-5 text-[color:var(--rr-muted)]">
-                Sin cambios de estructura, visibilidad o responsables desde esta vista.
+                Sin cambios de estructura, visibilidad o entrenadores desde esta vista.
               </p>
             </div>
           }
@@ -333,13 +381,13 @@ export function AdminTeamsWorkspace({
           <AdminMetricCard
             label="Entrenadores visibles"
             value={selectedCoachTeam?.visibleCoaches.length.toString() ?? "0"}
-            detail={selectedCoachTeam?.primaryCoach ?? "Sin responsable visible"}
+            detail={selectedCoachTeam?.primaryCoach ?? "Sin entrenador visible"}
             tone="blue"
-            icon={<Trophy className="h-5 w-5" />}
+            icon={<Users className="h-5 w-5" />}
           />
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminMetricCard
             label="Total equipos"
             value={totalTeams.toString()}
@@ -366,17 +414,6 @@ export function AdminTeamsWorkspace({
             detail="Equipos que no son primer equipo"
             tone="gold"
             icon={<FolderKanban className="h-5 w-5" />}
-          />
-          <AdminMetricCard
-            label="Primer Equipo"
-            value={firstTeam?.name ?? "-"}
-            detail={
-              firstTeam
-                ? `${firstTeam.competition} Â· ${firstTeam.season}`
-                : "Sin equipo destacado"
-            }
-            tone="blue"
-            icon={<Trophy className="h-5 w-5" />}
           />
         </div>
       )}
@@ -500,10 +537,10 @@ export function AdminTeamsWorkspace({
         open={dialogState !== null}
         mode={dialogState?.mode ?? "create"}
         team={selectedTeam}
+        existingTeams={teams}
         seasons={adminTeamManagementSeasons.map((season) => season.name)}
         categories={categories}
-        branches={branches}
-        availableCoachUsers={coachUsers}
+        competitionOptions={competitionOptions}
         onClose={() => setDialogState(null)}
         onSave={saveTeam}
       />

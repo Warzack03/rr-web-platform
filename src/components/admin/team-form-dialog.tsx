@@ -10,7 +10,6 @@ import {
   teamCoachRoleOptions,
   type TeamManagementCoach,
   type TeamManagementTeam,
-  type TeamResponsibleCoachUser,
 } from "@/lib/admin/team-management-mocks";
 
 type TeamFormDialogMode = "create" | "edit" | "coaches";
@@ -19,10 +18,10 @@ type TeamFormDialogProps = {
   open: boolean;
   mode: TeamFormDialogMode;
   team?: TeamManagementTeam;
+  existingTeams: TeamManagementTeam[];
   seasons: string[];
   categories: string[];
-  branches: string[];
-  availableCoachUsers: TeamResponsibleCoachUser[];
+  competitionOptions: string[];
   onClose: () => void;
   onSave: (team: TeamManagementTeam) => void;
 };
@@ -40,7 +39,6 @@ type TeamFormState = {
   isFirstTeam: boolean;
   displayOrder: number;
   coaches: TeamManagementCoach[];
-  responsibleCoachUserId?: string;
   logoUrl: string;
   bannerUrl: string;
   playerCount: number;
@@ -56,9 +54,9 @@ const teamFormSchema = z.object({
     .min(1, "El slug es obligatorio.")
     .regex(/^[a-z0-9-]+$/, "Usa minusculas, numeros y guiones."),
   category: z.string().trim().min(1, "Selecciona una categoria."),
-  competition: z.string().trim().min(1, "Introduce una competicion."),
+  competition: z.string().trim().min(1, "Selecciona una competicion."),
   season: z.string().trim().min(1, "Selecciona una temporada."),
-  branch: z.string().trim().min(1, "Selecciona una rama."),
+  branch: z.string().trim().min(1, "Define el bloque del equipo."),
   displayOrder: z.number().int().min(0, "El orden no puede ser negativo."),
   coaches: z
     .array(
@@ -67,11 +65,9 @@ const teamFormSchema = z.object({
         name: z.string().trim().min(1, "Cada entrenador necesita nombre."),
         roleLabel: z.enum(teamCoachRoleOptions),
         publicVisible: z.boolean(),
-        linkedUserId: z.string().optional(),
-        linkedUsername: z.string().optional(),
       }),
     )
-    .min(1, "Anade al menos un entrenador visible o interno."),
+    .min(1, "Anade al menos un entrenador."),
 });
 
 const fieldClassName =
@@ -87,9 +83,9 @@ function slugify(value: string) {
 }
 
 function createDefaultTeam(
+  existingTeams: TeamManagementTeam[],
   seasons: string[],
   categories: string[],
-  branches: string[],
 ): TeamFormState {
   return {
     id: `team-${Date.now()}`,
@@ -98,11 +94,14 @@ function createDefaultTeam(
     category: categories[0] ?? "Senior",
     competition: "",
     season: seasons[0] ?? "",
-    branch: branches[0] ?? "Senior",
+    branch: "Cantera",
     publicVisible: true,
     active: true,
     isFirstTeam: false,
-    displayOrder: 99,
+    displayOrder: getSuggestedDisplayOrder(existingTeams, {
+      category: categories[0] ?? "Senior",
+      isFirstTeam: false,
+    }),
     coaches: [
       {
         id: `coach-${Date.now()}`,
@@ -111,7 +110,6 @@ function createDefaultTeam(
         publicVisible: true,
       },
     ],
-    responsibleCoachUserId: undefined,
     logoUrl: "mock://team-logo/nuevo-equipo",
     bannerUrl: "mock://team-banner/nuevo-equipo",
     playerCount: 0,
@@ -128,13 +126,12 @@ function toFormState(team: TeamManagementTeam): TeamFormState {
     category: team.category,
     competition: team.competition,
     season: team.season,
-    branch: team.branch,
+    branch: team.isFirstTeam ? "Primer equipo" : "Cantera",
     publicVisible: team.publicVisible,
     active: team.active,
     isFirstTeam: team.isFirstTeam,
     displayOrder: team.displayOrder,
     coaches: team.coaches,
-    responsibleCoachUserId: team.responsibleCoachUserId,
     logoUrl: team.logoUrl,
     bannerUrl: team.bannerUrl,
     playerCount: team.playerCount,
@@ -165,22 +162,61 @@ function SectionHeader({
   );
 }
 
+function getCategoryFamily(category: string) {
+  return category.trim().split(/\s+/)[0]?.toLowerCase() ?? "";
+}
+
+function getSuggestedDisplayOrder(
+  teams: TeamManagementTeam[],
+  {
+    teamId,
+    category,
+    isFirstTeam,
+  }: {
+    teamId?: string;
+    category: string;
+    isFirstTeam: boolean;
+  },
+) {
+  const comparableTeams = teams.filter((currentTeam) => currentTeam.id !== teamId);
+
+  if (isFirstTeam) {
+    return 1;
+  }
+
+  const categoryFamily = getCategoryFamily(category);
+  const sameFamilyTeams = comparableTeams.filter(
+    (currentTeam) =>
+      !currentTeam.isFirstTeam &&
+      getCategoryFamily(currentTeam.category) === categoryFamily,
+  );
+
+  if (sameFamilyTeams.length > 0) {
+    return (
+      Math.max(...sameFamilyTeams.map((currentTeam) => currentTeam.displayOrder)) + 1
+    );
+  }
+
+  return Math.max(1, ...comparableTeams.map((currentTeam) => currentTeam.displayOrder)) + 1;
+}
+
 export function TeamFormDialog({
   open,
   mode,
   team,
+  existingTeams,
   seasons,
   categories,
-  branches,
-  availableCoachUsers,
+  competitionOptions,
   onClose,
   onSave,
 }: TeamFormDialogProps) {
   const [formState, setFormState] = useState<TeamFormState>(() =>
-    team ? toFormState(team) : createDefaultTeam(seasons, categories, branches),
+    team ? toFormState(team) : createDefaultTeam(existingTeams, seasons, categories),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugTouched, setSlugTouched] = useState(Boolean(team?.slug));
+  const [orderTouched, setOrderTouched] = useState(Boolean(team));
 
   if (!open) {
     return null;
@@ -191,6 +227,42 @@ export function TeamFormDialog({
     value: TeamFormState[Key],
   ) {
     setFormState((currentValue) => {
+      if (key === "isFirstTeam") {
+        const isFirstTeam = value as boolean;
+        const nextState: TeamFormState = {
+          ...currentValue,
+          isFirstTeam,
+          branch: isFirstTeam ? "Primer equipo" : "Cantera",
+        };
+
+        if (!orderTouched || isFirstTeam) {
+          nextState.displayOrder = getSuggestedDisplayOrder(existingTeams, {
+            teamId: currentValue.id,
+            category: currentValue.category,
+            isFirstTeam,
+          });
+        }
+
+        return nextState;
+      }
+
+      if (key === "category") {
+        const nextState: TeamFormState = {
+          ...currentValue,
+          category: value as string,
+        };
+
+        if (!orderTouched) {
+          nextState.displayOrder = getSuggestedDisplayOrder(existingTeams, {
+            teamId: currentValue.id,
+            category: value as string,
+            isFirstTeam: currentValue.isFirstTeam,
+          });
+        }
+
+        return nextState;
+      }
+
       if (key === "name" && !slugTouched) {
         return {
           ...currentValue,
@@ -254,13 +326,6 @@ export function TeamFormDialog({
     );
   }
 
-  const coachUserOptions = availableCoachUsers.map((user) => ({
-    id: user.id,
-    displayName: user.displayName,
-    username: user.username,
-    roleLabel: user.roleLabel,
-  }));
-
   return (
     <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-[rgba(5,10,18,0.78)] px-4 py-6 backdrop-blur-sm sm:px-6 sm:py-10">
       <div className="w-full max-w-5xl rounded-[12px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(16,37,67,0.98),rgba(7,19,34,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
@@ -270,7 +335,7 @@ export function TeamFormDialog({
               {mode === "create"
                 ? "Nuevo equipo"
                 : mode === "coaches"
-                  ? "Responsables visibles"
+                  ? "Entrenadores"
                   : "Editar equipo"}
             </p>
             <div>
@@ -281,11 +346,6 @@ export function TeamFormDialog({
                     ? `Entrenadores de ${team?.name ?? "equipo"}`
                     : team?.name ?? "Editar equipo"}
               </h2>
-              <p className="mt-2 max-w-2xl text-[0.95rem] leading-6 text-[color:var(--rr-muted)]">
-                {mode === "coaches"
-                  ? "Ajusta perfiles visibles y la cuenta interna responsable."
-                  : "Separa identidad, contexto deportivo y estado publico antes de guardar."}
-              </p>
             </div>
           </div>
 
@@ -306,7 +366,6 @@ export function TeamFormDialog({
                 <SectionHeader
                   eyebrow="Identidad"
                   title="Nombre, slug y recursos visuales"
-                  description="Define primero como se presentara este equipo."
                 />
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -371,12 +430,13 @@ export function TeamFormDialog({
                       type="number"
                       min={0}
                       value={formState.displayOrder}
-                      onChange={(event) =>
+                      onChange={(event) => {
+                        setOrderTouched(true);
                         updateFormState(
                           "displayOrder",
                           Number(event.target.value || 0),
-                        )
-                      }
+                        );
+                      }}
                       className={fieldClassName}
                     />
                   </label>
@@ -437,10 +497,9 @@ export function TeamFormDialog({
                 <SectionHeader
                   eyebrow="Contexto deportivo"
                   title="Competicion y estructura"
-                  description="Agrupa aqui solo lo que define el encaje deportivo del equipo."
                 />
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[11rem_minmax(0,1fr)_11rem]">
                   <label className="grid gap-2">
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Categoria
@@ -460,19 +519,24 @@ export function TeamFormDialog({
                     </select>
                   </label>
 
-                  <label className="grid gap-2 md:col-span-2">
+                  <label className="grid gap-2 md:col-span-2 xl:col-span-1">
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Competicion
                     </span>
-                    <input
-                      type="text"
+                    <select
                       value={formState.competition}
                       onChange={(event) =>
                         updateFormState("competition", event.target.value)
                       }
                       className={fieldClassName}
-                      placeholder="Liga Juvenil Preferente"
-                    />
+                    >
+                      <option value="">Selecciona competicion</option>
+                      {competitionOptions.map((competition) => (
+                        <option key={competition} value={competition}>
+                          {competition}
+                        </option>
+                      ))}
+                    </select>
                     {errors.competition ? (
                       <span className="text-[0.82rem] text-[#ff8d8d]">
                         {errors.competition}
@@ -498,25 +562,6 @@ export function TeamFormDialog({
                       ))}
                     </select>
                   </label>
-
-                  <label className="grid gap-2">
-                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-                      Rama
-                    </span>
-                    <select
-                      value={formState.branch}
-                      onChange={(event) =>
-                        updateFormState("branch", event.target.value)
-                      }
-                      className={fieldClassName}
-                    >
-                      {branches.map((branch) => (
-                        <option key={branch} value={branch}>
-                          {branch}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
                 </div>
               </div>
             </AdminPanel>
@@ -528,7 +573,6 @@ export function TeamFormDialog({
                 <SectionHeader
                   eyebrow="Estado publico"
                   title="Visibilidad y comportamiento"
-                  description="Deja aqui lo que afecta a la web y al uso operativo."
                 />
 
                 <div className="grid gap-3 md:grid-cols-3">
@@ -575,19 +619,13 @@ export function TeamFormDialog({
           <AdminPanel className="p-4 sm:p-5">
             <div className="space-y-4">
               <SectionHeader
-                eyebrow="Responsables"
-                title="Entrenadores visibles y cuenta interna"
-                description="Define quien aparece en la web y que usuario responde en el backoffice."
+                eyebrow="Entrenadores"
+                title="Cuerpo tecnico visible"
               />
 
               <TeamCoachEditor
                 coaches={formState.coaches}
                 coachRoleOptions={teamCoachRoleOptions}
-                availableCoachUsers={coachUserOptions}
-                responsibleCoachUserId={formState.responsibleCoachUserId}
-                onResponsibleCoachUserIdChange={(nextValue) =>
-                  updateFormState("responsibleCoachUserId", nextValue)
-                }
                 onChange={(nextCoaches) => updateFormState("coaches", nextCoaches)}
               />
               {errors.coaches ? (
@@ -599,11 +637,7 @@ export function TeamFormDialog({
           </AdminPanel>
 
           <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-              Guardado local de prueba para validar la operativa.
-            </p>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={onClose}

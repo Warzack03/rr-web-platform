@@ -19,6 +19,7 @@ type EditableStandingTableProps = {
       | "won"
       | "drawn"
       | "lost"
+      | "sanctionPoints"
       | "goalsFor"
       | "goalsAgainst",
     value: number,
@@ -31,6 +32,7 @@ type EditableStandingField =
   | "won"
   | "drawn"
   | "lost"
+  | "sanctionPoints"
   | "goalsFor"
   | "goalsAgainst";
 
@@ -42,6 +44,7 @@ const editableStandingFields: {
   { field: "won", getValue: (row) => row.won },
   { field: "drawn", getValue: (row) => row.drawn },
   { field: "lost", getValue: (row) => row.lost },
+  { field: "sanctionPoints", getValue: (row) => row.sanctionPoints },
   { field: "goalsFor", getValue: (row) => row.goalsFor },
   { field: "goalsAgainst", getValue: (row) => row.goalsAgainst },
 ];
@@ -88,7 +91,7 @@ function StandingTeamCell({
         <p className="font-semibold text-white">{teamName}</p>
         {isOwnTeam ? (
           <span className="inline-flex rounded-full border border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] px-2 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--rr-gold)]">
-            Equipo propio
+            Equipo del club
           </span>
         ) : null}
       </div>
@@ -152,7 +155,13 @@ export function EditableStandingTable({
   onUpdateField,
   onToggleOwnTeam,
 }: EditableStandingTableProps) {
-  const ownTeamRow = standing.rows.find((row) => row.isOwnTeam);
+  const ownTeamRows = standing.rows.filter((row) => row.isOwnTeam);
+  const ownTeamSummary =
+    ownTeamRows.length === 0
+      ? "Selecciona al menos un equipo del club antes de guardar."
+      : ownTeamRows.length === 1
+        ? `1 equipo del club marcado en posicion ${ownTeamRows[0].position}.`
+        : `${ownTeamRows.length} equipos del club marcados en la tabla.`;
 
   return (
     <div className="space-y-4">
@@ -171,15 +180,13 @@ export function EditableStandingTable({
                 {standing.competition} - {standing.season}
               </p>
               <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
-                {ownTeamRow
-                  ? `Equipo propio en posicion ${ownTeamRow.position}.`
-                  : "Selecciona el equipo propio antes de guardar."}
+                {ownTeamSummary}
               </p>
             </div>
           </div>
 
           <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
-            Pts = G x 3 + E. DG = GF - GC. El orden final se ajusta al guardar.
+            Pts = G x 3 + E - PTS SA. DG = GF - GC. El orden final se ajusta al guardar.
           </div>
         </div>
 
@@ -195,10 +202,11 @@ export function EditableStandingTable({
 
       <AdminPanel className="hidden overflow-hidden lg:block">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[68rem] table-fixed border-collapse">
+          <table className="w-full min-w-[76rem] table-fixed border-collapse">
             <colgroup>
               <col className="w-12" />
               <col className="w-[17rem]" />
+              <col className="w-[7.35rem]" />
               <col className="w-[7.35rem]" />
               <col className="w-[7.35rem]" />
               <col className="w-[7.35rem]" />
@@ -211,7 +219,7 @@ export function EditableStandingTable({
             </colgroup>
             <thead>
               <tr className="border-b border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)]">
-                {["Pos", "Equipo", "PJ", "G", "E", "P", "GF", "GC", "DG", "Pts", ""].map(
+                {["Pos", "Equipo", "PJ", "G", "E", "P", "PTS SA", "GF", "GC", "DG", "Pts", ""].map(
                   (label) => (
                     <th
                       key={label}
@@ -284,13 +292,17 @@ export function EditableStandingTable({
                             ? "border-[rgba(253,203,88,0.4)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]"
                             : "border-white/10 bg-white/5 text-[color:var(--rr-muted)] hover:border-[rgba(253,203,88,0.28)]",
                         )}
-                        aria-label="Marcar equipo propio"
+                        aria-label={
+                          row.isOwnTeam
+                            ? "Quitar marca de equipo del club"
+                            : "Marcar equipo del club"
+                        }
                       >
                         <Star className="h-4 w-4" />
                       </button>
                     ) : (
                       <span className="text-[0.84rem] text-[color:var(--rr-muted)]">
-                        {row.isOwnTeam ? "Propio" : ""}
+                        {row.isOwnTeam ? "Club" : ""}
                       </span>
                     )}
                   </td>

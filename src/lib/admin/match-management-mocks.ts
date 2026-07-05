@@ -15,6 +15,17 @@ export type MatchManagementTeam = {
   isFirstTeam: boolean;
 };
 
+export type MatchManagementOpponent = {
+  id: string;
+  name: string;
+  competition: string;
+};
+
+export type MatchManagementVenue = {
+  id: string;
+  name: string;
+};
+
 export type MatchManagementMatch = {
   id: string;
   teamId: string;
@@ -72,6 +83,81 @@ export const matchManagementTeams: MatchManagementTeam[] = adminTeamManagementTe
   }));
 
 export const matchManagementSeasonOptions = adminMockSeasons.map((season) => season.name);
+
+export const matchManagementOpponentOptions: MatchManagementOpponent[] = [
+  {
+    id: "opponent-escuela-sur-madrid",
+    name: "Escuela Sur Madrid",
+    competition: "Liga Autonomica Senior · Grupo 2",
+  },
+  {
+    id: "opponent-cd-hortaleza",
+    name: "CD Hortaleza",
+    competition: "Liga Autonomica Senior · Grupo 2",
+  },
+  {
+    id: "opponent-union-vallecas",
+    name: "Union Vallecas",
+    competition: "Liga Autonomica Senior · Grupo 2",
+  },
+  {
+    id: "opponent-ad-mostoles",
+    name: "AD Mostoles",
+    competition: "Liga Autonomica Senior · Grupo 2",
+  },
+  {
+    id: "opponent-cd-moratalaz-b",
+    name: "CD Moratalaz B",
+    competition: "Liga Regional Preferente",
+  },
+  {
+    id: "opponent-aravaca-b",
+    name: "Aravaca B",
+    competition: "Liga Regional Preferente",
+  },
+  {
+    id: "opponent-ef-retiro",
+    name: "EF Retiro",
+    competition: "Liga Juvenil Preferente",
+  },
+  {
+    id: "opponent-canillas-academy",
+    name: "Canillas Academy",
+    competition: "Liga Juvenil Preferente",
+  },
+  {
+    id: "opponent-ad-chamberi",
+    name: "AD Chamberi",
+    competition: "Liga Cadete Municipal",
+  },
+];
+
+export const matchManagementVenueOptions: MatchManagementVenue[] = [
+  {
+    id: "venue-campo-rising-raimon",
+    name: "Campo Rising Raimon",
+  },
+  {
+    id: "venue-ciudad-deportiva-sur",
+    name: "Ciudad Deportiva Sur",
+  },
+  {
+    id: "venue-municipal-moratalaz",
+    name: "Municipal Moratalaz",
+  },
+  {
+    id: "venue-municipal-mostoles-norte",
+    name: "Municipal Mostoles Norte",
+  },
+  {
+    id: "venue-campo-canillas",
+    name: "Campo Canillas",
+  },
+  {
+    id: "venue-campo-chamberi",
+    name: "Campo Chamberi",
+  },
+];
 
 export const coachPreviewTeamSlugs = ["raimon-b", "juvenil-a"] as const;
 
@@ -283,6 +369,35 @@ export function getMatchManagementMatchesForRole(
   return getAllMatchManagementMatches().filter((match) => allowedTeamSlugs.has(match.teamSlug));
 }
 
+export function getOpponentOptionsForCompetition(competition?: string) {
+  if (!competition) {
+    return matchManagementOpponentOptions;
+  }
+
+  const competitionOpponents = matchManagementOpponentOptions.filter(
+    (opponent) => opponent.competition === competition,
+  );
+
+  return competitionOpponents.length > 0
+    ? competitionOpponents
+    : matchManagementOpponentOptions;
+}
+
+export function getNextMatchdaySuggestion(
+  matches: Array<Pick<MatchManagementMatch, "teamSlug" | "matchday">>,
+  teamSlug: string,
+) {
+  const lastMatchday = matches
+    .filter((match) => match.teamSlug === teamSlug)
+    .map((match) => match.matchday.match(/\d+/)?.[0])
+    .filter((value): value is string => Boolean(value))
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value))
+    .reduce((highest, value) => Math.max(highest, value), 0);
+
+  return lastMatchday > 0 ? `Jornada ${lastMatchday + 1}` : "Jornada 1";
+}
+
 export function isPendingMatchStatus(status: MatchManagementStatus) {
   return status === "scheduled" || status === "postponed";
 }
@@ -335,7 +450,7 @@ export function formatMatchDateLabel(match: Pick<MatchManagementMatch, "date" | 
 
 export function getMatchResultLabel(match: Pick<MatchManagementMatch, "ownScore" | "opponentScore">) {
   if (match.ownScore === null || match.opponentScore === null) {
-    return "VS";
+    return "PDTE";
   }
 
   return `${match.ownScore} - ${match.opponentScore}`;

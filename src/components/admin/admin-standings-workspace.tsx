@@ -1,15 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { startTransition, useDeferredValue, useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import {
   AlertTriangle,
-  ClipboardCopy,
   ClipboardList,
   Eye,
   ListChecks,
-  RefreshCcw,
-  Save,
   ShieldCheck,
   Trophy,
 } from "lucide-react";
@@ -25,6 +22,7 @@ import {
   StandingsFilters,
   type StandingsFiltersValue,
 } from "@/components/admin/standings-filters";
+import { StandingsSelector } from "@/components/admin/standings-selector";
 import { UnsavedChangesBar } from "@/components/admin/unsaved-changes-bar";
 import type {
   StandingManagementRow,
@@ -34,7 +32,6 @@ import {
   getAllStandingsManagementTables,
   getCoachPreviewStandingTeamOptions,
   getResolvedStandingsCoachPreviewTeamSlug,
-  getStandingPublicHref,
   getStandingsManagementTeamsForRole,
   normalizeAndSortStandingRows,
   normalizeStandingTable,
@@ -52,10 +49,9 @@ type ScreenState = "loading" | "ready" | "error";
 type BannerTone = "success" | "danger";
 
 const initialFilters: StandingsFiltersValue = {
-  season: "all",
-  team: "all",
-  competition: "all",
-  search: "",
+  selectionMode: "team",
+  team: "",
+  competition: "",
 };
 
 function mergeTables(
@@ -78,6 +74,7 @@ function getRowValidationErrors(row: StandingManagementRow, index: number) {
     ["G", row.won],
     ["E", row.drawn],
     ["P", row.lost],
+    ["PTS SA", row.sanctionPoints],
     ["GF", row.goalsFor],
     ["GC", row.goalsAgainst],
   ] as const;
@@ -101,7 +98,9 @@ function getStandingValidationErrors(standing: StandingManagementTable) {
   }
 
   if (!standing.rows.some((row) => row.isOwnTeam)) {
-    rowErrors.push("Marca un equipo propio para la vista publica y el resumen.");
+    rowErrors.push(
+      "Marca al menos un equipo del club para la vista publica y el resumen.",
+    );
   }
 
   return rowErrors;
@@ -132,9 +131,6 @@ export function AdminStandingsWorkspace({
   initialUiState = "ready",
   initialSelectedTeamSlug,
 }: AdminStandingsWorkspaceProps) {
-  const [seedTables] = useState(() =>
-    sortStandingsManagementTables(getAllStandingsManagementTables()),
-  );
   const [savedTables, setSavedTables] = useState(() =>
     sortStandingsManagementTables(getAllStandingsManagementTables()),
   );
@@ -149,11 +145,7 @@ export function AdminStandingsWorkspace({
   const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
     getResolvedStandingsCoachPreviewTeamSlug(initialSelectedTeamSlug),
   );
-  const [filters, setFilters] = useState<StandingsFiltersValue>({
-    ...initialFilters,
-    team: role === "COACH" ? "all" : initialSelectedTeamSlug ?? "all",
-  });
-  const deferredSearch = useDeferredValue(filters.search.trim().toLowerCase());
+  const [filters, setFilters] = useState<StandingsFiltersValue>(initialFilters);
 
   const mergedTables = mergeTables(savedTables, draftTables);
   const coachPreviewTeamOptions = getCoachPreviewStandingTeamOptions();
@@ -163,34 +155,30 @@ export function AdminStandingsWorkspace({
     allowedTeamSlugs.has(table.teamSlug),
   );
   const seasons = Array.from(new Set(scopedTables.map((table) => table.season)));
+  const defaultTeamSlug =
+    (role === "COACH" ? allowedTeams[0]?.slug : initialSelectedTeamSlug) ??
+    allowedTeams[0]?.slug ??
+    "";
   const competitions = Array.from(
     new Set(scopedTables.map((table) => table.competition)),
   );
-  const filteredTables = scopedTables.filter((table) => {
-    if (filters.season !== "all" && table.season !== filters.season) {
-      return false;
-    }
-
-    if (filters.team !== "all" && table.teamSlug !== filters.team) {
-      return false;
-    }
-
-    if (
-      filters.competition !== "all" &&
-      table.competition !== filters.competition
-    ) {
-      return false;
-    }
-
-    if (!deferredSearch) {
-      return true;
-    }
-
-    return [table.teamName, table.competition, table.category]
-      .join(" ")
-      .toLowerCase()
-      .includes(deferredSearch);
-  });
+  const defaultCompetition = competitions[0] ?? "";
+  const canSelectByTeam = role !== "COACH" && allowedTeams.length > 1;
+  const activeFilters: StandingsFiltersValue = {
+    selectionMode: canSelectByTeam ? filters.selectionMode : "competition",
+    team:
+      allowedTeams.some((team) => team.slug === filters.team)
+        ? filters.team
+        : defaultTeamSlug,
+    competition: competitions.includes(filters.competition)
+      ? filters.competition
+      : defaultCompetition,
+  };
+  const filteredTables = scopedTables.filter((table) =>
+    activeFilters.selectionMode === "team"
+      ? table.teamSlug === activeFilters.team
+      : table.competition === activeFilters.competition,
+  );
 
   const [requestedStandingId, setRequestedStandingId] = useState<string>(
     filteredTables[0]?.id ?? scopedTables[0]?.id ?? "",
@@ -215,13 +203,10 @@ export function AdminStandingsWorkspace({
 
   const selectedStandingId =
     filteredTables.find((table) => table.id === requestedStandingId)?.id ??
-    scopedTables.find((table) => table.id === requestedStandingId)?.id ??
     filteredTables[0]?.id ??
-    scopedTables[0]?.id ??
     "";
   const selectedStanding =
-    filteredTables.find((table) => table.id === selectedStandingId) ??
-    scopedTables.find((table) => table.id === selectedStandingId);
+    filteredTables.find((table) => table.id === selectedStandingId);
   const savedSelectedStanding = savedTables.find(
     (table) => table.id === selectedStanding?.id,
   );
@@ -250,6 +235,14 @@ export function AdminStandingsWorkspace({
     startTransition(() => setBanner(createBanner(message, tone)));
   }
 
+  function resetFilters() {
+    setFilters({
+      selectionMode: canSelectByTeam ? "team" : "competition",
+      team: defaultTeamSlug,
+      competition: defaultCompetition,
+    });
+  }
+
   function updateSelectedStanding(
     transform: (standing: StandingManagementTable) => StandingManagementTable,
   ) {
@@ -274,6 +267,7 @@ export function AdminStandingsWorkspace({
       | "won"
       | "drawn"
       | "lost"
+      | "sanctionPoints"
       | "goalsFor"
       | "goalsAgainst",
     value: number,
@@ -294,10 +288,14 @@ export function AdminStandingsWorkspace({
   function toggleOwnTeam(rowId: string) {
     updateSelectedStanding((standing) => ({
       ...standing,
-      rows: standing.rows.map((row) => ({
-        ...row,
-        isOwnTeam: row.id === rowId,
-      })),
+      rows: standing.rows.map((row) =>
+        row.id === rowId
+          ? {
+              ...row,
+              isOwnTeam: !row.isOwnTeam,
+            }
+          : row,
+      ),
     }));
   }
 
@@ -353,75 +351,6 @@ export function AdminStandingsWorkspace({
     pushBanner("Cambios cancelados.");
   }
 
-  function duplicateStanding() {
-    if (!selectedStanding) {
-      return;
-    }
-
-    const duplicate = normalizeStandingTable({
-      ...selectedStanding,
-      id: `${selectedStanding.id}-copy-${savedTables.length + 1}`,
-      competition: `${selectedStanding.competition} - copia`,
-      status: "draft",
-      updatedAt: new Date().toISOString(),
-      updatedBy: getRoleActorLabel(role, coachTeamSlug),
-      rows: selectedStanding.rows.map((row) => ({
-        ...row,
-        id: `${row.id}-copy-${savedTables.length + 1}`,
-      })),
-    });
-
-    startTransition(() => {
-      setSavedTables((currentTables) =>
-        sortStandingsManagementTables([...currentTables, duplicate]),
-      );
-      setRequestedStandingId(duplicate.id);
-    });
-
-    pushBanner("Clasificacion duplicada para nueva jornada.");
-  }
-
-  function resetStanding() {
-    if (!selectedStanding) {
-      return;
-    }
-
-    if (
-      !window.confirm(
-        "Se restaurara la version inicial de prueba de esta tabla. Continuar?",
-      )
-    ) {
-      return;
-    }
-
-    const seedStanding = seedTables.find((table) => table.id === selectedStanding.id);
-
-    if (!seedStanding) {
-      pushBanner(
-        "No hay una version inicial de prueba disponible para esta tabla.",
-        "danger",
-      );
-      return;
-    }
-
-    startTransition(() => {
-      setSavedTables((currentTables) =>
-        sortStandingsManagementTables(
-          currentTables.map((table) =>
-            table.id === seedStanding.id ? seedStanding : table,
-          ),
-        ),
-      );
-      setDraftTables((currentDrafts) => {
-        const nextDrafts = { ...currentDrafts };
-        delete nextDrafts[seedStanding.id];
-        return nextDrafts;
-      });
-    });
-
-    pushBanner("Clasificacion restaurada a la version inicial de prueba.");
-  }
-
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
@@ -460,14 +389,6 @@ export function AdminStandingsWorkspace({
               >
                 Ir a estadisticas
               </Link>
-              {selectedStanding ? (
-                <Link
-                  href={getStandingPublicHref(selectedStanding)}
-                  className="rr-button rr-button-secondary text-[0.8rem]"
-                >
-                  Vista publica
-                </Link>
-              ) : null}
             </>
           }
           aside={
@@ -522,20 +443,14 @@ export function AdminStandingsWorkspace({
       </div>
 
       <StandingsFilters
-        value={filters}
-        seasons={seasons}
+        value={activeFilters}
         teams={allowedTeams.map((team) => ({ slug: team.slug, name: team.name }))}
         competitions={competitions}
         totalStandings={scopedTables.length}
         filteredStandings={filteredTables.length}
-        showTeamFilter={role !== "COACH" && allowedTeams.length > 1}
+        showTeamFilter={canSelectByTeam}
         onChange={setFilters}
-        onReset={() =>
-          setFilters({
-            ...initialFilters,
-            team: role === "COACH" ? "all" : initialSelectedTeamSlug ?? "all",
-          })
-        }
+        onReset={resetFilters}
       />
 
       {screenState === "loading" ? (
@@ -595,7 +510,7 @@ export function AdminStandingsWorkspace({
       {screenState === "ready" && scopedTables.length === 0 ? (
         <AdminEmptyState
           title="Sin clasificaciones cargadas"
-          description="Cuando ampliemos los datos de prueba, esta pantalla mostrara tablas manuales por equipo."
+          description="Cuando exista una competicion sin tabla creada, el alta debera arrancar desde los equipos dados de alta en esa competicion."
         />
       ) : null}
 
@@ -608,12 +523,7 @@ export function AdminStandingsWorkspace({
           action={
             <button
               type="button"
-              onClick={() =>
-                setFilters({
-                  ...initialFilters,
-                  team: role === "COACH" ? "all" : initialSelectedTeamSlug ?? "all",
-                })
-              }
+              onClick={resetFilters}
               className="rr-button rr-button-secondary text-[0.82rem]"
             >
               Limpiar filtros
@@ -626,6 +536,14 @@ export function AdminStandingsWorkspace({
       filteredTables.length > 0 &&
       selectedStanding ? (
         <div className="space-y-4">
+          {filteredTables.length > 1 ? (
+            <StandingsSelector
+              standings={filteredTables}
+              selectedStandingId={selectedStandingId}
+              onSelect={setRequestedStandingId}
+            />
+          ) : null}
+
           <div className="flex flex-col gap-3 border-b border-white/10 px-1 pb-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-1">
               <p className="rr-kicker text-[color:var(--rr-gold)]">
@@ -638,53 +556,6 @@ export function AdminStandingsWorkspace({
                 <p className="text-[0.86rem] text-[#ffc3bc]">
                   {validationErrors.length} validaciones pendientes antes de guardar.
                 </p>
-              ) : null}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={persistSelectedStanding}
-                className="rr-button rr-button-primary min-h-10 px-3 py-2 text-[0.76rem]"
-              >
-                <Save className="h-4 w-4" />
-                {hasUnsavedChanges ? "Guardar" : "Guardar de nuevo"}
-              </button>
-              {hasUnsavedChanges ? (
-                <button
-                  type="button"
-                  onClick={discardChanges}
-                  className="rr-button rr-button-secondary min-h-10 px-3 py-2 text-[0.76rem]"
-                >
-                  Cancelar
-                </button>
-              ) : null}
-              <Link
-                href={getStandingPublicHref(selectedStanding)}
-                className="rr-button rr-button-secondary min-h-10 px-3 py-2 text-[0.76rem]"
-              >
-                <Eye className="h-4 w-4" />
-                Ver web
-              </Link>
-              {role !== "COACH" ? (
-                <button
-                  type="button"
-                  onClick={duplicateStanding}
-                  className="rr-button rr-button-secondary min-h-10 px-3 py-2 text-[0.76rem]"
-                >
-                  <ClipboardCopy className="h-4 w-4" />
-                  Duplicar
-                </button>
-              ) : null}
-              {role !== "COACH" ? (
-                <button
-                  type="button"
-                  onClick={resetStanding}
-                  className="rr-button rr-button-secondary min-h-10 px-3 py-2 text-[0.76rem]"
-                >
-                  <RefreshCcw className="h-4 w-4" />
-                  Restaurar
-                </button>
               ) : null}
             </div>
           </div>

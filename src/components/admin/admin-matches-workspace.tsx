@@ -5,6 +5,8 @@ import { startTransition, useDeferredValue, useEffect, useState } from "react";
 import {
   AlertTriangle,
   CalendarClock,
+  ChevronLeft,
+  ChevronRight,
   CircleDotDashed,
   Eye,
   PenSquare,
@@ -30,8 +32,6 @@ import {
   getCoachMatchVisualStatus,
   getCoachPreviewTeamOptions,
   getMatchManagementTeamsForRole,
-  getMatchPublicHref,
-  getStoredMatchStatus,
   getVisualMatchStatus,
   hasMatchResult,
   isPendingMatchStatus,
@@ -60,6 +60,8 @@ const initialFilters: MatchFiltersValue = {
   date: "all",
   search: "",
 };
+
+const pageSizeOptions = [10, 20, 50] as const;
 
 function isThisMonth(dateValue: string) {
   if (!dateValue) {
@@ -117,6 +119,8 @@ export function AdminMatchesWorkspace({
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
   const [screenState, setScreenState] = useState<ScreenState>("loading");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<(typeof pageSizeOptions)[number]>(10);
   const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
     coachPreviewTeamSlugs.includes(
       initialSelectedTeamSlug as (typeof coachPreviewTeamSlugs)[number],
@@ -213,6 +217,11 @@ export function AdminMatchesWorkspace({
     }),
   );
 
+  const totalPages = Math.max(1, Math.ceil(filteredMatches.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const pageStartIndex = (safeCurrentPage - 1) * pageSize;
+  const pageEndIndex = Math.min(pageStartIndex + pageSize, filteredMatches.length);
+  const paginatedMatches = filteredMatches.slice(pageStartIndex, pageEndIndex);
   const visibleMatches = filteredMatches.length > 0 ? filteredMatches : scopedMatches;
   const nextMatch =
     role === "COACH"
@@ -261,6 +270,11 @@ export function AdminMatchesWorkspace({
     startTransition(() => setBannerMessage(message));
   }
 
+  function updateFilters(nextFilters: MatchFiltersValue) {
+    setFilters(nextFilters);
+    setCurrentPage(1);
+  }
+
   function saveMatch(nextMatchValue: MatchManagementMatch) {
     startTransition(() => {
       setAllMatches((currentMatches) =>
@@ -294,29 +308,6 @@ export function AdminMatchesWorkspace({
     setQuickResultMatchId(null);
     setSelectedMatchId(nextMatchValue.id);
     pushBanner("Resultado actualizado.");
-  }
-
-  function markAsPending(match: MatchManagementMatch) {
-    setAllMatches((currentMatches) =>
-      sortMatchManagementMatches(
-        currentMatches.map((currentMatch) =>
-          currentMatch.id === match.id
-            ? {
-                ...currentMatch,
-                status: getStoredMatchStatus(
-                  "pending",
-                  Boolean(currentMatch.date),
-                ),
-                ownScore: null,
-                opponentScore: null,
-              }
-            : currentMatch,
-        ),
-      ),
-    );
-
-    setSelectedMatchId(match.id);
-    pushBanner(`${match.teamName} vuelve a estado pendiente.`);
   }
 
   return (
@@ -371,6 +362,7 @@ export function AdminMatchesWorkspace({
               onChange={(nextTeamSlug) => {
                 setCoachTeamSlug(nextTeamSlug);
                 setFilters(initialFilters);
+                setCurrentPage(1);
                 setSelectedMatchId(null);
               }}
             />
@@ -427,8 +419,8 @@ export function AdminMatchesWorkspace({
         filteredMatches={filteredMatches.length}
         showTeamFilter={role !== "COACH" && allowedTeams.length > 1}
         allowLiveFilter={allowLiveFilter}
-        onChange={setFilters}
-        onReset={() => setFilters(initialFilters)}
+        onChange={updateFilters}
+        onReset={() => updateFilters(initialFilters)}
       />
 
       {screenState === "loading" ? (
@@ -508,7 +500,7 @@ export function AdminMatchesWorkspace({
           action={
             <button
               type="button"
-              onClick={() => setFilters(initialFilters)}
+              onClick={() => updateFilters(initialFilters)}
               className="rr-button rr-button-secondary text-[0.82rem]"
             >
               Limpiar filtros
@@ -518,18 +510,94 @@ export function AdminMatchesWorkspace({
       ) : null}
 
       {screenState === "ready" && filteredMatches.length > 0 ? (
-        <MatchList
-          role={role}
-          matches={filteredMatches}
-          selectedMatchId={selectedCoachMatch?.id}
-          onViewMatch={(match) => setSelectedMatchId(match.id)}
-          onEdit={(match) => setDialogState({ mode: "edit", matchId: match.id })}
-          onQuickResult={(match) => setQuickResultMatchId(match.id)}
-          onSetPending={markAsPending}
-          onManageHighlights={(match) =>
-            setDialogState({ mode: "edit", matchId: match.id })
-          }
-        />
+        <div className="space-y-3">
+          <MatchList
+            role={role}
+            matches={paginatedMatches}
+            selectedMatchId={selectedCoachMatch?.id}
+            onViewMatch={(match) => setSelectedMatchId(match.id)}
+            onEdit={(match) => setDialogState({ mode: "edit", matchId: match.id })}
+            onQuickResult={(match) => setQuickResultMatchId(match.id)}
+            onManageHighlights={(match) =>
+              setDialogState({ mode: "edit", matchId: match.id })
+            }
+          />
+
+          <AdminPanel className="p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
+                Mostrando {pageStartIndex + 1}-{pageEndIndex} de{" "}
+                {filteredMatches.length} partidos
+              </p>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <label className="flex items-center gap-2 text-[0.84rem] text-[color:var(--rr-muted)]">
+                  <span className="rr-kicker text-[0.7rem]">Por pagina</span>
+                  <select
+                    value={pageSize}
+                    onChange={(event) => {
+                      setPageSize(
+                        Number(event.target.value) as (typeof pageSizeOptions)[number],
+                      );
+                      setCurrentPage(1);
+                    }}
+                    className="min-h-10 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                  >
+                    {pageSizeOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="flex items-center gap-2 text-[0.84rem] text-[color:var(--rr-muted)]">
+                  <span className="rr-kicker text-[0.7rem]">Pagina</span>
+                  <select
+                    value={safeCurrentPage}
+                    onChange={(event) => setCurrentPage(Number(event.target.value))}
+                    className="min-h-10 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                  >
+                    {Array.from({ length: totalPages }).map((_, index) => {
+                      const pageNumber = index + 1;
+
+                      return (
+                        <option key={pageNumber} value={pageNumber}>
+                          {pageNumber} de {totalPages}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </label>
+
+                <div className="grid grid-cols-2 gap-2 sm:flex">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage((page) => Math.max(1, page - 1))
+                    }
+                    disabled={safeCurrentPage === 1}
+                    className="rr-button rr-button-secondary min-h-10 justify-center px-3 text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Anterior
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage((page) => Math.min(totalPages, page + 1))
+                    }
+                    disabled={safeCurrentPage === totalPages}
+                    className="rr-button rr-button-secondary min-h-10 justify-center px-3 text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
+                  >
+                    Siguiente
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </AdminPanel>
+        </div>
       ) : null}
 
       {role === "COACH" &&
@@ -605,12 +673,6 @@ export function AdminMatchesWorkspace({
               >
                 Clasificacion
               </Link>
-              <Link
-                href={getMatchPublicHref(selectedCoachMatch)}
-                className="rr-button rr-button-secondary text-[0.82rem]"
-              >
-                Ver publico
-              </Link>
             </div>
           </div>
         </AdminPanel>
@@ -627,6 +689,7 @@ export function AdminMatchesWorkspace({
         role={role}
         match={selectedDialogMatch}
         availableTeams={allowedTeams}
+        existingMatches={scopedMatches}
         seasons={
           seasons.length > 0 ? seasons : [coachAssignedTeam?.season ?? "2026/2027"]
         }

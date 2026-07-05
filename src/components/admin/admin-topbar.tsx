@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Shield, UserCircle2 } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { AdminNavItem } from "@/server/auth/permissions";
 
 type AdminTopbarProps = {
-  displayName: string;
-  roleLabel: string;
   navItems: AdminNavItem[];
 };
 
@@ -27,11 +25,7 @@ function formatSlugLabel(value: string) {
     .join(" ");
 }
 
-export function AdminTopbar({
-  displayName,
-  roleLabel,
-  navItems,
-}: AdminTopbarProps) {
+export function AdminTopbar({ navItems }: AdminTopbarProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentLabel = getCurrentLabel(pathname, navItems);
@@ -49,10 +43,6 @@ export function AdminTopbar({
             </h1>
 
             <div className="flex flex-wrap items-center gap-1.5 text-[0.78rem] text-[color:var(--rr-muted)] sm:gap-2 sm:text-[0.82rem]">
-              <span className="inline-flex min-h-8 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 text-white sm:px-3">
-                <Shield className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-                {roleLabel}
-              </span>
               {activeTeam ? (
                 <span className="inline-flex min-h-8 items-center rounded-full border border-[rgba(253,203,88,0.24)] bg-[rgba(253,203,88,0.08)] px-2.5 text-[color:var(--rr-gold)] sm:px-3">
                   Equipo: {formatSlugLabel(activeTeam)}
@@ -63,10 +53,6 @@ export function AdminTopbar({
                   Temporada: {activeSeason}
                 </span>
               ) : null}
-              <span className="hidden min-h-8 items-center gap-2 rounded-full border border-transparent px-1 lg:inline-flex">
-                <UserCircle2 className="h-3.5 w-3.5 text-[color:var(--rr-gold)]" />
-                {displayName}
-              </span>
             </div>
           </div>
 

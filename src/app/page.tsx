@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: "Entrada publica a la actualidad, el Primer Equipo y la cantera de Rising Raimon.",
 };
 
+export const revalidate = 300;
+
 export default async function HomePage() {
   const content = await getPublicHomePageContent();
 

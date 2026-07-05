@@ -6,8 +6,11 @@ import { z } from "zod";
 import { MatchStatusSelector } from "@/components/admin/match-status-selector";
 import {
   getCoachMatchVisualStatus,
+  getNextMatchdaySuggestion,
+  getOpponentOptionsForCompetition,
   getStoredMatchStatus,
   getVisualMatchStatus,
+  matchManagementVenueOptions,
   type MatchManagementMatch,
   type MatchManagementTeam,
   type MatchVisualStatus,
@@ -20,6 +23,7 @@ type MatchFormDialogProps = {
   role: AdminRole;
   match?: MatchManagementMatch;
   availableTeams: MatchManagementTeam[];
+  existingMatches: MatchManagementMatch[];
   seasons: string[];
   onClose: () => void;
   onSave: (match: MatchManagementMatch) => void;
@@ -39,8 +43,6 @@ type MatchFormState = {
   ownScore: string;
   opponentScore: string;
   highlightsUrl: string;
-  previewAvailable: boolean;
-  detailAvailable: boolean;
 };
 
 const matchFormSchema = z.object({
@@ -57,32 +59,33 @@ const matchFormSchema = z.object({
   ownScore: z.string(),
   opponentScore: z.string(),
   highlightsUrl: z.string().trim(),
-  previewAvailable: z.boolean(),
-  detailAvailable: z.boolean(),
 });
 
 const fieldClassName =
   "min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
 
-function createDefaultState(availableTeams: MatchManagementTeam[]): MatchFormState {
+function createDefaultState(
+  availableTeams: MatchManagementTeam[],
+  existingMatches: MatchManagementMatch[],
+): MatchFormState {
   const defaultTeam = availableTeams[0];
 
   return {
     teamSlug: defaultTeam?.slug ?? "",
     season: defaultTeam?.season ?? "",
     competition: defaultTeam?.competition ?? "",
-    matchday: "",
+    matchday: defaultTeam
+      ? getNextMatchdaySuggestion(existingMatches, defaultTeam.slug)
+      : "Jornada 1",
     opponentName: "",
     isHome: true,
     date: "",
     time: "",
-    venue: "",
+    venue: matchManagementVenueOptions[0]?.name ?? "",
     status: "pending",
     ownScore: "",
     opponentScore: "",
     highlightsUrl: "",
-    previewAvailable: true,
-    detailAvailable: false,
   };
 }
 
@@ -107,8 +110,6 @@ function createStateFromMatch(
     ownScore: match.ownScore === null ? "" : String(match.ownScore),
     opponentScore: match.opponentScore === null ? "" : String(match.opponentScore),
     highlightsUrl: match.highlightsUrl ?? "",
-    previewAvailable: match.previewAvailable,
-    detailAvailable: match.detailAvailable,
   };
 }
 
@@ -130,12 +131,15 @@ export function MatchFormDialog({
   role,
   match,
   availableTeams,
+  existingMatches,
   seasons,
   onClose,
   onSave,
 }: MatchFormDialogProps) {
   const [formState, setFormState] = useState<MatchFormState>(() =>
-    match ? createStateFromMatch(match, role) : createDefaultState(availableTeams),
+    match
+      ? createStateFromMatch(match, role)
+      : createDefaultState(availableTeams, existingMatches),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -149,6 +153,7 @@ export function MatchFormDialog({
   const allowLiveStatus = role !== "COACH" && Boolean(selectedTeam?.isFirstTeam);
   const lockTeam = role === "COACH" || availableTeams.length <= 1;
   const isCoach = role === "COACH";
+  const opponentOptions = getOpponentOptionsForCompetition(selectedTeam?.competition);
 
   function updateField<Key extends keyof MatchFormState>(
     key: Key,
@@ -162,12 +167,23 @@ export function MatchFormDialog({
 
   function handleTeamChange(nextTeamSlug: string) {
     const nextTeam = availableTeams.find((team) => team.slug === nextTeamSlug);
+    const nextCompetition = nextTeam?.competition ?? "";
+    const nextOpponents = getOpponentOptionsForCompetition(nextCompetition);
 
     setFormState((currentValue) => ({
       ...currentValue,
       teamSlug: nextTeamSlug,
       season: nextTeam?.season ?? currentValue.season,
-      competition: nextTeam?.competition ?? currentValue.competition,
+      competition: nextCompetition || currentValue.competition,
+      matchday:
+        mode === "create"
+          ? getNextMatchdaySuggestion(existingMatches, nextTeamSlug)
+          : currentValue.matchday,
+      opponentName: nextOpponents.some(
+        (opponent) => opponent.name === currentValue.opponentName,
+      )
+        ? currentValue.opponentName
+        : "",
       status:
         currentValue.status === "live" && !nextTeam?.isFirstTeam ? "pending" : currentValue.status,
       highlightsUrl: nextTeam?.isFirstTeam ? currentValue.highlightsUrl : "",
@@ -263,8 +279,8 @@ export function MatchFormDialog({
         canManageHighlights && parsedValue.data.status === "played" && parsedValue.data.highlightsUrl
           ? parsedValue.data.highlightsUrl
           : undefined,
-      previewAvailable: parsedValue.data.previewAvailable,
-      detailAvailable: parsedValue.data.detailAvailable,
+      previewAvailable: true,
+      detailAvailable: true,
       isFirstTeam: selectedTeam?.isFirstTeam ?? false,
     });
   }
@@ -358,19 +374,18 @@ export function MatchFormDialog({
             ) : null}
 
             {!isCoach ? (
-              <label className="grid gap-2">
+              <div className="grid gap-2">
                 <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Competicion</span>
-                <input
-                  type="text"
-                  value={formState.competition}
-                  onChange={(event) => updateField("competition", event.target.value)}
-                  className={fieldClassName}
-                  placeholder="Liga Juvenil Preferente"
-                />
+                <div
+                  className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/[0.035] px-3 text-[color:var(--rr-muted)] opacity-80"
+                  aria-label="Competicion asignada automaticamente"
+                >
+                  {formState.competition}
+                </div>
                 {errors.competition ? (
                   <span className="text-[0.82rem] text-[#ff8d8d]">{errors.competition}</span>
                 ) : null}
-              </label>
+              </div>
             ) : null}
 
             <label className="grid gap-2">
@@ -389,13 +404,18 @@ export function MatchFormDialog({
 
             <label className="grid gap-2 md:col-span-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Rival</span>
-              <input
-                type="text"
+              <select
                 value={formState.opponentName}
                 onChange={(event) => updateField("opponentName", event.target.value)}
                 className={fieldClassName}
-                placeholder="CD Moratalaz B"
-              />
+              >
+                <option value="">Selecciona rival</option>
+                {opponentOptions.map((opponent) => (
+                  <option key={opponent.id} value={opponent.name}>
+                    {opponent.name}
+                  </option>
+                ))}
+              </select>
               {errors.opponentName ? (
                 <span className="text-[0.82rem] text-[#ff8d8d]">{errors.opponentName}</span>
               ) : null}
@@ -423,13 +443,17 @@ export function MatchFormDialog({
 
             <label className="grid gap-2 md:col-span-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Campo</span>
-              <input
-                type="text"
+              <select
                 value={formState.venue}
                 onChange={(event) => updateField("venue", event.target.value)}
                 className={fieldClassName}
-                placeholder="Campo Rising Raimon"
-              />
+              >
+                {matchManagementVenueOptions.map((venue) => (
+                  <option key={venue.id} value={venue.name}>
+                    {venue.name}
+                  </option>
+                ))}
+              </select>
               {errors.venue ? <span className="text-[0.82rem] text-[#ff8d8d]">{errors.venue}</span> : null}
             </label>
           </div>
@@ -525,30 +549,6 @@ export function MatchFormDialog({
                   ) : null}
                 </label>
               ) : null}
-            </div>
-          ) : null}
-
-          {!isCoach ? (
-            <div className="grid gap-3 md:grid-cols-2">
-              <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
-                <input
-                  type="checkbox"
-                  checked={formState.previewAvailable}
-                  onChange={(event) => updateField("previewAvailable", event.target.checked)}
-                  className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
-                />
-                Previa lista para publicar
-              </label>
-
-              <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
-                <input
-                  type="checkbox"
-                  checked={formState.detailAvailable}
-                  onChange={(event) => updateField("detailAvailable", event.target.checked)}
-                  className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
-                />
-                Ficha publica disponible
-              </label>
             </div>
           ) : null}
 

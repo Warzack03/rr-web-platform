@@ -78,7 +78,8 @@ Included in MVP:
 - Team coach shown in team detail.
 - News module in the new platform.
 - Video URL support for First Team played matches.
-- Role permissions: only superadmin/manager create teams and assign coach permissions.
+- Visible team coaches are informative records, separate from any admin account permissions.
+- Role permissions: only superadmin/manager create teams and assign coach team scope when that role model is used.
 - Dark mode first. Light mode after dark design is stable.
 
 Still excluded from MVP:
