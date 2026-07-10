@@ -1,15 +1,37 @@
 import type { PublicNewsArticle } from "@/lib/public/news-content";
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import { PUBLIC_NEWS_ARTICLES } from "@/lib/public/news-content";
 import { getPublishedPublicNewsArticlesFromDb } from "@/server/services/public/news";
 
 export async function getPublicNewsArticles() {
+  const result = await getPublicNewsArticlesWithSource();
+
+  return result.articles;
+}
+
+export async function getPublicNewsArticlesWithSource(): Promise<{
+  articles: PublicNewsArticle[];
+  dataSource: PublicDataSourceInfo;
+}> {
   const dbArticles = await getPublishedPublicNewsArticlesFromDb();
 
   if (!dbArticles || dbArticles.length === 0) {
-    return PUBLIC_NEWS_ARTICLES;
+    return {
+      articles: PUBLIC_NEWS_ARTICLES,
+      dataSource: {
+        source: "mock",
+        note: "news",
+      },
+    };
   }
 
-  return dbArticles;
+  return {
+    articles: dbArticles,
+    dataSource: {
+      source: "db",
+      note: "news",
+    },
+  };
 }
 
 export async function getFeaturedPublicNewsArticle() {

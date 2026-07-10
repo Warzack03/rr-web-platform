@@ -19,6 +19,7 @@ import type { AdminRole } from "@/lib/admin/roles";
 type MatchListProps = {
   role: AdminRole;
   matches: MatchManagementMatch[];
+  disabled?: boolean;
   selectedMatchId?: string;
   onViewMatch: (match: MatchManagementMatch) => void;
   onEdit: (match: MatchManagementMatch) => void;
@@ -46,12 +47,14 @@ function getCoachResultLabel(match: MatchManagementMatch) {
 function MatchActions({
   role,
   match,
+  disabled,
   onEdit,
   onQuickResult,
   onManageHighlights,
 }: {
   role: AdminRole;
   match: MatchManagementMatch;
+  disabled?: boolean;
   onEdit: (match: MatchManagementMatch) => void;
   onQuickResult: (match: MatchManagementMatch) => void;
   onManageHighlights: (match: MatchManagementMatch) => void;
@@ -65,6 +68,7 @@ function MatchActions({
       <button
         type="button"
         onClick={() => onQuickResult(match)}
+        disabled={disabled}
         className="rr-button rr-button-primary min-h-8 whitespace-nowrap px-2.5 text-[0.7rem]"
       >
         <Trophy className="h-3.5 w-3.5" />
@@ -74,6 +78,7 @@ function MatchActions({
       <button
         type="button"
         onClick={() => onEdit(match)}
+        disabled={disabled}
         className="rr-button rr-button-secondary min-h-8 min-w-8 px-2"
         aria-label="Editar partido"
         title="Editar"
@@ -85,6 +90,7 @@ function MatchActions({
         <button
           type="button"
           onClick={() => onManageHighlights(match)}
+          disabled={disabled}
           className="rr-button rr-button-secondary min-h-8 min-w-8 px-2"
           aria-label="Gestionar highlights"
           title="Highlights"
@@ -99,6 +105,7 @@ function MatchActions({
 export function MatchList({
   role,
   matches,
+  disabled,
   selectedMatchId,
   onViewMatch,
   onEdit,
@@ -172,6 +179,7 @@ export function MatchList({
         <MatchActions
           role={role}
           match={match}
+          disabled={disabled}
           onEdit={onEdit}
           onQuickResult={onQuickResult}
           onManageHighlights={onManageHighlights}
@@ -225,6 +233,7 @@ export function MatchList({
                       <button
                         type="button"
                         onClick={() => onViewMatch(match)}
+                        disabled={disabled}
                         className="rr-button rr-button-primary w-full justify-center text-[0.8rem]"
                       >
                         <ArrowUpRight className="h-4 w-4" />
@@ -240,6 +249,7 @@ export function MatchList({
                     <MatchActions
                       role={role}
                       match={match}
+                      disabled={disabled}
                       onEdit={onEdit}
                       onQuickResult={onQuickResult}
                       onManageHighlights={onManageHighlights}

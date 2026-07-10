@@ -29,9 +29,9 @@ export function GoalScorersList({
       {title ? (
         <p className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">{title}</p>
       ) : null}
-      {scorers.map((scorer) => (
+      {scorers.map((scorer, index) => (
         <div
-          key={`${scorer.playerName}-${formatScorerMinutes(scorer.minutes)}`}
+          key={`${scorer.playerName}-${formatScorerMinutes(scorer.minutes)}-${index}`}
           className={cn(
             "flex items-center gap-2 text-[1.02rem] text-[color:var(--rr-text)]",
             isRight && "flex-row-reverse",
@@ -39,7 +39,8 @@ export function GoalScorersList({
         >
           <MatchStatIcon type="goal" size={15} className="h-4 w-4" />
           <span>
-            {scorer.playerName} ({formatScorerMinutes(scorer.minutes)})
+            {scorer.playerName}
+            {scorer.minutes.length > 0 ? ` (${formatScorerMinutes(scorer.minutes)})` : ""}
           </span>
         </div>
       ))}

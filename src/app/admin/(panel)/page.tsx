@@ -1,6 +1,6 @@
 import { AdminDashboard } from "@/components/admin/admin-dashboard";
-import { OWNER_ADMIN_ROLE } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
+import { getAdminDashboardData } from "@/server/services/admin-dashboard";
 
 type AdminDashboardPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -8,7 +8,7 @@ type AdminDashboardPageProps = {
 
 export default async function AdminDashboardPage({}: AdminDashboardPageProps) {
   const user = await requireAdminSectionAccess("dashboard");
-  void user;
+  const data = await getAdminDashboardData(user);
 
-  return <AdminDashboard role={OWNER_ADMIN_ROLE} />;
+  return <AdminDashboard user={user} data={data} />;
 }

@@ -9,6 +9,8 @@ import {
 import type { StandingRowData } from "@/lib/public/team-standings-content";
 import { getFirstTeamStandingsContent } from "@/lib/public/team-standings-content";
 import { getTeamsDirectoryContent } from "@/lib/public/teams-directory-content";
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
+import { resolveMixedSource } from "@/lib/public/data-source";
 import { getPublicHomeDbSections } from "@/server/services/public/home";
 import {
   getFeaturedPublicNewsArticle,
@@ -172,6 +174,15 @@ async function getMockPublicHomePageContent(): Promise<PublicHomePageContent | n
 }
 
 export async function getPublicHomePageContent(): Promise<PublicHomePageContent | null> {
+  const result = await getPublicHomePageContentWithSource();
+
+  return result?.content ?? null;
+}
+
+export async function getPublicHomePageContentWithSource(): Promise<{
+  content: PublicHomePageContent;
+  dataSource: PublicDataSourceInfo;
+} | null> {
   const mockContent = await getMockPublicHomePageContent();
 
   if (!mockContent) {
@@ -184,7 +195,11 @@ export async function getPublicHomePageContent(): Promise<PublicHomePageContent 
     getLatestPublicNewsArticles(2),
   ]);
 
-  return {
+  const firstTeamSource = dbSections?.firstTeam ? "db" : "mock";
+  const academySource = dbSections?.academy ? "db" : "mock";
+  const featuredNewsSource = featuredNews ? "db" : "mock";
+  const latestNewsSource = latestNews.length > 0 ? "db" : "mock";
+  const content: PublicHomePageContent = {
     ...mockContent,
     firstTeam: dbSections?.firstTeam ?? mockContent.firstTeam,
     academy: dbSections?.academy ?? mockContent.academy,
@@ -192,6 +207,19 @@ export async function getPublicHomePageContent(): Promise<PublicHomePageContent 
       ...mockContent.news,
       featured: featuredNews ?? mockContent.news.featured,
       latest: latestNews.length > 0 ? latestNews : mockContent.news.latest,
+    },
+  };
+
+  return {
+    content,
+    dataSource: {
+      source: resolveMixedSource([
+        firstTeamSource,
+        academySource,
+        featuredNewsSource,
+        latestNewsSource,
+      ]),
+      note: "home",
     },
   };
 }

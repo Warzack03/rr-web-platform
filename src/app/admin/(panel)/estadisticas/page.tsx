@@ -1,6 +1,7 @@
 import { AdminStatsWorkspace } from "@/components/admin/admin-stats-workspace";
-import { OWNER_ADMIN_ROLE } from "@/lib/admin/roles";
+import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
+import { getAdminStatsScreenData } from "@/server/services/admin-stats";
 
 type AdminStatsPageProps = {
   searchParams: Promise<{
@@ -18,17 +19,43 @@ export default async function AdminStatsPage({
   searchParams,
 }: AdminStatsPageProps) {
   const user = await requireAdminSectionAccess("stats");
+  const data = await getAdminStatsScreenData(user);
   const resolvedSearchParams = await searchParams;
-  void user;
   const initialUiState = getSingleValue(resolvedSearchParams.ui) === "error" ? "error" : "ready";
+  const requestedTeamSlug = getSingleValue(resolvedSearchParams.team);
+  const requestedMatchId = getSingleValue(resolvedSearchParams.match);
+  const selectedMatch = requestedMatchId
+    ? data.matches.find((match) => match.id === requestedMatchId)
+    : undefined;
+  const initialSelectedTeamSlug =
+    selectedMatch?.teamSlug ??
+    (requestedTeamSlug && data.teams.some((team) => team.slug === requestedTeamSlug)
+      ? requestedTeamSlug
+      : data.teams[0]?.slug);
+  const initialSelectedMatchId =
+    requestedMatchId &&
+    data.matches.some(
+      (match) =>
+        match.id === requestedMatchId &&
+        (initialSelectedTeamSlug ? match.teamSlug === initialSelectedTeamSlug : true),
+    )
+      ? requestedMatchId
+      : data.matches.find((match) => match.teamSlug === initialSelectedTeamSlug)?.id;
 
   return (
     <AdminStatsWorkspace
-      key={`${OWNER_ADMIN_ROLE}-${initialUiState}-${getSingleValue(resolvedSearchParams.team) ?? "all"}-${getSingleValue(resolvedSearchParams.match) ?? "all"}`}
-      role={OWNER_ADMIN_ROLE}
+      key={`${user.idString}-${initialUiState}-${initialSelectedTeamSlug ?? "all"}-${initialSelectedMatchId ?? "all"}`}
+      role={toAdminRole(user.role)}
       initialUiState={initialUiState}
-      initialSelectedTeamSlug={getSingleValue(resolvedSearchParams.team)}
-      initialSelectedMatchId={getSingleValue(resolvedSearchParams.match)}
+      initialSelectedTeamSlug={initialSelectedTeamSlug}
+      initialSelectedMatchId={initialSelectedMatchId}
+      activeSeasonLabel={data.activeSeasonName ?? undefined}
+      initialTeams={data.teams}
+      initialMatches={data.matches}
+      initialPlayers={data.players}
+      initialPlayerCatalog={data.playerCatalog}
+      initialStatsState={data.statsState}
+      coachTeamOptions={data.coachTeamOptions}
     />
   );
 }

@@ -8,6 +8,7 @@ import type { MatchManagementMatch } from "@/lib/admin/match-management-mocks";
 type QuickResultDialogProps = {
   open: boolean;
   match?: MatchManagementMatch;
+  isSaving?: boolean;
   onClose: () => void;
   onSave: (match: MatchManagementMatch) => void;
 };
@@ -24,6 +25,7 @@ const fieldClassName =
 export function QuickResultDialog({
   open,
   match,
+  isSaving = false,
   onClose,
   onSave,
 }: QuickResultDialogProps) {
@@ -94,6 +96,7 @@ export function QuickResultDialog({
           <button
             type="button"
             onClick={onClose}
+            disabled={isSaving}
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[8px] border border-white/10 text-[color:var(--rr-muted)] transition hover:text-white"
             aria-label="Cerrar"
           >
@@ -116,6 +119,7 @@ export function QuickResultDialog({
                 inputMode="numeric"
                 value={ownScore}
                 onChange={(event) => setOwnScore(event.target.value)}
+                disabled={isSaving}
                 className={`${fieldClassName} text-center text-[2rem] font-semibold sm:text-[2.2rem]`}
               />
               {errors.ownScore ? (
@@ -136,6 +140,7 @@ export function QuickResultDialog({
                 inputMode="numeric"
                 value={opponentScore}
                 onChange={(event) => setOpponentScore(event.target.value)}
+                disabled={isSaving}
                 className={`${fieldClassName} text-center text-[2rem] font-semibold sm:text-[2.2rem]`}
               />
               {errors.opponentScore ? (
@@ -150,21 +155,31 @@ export function QuickResultDialog({
               type="date"
               value={date}
               onChange={(event) => setDate(event.target.value)}
+              disabled={isSaving}
               className={fieldClassName}
             />
           </label>
 
           <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-              Cambio rapido de resultado.
+              Cambio rapido sobre el partido real.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button type="button" onClick={onClose} className="rr-button rr-button-secondary text-[0.8rem]">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSaving}
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
                 Cancelar
               </button>
-              <button type="submit" className="rr-button rr-button-primary text-[0.8rem]">
-                Guardar resultado
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="rr-button rr-button-primary text-[0.8rem]"
+              >
+                {isSaving ? "Guardando..." : "Guardar resultado"}
               </button>
             </div>
           </div>

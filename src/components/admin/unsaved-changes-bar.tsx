@@ -6,11 +6,13 @@ import { AdminPanel } from "@/components/admin/admin-panel";
 type UnsavedChangesBarProps = {
   onDiscard: () => void;
   onSave: () => void;
+  isSaving?: boolean;
 };
 
 export function UnsavedChangesBar({
   onDiscard,
   onSave,
+  isSaving = false,
 }: UnsavedChangesBarProps) {
   return (
     <AdminPanel className="sticky bottom-4 z-10 border-[rgba(253,203,88,0.32)] px-4 py-4">
@@ -31,6 +33,7 @@ export function UnsavedChangesBar({
           <button
             type="button"
             onClick={onDiscard}
+            disabled={isSaving}
             className="rr-button rr-button-secondary text-[0.82rem]"
           >
             Cancelar cambios
@@ -38,9 +41,10 @@ export function UnsavedChangesBar({
           <button
             type="button"
             onClick={onSave}
+            disabled={isSaving}
             className="rr-button rr-button-primary text-[0.82rem]"
           >
-            Guardar cambios
+            {isSaving ? "Guardando..." : "Guardar cambios"}
           </button>
         </div>
       </div>

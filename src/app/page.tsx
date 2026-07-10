@@ -5,7 +5,7 @@ import { HomeAcademySummary } from "@/components/public/home-academy-summary";
 import { HomeFirstTeamBlock } from "@/components/public/home-first-team-block";
 import { HomeHero } from "@/components/public/home-hero";
 import { HomeNewsSection } from "@/components/public/home-news-section";
-import { getPublicHomePageContent } from "@/lib/public/home-content";
+import { getPublicHomePageContentWithSource } from "@/lib/public/home-content";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -15,14 +15,15 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const content = await getPublicHomePageContent();
+  const result = await getPublicHomePageContentWithSource();
+  const content = result?.content;
 
   if (!content) {
     notFound();
   }
 
   return (
-    <PublicSiteLayout activeNav="home">
+    <PublicSiteLayout activeNav="home" debugDataSource={result?.dataSource}>
       <HomeHero content={content.hero} />
       <HomeFirstTeamBlock content={content.firstTeam} />
       <HomeNewsSection content={content.news} />

@@ -3,27 +3,20 @@ import {
   BarChart3,
   CalendarDays,
   Camera,
+  CheckCircle2,
   ClipboardList,
-  Newspaper,
   Shield,
   Trophy,
   UsersRound,
 } from "lucide-react";
+import { MatchStatus, UserRole } from "@prisma/client";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminQuickAction } from "@/components/admin/admin-quick-action";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
-import type { AdminRole } from "@/lib/admin/roles";
-import {
-  adminMockImports,
-  adminMockMatches,
-  adminMockMedia,
-  adminMockNews,
-  adminMockPlayers,
-  adminMockStandings,
-  adminMockTeams,
-} from "@/lib/admin/mock-data";
+import type { AuthenticatedAdmin } from "@/server/auth/session";
+import type { AdminDashboardData } from "@/server/services/admin-dashboard";
 
 type ControlArea = {
   title: string;
@@ -101,36 +94,196 @@ const publicControlAreas: ControlArea[] = [
   },
 ];
 
-const publicationChecks = [
-  "Cada equipo visible necesita proximo partido, ultimos resultados y clasificacion.",
-  "Cada jugador publico necesita foto o placeholder, dorsal, posicion, pais y pie.",
-  "Los cromos se generan por capas: la imagen no debe llevar dorsal ni stats incrustadas.",
-  "Las stats viven por partido para no mover historico si un jugador cambia de equipo.",
-  "Cantera no muestra directos ni highlights; Primer Equipo puede mostrar video externo.",
-];
+function formatMatchDateTime(date: Date | null) {
+  if (!date) {
+    return "Fecha pendiente";
+  }
 
-export function AdminDashboard({ role }: { role: AdminRole }) {
-  void role;
-  const scheduledMatches = adminMockMatches.filter(
-    (match) => match.status === "scheduled" || match.status === "postponed",
-  );
-  const draftNews = adminMockNews.filter((item) => item.status === "draft");
-  const visibleTeams = adminMockTeams.filter((team) => team.visible);
-  const playersWithoutAdvancedData = adminMockPlayers.filter(
-    (player) => player.teamSlug !== "primer-equipo" || !player.advancedLabel,
-  );
-  const importWarnings = adminMockImports.filter((item) => item.status !== "completed");
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Europe/Madrid",
+  })
+    .format(date)
+    .replace(".", "");
+}
+
+function formatMatchStatus(status: MatchStatus) {
+  switch (status) {
+    case MatchStatus.LIVE:
+      return "En juego";
+    case MatchStatus.POSTPONED:
+      return "Aplazado";
+    case MatchStatus.PLAYED:
+      return "Jugado";
+    case MatchStatus.SCHEDULED:
+    default:
+      return "Pendiente";
+  }
+}
+
+function getMatchTone(status: MatchStatus) {
+  switch (status) {
+    case MatchStatus.LIVE:
+      return "danger" as const;
+    case MatchStatus.POSTPONED:
+      return "slate" as const;
+    case MatchStatus.PLAYED:
+      return "success" as const;
+    case MatchStatus.SCHEDULED:
+    default:
+      return "gold" as const;
+  }
+}
+
+function getDashboardHeading(user: AuthenticatedAdmin, data: AdminDashboardData) {
+  if (user.role === UserRole.COACH) {
+    return data.assignedTeams[0] ?? "Mi jornada";
+  }
+
+  if (user.role === UserRole.MANAGER) {
+    return "Control deportivo y publico";
+  }
+
+  return "Control global de la web publica";
+}
+
+function getDashboardDescription(user: AuthenticatedAdmin, data: AdminDashboardData) {
+  if (user.role === UserRole.COACH) {
+    return data.assignedTeams.length > 0
+      ? `Resumen corto para trabajar solo con ${data.assignedTeams.join(", ")}: jornada, clasificacion y estadisticas del equipo asignado.`
+      : "Resumen corto para el trabajo de campo: jornada, clasificacion y estadisticas del equipo asignado.";
+  }
+
+  if (user.role === UserRole.MANAGER) {
+    return "Vista operativa para coordinar equipos, contenido publico y actualizacion deportiva sin salir del panel.";
+  }
+
+  return "Panel principal para vigilar el estado publico del club: temporada activa, equipos visibles, jornada, contenido y revision de importaciones.";
+}
+
+function getVisibleControlAreas(role: UserRole) {
+  if (role === UserRole.COACH) {
+    return publicControlAreas.filter((area) =>
+      ["/admin/partidos", "/admin/clasificaciones", "/admin/estadisticas"].includes(area.href),
+    );
+  }
+
+  if (role === UserRole.MANAGER) {
+    return publicControlAreas.filter((area) => area.href !== "/admin/media");
+  }
+
+  return publicControlAreas;
+}
+
+function getQuickActions(role: UserRole) {
+  if (role === UserRole.COACH) {
+    return [
+      { href: "/admin/partidos", label: "Actualizar resultado" },
+      { href: "/admin/estadisticas", label: "Cargar goles y asistencias" },
+      { href: "/admin/clasificaciones", label: "Guardar clasificacion", accent: "slate" as const },
+    ];
+  }
+
+  if (role === UserRole.MANAGER) {
+    return [
+      { href: "/admin/partidos", label: "Abrir jornada" },
+      { href: "/admin/clasificaciones", label: "Actualizar clasificacion" },
+      { href: "/admin/noticias", label: "Revisar noticias" },
+      { href: "/admin/equipos", label: "Gestionar equipos", accent: "slate" as const },
+    ];
+  }
+
+  return [
+    { href: "/admin/importaciones", label: "Revisar importaciones" },
+    { href: "/admin/usuarios", label: "Gestionar usuarios", accent: "slate" as const },
+    { href: "/admin/partidos", label: "Abrir jornada" },
+    { href: "/admin/noticias", label: "Revisar noticias" },
+  ];
+}
+
+function getStatusItems(user: AuthenticatedAdmin, data: AdminDashboardData) {
+  const items = [
+    {
+      title: "Cobertura de clasificaciones",
+      value:
+        data.missingStandingTablesCount > 0
+          ? `${data.standingTableCount} tablas reales`
+          : "Cobertura completa",
+      detail:
+        data.missingStandingTablesCount > 0
+          ? `${data.missingStandingTablesCount} equipos visibles siguen sin tabla manual publicada.`
+          : "Todos los equipos visibles del scope actual ya tienen tabla manual.",
+    },
+  ];
+
+  if (user.role === UserRole.SUPERADMIN) {
+    items.push({
+      title: "Importaciones",
+      value:
+        data.importReviewCount && data.importReviewCount > 0
+          ? `${data.importReviewCount} por revisar`
+          : "Sin bloqueos",
+      detail: data.lastImportLabel ?? "Todavia no hay importaciones registradas.",
+    });
+  } else if (user.role === UserRole.MANAGER) {
+    items.push({
+      title: "Noticias",
+      value:
+        typeof data.draftNewsCount === "number" && data.draftNewsCount > 0
+          ? `${data.draftNewsCount} borradores`
+          : "Sin borradores",
+      detail:
+        typeof data.draftNewsCount === "number"
+          ? "Contenido pendiente antes de publicar."
+          : "Este rol no gestiona noticias.",
+    });
+  } else {
+    items.push({
+      title: "Equipos asignados",
+      value: data.assignedTeams.length > 0 ? `${data.assignedTeams.length}` : "0",
+      detail:
+        data.assignedTeams.length > 0
+          ? data.assignedTeams.join(", ")
+          : "No hay equipos asignados a esta cuenta.",
+    });
+  }
+
+  if (user.role !== UserRole.COACH) {
+    items.push({
+      title: "Media",
+      value: typeof data.mediaCount === "number" ? `${data.mediaCount}` : "0",
+      detail: "Activos visuales registrados en la biblioteca publica.",
+    });
+  }
+
+  return items;
+}
+
+export function AdminDashboard({
+  user,
+  data,
+}: {
+  user: AuthenticatedAdmin;
+  data: AdminDashboardData;
+}) {
+  const controlAreas = getVisibleControlAreas(user.role);
+  const quickActions = getQuickActions(user.role);
+  const statusItems = getStatusItems(user, data);
 
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
         eyebrow="Administrador unico"
-        title="Control de la web publica"
-        description="Panel de propietario para preparar lo que se ve en la web: equipos, plantilla, fichas, jornada, clasificaciones, estadisticas, noticias y media."
+        title={getDashboardHeading(user, data)}
+        description={getDashboardDescription(user, data)}
         actions={
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link href="/admin/partidos" className="rr-button rr-button-primary text-[0.84rem]">
-              Cerrar jornada
+              Abrir jornada
             </Link>
           </div>
         }
@@ -138,35 +291,43 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <AdminMetricCard
-          label="Equipos visibles"
-          value={visibleTeams.length.toString()}
-          detail="Estructuras activas en la web"
+          label="Temporada activa"
+          value={data.activeSeasonName ?? "Sin temporada"}
+          detail={
+            user.role === UserRole.COACH && data.assignedTeams.length > 0
+              ? data.assignedTeams.join(", ")
+              : "Contexto publico activo"
+          }
           tone="gold"
-          icon={<Shield className="h-5 w-5" />}
-          compact
-        />
-        <AdminMetricCard
-          label="Jornada pendiente"
-          value={scheduledMatches.length.toString()}
-          detail="Partidos por revisar o cerrar"
-          tone="danger"
           icon={<CalendarDays className="h-5 w-5" />}
           compact
         />
         <AdminMetricCard
-          label="Jugadores"
-          value={adminMockPlayers.length.toString()}
-          detail={`${playersWithoutAdvancedData.length} con ficha simple`}
+          label={user.role === UserRole.COACH ? "Equipos asignados" : "Equipos visibles"}
+          value={data.teamCount.toString()}
+          detail={
+            user.role === UserRole.COACH
+              ? "Equipos dentro de tu alcance"
+              : "Estructuras activas en la web"
+          }
           tone="blue"
+          icon={<Shield className="h-5 w-5" />}
+          compact
+        />
+        <AdminMetricCard
+          label="Jugadores activos"
+          value={data.playerCount.toString()}
+          detail="Plantilla publica dentro del scope actual"
+          tone="slate"
           icon={<UsersRound className="h-5 w-5" />}
           compact
         />
         <AdminMetricCard
-          label="Media"
-          value={adminMockMedia.length.toString()}
-          detail={`${draftNews.length} noticia en borrador`}
-          tone="slate"
-          icon={<Camera className="h-5 w-5" />}
+          label="Partidos pendientes"
+          value={data.openMatchesCount.toString()}
+          detail="Pendientes de revisar, cerrar o reprogramar"
+          tone={data.openMatchesCount > 0 ? "danger" : "gold"}
+          icon={<ClipboardList className="h-5 w-5" />}
           compact
         />
       </div>
@@ -185,7 +346,7 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
-              {publicControlAreas.map((area) => {
+              {controlAreas.map((area) => {
                 const Icon = area.icon;
 
                 return (
@@ -222,15 +383,20 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
           <AdminPanel className="p-5 sm:p-6">
             <div className="space-y-4">
               <div>
-                <p className="rr-kicker text-[color:var(--rr-gold)]">Prioridad movil</p>
+                <p className="rr-kicker text-[color:var(--rr-gold)]">Acciones rapidas</p>
                 <h2 className="mt-2 text-[1.22rem] font-semibold text-white">
-                  Uso rapido en campo
+                  Siguiente paso util
                 </h2>
               </div>
               <div className="grid gap-3">
-                <AdminQuickAction href="/admin/partidos" label="Actualizar resultado" />
-                <AdminQuickAction href="/admin/estadisticas" label="Cargar goles y asistencias" />
-                <AdminQuickAction href="/admin/clasificaciones" label="Guardar clasificacion" accent="slate" />
+                {quickActions.map((action) => (
+                  <AdminQuickAction
+                    key={`${action.href}-${action.label}`}
+                    href={action.href}
+                    label={action.label}
+                    accent={action.accent}
+                  />
+                ))}
               </div>
             </div>
           </AdminPanel>
@@ -238,37 +404,40 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
           <AdminPanel className="p-5 sm:p-6">
             <div className="space-y-4">
               <div>
-                <p className="rr-kicker text-[color:var(--rr-gold)]">Alertas mock</p>
+                <p className="rr-kicker text-[color:var(--rr-gold)]">Agenda inmediata</p>
                 <h2 className="mt-2 text-[1.22rem] font-semibold text-white">
-                  Antes de publicar
+                  Proximos partidos
                 </h2>
               </div>
               <div className="grid gap-3">
-                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
-                  <p className="font-semibold text-white">
-                    {scheduledMatches[0]?.teamName ?? "Sin equipo"} vs{" "}
-                    {scheduledMatches[0]?.opponentName ?? "rival pendiente"}
-                  </p>
-                  <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
-                    Resultado o fecha por cerrar.
-                  </p>
-                </div>
-                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
-                  <p className="font-semibold text-white">
-                    {adminMockStandings.length} clasificaciones mock
-                  </p>
-                  <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
-                    Faltan tablas para todos los equipos visibles.
-                  </p>
-                </div>
-                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
-                  <p className="font-semibold text-white">
-                    {importWarnings.length} importaciones por revisar
-                  </p>
-                  <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
-                    Mantener como preview hasta integrar datos reales.
-                  </p>
-                </div>
+                {data.upcomingMatches.length > 0 ? (
+                  data.upcomingMatches.map((match) => (
+                    <div
+                      key={match.id}
+                      className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-white">
+                            {match.teamName} vs {match.opponentName}
+                          </p>
+                          <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
+                            {formatMatchDateTime(match.dateTime)}
+                          </p>
+                        </div>
+                        <AdminStatusBadge
+                          label={formatMatchStatus(match.status)}
+                          tone={getMatchTone(match.status)}
+                          pulse={match.status === MatchStatus.LIVE}
+                        />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-4 text-[0.9rem] text-[color:var(--rr-muted)]">
+                    No hay partidos pendientes dentro del scope actual.
+                  </div>
+                )}
               </div>
             </div>
           </AdminPanel>
@@ -280,22 +449,41 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="rr-kicker text-[color:var(--rr-gold)]">Checklist publica</p>
+                <p className="rr-kicker text-[color:var(--rr-gold)]">Resultados recientes</p>
                 <h2 className="text-[1.22rem] font-semibold text-white">
-                  Datos que hacen que la web se vea bien
+                  Ultimos cierres registrados
                 </h2>
               </div>
-              <Newspaper className="h-5 w-5 text-[color:var(--rr-gold)]" />
+              <CheckCircle2 className="h-5 w-5 text-[color:var(--rr-gold)]" />
             </div>
             <div className="grid gap-3">
-              {publicationChecks.map((item) => (
-                <div
-                  key={item}
-                  className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3 text-[0.92rem] leading-5 text-[color:var(--rr-muted)]"
-                >
-                  {item}
+              {data.recentResults.length > 0 ? (
+                data.recentResults.map((match) => (
+                  <div
+                    key={match.id}
+                    className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-white">
+                          {match.teamName} vs {match.opponentName}
+                        </p>
+                        <p className="mt-1 text-[0.88rem] text-[color:var(--rr-muted)]">
+                          {formatMatchDateTime(match.dateTime)}
+                        </p>
+                      </div>
+                      <AdminStatusBadge
+                        label={`${match.homeScore ?? "-"} - ${match.awayScore ?? "-"}`}
+                        tone="success"
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.92rem] text-[color:var(--rr-muted)]">
+                  Todavia no hay resultados jugados en el scope actual.
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </AdminPanel>
@@ -303,19 +491,27 @@ export function AdminDashboard({ role }: { role: AdminRole }) {
         <AdminPanel className="p-5 sm:p-6">
           <div className="space-y-4">
             <div>
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Siguiente fase</p>
+              <p className="rr-kicker text-[color:var(--rr-gold)]">Estado operativo</p>
               <h2 className="mt-2 text-[1.22rem] font-semibold text-white">
-                Mocks primero, datos reales despues
+                Lo que necesita atencion ahora
               </h2>
               <p className="mt-2 text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
-                El backoffice debe quedar preparado para editar mocks con la misma forma que tendran los datos reales: equipos, plantilla, fichas de jugador, partidos, tablas, stats, media y noticias.
+                Resumen rapido para detectar huecos reales antes de que se noten en la web publica.
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
-              <AdminQuickAction href="/admin/jugadores" label="Editar ficha publica" />
-              <AdminQuickAction href="/admin/asignaciones" label="Abrir plantilla" accent="slate" />
-              <AdminQuickAction href="/admin/media" label="Preparar fotos" accent="slate" />
-              <AdminQuickAction href="/admin/noticias" label="Revisar noticias" />
+              {statusItems.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3"
+                >
+                  <p className="rr-kicker text-[color:var(--rr-gold)]">{item.title}</p>
+                  <p className="mt-2 font-semibold text-white">{item.value}</p>
+                  <p className="mt-1 text-[0.88rem] leading-5 text-[color:var(--rr-muted)]">
+                    {item.detail}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </AdminPanel>

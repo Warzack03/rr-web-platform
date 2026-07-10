@@ -9,7 +9,9 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "db:purge:sports": "tsx prisma/purge-sports.ts",
+    "db:bootstrap:initial": "tsx prisma/bootstrap-initial.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

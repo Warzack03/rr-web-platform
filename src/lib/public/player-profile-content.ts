@@ -42,6 +42,11 @@ export type PublicPlayerProfile = {
   teamLabel: string;
   seasonLabel: string;
   shopHref?: string;
+  relatedTeams?: Array<{
+    teamSlug: string;
+    teamLabel: string;
+    teamType: PublicTeamType;
+  }>;
   stats: PublicPlayerStats;
 };
 
@@ -1108,9 +1113,7 @@ export function getAcademyPlayerDetail(
 }
 
 export function getAcademyPlayerHref(teamSlug: string, playerSlug: string): string | undefined {
-  return getAcademyPlayerDetail(teamSlug, playerSlug)
-    ? `/equipos/${teamSlug}/jugadores/${playerSlug}`
-    : undefined;
+  return `/equipos/${teamSlug}/jugadores/${playerSlug}`;
 }
 
 export function findAcademyPlayersBySlug(playerSlug: string): AcademySquadPlayer[] {

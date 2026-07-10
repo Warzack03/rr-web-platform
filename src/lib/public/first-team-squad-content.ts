@@ -381,5 +381,5 @@ export function getFirstTeamPlayerSlugs(): string[] {
 }
 
 export function getFirstTeamPlayerHref(playerSlug: string): string | undefined {
-  return getFirstTeamPlayerDetail(playerSlug) ? `/jugadores/${playerSlug}` : undefined;
+  return `/jugadores/${playerSlug}`;
 }

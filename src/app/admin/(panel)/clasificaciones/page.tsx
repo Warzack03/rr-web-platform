@@ -1,6 +1,7 @@
 import { AdminStandingsWorkspace } from "@/components/admin/admin-standings-workspace";
-import { OWNER_ADMIN_ROLE } from "@/lib/admin/roles";
+import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
+import { getAdminStandingsScreenData } from "@/server/services/admin-standings";
 
 type AdminStandingsPageProps = {
   searchParams: Promise<{
@@ -17,17 +18,22 @@ export default async function AdminStandingsPage({
   searchParams,
 }: AdminStandingsPageProps) {
   const user = await requireAdminSectionAccess("standings");
+  const role = toAdminRole(user.role);
+  const data = await getAdminStandingsScreenData(user);
   const resolvedSearchParams = await searchParams;
-  void user;
   const initialUiState =
     getSingleValue(resolvedSearchParams.ui) === "error" ? "error" : "ready";
 
   return (
     <AdminStandingsWorkspace
-      key={`${OWNER_ADMIN_ROLE}-${initialUiState}-${getSingleValue(resolvedSearchParams.team) ?? "all"}`}
-      role={OWNER_ADMIN_ROLE}
+      key={`${role}-${initialUiState}-${getSingleValue(resolvedSearchParams.team) ?? "all"}`}
+      role={role}
       initialUiState={initialUiState}
       initialSelectedTeamSlug={getSingleValue(resolvedSearchParams.team)}
+      initialTables={data.tables}
+      initialTeams={data.teams}
+      activeSeasonLabel={data.activeSeasonName ?? undefined}
+      coachTeamOptions={data.coachTeamOptions}
     />
   );
 }

@@ -19,21 +19,25 @@ import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import {
+  saveTeamAction,
+  toggleTeamActiveAction,
+  toggleTeamVisibilityAction,
+} from "@/app/admin/(panel)/equipos/actions";
+import {
   TeamFilters,
   type TeamFiltersValue,
 } from "@/components/admin/team-filters";
 import { TeamFormDialog } from "@/components/admin/team-form-dialog";
 import { TeamList } from "@/components/admin/team-list";
 import type { AdminRole } from "@/lib/admin/roles";
-import {
-  adminTeamManagementSeasons,
-  normalizeTeamManagementTeam,
-  type TeamManagementTeam,
-} from "@/lib/admin/team-management-mocks";
+import type { TeamManagementTeam } from "@/lib/admin/team-management-mocks";
 
 type AdminTeamsWorkspaceProps = {
   role: AdminRole;
   initialTeams: TeamManagementTeam[];
+  seasonOptions: string[];
+  categoryOptions: string[];
+  competitionOptions: string[];
   initialUiState?: "ready" | "error";
 };
 
@@ -53,77 +57,25 @@ const initialFilters: TeamFiltersValue = {
 function sortTeams(teams: TeamManagementTeam[]) {
   return [...teams].sort(
     (left, right) =>
+      right.season.localeCompare(left.season, "es") ||
       left.displayOrder - right.displayOrder ||
       left.name.localeCompare(right.name),
   );
 }
 
-function getCategoryRank(category: string) {
-  const normalizedCategory = category.trim().toLowerCase();
-
-  if (normalizedCategory.startsWith("senior")) {
-    return 1;
-  }
-
-  if (normalizedCategory.startsWith("juvenil")) {
-    return 2;
-  }
-
-  if (normalizedCategory.startsWith("cadete")) {
-    return 3;
-  }
-
-  if (normalizedCategory.startsWith("infantil")) {
-    return 4;
-  }
-
-  if (normalizedCategory.startsWith("alevin")) {
-    return 5;
-  }
-
-  if (normalizedCategory.startsWith("benjamin")) {
-    return 6;
-  }
-
-  if (normalizedCategory.startsWith("prebenjamin")) {
-    return 7;
-  }
-
-  return 99;
-}
-
-function reindexTeamOrders(teams: TeamManagementTeam[]) {
-  return teams
-    .slice()
-    .sort((left, right) => {
-      if (left.isFirstTeam !== right.isFirstTeam) {
-        return left.isFirstTeam ? -1 : 1;
-      }
-
-      const categoryRankDiff = getCategoryRank(left.category) - getCategoryRank(right.category);
-
-      if (categoryRankDiff !== 0) {
-        return categoryRankDiff;
-      }
-
-      if (left.displayOrder !== right.displayOrder) {
-        return left.displayOrder - right.displayOrder;
-      }
-
-      return left.name.localeCompare(right.name);
-    })
-    .map((team, index) => normalizeTeamManagementTeam({ ...team, displayOrder: index + 1 }));
-}
-
 export function AdminTeamsWorkspace({
   role,
   initialTeams,
+  seasonOptions,
+  categoryOptions,
+  competitionOptions,
   initialUiState = "ready",
 }: AdminTeamsWorkspaceProps) {
   const [teams, setTeams] = useState(() => sortTeams(initialTeams));
   const [filters, setFilters] = useState<TeamFiltersValue>(initialFilters);
   const [dialogState, setDialogState] = useState<DialogState>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const [isPersisting, setIsPersisting] = useState(false);
   const [screenState, setScreenState] = useState<"loading" | "ready" | "error">(
     "loading",
   );
@@ -190,12 +142,14 @@ export function AdminTeamsWorkspace({
     }),
   );
 
-  const seasons = Array.from(new Set(teams.map((team) => team.season)));
-  const categories = Array.from(new Set(teams.map((team) => team.category)));
+  const seasons = Array.from(new Set([...seasonOptions, ...teams.map((team) => team.season)]));
+  const categories = Array.from(
+    new Set([...categoryOptions, ...teams.map((team) => team.category)]),
+  );
   const branches = Array.from(new Set(teams.map((team) => team.branch)));
-  const competitionOptions = Array.from(
-    new Set(teams.map((team) => team.competition).filter(Boolean)),
-  ).sort((left, right) => left.localeCompare(right));
+  const resolvedCompetitionOptions = Array.from(
+    new Set([...competitionOptions, ...teams.map((team) => team.competition).filter(Boolean)]),
+  ).sort((left, right) => left.localeCompare(right, "es"));
   const totalTeams = teams.length;
   const visibleTeams = teams.filter((team) => team.publicVisible).length;
   const activeTeams = teams.filter((team) => team.active).length;
@@ -213,6 +167,11 @@ export function AdminTeamsWorkspace({
   }
 
   function openCreateDialog() {
+    if (seasons.length === 0) {
+      pushBanner("Necesitas crear una temporada antes de dar de alta equipos.");
+      return;
+    }
+
     setDialogState({ mode: "create" });
   }
 
@@ -224,78 +183,71 @@ export function AdminTeamsWorkspace({
     setDialogState({ mode: "coaches", teamId: team.id });
   }
 
-  function saveTeam(nextTeam: TeamManagementTeam) {
-    startTransition(() => {
-      setTeams((currentTeams) => {
-        const teamToSave = normalizeTeamManagementTeam(nextTeam);
-        const nextTeams = currentTeams.some((team) => team.id === teamToSave.id)
-          ? currentTeams.map((team) =>
-              team.id === teamToSave.id
-                ? teamToSave
-                : team.isFirstTeam && teamToSave.isFirstTeam
-                  ? normalizeTeamManagementTeam({ ...team, isFirstTeam: false })
-                  : team,
-            )
-          : [
-              ...currentTeams.map((team) =>
-                team.isFirstTeam && teamToSave.isFirstTeam
-                  ? normalizeTeamManagementTeam({ ...team, isFirstTeam: false })
-                  : team,
-              ),
-              teamToSave,
-            ];
+  async function saveTeam(nextTeam: TeamManagementTeam) {
+    setIsPersisting(true);
 
-        return sortTeams(reindexTeamOrders(nextTeams));
-      });
-      setDialogState(null);
+    const result = await saveTeamAction({
+      seasonTeamId:
+        dialogState && "teamId" in dialogState && /^\d+$/.test(dialogState.teamId)
+          ? dialogState.teamId
+          : undefined,
+      name: nextTeam.name,
+      slug: nextTeam.slug,
+      category: nextTeam.category,
+      competition: nextTeam.competition,
+      season: nextTeam.season,
+      publicVisible: nextTeam.publicVisible,
+      active: nextTeam.active,
+      isFirstTeam: nextTeam.isFirstTeam,
+      displayOrder: nextTeam.displayOrder,
+      coaches: nextTeam.coaches.map((coach) => ({
+        id: coach.id,
+        name: coach.name,
+        roleLabel: coach.roleLabel,
+        publicVisible: coach.publicVisible,
+      })),
+      logoUrl: nextTeam.logoUrl,
+      bannerUrl: nextTeam.bannerUrl,
     });
 
-    pushBanner(
-      dialogState?.mode === "create"
-        ? "Equipo creado. Guardado local de prueba."
-        : "Cambios guardados. Guardado local de prueba.",
-    );
+    setIsPersisting(false);
+
+    if (!result.ok) {
+      pushBanner(result.message);
+      return;
+    }
+
+    setTeams(sortTeams(result.data.teams));
+    setDialogState(null);
+    pushBanner(result.message);
   }
 
-  function toggleActive(teamId: string) {
-    setTeams((currentTeams) =>
-      currentTeams.map((team) =>
-        team.id === teamId
-          ? normalizeTeamManagementTeam({ ...team, active: !team.active })
-          : team,
-      ),
-    );
+  async function toggleActive(teamId: string) {
+    setIsPersisting(true);
+    const result = await toggleTeamActiveAction({ seasonTeamId: teamId });
+    setIsPersisting(false);
 
-    const updatedTeam = teams.find((team) => team.id === teamId);
-    if (updatedTeam) {
-      pushBanner(
-        updatedTeam.active
-          ? `${updatedTeam.name} pasa a inactivo.`
-          : `${updatedTeam.name} vuelve a estar activo.`,
-      );
+    if (!result.ok) {
+      pushBanner(result.message);
+      return;
     }
+
+    setTeams(sortTeams(result.data.teams));
+    pushBanner(result.message);
   }
 
-  function toggleVisibility(teamId: string) {
-    setTeams((currentTeams) =>
-      currentTeams.map((team) =>
-        team.id === teamId
-          ? normalizeTeamManagementTeam({
-              ...team,
-              publicVisible: !team.publicVisible,
-            })
-          : team,
-      ),
-    );
+  async function toggleVisibility(teamId: string) {
+    setIsPersisting(true);
+    const result = await toggleTeamVisibilityAction({ seasonTeamId: teamId });
+    setIsPersisting(false);
 
-    const updatedTeam = teams.find((team) => team.id === teamId);
-    if (updatedTeam) {
-      pushBanner(
-        updatedTeam.publicVisible
-          ? `${updatedTeam.name} se oculta de la web.`
-          : `${updatedTeam.name} vuelve a ser publico.`,
-      );
+    if (!result.ok) {
+      pushBanner(result.message);
+      return;
     }
+
+    setTeams(sortTeams(result.data.teams));
+    pushBanner(result.message);
   }
 
   return (
@@ -313,6 +265,7 @@ export function AdminTeamsWorkspace({
             <button
               type="button"
               onClick={openCreateDialog}
+              disabled={isPersisting || seasons.length === 0}
               className="rr-button rr-button-primary text-[0.84rem]"
             >
               <Plus className="h-4 w-4" />
@@ -492,6 +445,7 @@ export function AdminTeamsWorkspace({
               <button
                 type="button"
                 onClick={openCreateDialog}
+                disabled={isPersisting || seasons.length === 0}
                 className="rr-button rr-button-primary text-[0.82rem]"
               >
                 Crear primer equipo
@@ -521,6 +475,7 @@ export function AdminTeamsWorkspace({
         <TeamList
           role={role}
           teams={filteredTeams}
+          disabled={isPersisting}
           onEdit={openEditDialog}
           onManageCoaches={openCoachDialog}
           onToggleActive={toggleActive}
@@ -538,9 +493,10 @@ export function AdminTeamsWorkspace({
         mode={dialogState?.mode ?? "create"}
         team={selectedTeam}
         existingTeams={teams}
-        seasons={adminTeamManagementSeasons.map((season) => season.name)}
+        isSaving={isPersisting}
+        seasons={seasons}
         categories={categories}
-        competitionOptions={competitionOptions}
+        competitionOptions={resolvedCompetitionOptions}
         onClose={() => setDialogState(null)}
         onSave={saveTeam}
       />

@@ -13,9 +13,7 @@ import { PlayerStatsMobileCard } from "@/components/admin/player-stats-mobile-ca
 import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import {
-  hasAdminMatchEntryImpact,
   cloneAdminStatsState,
-  createInitialAdminStatsState,
   getAdminStatFields,
   getMatchEntryForPlayer,
   getSeasonPlayerTotals,
@@ -29,48 +27,61 @@ import {
   type AdminMatchPlayerEntry,
 } from "@/lib/admin/admin-stats";
 import {
-  adminMockPlayers,
-  adminMockTeams,
-  type AdminPlayer,
-} from "@/lib/admin/mock-data";
+  buildStatsContextPlayerId,
+  type AdminStatsCatalogPlayer,
+  type AdminStatsPlayerContext,
+} from "@/lib/admin/stats-management";
+import { saveAdminStatsAction } from "@/app/admin/(panel)/estadisticas/actions";
 import {
   coachPreviewTeamSlugs,
   formatMatchDateLabel,
-  getAllMatchManagementMatches,
   getCoachMatchVisualStatus,
-  getCoachPreviewTeamOptions,
-  getMatchManagementTeamsForRole,
   getVisualMatchStatus,
+  type MatchManagementMatch,
+  type MatchManagementTeam,
   sortCoachMatchManagementMatches,
   sortMatchManagementMatches,
 } from "@/lib/admin/match-management-mocks";
 import type { AdminRole } from "@/lib/admin/roles";
+import type { AdminStatsState } from "@/lib/admin/admin-stats";
 
 type AdminStatsWorkspaceProps = {
   role: AdminRole;
   initialUiState?: "ready" | "error";
   initialSelectedTeamSlug?: string;
   initialSelectedMatchId?: string;
+  activeSeasonLabel?: string;
+  initialTeams: MatchManagementTeam[];
+  initialMatches: MatchManagementMatch[];
+  initialPlayers: AdminStatsPlayerContext[];
+  initialPlayerCatalog: AdminStatsCatalogPlayer[];
+  initialStatsState: AdminStatsState;
+  coachTeamOptions: Array<{ slug: string; name: string }>;
 };
 
 type ScreenState = "loading" | "ready" | "error";
 type MobileStatsSection = "outfield" | "goalkeepers";
 type MobileStatsViewMode = "list" | "focused";
 type MobilePlayerReviewState = "pending" | "reviewed" | "edited";
-type VisibleStatsPlayer = AdminPlayer & {
-  contextType: "regular" | "guest";
-  originTeamName?: string;
-};
+type VisibleStatsPlayer = AdminStatsPlayerContext;
 
-const initialMatches = getAllMatchManagementMatches();
-const teamNameBySlug = new Map(adminMockTeams.map((team) => [team.slug, team.name]));
+function getInitialCoachTeamSlug(
+  options: Array<{ slug: string; name: string }>,
+  initialSelectedTeamSlug?: string,
+) {
+  if (options.some((option) => option.slug === initialSelectedTeamSlug)) {
+    return initialSelectedTeamSlug ?? options[0]?.slug ?? "";
+  }
 
-function getInitialCoachTeamSlug(initialSelectedTeamSlug?: string) {
-  return coachPreviewTeamSlugs.includes(
-    initialSelectedTeamSlug as (typeof coachPreviewTeamSlugs)[number],
-  )
-    ? (initialSelectedTeamSlug as string)
-    : coachPreviewTeamSlugs[0];
+  if (
+    coachPreviewTeamSlugs.includes(
+      initialSelectedTeamSlug as (typeof coachPreviewTeamSlugs)[number],
+    )
+  ) {
+    return initialSelectedTeamSlug ?? options[0]?.slug ?? "";
+  }
+
+  return options[0]?.slug ?? "";
 }
 
 function getStatusBadge(status: "pending" | "live" | "played") {
@@ -118,11 +129,13 @@ function areMatchEntriesEqual(
 }
 
 function createGuestPlayerContext(
-  player: AdminPlayer,
+  player: AdminStatsCatalogPlayer,
   targetTeamSlug: string,
+  targetTeamName: string,
 ): VisibleStatsPlayer {
   return {
     ...player,
+    id: buildStatsContextPlayerId(targetTeamSlug, player.sourcePlayerId),
     teamSlug: targetTeamSlug,
     minutes: 0,
     matchesPlayed: 0,
@@ -139,8 +152,10 @@ function createGuestPlayerContext(
     shotsOnTarget: 0,
     ownGoals: 0,
     advancedLabel: undefined,
+    sourcePlayerId: player.sourcePlayerId,
     contextType: "guest",
-    originTeamName: teamNameBySlug.get(player.teamSlug),
+    originTeamSlug: player.teamSlug,
+    originTeamName: player.teamName || targetTeamName,
   };
 }
 
@@ -149,18 +164,25 @@ export function AdminStatsWorkspace({
   initialUiState = "ready",
   initialSelectedTeamSlug,
   initialSelectedMatchId,
+  activeSeasonLabel,
+  initialTeams,
+  initialMatches,
+  initialPlayers,
+  initialPlayerCatalog,
+  initialStatsState,
+  coachTeamOptions,
 }: AdminStatsWorkspaceProps) {
   const [screenState, setScreenState] = useState<ScreenState>("loading");
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
-  const [statsState, setStatsState] = useState(() =>
-    createInitialAdminStatsState(adminMockPlayers, initialMatches),
-  );
-  const [savedStatsState, setSavedStatsState] = useState(() =>
-    createInitialAdminStatsState(adminMockPlayers, initialMatches),
-  );
+  const [teams, setTeams] = useState(initialTeams);
+  const [allMatches, setAllMatches] = useState(initialMatches);
+  const [allPlayers, setAllPlayers] = useState(initialPlayers);
+  const [playerCatalog, setPlayerCatalog] = useState(initialPlayerCatalog);
+  const [statsState, setStatsState] = useState(initialStatsState);
+  const [savedStatsState, setSavedStatsState] = useState(initialStatsState);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
-    getInitialCoachTeamSlug(initialSelectedTeamSlug),
+    getInitialCoachTeamSlug(coachTeamOptions, initialSelectedTeamSlug),
   );
   const [requestedTeamSlug, setRequestedTeamSlug] = useState<string>(
     initialSelectedTeamSlug ?? "",
@@ -194,8 +216,15 @@ export function AdminStatsWorkspace({
     return () => window.clearTimeout(timer);
   }, [bannerMessage]);
 
-  const coachPreviewTeamOptions = getCoachPreviewTeamOptions();
-  const allowedTeams = getMatchManagementTeamsForRole(role, coachTeamSlug);
+  const teamNameBySlug = new Map(teams.map((team) => [team.slug, team.name]));
+  const currentCoachTeamOptions =
+    coachTeamOptions.length > 0
+      ? coachTeamOptions
+      : teams.map((team) => ({ slug: team.slug, name: team.name }));
+  const allowedTeams =
+    role === "COACH"
+      ? teams.filter((team) => team.slug === coachTeamSlug)
+      : teams;
   const resolvedTeamSlug =
     role === "COACH"
       ? coachTeamSlug
@@ -203,7 +232,7 @@ export function AdminStatsWorkspace({
         allowedTeams[0]?.slug ??
         "";
   const selectedTeam = allowedTeams.find((team) => team.slug === resolvedTeamSlug);
-  const rawMatches = initialMatches.filter(
+  const rawMatches = allMatches.filter(
     (match) => match.teamSlug === resolvedTeamSlug && match.status === "played",
   );
   const matches =
@@ -212,44 +241,28 @@ export function AdminStatsWorkspace({
       : sortMatchManagementMatches(rawMatches);
   const selectedMatch =
     matches.find((match) => match.id === requestedMatchId) ?? matches[0];
-  const regularTeamPlayers = adminMockPlayers.filter(
-    (player) => player.teamSlug === resolvedTeamSlug,
+  const visiblePlayerSeeds = allPlayers.filter((player) => player.teamSlug === resolvedTeamSlug);
+  const regularTeamPlayers = visiblePlayerSeeds.filter(
+    (player) => player.contextType === "regular",
   );
   const regularTeamPlayerIds = new Set(
-    regularTeamPlayers.map((player) => player.id),
+    regularTeamPlayers.map((player) => player.sourcePlayerId),
   );
-  const guestPlayerIds = Array.from(
-    new Set(
-      matches.flatMap((match) =>
-        Object.entries(statsState.matchEntriesByMatchId[match.id] ?? {})
-          .filter(
-            ([playerId, entry]) =>
-              !regularTeamPlayerIds.has(playerId) && hasAdminMatchEntryImpact(entry),
-          )
-          .map(([playerId]) => playerId),
-      ),
-    ),
+  const guestPlayers = visiblePlayerSeeds.filter((player) => player.contextType === "guest");
+  const visibleSourcePlayerIds = new Set(
+    visiblePlayerSeeds.map((player) => player.sourcePlayerId),
   );
-  const guestPlayers = guestPlayerIds
-    .map((playerId) => adminMockPlayers.find((player) => player.id === playerId))
-    .filter((player): player is AdminPlayer => Boolean(player))
-    .map((player) => createGuestPlayerContext(player, resolvedTeamSlug));
-  const visiblePlayerSeeds: VisibleStatsPlayer[] = [
-    ...regularTeamPlayers.map((player) => ({
-      ...player,
-      contextType: "regular" as const,
-    })),
-    ...guestPlayers,
-  ];
-  const addableGuestPlayers = adminMockPlayers.filter(
+  const addableGuestPlayers = playerCatalog.filter(
     (player) =>
       player.teamSlug !== resolvedTeamSlug &&
-      !regularTeamPlayerIds.has(player.id) &&
-      !guestPlayerIds.includes(player.id),
+      !regularTeamPlayerIds.has(player.sourcePlayerId) &&
+      !visibleSourcePlayerIds.has(player.sourcePlayerId),
   );
   const players: VisibleStatsPlayer[] = visiblePlayerSeeds.map((player) => ({
     ...getSeasonPlayerTotals(player, statsState),
     contextType: player.contextType,
+    sourcePlayerId: player.sourcePlayerId,
+    originTeamSlug: player.originTeamSlug,
     originTeamName: player.originTeamName,
   }));
   const selectedMatchStatus = selectedMatch
@@ -340,10 +353,61 @@ export function AdminStatsWorkspace({
     startTransition(() => setBannerMessage(message));
   }
 
-  function saveStats() {
-    setSavedStatsState(cloneAdminStatsState(statsState));
+  function applyServerData(nextData: {
+    teams: MatchManagementTeam[];
+    matches: MatchManagementMatch[];
+    players: AdminStatsPlayerContext[];
+    playerCatalog: AdminStatsCatalogPlayer[];
+    statsState: AdminStatsState;
+  }) {
+    setTeams(nextData.teams);
+    setAllMatches(nextData.matches);
+    setAllPlayers(nextData.players);
+    setPlayerCatalog(nextData.playerCatalog);
+    setStatsState(nextData.statsState);
+    setSavedStatsState(cloneAdminStatsState(nextData.statsState));
+  }
+
+  async function saveStats() {
+    if (!selectedMatch) {
+      return;
+    }
+
+    const result = await saveAdminStatsAction({
+      matchId: selectedMatch.id,
+      rows: visiblePlayerSeeds.map((player) => {
+        const entry = getMatchEntryForPlayer(statsState, selectedMatch.id, player.id);
+        const isGoalkeeper = isGoalkeeperPlayer(player);
+
+        return {
+          contextPlayerId: player.id,
+          playerId: player.sourcePlayerId,
+          isGoalkeeper,
+          played: entry.played,
+          goals: entry.goals,
+          assists: entry.assists,
+          mvp: entry.mvp,
+          yellowCards: entry.yellowCards,
+          redCards: entry.redCards,
+          recoveries: entry.recoveries,
+          shots: entry.shots,
+          shotsOnTarget: entry.shotsOnTarget,
+          ownGoals: entry.ownGoals,
+          goalsConceded: entry.goalsConceded,
+          saves: entry.saves,
+          cleanSheets: entry.cleanSheets,
+        };
+      }),
+    });
+
+    if (!result.ok) {
+      pushBanner(result.message);
+      return;
+    }
+
+    applyServerData(result.data);
     setLastSavedAt(new Date());
-    pushBanner("Participacion y estadisticas del partido guardadas.");
+    pushBanner(result.message);
   }
 
   function resetReviewContext() {
@@ -417,22 +481,33 @@ export function AdminStatsWorkspace({
       return;
     }
 
-    const guestPlayer = adminMockPlayers.find(
-      (player) => player.id === pendingGuestPlayerId,
+    const guestPlayer = playerCatalog.find(
+      (player) => player.sourcePlayerId === pendingGuestPlayerId,
     );
 
-    if (!guestPlayer) {
+    if (!guestPlayer || !selectedTeam) {
       return;
     }
 
+    const guestContext = createGuestPlayerContext(
+      guestPlayer,
+      resolvedTeamSlug,
+      selectedTeam.name,
+    );
+
     setReviewedPlayerIds((currentIds) =>
-      currentIds.includes(guestPlayer.id) ? currentIds : [...currentIds, guestPlayer.id],
+      currentIds.includes(guestContext.id) ? currentIds : [...currentIds, guestContext.id],
+    );
+    setAllPlayers((currentPlayers) =>
+      currentPlayers.some((player) => player.id === guestContext.id)
+        ? currentPlayers
+        : [...currentPlayers, guestContext],
     );
     setStatsState((currentState) =>
-      togglePlayerMatchParticipation(currentState, selectedMatch.id, guestPlayer.id),
+      togglePlayerMatchParticipation(currentState, selectedMatch.id, guestContext.id),
     );
     setPendingGuestPlayerId("");
-    setMobileSection(isGoalkeeperPlayer(guestPlayer) ? "goalkeepers" : "outfield");
+    setMobileSection(isGoalkeeperPlayer(guestContext) ? "goalkeepers" : "outfield");
     pushBanner(`Jugador puntual anadido: ${guestPlayer.name}.`);
   }
 
@@ -442,7 +517,7 @@ export function AdminStatsWorkspace({
     );
   }
 
-  function getPlayerReviewState(player: AdminPlayer): MobilePlayerReviewState {
+  function getPlayerReviewState(player: VisibleStatsPlayer): MobilePlayerReviewState {
     if (!selectedMatch) {
       return "pending";
     }
@@ -535,7 +610,7 @@ export function AdminStatsWorkspace({
               </div>
 
               <AdminCoachTeamSwitcher
-                options={coachPreviewTeamOptions}
+                options={currentCoachTeamOptions}
                 value={coachTeamSlug}
                 onChange={(nextCoachTeamSlug) => {
                   setCoachTeamSlug(nextCoachTeamSlug);
@@ -583,7 +658,7 @@ export function AdminStatsWorkspace({
               }
               aside={
                 <AdminCoachTeamSwitcher
-                  options={coachPreviewTeamOptions}
+                  options={currentCoachTeamOptions}
                   value={coachTeamSlug}
                   onChange={(nextCoachTeamSlug) => {
                     setCoachTeamSlug(nextCoachTeamSlug);
@@ -763,7 +838,7 @@ export function AdminStatsWorkspace({
                 </div>
 
                 <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.84rem] text-[color:var(--rr-muted)]">
-                  Ultimo guardado:{" "}
+                  {activeSeasonLabel ?? selectedTeam?.season ?? "Temporada activa"} · Ultimo guardado:{" "}
                   <span
                     className={
                       hasUnsavedChanges

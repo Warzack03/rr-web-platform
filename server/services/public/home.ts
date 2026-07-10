@@ -1,7 +1,12 @@
 import { MatchStatus } from "@prisma/client";
 import type { PublicHomePageContent } from "@/lib/public/home-content";
 import type { StandingRowData } from "@/lib/public/team-standings-content";
+import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import { prisma } from "@/server/db/prisma";
+import {
+  buildStandingTableScopeWhere,
+  pickBestStandingTableForTeam,
+} from "@/server/services/standing-table-sharing";
 
 type PublicHomeDbSections = Pick<PublicHomePageContent, "firstTeam" | "academy">;
 
@@ -106,6 +111,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
                 id: true,
                 publicName: true,
                 publicSlug: true,
+                competitionId: true,
                 category: true,
                 competitionName: true,
                 team: {
@@ -150,7 +156,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
       0,
     );
 
-    const [nextMatch, recentResults, standingTable] = await Promise.all([
+    const [nextMatch, recentResults, standingTables] = await Promise.all([
       prisma.match.findFirst({
         where: {
           seasonTeamId: firstTeam.id,
@@ -161,6 +167,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         },
         orderBy: [{ dateTime: "asc" }, { id: "asc" }],
         select: {
+          id: true,
           dateTime: true,
           venue: true,
           opponentName: true,
@@ -195,14 +202,19 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
           matchday: true,
         },
       }),
-      prisma.standingTable.findFirst({
-        where: {
-          seasonTeamId: firstTeam.id,
-          deletedAt: null,
+      prisma.standingTable.findMany({
+        where: buildStandingTableScopeWhere(activeSeason.id, [firstTeam], {
           publicVisible: true,
-        },
-        orderBy: { updatedAt: "desc" },
+        }),
+        orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
         select: {
+          seasonTeamId: true,
+          competitionId: true,
+          seasonTeam: {
+            select: {
+              competitionName: true,
+            },
+          },
           rows: {
             orderBy: [{ displayOrder: "asc" }, { position: "asc" }],
             take: 3,
@@ -223,6 +235,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         },
       }),
     ]);
+    const standingTable = pickBestStandingTableForTeam(standingTables, firstTeam);
 
     const nextMatchData = nextMatch
       ? {
@@ -240,7 +253,11 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
           dateLabel: formatMatchDateLabel(nextMatch.dateTime),
           venue: nextMatch.venue ?? "Campo pendiente",
           status: formatMatchStatus(nextMatch.status),
-          href: undefined,
+          href: buildPublicMatchDetailHref({
+            teamSlug: firstTeam.publicSlug,
+            isFirstTeam: true,
+            matchId: nextMatch.id.toString(),
+          }),
           actionLabel: "Ver calendario",
           actionHref: "/primer-equipo/calendario",
         }
@@ -285,7 +302,11 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
                   ? "D"
                   : "E",
             label: match.matchday ? `J${match.matchday}` : undefined,
-            href: undefined,
+            href: buildPublicMatchDetailHref({
+              teamSlug: firstTeam.publicSlug,
+              isFirstTeam: true,
+              matchId: match.id.toString(),
+            }),
           };
         }),
         standingsRows: mapStandingRows(standingTable?.rows ?? []),

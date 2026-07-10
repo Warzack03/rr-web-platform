@@ -19,6 +19,7 @@ type TeamFormDialogProps = {
   mode: TeamFormDialogMode;
   team?: TeamManagementTeam;
   existingTeams: TeamManagementTeam[];
+  isSaving?: boolean;
   seasons: string[];
   categories: string[];
   competitionOptions: string[];
@@ -110,8 +111,8 @@ function createDefaultTeam(
         publicVisible: true,
       },
     ],
-    logoUrl: "mock://team-logo/nuevo-equipo",
-    bannerUrl: "mock://team-banner/nuevo-equipo",
+    logoUrl: "",
+    bannerUrl: "",
     playerCount: 0,
     nextMatchLabel: "Pendiente de calendario",
     accent: "from-[rgba(253,203,88,0.14)] to-[rgba(255,255,255,0.02)]",
@@ -205,6 +206,7 @@ export function TeamFormDialog({
   mode,
   team,
   existingTeams,
+  isSaving = false,
   seasons,
   categories,
   competitionOptions,
@@ -233,6 +235,7 @@ export function TeamFormDialog({
           ...currentValue,
           isFirstTeam,
           branch: isFirstTeam ? "Primer equipo" : "Cantera",
+          slug: isFirstTeam ? "primer-equipo" : currentValue.slug,
         };
 
         if (!orderTouched || isFirstTeam) {
@@ -314,7 +317,7 @@ export function TeamFormDialog({
       normalizeTeamManagementTeam({
         ...formState,
         name: parsedValue.data.name,
-        slug: parsedValue.data.slug,
+        slug: formState.isFirstTeam ? "primer-equipo" : parsedValue.data.slug,
         category: parsedValue.data.category,
         competition: parsedValue.data.competition,
         season: parsedValue.data.season,
@@ -352,6 +355,7 @@ export function TeamFormDialog({
           <button
             type="button"
             onClick={onClose}
+            disabled={isSaving}
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[8px] border border-white/10 text-[color:var(--rr-muted)] transition hover:text-white"
             aria-label="Cerrar"
           >
@@ -401,15 +405,20 @@ export function TeamFormDialog({
                           setSlugTouched(true);
                           updateFormState("slug", slugify(event.target.value));
                         }}
+                        disabled={formState.isFirstTeam}
                         className={`${fieldClassName} flex-1`}
-                        placeholder="juvenil-a"
+                        placeholder={formState.isFirstTeam ? "primer-equipo" : "juvenil-a"}
                       />
                       <button
                         type="button"
                         onClick={() => {
                           setSlugTouched(true);
-                          updateFormState("slug", slugify(formState.name));
+                          updateFormState(
+                            "slug",
+                            formState.isFirstTeam ? "primer-equipo" : slugify(formState.name),
+                          );
                         }}
+                        disabled={formState.isFirstTeam}
                         className="inline-flex min-h-11 items-center rounded-[8px] border border-white/10 px-3 text-[0.8rem] text-[color:var(--rr-muted)] transition hover:text-white"
                       >
                         Auto
@@ -445,46 +454,30 @@ export function TeamFormDialog({
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Logo
                     </span>
-                    <select
+                    <input
+                      type="url"
                       value={formState.logoUrl}
                       onChange={(event) =>
                         updateFormState("logoUrl", event.target.value)
                       }
                       className={fieldClassName}
-                    >
-                      <option value="mock://team-logo/nuevo-equipo">
-                        Placeholder
-                      </option>
-                      <option value="mock://team-logo/escudo-principal">
-                        Escudo principal
-                      </option>
-                      <option value="mock://team-logo/escudo-academia">
-                        Escudo academia
-                      </option>
-                    </select>
+                      placeholder="https://..."
+                    />
                   </label>
 
                   <label className="grid gap-2 md:col-span-2 xl:col-span-3">
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Banner
                     </span>
-                    <select
+                    <input
+                      type="url"
                       value={formState.bannerUrl}
                       onChange={(event) =>
                         updateFormState("bannerUrl", event.target.value)
                       }
                       className={fieldClassName}
-                    >
-                      <option value="mock://team-banner/nuevo-equipo">
-                        Placeholder
-                      </option>
-                      <option value="mock://team-banner/campo-nocturno">
-                        Campo nocturno
-                      </option>
-                      <option value="mock://team-banner/gradiente-club">
-                        Gradiente club
-                      </option>
-                    </select>
+                      placeholder="https://..."
+                    />
                   </label>
                 </div>
               </div>
@@ -553,6 +546,7 @@ export function TeamFormDialog({
                       onChange={(event) =>
                         updateFormState("season", event.target.value)
                       }
+                      disabled={mode !== "create" || isSaving}
                       className={fieldClassName}
                     >
                       {seasons.map((season) => (
@@ -641,16 +635,27 @@ export function TeamFormDialog({
               <button
                 type="button"
                 onClick={onClose}
+                disabled={isSaving}
                 className="rr-button rr-button-secondary text-[0.8rem]"
               >
                 Cancelar
               </button>
-              <button type="submit" className="rr-button rr-button-primary text-[0.8rem]">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="rr-button rr-button-primary text-[0.8rem]"
+              >
                 {mode === "create"
-                  ? "Crear equipo"
+                  ? isSaving
+                    ? "Creando..."
+                    : "Crear equipo"
                   : mode === "coaches"
-                    ? "Guardar entrenadores"
-                    : "Guardar cambios"}
+                    ? isSaving
+                      ? "Guardando..."
+                      : "Guardar entrenadores"
+                    : isSaving
+                      ? "Guardando..."
+                      : "Guardar cambios"}
               </button>
             </div>
           </div>

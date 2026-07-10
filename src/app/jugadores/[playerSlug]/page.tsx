@@ -8,10 +8,17 @@ import {
   getFirstTeamPlayerSlugs,
 } from "@/lib/public/first-team-squad-content";
 import {
-  getAcademyPlayerSlugs,
   findAcademyPlayersBySlug,
   getAcademyPlayerHref,
+  getAcademyPlayerSlugs,
 } from "@/lib/public/player-profile-content";
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
+import {
+  findPublicAcademyPlayersBySlugFromDb,
+  getAcademyPlayerStaticParamsFromDb,
+  getFirstTeamPlayerSlugsFromDb,
+  getPublicPlayerDetailFromDb,
+} from "@/server/services/public/player-detail";
 
 type PlayerDetailRouteProps = {
   params: Promise<{
@@ -19,20 +26,34 @@ type PlayerDetailRouteProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return Array.from(new Set([...getFirstTeamPlayerSlugs(), ...getAcademyPlayerSlugs()])).map(
-    (playerSlug) => ({
-      playerSlug,
-    }),
-  );
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const [dbFirstTeamPlayerSlugs, dbAcademyParams] = await Promise.all([
+    getFirstTeamPlayerSlugsFromDb(),
+    getAcademyPlayerStaticParamsFromDb(),
+  ]);
+
+  return Array.from(
+    new Set([
+      ...dbFirstTeamPlayerSlugs,
+      ...dbAcademyParams.map((param) => param.playerSlug),
+      ...getFirstTeamPlayerSlugs(),
+      ...getAcademyPlayerSlugs(),
+    ]),
+  ).map((playerSlug) => ({
+    playerSlug,
+  }));
 }
 
 export async function generateMetadata({
   params,
 }: PlayerDetailRouteProps): Promise<Metadata> {
   const { playerSlug } = await params;
-  const player = getFirstTeamPlayerDetail(playerSlug);
-  const academyMatches = findAcademyPlayersBySlug(playerSlug);
+  const dbPlayer = await getPublicPlayerDetailFromDb(playerSlug);
+  const player = dbPlayer ?? getFirstTeamPlayerDetail(playerSlug);
+  const dbAcademyMatches = player ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
+  const academyMatches = dbAcademyMatches.length > 0 ? dbAcademyMatches : findAcademyPlayersBySlug(playerSlug);
 
   if (!player) {
     if (academyMatches.length === 1) {
@@ -58,7 +79,7 @@ export async function generateMetadata({
 
   return {
     title: `${player.name} | ${player.teamLabel}`,
-    description: `Ficha publica de ${player.name}, ${player.position.toLowerCase()} del ${player.teamLabel}.`,
+    description: `Ficha publica de ${player.name}, ${player.position.toLowerCase()} en la temporada ${player.seasonLabel}.`,
   };
 }
 
@@ -66,12 +87,21 @@ export default async function PlayerDetailRoute({
   params,
 }: PlayerDetailRouteProps) {
   const { playerSlug } = await params;
-  const player = getFirstTeamPlayerDetail(playerSlug);
-  const academyMatches = findAcademyPlayersBySlug(playerSlug);
+  const dbPlayer = await getPublicPlayerDetailFromDb(playerSlug);
+  const player = dbPlayer ?? getFirstTeamPlayerDetail(playerSlug);
+  const dbAcademyMatches = player ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
+  const academyMatches = dbAcademyMatches.length > 0 ? dbAcademyMatches : findAcademyPlayersBySlug(playerSlug);
+  const dataSource: PublicDataSourceInfo = {
+    source: dbPlayer || dbAcademyMatches.length > 0 ? "db" : "mock",
+    note: playerSlug,
+  };
 
   if (player) {
     return (
-      <PublicSiteLayout activeNav="primer-equipo">
+      <PublicSiteLayout
+        activeNav={player.teamType === "first-team" ? "primer-equipo" : "equipos"}
+        debugDataSource={dataSource}
+      >
         <PlayerDetailPage player={player} />
       </PublicSiteLayout>
     );
@@ -79,18 +109,14 @@ export default async function PlayerDetailRoute({
 
   if (academyMatches.length === 1) {
     const academyPlayer = academyMatches[0];
-    const academyHref = getAcademyPlayerHref(academyPlayer.teamSlug, academyPlayer.slug);
-
-    if (academyHref) {
-      redirect(academyHref);
-    }
+    redirect(getAcademyPlayerHref(academyPlayer.teamSlug, academyPlayer.slug) ?? "/equipos");
   }
 
   if (academyMatches.length > 1) {
     const playerName = academyMatches[0].name;
 
     return (
-      <PublicSiteLayout activeNav="equipos">
+      <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
         <section className="mx-auto w-full max-w-[1120px] px-5 py-14 md:px-8 md:py-18 xl:px-16">
           <div className="rr-panel max-w-2xl px-8 py-8">
             <p className="rr-kicker text-[color:var(--rr-gold)]">Ruta global</p>
@@ -103,31 +129,23 @@ export default async function PlayerDetailRoute({
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {academyMatches.map((academyPlayer) => {
-              const academyHref = getAcademyPlayerHref(academyPlayer.teamSlug, academyPlayer.slug);
-
-              if (!academyHref) {
-                return null;
-              }
-
-              return (
-                <Link
-                  key={`${academyPlayer.teamSlug}-${academyPlayer.slug}`}
-                  href={academyHref}
-                  className="rr-panel-dark border border-[color:var(--rr-border)] px-5 py-5 transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]"
-                >
-                  <p className="rr-kicker text-[0.78rem] text-[color:var(--rr-gold)]">
-                    {academyPlayer.teamLabel}
-                  </p>
-                  <h2 className="rr-display mt-3 text-[2.2rem] leading-[0.92] text-white">
-                    {academyPlayer.name}
-                  </h2>
-                  <p className="mt-2 text-[1rem] text-[color:var(--rr-muted)]">
-                    {academyPlayer.position} · {academyPlayer.seasonLabel}
-                  </p>
-                </Link>
-              );
-            })}
+            {academyMatches.map((academyPlayer) => (
+              <Link
+                key={`${academyPlayer.teamSlug}-${academyPlayer.slug}`}
+                href={getAcademyPlayerHref(academyPlayer.teamSlug, academyPlayer.slug) ?? "/equipos"}
+                className="rr-panel-dark border border-[color:var(--rr-border)] px-5 py-5 transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]"
+              >
+                <p className="rr-kicker text-[0.78rem] text-[color:var(--rr-gold)]">
+                  {academyPlayer.teamLabel}
+                </p>
+                <h2 className="rr-display mt-3 text-[2.2rem] leading-[0.92] text-white">
+                  {academyPlayer.name}
+                </h2>
+                <p className="mt-2 text-[1rem] text-[color:var(--rr-muted)]">
+                  {academyPlayer.position} | {academyPlayer.seasonLabel}
+                </p>
+              </Link>
+            ))}
           </div>
         </section>
       </PublicSiteLayout>

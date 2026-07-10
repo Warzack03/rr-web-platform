@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import {
   Camera,
   Check,
@@ -11,82 +10,40 @@ import {
   ImagePlus,
   Search,
   ShieldCheck,
-  UserRoundCog,
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
+import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
+import { savePlayerProfileAction } from "@/app/admin/(panel)/jugadores/actions";
 import { PremiumPlayerCard } from "@/components/public/premium-player-card";
 import {
   adminPlayerPositionOptions,
-  adminMockPlayers,
-  adminMockTeams,
   type AdminPlayer,
 } from "@/lib/admin/mock-data";
+import type { AdminManagedPlayer } from "@/lib/admin/player-management";
+import { slugifyPlayerName } from "@/lib/admin/player-management";
 import type {
   DominantFoot,
   PublicPlayerType,
-  PublicTeamType,
 } from "@/lib/public/player-profile-content";
+import type { AdminRole } from "@/lib/admin/roles";
 import { cn } from "@/lib/utils";
 
 type PlayerVisibilityFilter = "all" | "visible" | "hidden";
 type PlayerPositionFilter = "all" | AdminPlayer["position"];
 
-type EditableAdminPlayer = AdminPlayer & {
-  publicName: string;
-  slug: string;
-  visible: boolean;
-  active: boolean;
-  photoUrl?: string;
-  cardVariant: PublicTeamType;
+type AdminPlayersWorkspaceProps = {
+  role: AdminRole;
+  initialPlayers: AdminManagedPlayer[];
+  initialTeams: Array<{ slug: string; name: string }>;
+  countryOptions: Array<{ value: string; label: string }>;
+  initialSelectedPlayerId?: string;
+  initialTeamFilter?: string;
 };
 
-const countryOptions = [
-  { value: "ES", label: "Espana" },
-  { value: "PT", label: "Portugal" },
-  { value: "AR", label: "Argentina" },
-  { value: "BR", label: "Brasil" },
-  { value: "MA", label: "Marruecos" },
-];
-
-const photoOptions = [
-  { value: "", label: "Sin foto" },
-  { value: "/images/mock/first-team/teo-ibarra.svg", label: "Retrato azul" },
-  { value: "/images/mock/first-team/noah-carden.svg", label: "Retrato campo" },
-  { value: "/images/mock/first-team/leo-serrano.svg", label: "Retrato dorado" },
-  { value: "/images/mock/first-team/dario-kestrel.svg", label: "Retrato oscuro" },
-];
-
-function slugify(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function createEditablePlayers(): EditableAdminPlayer[] {
-  return adminMockPlayers.map((player, index) => {
-    const team = adminMockTeams.find((candidate) => candidate.slug === player.teamSlug);
-    const isFirstTeam = Boolean(team?.firstTeam);
-
-    return {
-      ...player,
-      publicName: player.name,
-      slug: slugify(player.name),
-      visible: index !== adminMockPlayers.length - 1,
-      active: true,
-      photoUrl: index < 4 ? photoOptions[index + 1]?.value : undefined,
-      cardVariant: isFirstTeam ? "first-team" : "academy",
-    };
-  });
-}
-
-function mapFootToDominantFoot(foot: EditableAdminPlayer["foot"]): DominantFoot {
+function mapFootToDominantFoot(foot: AdminManagedPlayer["foot"]): DominantFoot {
   if (foot === "Izquierda") {
     return "left";
   }
@@ -98,26 +55,22 @@ function mapFootToDominantFoot(foot: EditableAdminPlayer["foot"]): DominantFoot 
   return "right";
 }
 
-function mapPositionLabel(position: EditableAdminPlayer["position"]) {
+function mapPositionLabel(position: AdminManagedPlayer["position"]) {
   return (
     adminPlayerPositionOptions.find((option) => option.value === position)?.label ??
     position
   );
 }
 
-function getTeamLabel(teamSlug: string) {
-  return adminMockTeams.find((team) => team.slug === teamSlug)?.name ?? teamSlug;
-}
-
-function getPlayerType(player: EditableAdminPlayer): PublicPlayerType {
+function getPlayerType(player: AdminManagedPlayer): PublicPlayerType {
   return player.position === "POR" ? "goalkeeper" : "field";
 }
 
-function getGoalParticipation(player: EditableAdminPlayer) {
+function getGoalParticipation(player: AdminManagedPlayer) {
   return player.goals + player.assists;
 }
 
-function getCardReadiness(player: EditableAdminPlayer) {
+function getCardReadiness(player: AdminManagedPlayer) {
   const checks = [
     { label: "Nombre", ready: player.publicName.trim().length > 0 },
     { label: "Dorsal", ready: player.number > 0 },
@@ -144,32 +97,28 @@ function labelClassName() {
   return "rr-kicker text-[0.7rem] text-[color:var(--rr-muted)]";
 }
 
-type AdminPlayersWorkspaceInnerProps = {
-  initialPlayerId?: string;
-  initialTeamFilter: string;
-};
-
-function AdminPlayersWorkspaceInner({
-  initialPlayerId,
-  initialTeamFilter,
-}: AdminPlayersWorkspaceInnerProps) {
-  const [players, setPlayers] = useState<EditableAdminPlayer[]>(() =>
-    createEditablePlayers(),
+export function AdminPlayersWorkspace({
+  role,
+  initialPlayers,
+  initialTeams,
+  countryOptions,
+  initialSelectedPlayerId,
+  initialTeamFilter = "all",
+}: AdminPlayersWorkspaceProps) {
+  const [players, setPlayers] = useState(initialPlayers);
+  const [savedPlayers, setSavedPlayers] = useState(initialPlayers);
+  const [selectedPlayerId, setSelectedPlayerId] = useState(
+    initialSelectedPlayerId ?? initialPlayers[0]?.id ?? "",
   );
-  const [savedPlayers, setSavedPlayers] = useState<EditableAdminPlayer[]>(() =>
-    createEditablePlayers(),
-  );
-  const [selectedPlayerId, setSelectedPlayerId] = useState(initialPlayerId ?? players[0]?.id ?? "");
   const [search, setSearch] = useState("");
   const [teamFilter, setTeamFilter] = useState(initialTeamFilter);
   const [positionFilter, setPositionFilter] = useState<PlayerPositionFilter>("all");
-  const [visibilityFilter, setVisibilityFilter] =
-    useState<PlayerVisibilityFilter>("all");
+  const [visibilityFilter, setVisibilityFilter] = useState<PlayerVisibilityFilter>("all");
   const [feedback, setFeedback] = useState<string | null>(null);
-  const hasUnsavedChanges = JSON.stringify(players) !== JSON.stringify(savedPlayers);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const selectedPlayer =
-    players.find((player) => player.id === selectedPlayerId) ?? players[0];
+  const canManageProfiles = role !== "COACH";
+  const hasUnsavedChanges = JSON.stringify(players) !== JSON.stringify(savedPlayers);
 
   const filteredPlayers = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -190,10 +139,24 @@ function AdminPlayersWorkspaceInner({
     });
   }, [players, positionFilter, search, teamFilter, visibilityFilter]);
 
+  useEffect(() => {
+    if (!feedback) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setFeedback(null), 2400);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  const selectedPlayer =
+    players.find((player) => player.id === selectedPlayerId) ??
+    filteredPlayers[0] ??
+    players[0];
+
   function updateSelectedPlayer(
-    updater: (player: EditableAdminPlayer) => EditableAdminPlayer,
+    updater: (player: AdminManagedPlayer) => AdminManagedPlayer,
   ) {
-    if (!selectedPlayer) {
+    if (!selectedPlayer || !canManageProfiles) {
       return;
     }
 
@@ -204,58 +167,82 @@ function AdminPlayersWorkspaceInner({
     );
   }
 
-  function handleSave() {
-    if (!hasUnsavedChanges) {
+  async function handleSave() {
+    if (!selectedPlayer || !canManageProfiles || !hasUnsavedChanges) {
       return;
     }
 
-    setSavedPlayers(players.map((player) => ({ ...player })));
-    setFeedback("Jugador actualizado. Guardado local de prueba.");
-    window.setTimeout(() => setFeedback(null), 2400);
+    setIsSaving(true);
+    const result = await savePlayerProfileAction({
+      playerId: selectedPlayer.id,
+      publicName: selectedPlayer.publicName,
+      slug: selectedPlayer.slug,
+      country: selectedPlayer.country,
+      foot: selectedPlayer.foot,
+      visible: selectedPlayer.visible,
+      active: selectedPlayer.active,
+      photoUrl: selectedPlayer.photoUrl ?? "",
+    });
+    setIsSaving(false);
+
+    if (!result.ok) {
+      setFeedback(result.message);
+      return;
+    }
+
+    setPlayers(result.data.players);
+    setSavedPlayers(result.data.players);
+    setSelectedPlayerId(result.selectedPlayerId ?? selectedPlayer.id);
+    setFeedback(result.message);
   }
 
   if (!selectedPlayer) {
     return (
       <AdminEmptyState
         title="Sin jugadores"
-        description="Carga jugadores mock o importa una plantilla para empezar a preparar cromos."
+        description="Cuando haya jugadores en la temporada activa, aqui veras sus fichas publicas y el preview del cromo."
       />
     );
   }
 
   const cardReadiness = getCardReadiness(selectedPlayer);
+  const selectedCountryLabel =
+    countryOptions.find((option) => option.value === selectedPlayer.country)?.label ??
+    selectedPlayer.country;
 
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
-        eyebrow="Fichas y cromos"
-        title="Ficha publica del jugador"
-        description="Aqui se remata el perfil final que alimenta la ficha publica y el cromo."
+        eyebrow={canManageProfiles ? "Fichas y cromos" : "Solo consulta"}
+        title={canManageProfiles ? "Ficha publica del jugador" : "Fichas publicas"}
+        description={
+          canManageProfiles
+            ? "Aqui se remata el perfil final que alimenta la ficha publica y el cromo."
+            : "Consulta la presentacion publica actual del jugador sin editar identidad ni estructura."
+        }
         actions={
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              href={`/admin/asignaciones?team=${selectedPlayer.teamSlug}`}
-              className="rr-button rr-button-secondary text-[0.84rem]"
-            >
-              Ver plantilla
-            </Link>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!hasUnsavedChanges}
-              className="rr-button rr-button-primary text-[0.84rem] disabled:cursor-not-allowed disabled:opacity-45"
-            >
-              Guardar cambios
-            </button>
-          </div>
+          canManageProfiles ? (
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                href={`/admin/asignaciones?team=${selectedPlayer.teamSlug}`}
+                className="rr-button rr-button-secondary text-[0.84rem]"
+              >
+                Ver plantilla
+              </Link>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={!hasUnsavedChanges || isSaving}
+                className="rr-button rr-button-primary text-[0.84rem] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                {isSaving ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
+          ) : undefined
         }
       />
 
-      {feedback ? (
-        <div className="rounded-[10px] border border-[rgba(253,203,88,0.26)] bg-[rgba(253,203,88,0.1)] px-4 py-3 text-[0.94rem] text-[color:var(--rr-gold)]">
-          {feedback}
-        </div>
-      ) : null}
+      {feedback ? <AdminFeedbackBanner message={feedback} /> : null}
 
       <div className="grid gap-4 xl:grid-cols-[25rem_minmax(0,1fr)]">
         <AdminPanel className="p-4 sm:p-5">
@@ -267,7 +254,7 @@ function AdminPlayersWorkspaceInner({
                   {filteredPlayers.length} perfiles
                 </h2>
               </div>
-              <UserRoundCog className="h-5 w-5 text-[color:var(--rr-gold)]" />
+              <ShieldCheck className="h-5 w-5 text-[color:var(--rr-gold)]" />
             </div>
 
             <label className="relative block">
@@ -289,7 +276,7 @@ function AdminPlayersWorkspaceInner({
                   className={inputClassName()}
                 >
                   <option value="all">Todos</option>
-                  {adminMockTeams.map((team) => (
+                  {initialTeams.map((team) => (
                     <option key={team.slug} value={team.slug}>
                       {team.name}
                     </option>
@@ -356,14 +343,19 @@ function AdminPlayersWorkspaceInner({
                           #{player.number} {player.publicName}
                         </p>
                         <p className="mt-1 text-[0.84rem] text-[color:var(--rr-muted)]">
-                          {getTeamLabel(player.teamSlug)} - {mapPositionLabel(player.position)}
+                          {player.teamName} - {mapPositionLabel(player.position)}
                         </p>
                       </div>
-                      {player.visible ? (
-                        <Eye className="h-4 w-4 text-[color:var(--rr-gold)]" />
-                      ) : (
-                        <EyeOff className="h-4 w-4 text-[color:var(--rr-muted)]" />
-                      )}
+                      <div className="flex items-center gap-2">
+                        {!player.active ? (
+                          <AdminStatusBadge label="Inactivo" tone="danger" />
+                        ) : null}
+                        {player.visible ? (
+                          <Eye className="h-4 w-4 text-[color:var(--rr-gold)]" />
+                        ) : (
+                          <EyeOff className="h-4 w-4 text-[color:var(--rr-muted)]" />
+                        )}
+                      </div>
                     </div>
                   </button>
                 );
@@ -377,14 +369,12 @@ function AdminPlayersWorkspaceInner({
             <div className="space-y-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="rr-kicker text-[color:var(--rr-gold)]">
-                    Ficha editable
-                  </p>
+                  <p className="rr-kicker text-[color:var(--rr-gold)]">Ficha editable</p>
                   <h2 className="mt-2 text-[1.35rem] font-semibold text-white">
                     {selectedPlayer.publicName}
                   </h2>
                   <p className="mt-1 text-[0.92rem] text-[color:var(--rr-muted)]">
-                    {getTeamLabel(selectedPlayer.teamSlug)} - {selectedPlayer.slug}
+                    {selectedPlayer.teamName} - {selectedPlayer.slug}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -393,8 +383,12 @@ function AdminPlayersWorkspaceInner({
                     tone={selectedPlayer.visible ? "gold" : "slate"}
                   />
                   <AdminStatusBadge
-                    label={selectedPlayer.cardVariant === "first-team" ? "Premium" : "Cantera"}
-                    tone={selectedPlayer.cardVariant === "first-team" ? "blue" : "slate"}
+                    label={selectedPlayer.active ? "Activo" : "Inactivo"}
+                    tone={selectedPlayer.active ? "success" : "danger"}
+                  />
+                  <AdminStatusBadge
+                    label={selectedPlayer.teamType === "first-team" ? "Premium" : "Cantera"}
+                    tone={selectedPlayer.teamType === "first-team" ? "blue" : "slate"}
                   />
                 </div>
               </div>
@@ -409,9 +403,10 @@ function AdminPlayersWorkspaceInner({
                       updateSelectedPlayer((player) => ({
                         ...player,
                         publicName,
-                        slug: slugify(publicName),
+                        slug: slugifyPlayerName(publicName),
                       }));
                     }}
+                    disabled={!canManageProfiles || isSaving}
                     className={inputClassName()}
                   />
                 </label>
@@ -423,72 +418,34 @@ function AdminPlayersWorkspaceInner({
                     onChange={(event) =>
                       updateSelectedPlayer((player) => ({
                         ...player,
-                        slug: slugify(event.target.value),
+                        slug: slugifyPlayerName(event.target.value),
                       }))
                     }
+                    disabled={!canManageProfiles || isSaving}
                     className={inputClassName()}
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <div className="grid gap-2">
                   <span className={labelClassName()}>Equipo</span>
-                  <select
-                    value={selectedPlayer.teamSlug}
-                    onChange={(event) => {
-                      const teamSlug = event.target.value;
-                      const team = adminMockTeams.find((candidate) => candidate.slug === teamSlug);
+                  <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                    {selectedPlayer.teamName}
+                  </div>
+                </div>
 
-                      updateSelectedPlayer((player) => ({
-                        ...player,
-                        teamSlug,
-                        cardVariant: team?.firstTeam ? "first-team" : "academy",
-                      }));
-                    }}
-                    className={inputClassName()}
-                  >
-                    {adminMockTeams.map((team) => (
-                      <option key={team.slug} value={team.slug}>
-                        {team.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="grid gap-2">
+                <div className="grid gap-2">
                   <span className={labelClassName()}>Dorsal</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={selectedPlayer.number}
-                    onChange={(event) =>
-                      updateSelectedPlayer((player) => ({
-                        ...player,
-                        number: Math.max(0, Number(event.target.value)),
-                      }))
-                    }
-                    className={inputClassName()}
-                  />
-                </label>
+                  <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                    #{selectedPlayer.number}
+                  </div>
+                </div>
 
-                <label className="grid gap-2">
+                <div className="grid gap-2">
                   <span className={labelClassName()}>Posicion</span>
-                  <select
-                    value={selectedPlayer.position}
-                    onChange={(event) =>
-                      updateSelectedPlayer((player) => ({
-                        ...player,
-                        position: event.target.value as AdminPlayer["position"],
-                      }))
-                    }
-                    className={inputClassName()}
-                  >
-                    {adminPlayerPositionOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                    {mapPositionLabel(selectedPlayer.position)}
+                  </div>
+                </div>
 
                 <label className="grid gap-2">
                   <span className={labelClassName()}>Pais</span>
@@ -500,6 +457,7 @@ function AdminPlayersWorkspaceInner({
                         country: event.target.value,
                       }))
                     }
+                    disabled={!canManageProfiles || isSaving}
                     className={inputClassName()}
                   >
                     {countryOptions.map((option) => (
@@ -517,9 +475,10 @@ function AdminPlayersWorkspaceInner({
                     onChange={(event) =>
                       updateSelectedPlayer((player) => ({
                         ...player,
-                        foot: event.target.value as EditableAdminPlayer["foot"],
+                        foot: event.target.value as AdminManagedPlayer["foot"],
                       }))
                     }
+                    disabled={!canManageProfiles || isSaving}
                     className={inputClassName()}
                   >
                     <option value="Derecha">Derecha</option>
@@ -528,9 +487,10 @@ function AdminPlayersWorkspaceInner({
                   </select>
                 </label>
 
-                <label className="grid gap-2">
+                <label className="grid gap-2 lg:col-span-2">
                   <span className={labelClassName()}>Foto/base</span>
-                  <select
+                  <input
+                    type="url"
                     value={selectedPlayer.photoUrl ?? ""}
                     onChange={(event) =>
                       updateSelectedPlayer((player) => ({
@@ -538,51 +498,50 @@ function AdminPlayersWorkspaceInner({
                         photoUrl: event.target.value || undefined,
                       }))
                     }
+                    disabled={!canManageProfiles || isSaving}
                     className={inputClassName()}
-                  >
-                    {photoOptions.map((option) => (
-                      <option key={option.value || "empty"} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="https://..."
+                  />
                 </label>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateSelectedPlayer((player) => ({
-                      ...player,
-                      visible: !player.visible,
-                    }))
-                  }
-                  className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
-                >
-                  <span>Visible en web</span>
-                  {selectedPlayer.visible ? (
-                    <Check className="h-4 w-4 text-[color:var(--rr-gold)]" />
-                  ) : (
-                    <EyeOff className="h-4 w-4 text-[color:var(--rr-muted)]" />
-                  )}
-                </button>
+              {canManageProfiles ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateSelectedPlayer((player) => ({
+                        ...player,
+                        visible: !player.visible,
+                      }))
+                    }
+                    disabled={isSaving}
+                    className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                  >
+                    <span>Visible en web</span>
+                    {selectedPlayer.visible ? (
+                      <Check className="h-4 w-4 text-[color:var(--rr-gold)]" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-[color:var(--rr-muted)]" />
+                    )}
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateSelectedPlayer((player) => ({
-                      ...player,
-                      cardVariant:
-                        player.cardVariant === "first-team" ? "academy" : "first-team",
-                    }))
-                  }
-                  className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
-                >
-                  <span>Variante de cromo</span>
-                  <ShieldCheck className="h-4 w-4 text-[color:var(--rr-gold)]" />
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateSelectedPlayer((player) => ({
+                        ...player,
+                        active: !player.active,
+                      }))
+                    }
+                    disabled={isSaving}
+                    className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                  >
+                    <span>Perfil activo</span>
+                    <ShieldCheck className="h-4 w-4 text-[color:var(--rr-gold)]" />
+                  </button>
+                </div>
+              ) : null}
 
               <div className="grid gap-3 rounded-[12px] border border-white/10 bg-white/4 px-4 py-4 sm:grid-cols-3">
                 <div>
@@ -632,13 +591,13 @@ function AdminPlayersWorkspaceInner({
                   <PremiumPlayerCard
                     name={selectedPlayer.publicName}
                     number={selectedPlayer.number}
-                    country={countryOptions.find((option) => option.value === selectedPlayer.country)?.label}
+                    country={selectedCountryLabel}
                     countryFlag={selectedPlayer.country}
                     position={mapPositionLabel(selectedPlayer.position)}
                     dominantFoot={mapFootToDominantFoot(selectedPlayer.foot)}
                     imageUrl={selectedPlayer.photoUrl}
                     playerType={getPlayerType(selectedPlayer)}
-                    teamType={selectedPlayer.cardVariant}
+                    teamType={selectedPlayer.teamType}
                     stats={{
                       matchesPlayed: selectedPlayer.matchesPlayed,
                       goals: selectedPlayer.goals,
@@ -665,7 +624,11 @@ function AdminPlayersWorkspaceInner({
                     </span>
                     <AdminStatusBadge
                       label={`${cardReadiness.readyCount}/${cardReadiness.checks.length}`}
-                      tone={cardReadiness.readyCount === cardReadiness.checks.length ? "success" : "gold"}
+                      tone={
+                        cardReadiness.readyCount === cardReadiness.checks.length
+                          ? "success"
+                          : "gold"
+                      }
                     />
                   </div>
 
@@ -702,33 +665,9 @@ function AdminPlayersWorkspaceInner({
                 </div>
               </div>
             </AdminPanel>
-
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-export function AdminPlayersWorkspace() {
-  const searchParams = useSearchParams();
-  const requestedPlayerId = searchParams.get("player");
-  const requestedTeamSlug = searchParams.get("team");
-  const initialTeamFilter =
-    requestedTeamSlug && adminMockTeams.some((team) => team.slug === requestedTeamSlug)
-      ? requestedTeamSlug
-      : "all";
-  const initialPlayerId =
-    requestedPlayerId && adminMockPlayers.some((player) => player.id === requestedPlayerId)
-      ? requestedPlayerId
-      : undefined;
-
-  return (
-    <AdminPlayersWorkspaceInner
-      key={searchParams.toString()}
-      initialPlayerId={initialPlayerId}
-      initialTeamFilter={initialTeamFilter}
-    />
-  );
-}
-

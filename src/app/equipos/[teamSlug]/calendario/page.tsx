@@ -5,14 +5,18 @@ import { CalendarPageTitle } from "@/components/public/calendar-page-title";
 import { TeamCalendar } from "@/components/public/team-calendar";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { getAcademyTeamCalendarContent } from "@/lib/public/team-calendar-content";
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
+import { getPublicTeamCalendarContentFromDb } from "@/server/services/public/calendar";
 
 type TeamPlaceholderPageProps = {
   params: Promise<{
     teamSlug: string;
   }>;
 };
+
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,
@@ -42,15 +46,22 @@ export default async function AcademyTeamCalendarPage({
     notFound();
   }
 
-  const calendar = getAcademyTeamCalendarContent({
-    slug: teamSummary.slug,
-    name: teamSummary.name,
-    competition: teamSummary.competition,
-    season: teamSummary.season,
-  });
+  const dbCalendar = await getPublicTeamCalendarContentFromDb(teamSlug);
+  const calendar =
+    dbCalendar ??
+    getAcademyTeamCalendarContent({
+      slug: teamSummary.slug,
+      name: teamSummary.name,
+      competition: teamSummary.competition,
+      season: teamSummary.season,
+    });
+  const dataSource: PublicDataSourceInfo = {
+    source: dbCalendar ? "db" : "mock",
+    note: teamSlug,
+  };
 
   return (
-    <PublicSiteLayout activeNav="equipos">
+    <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
       <div className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.1),transparent_56%)]" />
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />

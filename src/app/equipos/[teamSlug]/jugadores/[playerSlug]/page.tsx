@@ -6,6 +6,11 @@ import {
   getAcademyPlayerDetail,
   getAcademyPlayerStaticParams,
 } from "@/lib/public/player-profile-content";
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
+import {
+  getAcademyPlayerDetailFromDb,
+  getAcademyPlayerStaticParamsFromDb,
+} from "@/server/services/public/player-detail";
 
 type AcademyPlayerDetailRouteProps = {
   params: Promise<{
@@ -14,15 +19,27 @@ type AcademyPlayerDetailRouteProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return getAcademyPlayerStaticParams();
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const [dbParams, mockParams] = await Promise.all([
+    getAcademyPlayerStaticParamsFromDb(),
+    Promise.resolve(getAcademyPlayerStaticParams()),
+  ]);
+
+  return Array.from(
+    new Map(
+      [...dbParams, ...mockParams].map((param) => [`${param.teamSlug}:${param.playerSlug}`, param]),
+    ).values(),
+  );
 }
 
 export async function generateMetadata({
   params,
 }: AcademyPlayerDetailRouteProps): Promise<Metadata> {
   const { teamSlug, playerSlug } = await params;
-  const player = getAcademyPlayerDetail(teamSlug, playerSlug);
+  const player =
+    (await getAcademyPlayerDetailFromDb(teamSlug, playerSlug)) ?? getAcademyPlayerDetail(teamSlug, playerSlug);
 
   if (!player) {
     return {
@@ -40,14 +57,19 @@ export default async function AcademyPlayerDetailRoute({
   params,
 }: AcademyPlayerDetailRouteProps) {
   const { teamSlug, playerSlug } = await params;
-  const player = getAcademyPlayerDetail(teamSlug, playerSlug);
+  const dbPlayer = await getAcademyPlayerDetailFromDb(teamSlug, playerSlug);
+  const player = dbPlayer ?? getAcademyPlayerDetail(teamSlug, playerSlug);
+  const dataSource: PublicDataSourceInfo = {
+    source: dbPlayer ? "db" : "mock",
+    note: `${teamSlug}/${playerSlug}`,
+  };
 
   if (!player || player.teamSlug !== teamSlug) {
     notFound();
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos">
+    <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
       <PlayerDetailPage player={player} />
     </PublicSiteLayout>
   );

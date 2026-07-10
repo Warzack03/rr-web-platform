@@ -59,11 +59,9 @@ const adminSectionRoles: Record<AdminSectionKey, UserRole[]> = {
 };
 
 export function canAccessAdminSection(role: UserRole, section: AdminSectionKey) {
-  void role;
-  return section !== "users" && section in adminSectionRoles;
+  return adminSectionRoles[section]?.includes(role) ?? false;
 }
 
 export function getAdminNavigationForRole(role: UserRole) {
-  void role;
-  return adminNavigation;
+  return adminNavigation.filter((item) => canAccessAdminSection(role, item.section));
 }

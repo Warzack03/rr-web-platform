@@ -4,7 +4,7 @@ import { NewsGrid } from "@/components/public/news-grid";
 import { NewsHero } from "@/components/public/news-hero";
 import {
   getFeaturedPublicNewsArticle,
-  getPublicNewsArticles,
+  getPublicNewsArticlesWithSource,
 } from "@/server/services/public/news-content";
 
 export const metadata: Metadata = {
@@ -15,12 +15,13 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function NewsPage() {
-  const articles = await getPublicNewsArticles();
+  const result = await getPublicNewsArticlesWithSource();
+  const articles = result.articles;
   const featuredArticle = (await getFeaturedPublicNewsArticle()) ?? articles[0];
   const gridArticles = articles.filter((article) => article.slug !== featuredArticle?.slug);
 
   return (
-    <PublicSiteLayout activeNav="noticias">
+    <PublicSiteLayout activeNav="noticias" debugDataSource={result.dataSource}>
       <NewsHero article={featuredArticle} />
       <NewsGrid articles={gridArticles} />
     </PublicSiteLayout>

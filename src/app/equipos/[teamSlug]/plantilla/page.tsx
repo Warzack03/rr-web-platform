@@ -10,8 +10,10 @@ import {
   getAcademyPlayerHref,
   getAcademyTeamSquadContent,
 } from "@/lib/public/player-profile-content";
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
+import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
 
 type TeamPlaceholderPageProps = {
   params: Promise<{
@@ -42,7 +44,12 @@ export default async function TeamSquadPage({
 }: TeamPlaceholderPageProps) {
   const { teamSlug } = await params;
   const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
-  const squad = getAcademyTeamSquadContent(teamSlug);
+  const dbSquad = await getPublicRosterContentFromDb(teamSlug);
+  const squad = dbSquad ?? getAcademyTeamSquadContent(teamSlug);
+  const dataSource: PublicDataSourceInfo = {
+    source: dbSquad ? "db" : "mock",
+    note: teamSlug,
+  };
 
   if (!teamSummary) {
     notFound();
@@ -50,7 +57,7 @@ export default async function TeamSquadPage({
 
   if (!squad) {
     return (
-      <PublicSiteLayout activeNav="equipos">
+      <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
         <TeamRoutePlaceholder
           eyebrow={teamSummary.name}
           title="Plantilla"
@@ -79,7 +86,7 @@ export default async function TeamSquadPage({
   ] as const;
 
   return (
-    <PublicSiteLayout activeNav="equipos">
+    <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
       <div className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.08),transparent_58%)]" />
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
@@ -108,7 +115,15 @@ export default async function TeamSquadPage({
                   {squad.goalkeepers.map((player) => (
                     <PremiumPlayerCard
                       key={player.id}
-                      {...player}
+                      name={player.name}
+                      number={player.number}
+                      country={player.country}
+                      countryFlag={player.countryFlag}
+                      position={player.position}
+                      dominantFoot={player.dominantFoot}
+                      imageUrl={player.imageUrl}
+                      playerType={player.playerType}
+                      stats={player.stats}
                       teamType="academy"
                       href={getAcademyPlayerHref(teamSlug, player.slug)}
                       className="h-full"
@@ -136,7 +151,15 @@ export default async function TeamSquadPage({
                           {group.players.map((player) => (
                             <PremiumPlayerCard
                               key={player.id}
-                              {...player}
+                              name={player.name}
+                              number={player.number}
+                              country={player.country}
+                              countryFlag={player.countryFlag}
+                              position={player.position}
+                              dominantFoot={player.dominantFoot}
+                              imageUrl={player.imageUrl}
+                              playerType={player.playerType}
+                              stats={player.stats}
                               teamType="academy"
                               href={getAcademyPlayerHref(teamSlug, player.slug)}
                               className="h-full"

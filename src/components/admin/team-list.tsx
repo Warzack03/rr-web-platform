@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 type TeamListProps = {
   role: AdminRole;
   teams: TeamManagementTeam[];
+  disabled?: boolean;
   onEdit: (team: TeamManagementTeam) => void;
   onManageCoaches: (team: TeamManagementTeam) => void;
   onToggleActive: (teamId: string) => void;
@@ -29,6 +30,7 @@ type TeamListProps = {
 function TeamActions({
   role,
   team,
+  disabled,
   onEdit,
   onManageCoaches,
   onToggleActive,
@@ -36,6 +38,7 @@ function TeamActions({
 }: {
   role: AdminRole;
   team: TeamManagementTeam;
+  disabled?: boolean;
   onEdit: (team: TeamManagementTeam) => void;
   onManageCoaches: (team: TeamManagementTeam) => void;
   onToggleActive: (teamId: string) => void;
@@ -80,6 +83,7 @@ function TeamActions({
       <button
         type="button"
         onClick={() => onEdit(team)}
+        disabled={disabled}
         className={iconButtonClassName}
         aria-label="Editar equipo"
         title="Editar equipo"
@@ -90,6 +94,7 @@ function TeamActions({
       <button
         type="button"
         onClick={() => onManageCoaches(team)}
+        disabled={disabled}
         className={iconButtonClassName}
         aria-label="Editar entrenadores"
         title="Editar entrenadores"
@@ -100,6 +105,7 @@ function TeamActions({
       <button
         type="button"
         onClick={() => onToggleActive(team.id)}
+        disabled={disabled}
         className={cn(
           iconButtonClassName,
           team.active
@@ -119,6 +125,7 @@ function TeamActions({
       <button
         type="button"
         onClick={() => onToggleVisibility(team.id)}
+        disabled={disabled}
         className={cn(
           iconButtonClassName,
           team.publicVisible
@@ -158,6 +165,7 @@ function TeamCoachSummary({
 export function TeamList({
   role,
   teams,
+  disabled,
   onEdit,
   onManageCoaches,
   onToggleActive,
@@ -190,6 +198,7 @@ export function TeamList({
       <TeamActions
         role={role}
         team={team}
+        disabled={disabled}
         onEdit={onEdit}
         onManageCoaches={onManageCoaches}
         onToggleActive={onToggleActive}
@@ -240,6 +249,7 @@ export function TeamList({
                 <TeamActions
                   role={role}
                   team={team}
+                  disabled={disabled}
                   onEdit={onEdit}
                   onManageCoaches={onManageCoaches}
                   onToggleActive={onToggleActive}

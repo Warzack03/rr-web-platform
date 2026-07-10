@@ -24,18 +24,17 @@ import {
 } from "@/components/admin/standings-filters";
 import { StandingsSelector } from "@/components/admin/standings-selector";
 import { UnsavedChangesBar } from "@/components/admin/unsaved-changes-bar";
+import {
+  createStandingAction,
+  saveStandingAction,
+} from "@/app/admin/(panel)/clasificaciones/actions";
 import type {
   StandingManagementRow,
+  StandingManagementTeam,
   StandingManagementTable,
 } from "@/lib/admin/standings-management-mocks";
 import {
-  getAllStandingsManagementTables,
-  getCoachPreviewStandingTeamOptions,
-  getResolvedStandingsCoachPreviewTeamSlug,
-  getStandingsManagementTeamsForRole,
-  normalizeAndSortStandingRows,
   normalizeStandingTable,
-  sortStandingsManagementTables,
 } from "@/lib/admin/standings-management-mocks";
 import type { AdminRole } from "@/lib/admin/roles";
 
@@ -43,6 +42,10 @@ type AdminStandingsWorkspaceProps = {
   role: AdminRole;
   initialUiState?: "ready" | "error";
   initialSelectedTeamSlug?: string;
+  initialTables: StandingManagementTable[];
+  initialTeams: StandingManagementTeam[];
+  activeSeasonLabel?: string;
+  coachTeamOptions: Array<{ slug: string; name: string }>;
 };
 
 type ScreenState = "loading" | "ready" | "error";
@@ -53,6 +56,20 @@ const initialFilters: StandingsFiltersValue = {
   team: "",
   competition: "",
 };
+
+function sortStandingsManagementTables(tables: StandingManagementTable[]) {
+  return [...tables].sort((left, right) => {
+    if (left.season !== right.season) {
+      return right.season.localeCompare(left.season);
+    }
+
+    if (left.teamName !== right.teamName) {
+      return left.teamName.localeCompare(right.teamName, "es");
+    }
+
+    return left.competition.localeCompare(right.competition, "es");
+  });
+}
 
 function mergeTables(
   savedTables: StandingManagementTable[],
@@ -65,6 +82,17 @@ function mergeTables(
 
 function createBanner(message: string, tone: BannerTone) {
   return { message, tone };
+}
+
+function getResolvedCoachTeamSlug(
+  options: Array<{ slug: string; name: string }>,
+  preferredSlug?: string,
+) {
+  if (preferredSlug && options.some((option) => option.slug === preferredSlug)) {
+    return preferredSlug;
+  }
+
+  return options[0]?.slug ?? "";
 }
 
 function getRowValidationErrors(row: StandingManagementRow, index: number) {
@@ -118,21 +146,17 @@ function getStandingRowErrorMap(standing: StandingManagementTable) {
   }, {});
 }
 
-function getRoleActorLabel(role: AdminRole, coachTeamSlug: string) {
-  if (role !== "COACH") {
-    return role === "SUPERADMIN" ? "Superadmin Demo" : "Manager Demo";
-  }
-
-  return coachTeamSlug === "juvenil-a" ? "Ivan Lobo" : "Sergio Mena";
-}
-
 export function AdminStandingsWorkspace({
   role,
   initialUiState = "ready",
   initialSelectedTeamSlug,
+  initialTables,
+  initialTeams,
+  activeSeasonLabel,
+  coachTeamOptions,
 }: AdminStandingsWorkspaceProps) {
   const [savedTables, setSavedTables] = useState(() =>
-    sortStandingsManagementTables(getAllStandingsManagementTables()),
+    sortStandingsManagementTables(initialTables),
   );
   const [draftTables, setDraftTables] = useState<
     Record<string, StandingManagementTable>
@@ -142,14 +166,17 @@ export function AdminStandingsWorkspace({
     message: string;
     tone: BannerTone;
   } | null>(null);
+  const [isPersisting, setIsPersisting] = useState(false);
   const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
-    getResolvedStandingsCoachPreviewTeamSlug(initialSelectedTeamSlug),
+    getResolvedCoachTeamSlug(coachTeamOptions, initialSelectedTeamSlug),
   );
   const [filters, setFilters] = useState<StandingsFiltersValue>(initialFilters);
 
   const mergedTables = mergeTables(savedTables, draftTables);
-  const coachPreviewTeamOptions = getCoachPreviewStandingTeamOptions();
-  const allowedTeams = getStandingsManagementTeamsForRole(role, coachTeamSlug);
+  const allowedTeams =
+    role === "COACH"
+      ? initialTeams.filter((team) => team.slug === coachTeamSlug)
+      : initialTeams;
   const allowedTeamSlugs = new Set(allowedTeams.map((team) => team.slug));
   const scopedTables = mergedTables.filter((table) =>
     allowedTeamSlugs.has(table.teamSlug),
@@ -160,7 +187,7 @@ export function AdminStandingsWorkspace({
     allowedTeams[0]?.slug ??
     "";
   const competitions = Array.from(
-    new Set(scopedTables.map((table) => table.competition)),
+    new Set(allowedTeams.map((team) => team.competition)),
   );
   const defaultCompetition = competitions[0] ?? "";
   const canSelectByTeam = role !== "COACH" && allowedTeams.length > 1;
@@ -176,7 +203,8 @@ export function AdminStandingsWorkspace({
   };
   const filteredTables = scopedTables.filter((table) =>
     activeFilters.selectionMode === "team"
-      ? table.teamSlug === activeFilters.team
+      ? table.teamSlug === activeFilters.team ||
+        table.rows.some((row) => row.teamSlug === activeFilters.team)
       : table.competition === activeFilters.competition,
   );
 
@@ -219,7 +247,7 @@ export function AdminStandingsWorkspace({
   const hasUnsavedChanges =
     Boolean(selectedStanding && savedSelectedStanding) &&
     JSON.stringify(selectedStanding) !== JSON.stringify(savedSelectedStanding);
-  const activeSeason = seasons[0] ?? "2026/2027";
+  const activeSeason = activeSeasonLabel ?? seasons[0] ?? "Sin temporada";
   const publishedCount = scopedTables.filter(
     (standing) => standing.status === "published",
   ).length;
@@ -311,30 +339,32 @@ export function AdminStandingsWorkspace({
       return;
     }
 
-    const updatedStanding = normalizeStandingTable({
-      ...selectedStanding,
-      rows: normalizeAndSortStandingRows(selectedStanding.rows),
-      status: "published",
-      updatedAt: new Date().toISOString(),
-      updatedBy: getRoleActorLabel(role, coachTeamSlug),
-    });
+    setIsPersisting(true);
 
-    startTransition(() => {
-      setSavedTables((currentTables) =>
-        sortStandingsManagementTables(
-          currentTables.map((table) =>
-            table.id === updatedStanding.id ? updatedStanding : table,
-          ),
-        ),
-      );
-      setDraftTables((currentDrafts) => {
-        const nextDrafts = { ...currentDrafts };
-        delete nextDrafts[updatedStanding.id];
-        return nextDrafts;
+    void saveStandingAction({
+      standingId: selectedStanding.id,
+      rows: selectedStanding.rows,
+    })
+      .then((result) => {
+        if (!result.ok) {
+          pushBanner(result.message, "danger");
+          return;
+        }
+
+        startTransition(() => {
+          setSavedTables(sortStandingsManagementTables(result.data.tables));
+          setDraftTables({});
+          setRequestedStandingId(result.selectedStandingId);
+        });
+
+        pushBanner(result.message);
+      })
+      .catch(() => {
+        pushBanner("No hemos podido guardar la clasificacion.", "danger");
+      })
+      .finally(() => {
+        setIsPersisting(false);
       });
-    });
-
-    pushBanner("Clasificacion guardada.");
   }
 
   function discardChanges() {
@@ -349,6 +379,36 @@ export function AdminStandingsWorkspace({
     });
 
     pushBanner("Cambios cancelados.");
+  }
+
+  function createStandingFromCurrentSelection() {
+    setIsPersisting(true);
+
+    void createStandingAction({
+      selectionMode: activeFilters.selectionMode,
+      teamSlug: activeFilters.team || undefined,
+      competition: activeFilters.competition || undefined,
+    })
+      .then((result) => {
+        if (!result.ok) {
+          pushBanner(result.message, "danger");
+          return;
+        }
+
+        startTransition(() => {
+          setSavedTables(sortStandingsManagementTables(result.data.tables));
+          setDraftTables({});
+          setRequestedStandingId(result.selectedStandingId);
+        });
+
+        pushBanner(result.message);
+      })
+      .catch(() => {
+        pushBanner("No hemos podido crear la clasificacion.", "danger");
+      })
+      .finally(() => {
+        setIsPersisting(false);
+      });
   }
 
   return (
@@ -393,7 +453,7 @@ export function AdminStandingsWorkspace({
           }
           aside={
             <AdminCoachTeamSwitcher
-              options={coachPreviewTeamOptions}
+              options={coachTeamOptions}
               value={coachTeamSlug}
               onChange={(nextCoachTeamSlug) => {
                 setCoachTeamSlug(nextCoachTeamSlug);
@@ -510,7 +570,19 @@ export function AdminStandingsWorkspace({
       {screenState === "ready" && scopedTables.length === 0 ? (
         <AdminEmptyState
           title="Sin clasificaciones cargadas"
-          description="Cuando exista una competicion sin tabla creada, el alta debera arrancar desde los equipos dados de alta en esa competicion."
+          description="Todavia no hay tablas reales para este alcance. El siguiente paso natural es crear o cargar la clasificacion manual de la competicion correspondiente."
+          action={
+            allowedTeams.length > 0 ? (
+              <button
+                type="button"
+                onClick={createStandingFromCurrentSelection}
+                disabled={isPersisting}
+                className="rr-button rr-button-primary text-[0.82rem]"
+              >
+                {isPersisting ? "Creando..." : "Crear clasificacion"}
+              </button>
+            ) : null
+          }
         />
       ) : null}
 
@@ -519,15 +591,25 @@ export function AdminStandingsWorkspace({
       filteredTables.length === 0 ? (
         <AdminEmptyState
           title="Sin resultados"
-          description="Ajusta filtros o cambia la busqueda para volver a ver clasificaciones."
+          description="No hay una tabla real para esta seleccion. Puedes ajustar filtros o crear la clasificacion manual desde este contexto."
           action={
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="rr-button rr-button-secondary text-[0.82rem]"
-            >
-              Limpiar filtros
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="rr-button rr-button-secondary text-[0.82rem]"
+              >
+                Limpiar filtros
+              </button>
+              <button
+                type="button"
+                onClick={createStandingFromCurrentSelection}
+                disabled={isPersisting}
+                className="rr-button rr-button-primary text-[0.82rem]"
+              >
+                {isPersisting ? "Creando..." : "Crear clasificacion"}
+              </button>
+            </div>
           }
         />
       ) : null}
@@ -575,6 +657,7 @@ export function AdminStandingsWorkspace({
         <UnsavedChangesBar
           onDiscard={discardChanges}
           onSave={persistSelectedStanding}
+          isSaving={isPersisting}
         />
       ) : null}
     </div>

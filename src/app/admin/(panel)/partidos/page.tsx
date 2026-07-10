@@ -1,6 +1,7 @@
 import { AdminMatchesWorkspace } from "@/components/admin/admin-matches-workspace";
-import { OWNER_ADMIN_ROLE } from "@/lib/admin/roles";
+import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
+import { getAdminMatchesScreenData } from "@/server/services/admin-matches";
 
 type AdminMatchesPageProps = {
   searchParams: Promise<{
@@ -17,14 +18,18 @@ export default async function AdminMatchesPage({
   searchParams,
 }: AdminMatchesPageProps) {
   const user = await requireAdminSectionAccess("matches");
+  const data = await getAdminMatchesScreenData(user);
   const resolvedSearchParams = await searchParams;
-  void user;
   const initialUiState = getSingleValue(resolvedSearchParams.ui) === "error" ? "error" : "ready";
 
   return (
     <AdminMatchesWorkspace
-      key={`${OWNER_ADMIN_ROLE}-${initialUiState}-${getSingleValue(resolvedSearchParams.team) ?? "all"}`}
-      role={OWNER_ADMIN_ROLE}
+      key={`${user.idString}-${initialUiState}-${getSingleValue(resolvedSearchParams.team) ?? "all"}`}
+      role={toAdminRole(user.role)}
+      initialMatches={data.matches}
+      initialTeams={data.teams}
+      initialOpponentOptions={data.opponentOptions}
+      initialVenueOptions={data.venueOptions}
       initialUiState={initialUiState}
       initialSelectedTeamSlug={getSingleValue(resolvedSearchParams.team)}
     />

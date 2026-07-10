@@ -3,9 +3,15 @@ import { notFound } from "next/navigation";
 import { MatchDetailPage } from "@/components/public/match-detail-page";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import {
+  getFirstTeamMatchDetailFromDb,
+  getFirstTeamMatchDetailIdsFromDb,
+} from "@/server/services/public/match-detail";
+import {
   getFirstTeamMatchDetail,
   getFirstTeamMatchDetailIds,
 } from "@/lib/public/first-team-match-detail-content";
+
+export const revalidate = 300;
 
 type FirstTeamMatchDetailPageProps = {
   params: Promise<{
@@ -13,8 +19,11 @@ type FirstTeamMatchDetailPageProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return getFirstTeamMatchDetailIds().map((matchId) => ({
+export async function generateStaticParams() {
+  const mockIds = getFirstTeamMatchDetailIds();
+  const dbIds = await getFirstTeamMatchDetailIdsFromDb();
+
+  return Array.from(new Set([...dbIds, ...mockIds])).map((matchId) => ({
     matchId,
   }));
 }
@@ -23,7 +32,8 @@ export async function generateMetadata({
   params,
 }: FirstTeamMatchDetailPageProps): Promise<Metadata> {
   const { matchId } = await params;
-  const detail = getFirstTeamMatchDetail(matchId);
+  const detail =
+    (await getFirstTeamMatchDetailFromDb(matchId)) ?? getFirstTeamMatchDetail(matchId);
 
   if (!detail) {
     return {
@@ -41,14 +51,21 @@ export default async function FirstTeamMatchDetailRoute({
   params,
 }: FirstTeamMatchDetailPageProps) {
   const { matchId } = await params;
-  const detail = getFirstTeamMatchDetail(matchId);
+  const dbDetail = await getFirstTeamMatchDetailFromDb(matchId);
+  const detail = dbDetail ?? getFirstTeamMatchDetail(matchId);
 
   if (!detail) {
     notFound();
   }
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo">
+    <PublicSiteLayout
+      activeNav="primer-equipo"
+      debugDataSource={{
+        source: dbDetail ? "db" : "mock",
+        note: `primer-equipo/${matchId}`,
+      }}
+    >
       <MatchDetailPage
         detail={detail}
         backHref="/primer-equipo/calendario"

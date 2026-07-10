@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   Check,
@@ -10,6 +9,7 @@ import {
   EyeOff,
   Plus,
   Search,
+  ShieldCheck,
   Star,
   UsersRound,
 } from "lucide-react";
@@ -19,33 +19,16 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import {
-  adminPlayerPositionOptions,
-  adminMockPlayers,
-  adminMockSeasons,
-  adminMockTeams,
-  type AdminPlayer,
-} from "@/lib/admin/mock-data";
+  createAssignmentAction,
+  saveAssignmentAction,
+} from "@/app/admin/(panel)/asignaciones/actions";
+import type {
+  AdminAssignmentPlayerOption,
+  AdminAssignmentTeam,
+  AdminManagedAssignment,
+} from "@/lib/admin/assignment-management";
+import { adminPlayerPositionOptions } from "@/lib/admin/mock-data";
 import { cn } from "@/lib/utils";
-
-type AssignmentSource = "imported" | "manual";
-
-type RosterAssignment = {
-  id: string;
-  playerId: string;
-  teamSlug: string;
-  seasonId: string;
-  publicName: string;
-  shirtNumber: number;
-  publicPosition: AdminPlayer["position"];
-  displayOrder: number;
-  captain: boolean;
-  visible: boolean;
-  active: boolean;
-  source: AssignmentSource;
-  hasPhoto: boolean;
-  joinedLabel: string;
-  leftLabel?: string;
-};
 
 type AssignmentIssue = {
   id: string;
@@ -54,7 +37,29 @@ type AssignmentIssue = {
   tone: "gold" | "danger" | "slate";
 };
 
-function getPositionLabel(position: AdminPlayer["position"]) {
+type CreateMode = "existing" | "new";
+
+type CreateDraft = {
+  mode: CreateMode;
+  playerId: string;
+  publicName: string;
+  keepCurrentTeamsActive: boolean;
+  shirtNumber: number;
+  publicPosition: (typeof adminPlayerPositionOptions)[number]["value"];
+  captain: boolean;
+  joinedAt: string;
+};
+
+type AdminAssignmentsWorkspaceProps = {
+  activeSeasonLabel?: string;
+  initialTeams: AdminAssignmentTeam[];
+  initialAssignments: AdminManagedAssignment[];
+  initialPlayerOptions: AdminAssignmentPlayerOption[];
+  initialSelectedTeamSlug?: string;
+  initialSelectedAssignmentId?: string;
+};
+
+function getPositionLabel(position: AdminManagedAssignment["publicPosition"]) {
   return (
     adminPlayerPositionOptions.find((option) => option.value === position)?.label ??
     position
@@ -72,45 +77,20 @@ function labelClassName() {
   return "rr-kicker text-[0.7rem] text-[color:var(--rr-muted)]";
 }
 
-function createAssignments(): RosterAssignment[] {
-  return adminMockPlayers.map((player, index) => ({
-    id: `assignment-${player.id}`,
-    playerId: player.id,
-    teamSlug: player.teamSlug,
-    seasonId: adminMockSeasons[0].id,
-    publicName: player.name,
-    shirtNumber: player.number,
-    publicPosition: player.position,
-    displayOrder: index + 1,
-    captain: player.id === "player-2" || player.id === "player-7",
-    visible: player.id !== "player-10",
-    active: player.id !== "player-10",
-    source: index % 5 === 0 ? "manual" : "imported",
-    hasPhoto: index < 4,
-    joinedLabel: "Sep 2026",
-    leftLabel: player.id === "player-10" ? "Pendiente" : undefined,
-  }));
+function formatDateLabel(date: string) {
+  if (!date) {
+    return "Sin fecha";
+  }
+
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00.000Z`));
 }
 
-function sortAssignments(assignments: RosterAssignment[]) {
-  return [...assignments].sort((left, right) => {
-    if (left.active !== right.active) {
-      return left.active ? -1 : 1;
-    }
-
-    if (left.shirtNumber !== right.shirtNumber) {
-      return left.shirtNumber - right.shirtNumber;
-    }
-
-    return left.publicName.localeCompare(right.publicName);
-  });
-}
-
-function getTeamBySlug(teamSlug: string) {
-  return adminMockTeams.find((team) => team.slug === teamSlug) ?? adminMockTeams[0];
-}
-
-function getSuggestedShirtNumber(assignments: RosterAssignment[]) {
+function getSuggestedShirtNumber(assignments: AdminManagedAssignment[]) {
   const highestNumber = assignments.reduce(
     (currentHighest, assignment) => Math.max(currentHighest, assignment.shirtNumber),
     0,
@@ -119,10 +99,23 @@ function getSuggestedShirtNumber(assignments: RosterAssignment[]) {
   return highestNumber + 1;
 }
 
-function getAssignmentIssues(assignments: RosterAssignment[]): AssignmentIssue[] {
+function buildCreateDraft(assignments: AdminManagedAssignment[]): CreateDraft {
+  return {
+    mode: "existing",
+    playerId: "",
+    publicName: "",
+    keepCurrentTeamsActive: false,
+    shirtNumber: getSuggestedShirtNumber(assignments),
+    publicPosition: "BAN",
+    captain: false,
+    joinedAt: "",
+  };
+}
+
+function getAssignmentIssues(assignments: AdminManagedAssignment[]): AssignmentIssue[] {
   const issues: AssignmentIssue[] = [];
   const activeAssignments = assignments.filter((assignment) => assignment.active);
-  const numberCounts = new Map<number, RosterAssignment[]>();
+  const numberCounts = new Map<number, AdminManagedAssignment[]>();
 
   activeAssignments.forEach((assignment) => {
     const current = numberCounts.get(assignment.shirtNumber) ?? [];
@@ -158,7 +151,7 @@ function getAssignmentIssues(assignments: RosterAssignment[]): AssignmentIssue[]
       issues.push({
         id: `hidden-${assignment.id}`,
         title: "Jugador oculto",
-        detail: `${assignment.publicName} no saldra en plantilla publica.`,
+        detail: `${assignment.publicName} no saldra en la plantilla publica.`,
         tone: "slate",
       });
     });
@@ -166,103 +159,212 @@ function getAssignmentIssues(assignments: RosterAssignment[]): AssignmentIssue[]
   return issues;
 }
 
-type AdminAssignmentsWorkspaceInnerProps = {
-  initialTeamSlug: string;
-};
+function buildPlayerOptionLabel(player: AdminAssignmentPlayerOption) {
+  const suffix = player.currentTeamName
+    ? ` - ${player.currentTeamName}`
+    : " - Sin equipo activo";
+  return `${player.publicName}${suffix}`;
+}
 
-function AdminAssignmentsWorkspaceInner({
-  initialTeamSlug,
-}: AdminAssignmentsWorkspaceInnerProps) {
-  const [assignments, setAssignments] = useState<RosterAssignment[]>(() =>
-    createAssignments(),
+export function AdminAssignmentsWorkspace({
+  activeSeasonLabel,
+  initialTeams,
+  initialAssignments,
+  initialPlayerOptions,
+  initialSelectedTeamSlug,
+  initialSelectedAssignmentId,
+}: AdminAssignmentsWorkspaceProps) {
+  const [teams, setTeams] = useState(initialTeams);
+  const [assignments, setAssignments] = useState(initialAssignments);
+  const [playerOptions, setPlayerOptions] = useState(initialPlayerOptions);
+  const [selectedTeamSlug, setSelectedTeamSlug] = useState(
+    initialSelectedTeamSlug ?? initialTeams[0]?.slug ?? "",
   );
-  const [selectedTeamSlug, setSelectedTeamSlug] = useState(initialTeamSlug);
-  const [selectedSeasonId, setSelectedSeasonId] = useState(adminMockSeasons[0].id);
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState(
+    initialSelectedAssignmentId ?? "",
+  );
   const [search, setSearch] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [isPersisting, setIsPersisting] = useState(false);
+  const [isCreating, setIsCreating] = useState(
+    initialAssignments.filter(
+      (assignment) => assignment.teamSlug === (initialSelectedTeamSlug ?? initialTeams[0]?.slug),
+    ).length === 0,
+  );
+  const [createDraft, setCreateDraft] = useState<CreateDraft>(() =>
+    buildCreateDraft(
+      initialAssignments.filter(
+        (assignment) => assignment.teamSlug === (initialSelectedTeamSlug ?? initialTeams[0]?.slug),
+      ),
+    ),
+  );
+  const deferredSearch = useDeferredValue(search.trim().toLowerCase());
 
-  const currentTeam = getTeamBySlug(selectedTeamSlug);
+  useEffect(() => {
+    if (!feedback) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setFeedback(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  const currentTeam =
+    teams.find((team) => team.slug === selectedTeamSlug) ?? teams[0] ?? null;
   const teamAssignments = useMemo(
     () =>
-      sortAssignments(
-        assignments.filter(
-          (assignment) =>
-            assignment.teamSlug === selectedTeamSlug &&
-            assignment.seasonId === selectedSeasonId,
-        ),
-      ),
-    [assignments, selectedSeasonId, selectedTeamSlug],
+      assignments
+        .filter((assignment) => assignment.teamSlug === selectedTeamSlug)
+        .sort((left, right) => {
+          if (left.active !== right.active) {
+            return left.active ? -1 : 1;
+          }
+
+          if (left.shirtNumber !== right.shirtNumber) {
+            return left.shirtNumber - right.shirtNumber;
+          }
+
+          return left.publicName.localeCompare(right.publicName, "es");
+        }),
+    [assignments, selectedTeamSlug],
   );
   const filteredAssignments = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
-
-    if (!normalizedSearch) {
+    if (!deferredSearch) {
       return teamAssignments;
     }
 
     return teamAssignments.filter((assignment) =>
-      assignment.publicName.toLowerCase().includes(normalizedSearch),
+      assignment.publicName.toLowerCase().includes(deferredSearch),
     );
-  }, [search, teamAssignments]);
-  const selectedAssignment =
-    teamAssignments.find((assignment) => assignment.id === selectedAssignmentId) ??
-    teamAssignments[0];
+  }, [deferredSearch, teamAssignments]);
+  const selectedAssignment = isCreating
+    ? undefined
+    : teamAssignments.find((assignment) => assignment.id === selectedAssignmentId) ??
+      filteredAssignments[0] ??
+      teamAssignments[0];
   const issues = getAssignmentIssues(teamAssignments);
   const activeCount = teamAssignments.filter((assignment) => assignment.active).length;
   const visibleCount = teamAssignments.filter(
     (assignment) => assignment.active && assignment.visible,
   ).length;
-  const hasLinkedPublicProfile = adminMockPlayers.some(
-    (player) => player.id === selectedAssignment?.playerId,
+  const selectedPlayer = selectedAssignment
+    ? playerOptions.find((player) => player.id === selectedAssignment.playerId)
+    : undefined;
+  const creationCandidates = playerOptions.filter(
+    (player) =>
+      !player.currentTeamSlugs.includes(selectedTeamSlug) &&
+      player.currentTeamSlugs.length < 2,
   );
 
-  function updateAssignment(
-    assignmentId: string,
-    updater: (assignment: RosterAssignment) => RosterAssignment,
+  function applyServerData(nextData: {
+    teams: AdminAssignmentTeam[];
+    assignments: AdminManagedAssignment[];
+    playerOptions: AdminAssignmentPlayerOption[];
+  }) {
+    setTeams(nextData.teams);
+    setAssignments(nextData.assignments);
+    setPlayerOptions(nextData.playerOptions);
+  }
+
+  function updateSelectedAssignment(
+    updater: (assignment: AdminManagedAssignment) => AdminManagedAssignment,
   ) {
+    if (!selectedAssignment) {
+      return;
+    }
+
     setAssignments((currentAssignments) =>
       currentAssignments.map((assignment) =>
-        assignment.id === assignmentId ? updater(assignment) : assignment,
+        assignment.id === selectedAssignment.id ? updater(assignment) : assignment,
       ),
     );
   }
 
-  function handleCreatePlayer() {
-    const newAssignmentId = `assignment-${Date.now()}`;
-    const nextAssignment: RosterAssignment = {
-      id: newAssignmentId,
-      playerId: `player-${Date.now()}`,
-      teamSlug: selectedTeamSlug,
-      seasonId: selectedSeasonId,
-      publicName: "Nuevo jugador",
-      shirtNumber: getSuggestedShirtNumber(teamAssignments),
-      publicPosition: "BAN",
-      displayOrder: teamAssignments.length + 1,
-      captain: false,
-      visible: true,
-      active: true,
-      source: "manual",
-      hasPhoto: false,
-      joinedLabel: "Ahora",
-    };
-
-    setAssignments((currentAssignments) => [...currentAssignments, nextAssignment]);
-    setSelectedAssignmentId(newAssignmentId);
-    setFeedback("Jugador anadido a la plantilla. Guardado local de prueba.");
-    window.setTimeout(() => setFeedback(null), 2400);
+  function resetCreateDraft(nextAssignments = teamAssignments) {
+    setCreateDraft(buildCreateDraft(nextAssignments));
   }
 
-  function handleSave() {
-    setFeedback("Plantilla actualizada. Guardado local de prueba.");
-    window.setTimeout(() => setFeedback(null), 2400);
+  function handleTeamChange(nextTeamSlug: string) {
+    const nextAssignments = assignments.filter(
+      (assignment) => assignment.teamSlug === nextTeamSlug,
+    );
+
+    setSelectedTeamSlug(nextTeamSlug);
+    setSelectedAssignmentId(nextAssignments[0]?.id ?? "");
+    setIsCreating(nextAssignments.length === 0);
+    setSearch("");
+    setCreateDraft(buildCreateDraft(nextAssignments));
   }
 
-  if (!selectedAssignment) {
+  async function handleSaveAssignment() {
+    if (!selectedAssignment) {
+      return;
+    }
+
+    setIsPersisting(true);
+    const result = await saveAssignmentAction({
+      assignmentId: selectedAssignment.id,
+      shirtNumber: selectedAssignment.shirtNumber,
+      publicPosition: selectedAssignment.publicPosition,
+      captain: selectedAssignment.captain,
+      active: selectedAssignment.active,
+      joinedAt: selectedAssignment.joinedAt,
+      leftAt: selectedAssignment.leftAt,
+    });
+    setIsPersisting(false);
+
+    if (!result.ok) {
+      setFeedback(result.message);
+      return;
+    }
+
+    applyServerData(result.data);
+    setSelectedTeamSlug(result.selectedTeamSlug ?? selectedAssignment.teamSlug);
+    setSelectedAssignmentId(result.selectedAssignmentId ?? selectedAssignment.id);
+    setIsCreating(false);
+    setFeedback(result.message);
+  }
+
+  async function handleCreateAssignment() {
+    if (!currentTeam) {
+      return;
+    }
+
+    setIsPersisting(true);
+    const result = await createAssignmentAction({
+      teamSlug: currentTeam.slug,
+      mode: createDraft.mode,
+      playerId: createDraft.playerId,
+      publicName: createDraft.publicName,
+      keepCurrentTeamsActive: createDraft.keepCurrentTeamsActive,
+      shirtNumber: createDraft.shirtNumber,
+      publicPosition: createDraft.publicPosition,
+      captain: createDraft.captain,
+      joinedAt: createDraft.joinedAt,
+    });
+    setIsPersisting(false);
+
+    if (!result.ok) {
+      setFeedback(result.message);
+      return;
+    }
+
+    applyServerData(result.data);
+    const nextAssignments = result.data.assignments.filter(
+      (assignment) => assignment.teamSlug === (result.selectedTeamSlug ?? currentTeam.slug),
+    );
+    setSelectedTeamSlug(result.selectedTeamSlug ?? currentTeam.slug);
+    setSelectedAssignmentId(result.selectedAssignmentId ?? nextAssignments[0]?.id ?? "");
+    setIsCreating(false);
+    setCreateDraft(buildCreateDraft(nextAssignments));
+    setFeedback(result.message);
+  }
+
+  if (!currentTeam) {
     return (
       <AdminEmptyState
-        title="Sin jugadores en plantilla"
-        description="Selecciona otro equipo o temporada para revisar la plantilla."
+        title="Sin equipos activos"
+        description="Necesitas al menos un equipo en la temporada activa para gestionar la plantilla."
       />
     );
   }
@@ -272,12 +374,15 @@ function AdminAssignmentsWorkspaceInner({
       <AdminPageHeader
         eyebrow="Plantilla"
         title="Plantilla por equipo"
-        description="Da de alta jugadores y ajusta dorsal, posicion publica y visibilidad sin tocar el historico."
+        description="Aqui se gestiona la asignacion deportiva: altas, dorsal, posicion publica y cierre de etapa sin tocar la ficha final del jugador."
         actions={
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={handleCreatePlayer}
+              onClick={() => {
+                setIsCreating(true);
+                resetCreateDraft();
+              }}
               className="rr-button rr-button-secondary text-[0.84rem]"
             >
               <Plus className="h-4 w-4" />
@@ -285,8 +390,9 @@ function AdminAssignmentsWorkspaceInner({
             </button>
             <button
               type="button"
-              onClick={handleSave}
-              className="rr-button rr-button-primary text-[0.84rem]"
+              onClick={handleSaveAssignment}
+              disabled={!selectedAssignment || isCreating || isPersisting}
+              className="rr-button rr-button-primary text-[0.84rem] disabled:cursor-not-allowed disabled:opacity-45"
             >
               Guardar plantilla
             </button>
@@ -314,37 +420,23 @@ function AdminAssignmentsWorkspaceInner({
                 <span className={labelClassName()}>Equipo</span>
                 <select
                   value={selectedTeamSlug}
-                  onChange={(event) => {
-                    setSelectedTeamSlug(event.target.value);
-                    setSelectedAssignmentId("");
-                  }}
+                  onChange={(event) => handleTeamChange(event.target.value)}
                   className={inputClassName()}
                 >
-                  {adminMockTeams.map((team) => (
-                    <option key={team.slug} value={team.slug}>
+                  {teams.map((team) => (
+                    <option key={team.id} value={team.slug}>
                       {team.name}
                     </option>
                   ))}
                 </select>
               </label>
 
-              <label className="grid gap-2">
-                <span className={labelClassName()}>Temporada</span>
-                <select
-                  value={selectedSeasonId}
-                  onChange={(event) => {
-                    setSelectedSeasonId(event.target.value);
-                    setSelectedAssignmentId("");
-                  }}
-                  className={inputClassName()}
-                >
-                  {adminMockSeasons.map((season) => (
-                    <option key={season.id} value={season.id}>
-                      {season.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="grid gap-2">
+                <span className={labelClassName()}>Temporada activa</span>
+                <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                  {activeSeasonLabel ?? currentTeam.season}
+                </div>
+              </div>
             </div>
           </AdminPanel>
 
@@ -369,9 +461,15 @@ function AdminAssignmentsWorkspaceInner({
                 </label>
               </div>
 
+              {teamAssignments.length === 0 ? (
+                <div className="rounded-[12px] border border-dashed border-white/14 bg-white/3 px-5 py-5 text-[0.92rem] text-[color:var(--rr-muted)]">
+                  Este equipo todavia no tiene jugadores asignados en la temporada activa.
+                </div>
+              ) : null}
+
               <div className="grid gap-2">
                 {filteredAssignments.map((assignment) => {
-                  const active = assignment.id === selectedAssignment.id;
+                  const active = !isCreating && assignment.id === selectedAssignment?.id;
 
                   return (
                     <div
@@ -385,7 +483,10 @@ function AdminAssignmentsWorkspaceInner({
                     >
                       <button
                         type="button"
-                        onClick={() => setSelectedAssignmentId(assignment.id)}
+                        onClick={() => {
+                          setSelectedAssignmentId(assignment.id);
+                          setIsCreating(false);
+                        }}
                         className="min-w-0 text-left"
                       >
                         <div className="flex flex-wrap items-center gap-2">
@@ -397,7 +498,10 @@ function AdminAssignmentsWorkspaceInner({
                           ) : null}
                         </div>
                         <p className="mt-1 text-[0.86rem] text-[color:var(--rr-muted)]">
-                          {getPositionLabel(assignment.publicPosition)} - {assignment.joinedLabel}
+                          {getPositionLabel(assignment.publicPosition)} -{" "}
+                          {assignment.active
+                            ? assignment.joinedLabel
+                            : assignment.leftLabel ?? "Etapa cerrada"}
                         </p>
                       </button>
 
@@ -424,134 +528,378 @@ function AdminAssignmentsWorkspaceInner({
 
         <div className="space-y-4 xl:sticky xl:top-[7.5rem] xl:self-start">
           <AdminPanel className="p-5">
-            <div className="space-y-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="rr-kicker text-[color:var(--rr-gold)]">Jugador en plantilla</p>
-                  <h2 className="mt-1 text-[1.18rem] font-semibold text-white">
-                    {selectedAssignment.publicName}
-                  </h2>
-                  <p className="mt-1 text-[0.86rem] text-[color:var(--rr-muted)]">
-                    {selectedAssignment.source === "manual" ? "Alta manual" : "Snapshot importado"}
-                  </p>
-                </div>
-                <UsersRound className="h-5 w-5 text-[color:var(--rr-gold)]" />
-              </div>
-
-              <div className="grid gap-3">
-                <label className="grid gap-2">
-                  <span className={labelClassName()}>Nombre publico en plantilla</span>
-                  <input
-                    value={selectedAssignment.publicName}
-                    onChange={(event) =>
-                      updateAssignment(selectedAssignment.id, (assignment) => ({
-                        ...assignment,
-                        publicName: event.target.value,
-                      }))
-                    }
-                    className={inputClassName()}
-                  />
-                </label>
-
-                {hasLinkedPublicProfile ? (
-                  <Link
-                    href={`/admin/jugadores?team=${selectedTeamSlug}&player=${selectedAssignment.playerId}`}
-                    className="rr-button rr-button-secondary min-h-11 justify-center text-[0.84rem]"
-                  >
-                    Abrir ficha publica
-                  </Link>
-                ) : (
-                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.84rem] text-[color:var(--rr-muted)]">
-                    La ficha publica aparecera aqui cuando el jugador exista en el catalogo general.
+            {isCreating ? (
+              <div className="space-y-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="rr-kicker text-[color:var(--rr-gold)]">Alta en plantilla</p>
+                    <h2 className="mt-1 text-[1.18rem] font-semibold text-white">
+                      Nuevo jugador o movimiento
+                    </h2>
+                    <p className="mt-1 text-[0.86rem] text-[color:var(--rr-muted)]">
+                      La ficha publica se completa despues en Fichas y cromos.
+                    </p>
                   </div>
-                )}
+                  <Plus className="h-5 w-5 text-[color:var(--rr-gold)]" />
+                </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 rounded-[12px] border border-white/10 bg-white/4 p-1">
+                  {(["existing", "new"] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() =>
+                        setCreateDraft((currentDraft) => ({
+                          ...currentDraft,
+                          mode,
+                          playerId: "",
+                          publicName: "",
+                          keepCurrentTeamsActive: false,
+                        }))
+                      }
+                      className={cn(
+                        "min-h-10 rounded-[9px] px-2 text-[0.8rem] font-medium transition",
+                        createDraft.mode === mode
+                          ? "bg-[rgba(253,203,88,0.14)] text-[color:var(--rr-gold)]"
+                          : "text-[color:var(--rr-muted)]",
+                      )}
+                    >
+                      {mode === "existing" ? "Jugador existente" : "Crear nuevo"}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid gap-3">
+                  {createDraft.mode === "existing" ? (
+                    <label className="grid gap-2">
+                      <span className={labelClassName()}>Jugador</span>
+                      <select
+                        value={createDraft.playerId}
+                        onChange={(event) =>
+                          setCreateDraft((currentDraft) => ({
+                            ...currentDraft,
+                            playerId: event.target.value,
+                          }))
+                        }
+                        className={inputClassName()}
+                      >
+                        <option value="">Selecciona un jugador</option>
+                        {creationCandidates.map((player) => (
+                          <option key={player.id} value={player.id}>
+                            {buildPlayerOptionLabel(player)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : (
+                    <label className="grid gap-2">
+                      <span className={labelClassName()}>Nombre publico</span>
+                      <input
+                        value={createDraft.publicName}
+                        onChange={(event) =>
+                          setCreateDraft((currentDraft) => ({
+                            ...currentDraft,
+                            publicName: event.target.value,
+                          }))
+                        }
+                        className={inputClassName()}
+                        placeholder="Nombre del jugador"
+                      />
+                    </label>
+                  )}
+
+                  {createDraft.mode === "existing" && createDraft.playerId ? (
+                    (() => {
+                      const selectedCandidate = playerOptions.find(
+                        (player) => player.id === createDraft.playerId,
+                      );
+
+                      if (!selectedCandidate || selectedCandidate.currentTeamSlugs.length === 0) {
+                        return null;
+                      }
+
+                      return (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCreateDraft((currentDraft) => ({
+                              ...currentDraft,
+                              keepCurrentTeamsActive: !currentDraft.keepCurrentTeamsActive,
+                            }))
+                          }
+                          className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                        >
+                          Mantener tambien su equipo actual
+                          {createDraft.keepCurrentTeamsActive ? (
+                            <Check className="h-4 w-4 text-[color:var(--rr-gold)]" />
+                          ) : (
+                            <span className="h-4 w-4 rounded-full border border-white/20" />
+                          )}
+                        </button>
+                      );
+                    })()
+                  ) : null}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="grid gap-2">
+                      <span className={labelClassName()}>Dorsal</span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={99}
+                        value={createDraft.shirtNumber}
+                        onChange={(event) =>
+                          setCreateDraft((currentDraft) => ({
+                            ...currentDraft,
+                            shirtNumber: Math.max(0, Number(event.target.value)),
+                          }))
+                        }
+                        className={inputClassName()}
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className={labelClassName()}>Posicion publica</span>
+                      <select
+                        value={createDraft.publicPosition}
+                        onChange={(event) =>
+                          setCreateDraft((currentDraft) => ({
+                            ...currentDraft,
+                            publicPosition: event.target.value as CreateDraft["publicPosition"],
+                          }))
+                        }
+                        className={inputClassName()}
+                      >
+                        {adminPlayerPositionOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
                   <label className="grid gap-2">
-                    <span className={labelClassName()}>Dorsal</span>
+                    <span className={labelClassName()}>Fecha de alta</span>
                     <input
-                      type="number"
-                      min={0}
-                      value={selectedAssignment.shirtNumber}
+                      type="date"
+                      value={createDraft.joinedAt}
                       onChange={(event) =>
-                        updateAssignment(selectedAssignment.id, (assignment) => ({
-                          ...assignment,
-                          shirtNumber: Math.max(0, Number(event.target.value)),
+                        setCreateDraft((currentDraft) => ({
+                          ...currentDraft,
+                          joinedAt: event.target.value,
                         }))
                       }
                       className={inputClassName()}
                     />
                   </label>
+                </div>
 
-                  <label className="grid gap-2">
-                    <span className={labelClassName()}>Posicion publica</span>
-                    <select
-                      value={selectedAssignment.publicPosition}
-                      onChange={(event) =>
-                        updateAssignment(selectedAssignment.id, (assignment) => ({
-                          ...assignment,
-                          publicPosition: event.target.value as AdminPlayer["position"],
-                        }))
-                      }
-                      className={inputClassName()}
-                    >
-                      {adminPlayerPositionOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCreateDraft((currentDraft) => ({
+                      ...currentDraft,
+                      captain: !currentDraft.captain,
+                    }))
+                  }
+                  className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                >
+                  Capitan
+                  {createDraft.captain ? (
+                    <Check className="h-4 w-4 text-[color:var(--rr-gold)]" />
+                  ) : (
+                    <span className="h-4 w-4 rounded-full border border-white/20" />
+                  )}
+                </button>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={handleCreateAssignment}
+                    disabled={isPersisting}
+                    className="rr-button rr-button-primary text-[0.84rem]"
+                  >
+                    Guardar alta
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCreating(false);
+                      resetCreateDraft();
+                    }}
+                    disabled={isPersisting}
+                    className="rr-button rr-button-secondary text-[0.84rem]"
+                  >
+                    Cancelar
+                  </button>
                 </div>
               </div>
+            ) : selectedAssignment ? (
+              <div className="space-y-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="rr-kicker text-[color:var(--rr-gold)]">Jugador en plantilla</p>
+                    <h2 className="mt-1 text-[1.18rem] font-semibold text-white">
+                      {selectedAssignment.publicName}
+                    </h2>
+                    <p className="mt-1 text-[0.86rem] text-[color:var(--rr-muted)]">
+                      {selectedAssignment.source === "manual"
+                        ? "Alta manual"
+                        : "Snapshot importado"}
+                    </p>
+                  </div>
+                  <UsersRound className="h-5 w-5 text-[color:var(--rr-gold)]" />
+                </div>
 
-              <div className="grid gap-2">
-                {[
-                  {
-                    label: "Capitan",
-                    active: selectedAssignment.captain,
-                    onClick: () =>
-                      updateAssignment(selectedAssignment.id, (assignment) => ({
-                        ...assignment,
-                        captain: !assignment.captain,
-                      })),
-                  },
-                  {
-                    label: "Visible en plantilla",
-                    active: selectedAssignment.visible,
-                    onClick: () =>
-                      updateAssignment(selectedAssignment.id, (assignment) => ({
-                        ...assignment,
-                        visible: !assignment.visible,
-                      })),
-                  },
-                  {
-                    label: "Asignacion activa",
-                    active: selectedAssignment.active,
-                    onClick: () =>
-                      updateAssignment(selectedAssignment.id, (assignment) => ({
-                        ...assignment,
-                        active: !assignment.active,
-                        leftLabel: assignment.active ? "Pendiente" : undefined,
-                      })),
-                  },
-                ].map((control) => (
-                  <button
-                    key={control.label}
-                    type="button"
-                    onClick={control.onClick}
-                    className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
-                  >
-                    {control.label}
-                    {control.active ? (
-                      <Check className="h-4 w-4 text-[color:var(--rr-gold)]" />
-                    ) : (
-                      <span className="h-4 w-4 rounded-full border border-white/20" />
-                    )}
-                  </button>
-                ))}
+                <div className="grid gap-3">
+                  <div className="grid gap-2">
+                    <span className={labelClassName()}>Ficha publica</span>
+                    <Link
+                      href={`/admin/jugadores?team=${selectedAssignment.teamSlug}&player=${selectedAssignment.playerId}`}
+                      className="rr-button rr-button-secondary min-h-11 justify-center text-[0.84rem]"
+                    >
+                      Abrir ficha publica
+                    </Link>
+                  </div>
+
+                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.86rem] text-[color:var(--rr-muted)]">
+                    {selectedPlayer?.visible ? "Visible" : "Oculto"} en web ·{" "}
+                    {selectedPlayer?.hasPhoto ? "Con foto base" : "Sin foto base"}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="grid gap-2">
+                      <span className={labelClassName()}>Dorsal</span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={99}
+                        value={selectedAssignment.shirtNumber}
+                        onChange={(event) =>
+                          updateSelectedAssignment((assignment) => ({
+                            ...assignment,
+                            shirtNumber: Math.max(0, Number(event.target.value)),
+                          }))
+                        }
+                        className={inputClassName()}
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className={labelClassName()}>Posicion publica</span>
+                      <select
+                        value={selectedAssignment.publicPosition}
+                        onChange={(event) =>
+                          updateSelectedAssignment((assignment) => ({
+                            ...assignment,
+                            publicPosition: event.target.value as AdminManagedAssignment["publicPosition"],
+                          }))
+                        }
+                        className={inputClassName()}
+                      >
+                        {adminPlayerPositionOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="grid gap-2">
+                      <span className={labelClassName()}>Fecha de alta</span>
+                      <input
+                        type="date"
+                        value={selectedAssignment.joinedAt}
+                        onChange={(event) =>
+                          updateSelectedAssignment((assignment) => ({
+                            ...assignment,
+                            joinedAt: event.target.value,
+                            joinedLabel: event.target.value
+                              ? formatDateLabel(event.target.value)
+                              : "Alta pendiente",
+                          }))
+                        }
+                        className={inputClassName()}
+                      />
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className={labelClassName()}>Fecha de baja</span>
+                      <input
+                        type="date"
+                        value={selectedAssignment.leftAt}
+                        onChange={(event) =>
+                          updateSelectedAssignment((assignment) => ({
+                            ...assignment,
+                            leftAt: event.target.value,
+                            leftLabel: event.target.value
+                              ? formatDateLabel(event.target.value)
+                              : undefined,
+                          }))
+                        }
+                        className={inputClassName()}
+                        disabled={selectedAssignment.active}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="grid gap-2">
+                  {[
+                    {
+                      label: "Capitan",
+                      active: selectedAssignment.captain,
+                      onClick: () =>
+                        updateSelectedAssignment((assignment) => ({
+                          ...assignment,
+                          captain: !assignment.captain,
+                        })),
+                    },
+                    {
+                      label: "Asignacion activa",
+                      active: selectedAssignment.active,
+                      onClick: () =>
+                        updateSelectedAssignment((assignment) => ({
+                          ...assignment,
+                          active: !assignment.active,
+                          leftAt: assignment.active ? assignment.leftAt : "",
+                          leftLabel: assignment.active ? assignment.leftLabel : undefined,
+                        })),
+                    },
+                  ].map((control) => (
+                    <button
+                      key={control.label}
+                      type="button"
+                      onClick={control.onClick}
+                      className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                    >
+                      {control.label}
+                      {control.active ? (
+                        <Check className="h-4 w-4 text-[color:var(--rr-gold)]" />
+                      ) : (
+                        <span className="h-4 w-4 rounded-full border border-white/20" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {!selectedAssignment.active ? (
+                  <div className="rounded-[10px] border border-[rgba(253,203,88,0.22)] bg-[rgba(253,203,88,0.08)] px-4 py-3 text-[0.86rem] text-[color:var(--rr-muted)]">
+                    Esta asignacion queda en historico. Si la reactivas, el sistema mantendra como maximo dos equipos activos para ese jugador en la temporada.
+                  </div>
+                ) : null}
               </div>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="rr-kicker text-[color:var(--rr-gold)]">Sin seleccion</p>
+                <p className="text-[0.92rem] text-[color:var(--rr-muted)]">
+                  Elige un jugador de la izquierda o crea un alta nueva para este equipo.
+                </p>
+              </div>
+            )}
           </AdminPanel>
 
           <AdminPanel className="p-5">
@@ -590,25 +938,31 @@ function AdminAssignmentsWorkspaceInner({
               </div>
             </div>
           </AdminPanel>
+
+          <AdminPanel className="p-5">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="rr-kicker text-[color:var(--rr-gold)]">Reglas del flujo</p>
+                  <h2 className="mt-1 text-[1.12rem] font-semibold text-white">
+                    Separacion sana
+                  </h2>
+                </div>
+                <ShieldCheck className="h-5 w-5 text-[color:var(--rr-gold)]" />
+              </div>
+
+              <div className="grid gap-2 text-[0.86rem] text-[color:var(--rr-muted)]">
+                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                  Aqui mandan dorsal, posicion, capitania y estado de la etapa.
+                </div>
+                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                  Nombre, slug, foto y visibilidad se rematan en Fichas y cromos.
+                </div>
+              </div>
+            </div>
+          </AdminPanel>
         </div>
       </div>
     </div>
   );
 }
-
-export function AdminAssignmentsWorkspace() {
-  const searchParams = useSearchParams();
-  const requestedTeamSlug = searchParams.get("team");
-  const initialTeamSlug =
-    requestedTeamSlug && adminMockTeams.some((team) => team.slug === requestedTeamSlug)
-      ? requestedTeamSlug
-      : "primer-equipo";
-
-  return (
-    <AdminAssignmentsWorkspaceInner
-      key={searchParams.toString()}
-      initialTeamSlug={initialTeamSlug}
-    />
-  );
-}
-

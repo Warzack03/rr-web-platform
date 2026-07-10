@@ -8,15 +8,24 @@ import {
   getFirstTeamPlayerHref,
   getFirstTeamSquadContent,
 } from "@/lib/public/first-team-squad-content";
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
+import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
 
 export const metadata: Metadata = {
   title: "Plantilla | Primer Equipo",
   description: "Plantilla publica del Primer Equipo de Rising Raimon.",
 };
 
-export default function FirstTeamSquadPage() {
-  const squad = getFirstTeamSquadContent();
+export const revalidate = 300;
+
+export default async function FirstTeamSquadPage() {
+  const dbSquad = await getPublicRosterContentFromDb("primer-equipo");
+  const squad = dbSquad ?? getFirstTeamSquadContent();
+  const dataSource: PublicDataSourceInfo = {
+    source: dbSquad ? "db" : "mock",
+    note: "primer-equipo",
+  };
   const fieldGroups = [
     {
       key: "defensas",
@@ -36,7 +45,7 @@ export default function FirstTeamSquadPage() {
   ];
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo">
+    <PublicSiteLayout activeNav="primer-equipo" debugDataSource={dataSource}>
       <div className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.12),transparent_56%)]" />
         <div className="absolute inset-x-0 top-28 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
@@ -55,7 +64,16 @@ export default function FirstTeamSquadPage() {
                 {squad.goalkeepers.map((player) => (
                   <PremiumPlayerCard
                     key={player.id}
-                    {...player}
+                    name={player.name}
+                    number={player.number}
+                    country={player.country}
+                    countryFlag={player.countryFlag}
+                    position={player.position}
+                    dominantFoot={player.dominantFoot}
+                    imageUrl={player.imageUrl}
+                    playerType={player.playerType}
+                    stats={player.stats}
+                    teamType="first-team"
                     href={getFirstTeamPlayerHref(player.slug)}
                     className="h-full"
                   />
@@ -78,7 +96,16 @@ export default function FirstTeamSquadPage() {
                         {group.players.map((player) => (
                           <PremiumPlayerCard
                             key={player.id}
-                            {...player}
+                            name={player.name}
+                            number={player.number}
+                            country={player.country}
+                            countryFlag={player.countryFlag}
+                            position={player.position}
+                            dominantFoot={player.dominantFoot}
+                            imageUrl={player.imageUrl}
+                            playerType={player.playerType}
+                            stats={player.stats}
+                            teamType="first-team"
                             href={getFirstTeamPlayerHref(player.slug)}
                             className="h-full"
                           />

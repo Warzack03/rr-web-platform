@@ -26,22 +26,29 @@ import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
 import { QuickResultDialog } from "@/components/admin/quick-result-dialog";
 import {
-  coachPreviewTeamSlugs,
+  saveMatchAction,
+  saveQuickResultAction,
+} from "@/app/admin/(panel)/partidos/actions";
+import {
   formatMatchDateLabel,
-  getAllMatchManagementMatches,
   getCoachMatchVisualStatus,
-  getCoachPreviewTeamOptions,
-  getMatchManagementTeamsForRole,
   getVisualMatchStatus,
   hasMatchResult,
   isPendingMatchStatus,
   sortMatchManagementMatches,
   type MatchManagementMatch,
+  type MatchManagementOpponent,
+  type MatchManagementTeam,
+  type MatchManagementVenue,
 } from "@/lib/admin/match-management-mocks";
 import type { AdminRole } from "@/lib/admin/roles";
 
 type AdminMatchesWorkspaceProps = {
   role: AdminRole;
+  initialMatches: MatchManagementMatch[];
+  initialTeams: MatchManagementTeam[];
+  initialOpponentOptions: MatchManagementOpponent[];
+  initialVenueOptions: MatchManagementVenue[];
   initialUiState?: "ready" | "error";
   initialSelectedTeamSlug?: string;
 };
@@ -52,16 +59,18 @@ type MatchDialogState =
   | { mode: "edit"; matchId: string }
   | null;
 
-const initialFilters: MatchFiltersValue = {
-  season: "all",
-  team: "all",
-  status: "all",
-  competition: "all",
-  date: "all",
-  search: "",
-};
-
 const pageSizeOptions = [10, 20, 50] as const;
+
+function buildInitialFilters(selectedTeamSlug?: string): MatchFiltersValue {
+  return {
+    season: "all",
+    team: selectedTeamSlug ?? "all",
+    status: "all",
+    competition: "all",
+    date: "all",
+    search: "",
+  };
+}
 
 function isThisMonth(dateValue: string) {
   if (!dateValue) {
@@ -71,10 +80,7 @@ function isThisMonth(dateValue: string) {
   const now = new Date();
   const date = new Date(`${dateValue}T12:00:00`);
 
-  return (
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth()
-  );
+  return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
 }
 
 function isWithinNextSevenDays(dateValue: string) {
@@ -107,13 +113,20 @@ function getCoachStatusBadge(match: MatchManagementMatch) {
 
 export function AdminMatchesWorkspace({
   role,
+  initialMatches,
+  initialTeams,
+  initialOpponentOptions,
+  initialVenueOptions,
   initialUiState = "ready",
   initialSelectedTeamSlug,
 }: AdminMatchesWorkspaceProps) {
-  const [allMatches, setAllMatches] = useState(() =>
-    sortMatchManagementMatches(getAllMatchManagementMatches()),
+  const [teams, setTeams] = useState(initialTeams);
+  const [allMatches, setAllMatches] = useState(() => sortMatchManagementMatches(initialMatches));
+  const [opponentOptions, setOpponentOptions] = useState(initialOpponentOptions);
+  const [venueOptions, setVenueOptions] = useState(initialVenueOptions);
+  const [filters, setFilters] = useState<MatchFiltersValue>(() =>
+    role === "COACH" ? buildInitialFilters() : buildInitialFilters(initialSelectedTeamSlug),
   );
-  const [filters, setFilters] = useState<MatchFiltersValue>(initialFilters);
   const [dialogState, setDialogState] = useState<MatchDialogState>(null);
   const [quickResultMatchId, setQuickResultMatchId] = useState<string | null>(null);
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
@@ -121,13 +134,15 @@ export function AdminMatchesWorkspace({
   const [screenState, setScreenState] = useState<ScreenState>("loading");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof pageSizeOptions)[number]>(10);
-  const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
-    coachPreviewTeamSlugs.includes(
-      initialSelectedTeamSlug as (typeof coachPreviewTeamSlugs)[number],
-    )
-      ? (initialSelectedTeamSlug as string)
-      : coachPreviewTeamSlugs[0],
-  );
+  const [coachTeamSlug, setCoachTeamSlug] = useState<string>(() => {
+    const allowedSlug =
+      initialSelectedTeamSlug && initialTeams.some((team) => team.slug === initialSelectedTeamSlug)
+        ? initialSelectedTeamSlug
+        : initialTeams[0]?.slug;
+
+    return allowedSlug ?? "";
+  });
+  const [isPersisting, setIsPersisting] = useState(false);
   const deferredSearch = useDeferredValue(filters.search.trim().toLowerCase());
 
   useEffect(() => {
@@ -147,20 +162,27 @@ export function AdminMatchesWorkspace({
     return () => window.clearTimeout(timer);
   }, [bannerMessage]);
 
-  const coachPreviewTeamOptions = getCoachPreviewTeamOptions();
-  const allowedTeams = getMatchManagementTeamsForRole(role, coachTeamSlug);
+  const coachTeamOptions = teams.map((team) => ({
+    slug: team.slug,
+    name: team.name,
+  }));
+  const allowedTeams =
+    role === "COACH" ? teams.filter((team) => team.slug === coachTeamSlug) : teams;
   const allowedTeamSlugs = new Set(allowedTeams.map((team) => team.slug));
   const scopedMatches = sortMatchManagementMatches(
     allMatches.filter((match) => allowedTeamSlugs.has(match.teamSlug)),
   );
-  const seasons = Array.from(new Set(scopedMatches.map((match) => match.season)));
+  const seasons = Array.from(
+    new Set([...allowedTeams.map((team) => team.season), ...scopedMatches.map((match) => match.season)]),
+  );
   const competitions = Array.from(
-    new Set(scopedMatches.map((match) => match.competition)),
+    new Set([
+      ...allowedTeams.map((team) => team.competition),
+      ...scopedMatches.map((match) => match.competition),
+    ]),
   );
   const filteredTeamContext =
-    filters.team !== "all"
-      ? allowedTeams.find((team) => team.slug === filters.team)
-      : undefined;
+    filters.team !== "all" ? allowedTeams.find((team) => team.slug === filters.team) : undefined;
   const allowLiveFilter =
     role !== "COACH" &&
     (filteredTeamContext
@@ -179,10 +201,7 @@ export function AdminMatchesWorkspace({
         return false;
       }
 
-      if (
-        filters.competition !== "all" &&
-        match.competition !== filters.competition
-      ) {
+      if (filters.competition !== "all" && match.competition !== filters.competition) {
         return false;
       }
 
@@ -242,22 +261,15 @@ export function AdminMatchesWorkspace({
       ? getCoachMatchVisualStatus(match) === "played"
       : match.status === "played",
   ).length;
-  const missingResultCount = filteredMatches.filter(
-    (match) => !hasMatchResult(match),
-  ).length;
+  const missingResultCount = filteredMatches.filter((match) => !hasMatchResult(match)).length;
   const liveMatchesCount =
-    role === "COACH"
-      ? 0
-      : filteredMatches.filter((match) => match.status === "live").length;
+    role === "COACH" ? 0 : filteredMatches.filter((match) => match.status === "live").length;
   const coachAssignedTeam = allowedTeams[0];
-  const coachFocusMatch =
-    role === "COACH" ? getCoachFocusMatch(visibleMatches) : undefined;
+  const coachFocusMatch = role === "COACH" ? getCoachFocusMatch(visibleMatches) : undefined;
   const selectedCoachMatch =
     role === "COACH"
-      ? visibleMatches.find((match) => match.id === selectedMatchId) ??
-        coachFocusMatch
+      ? visibleMatches.find((match) => match.id === selectedMatchId) ?? coachFocusMatch
       : undefined;
-
   const selectedDialogMatch =
     dialogState && "matchId" in dialogState
       ? allMatches.find((match) => match.id === dialogState.matchId)
@@ -270,44 +282,78 @@ export function AdminMatchesWorkspace({
     startTransition(() => setBannerMessage(message));
   }
 
+  function applyServerData(nextData: {
+    teams: MatchManagementTeam[];
+    matches: MatchManagementMatch[];
+    opponentOptions: MatchManagementOpponent[];
+    venueOptions: MatchManagementVenue[];
+  }) {
+    setTeams(nextData.teams);
+    setAllMatches(sortMatchManagementMatches(nextData.matches));
+    setOpponentOptions(nextData.opponentOptions);
+    setVenueOptions(nextData.venueOptions);
+  }
+
   function updateFilters(nextFilters: MatchFiltersValue) {
     setFilters(nextFilters);
     setCurrentPage(1);
   }
 
-  function saveMatch(nextMatchValue: MatchManagementMatch) {
-    startTransition(() => {
-      setAllMatches((currentMatches) =>
-        sortMatchManagementMatches(
-          currentMatches.some((match) => match.id === nextMatchValue.id)
-            ? currentMatches.map((match) =>
-                match.id === nextMatchValue.id ? nextMatchValue : match,
-              )
-            : [...currentMatches, nextMatchValue],
-        ),
-      );
-      setDialogState(null);
-      setSelectedMatchId(nextMatchValue.id);
+  async function saveMatch(nextMatchValue: MatchManagementMatch) {
+    setIsPersisting(true);
+    const result = await saveMatchAction({
+      matchId: dialogState && "matchId" in dialogState ? dialogState.matchId : undefined,
+      teamSlug: nextMatchValue.teamSlug,
+      season: nextMatchValue.season,
+      competition: nextMatchValue.competition,
+      matchday: nextMatchValue.matchday,
+      opponentName: nextMatchValue.opponentName,
+      isHome: nextMatchValue.isHome,
+      date: nextMatchValue.date,
+      time: nextMatchValue.time,
+      venue: nextMatchValue.venue,
+      status:
+        nextMatchValue.status === "played"
+          ? "played"
+          : nextMatchValue.status === "live"
+            ? "live"
+            : "pending",
+      ownScore: nextMatchValue.ownScore,
+      opponentScore: nextMatchValue.opponentScore,
+      highlightsUrl: nextMatchValue.highlightsUrl ?? "",
     });
+    setIsPersisting(false);
 
-    pushBanner(
-      dialogState?.mode === "create"
-        ? "Partido creado. Guardado local de prueba."
-        : "Partido actualizado. Guardado local de prueba.",
-    );
+    if (!result.ok) {
+      pushBanner(result.message);
+      return;
+    }
+
+    applyServerData(result.data);
+    setDialogState(null);
+    setSelectedMatchId(result.selectedMatchId ?? nextMatchValue.id);
+    pushBanner(result.message);
   }
 
-  function saveQuickResult(nextMatchValue: MatchManagementMatch) {
-    setAllMatches((currentMatches) =>
-      sortMatchManagementMatches(
-        currentMatches.map((match) =>
-          match.id === nextMatchValue.id ? nextMatchValue : match,
-        ),
-      ),
-    );
+  async function saveQuickResult(nextMatchValue: MatchManagementMatch) {
+    setIsPersisting(true);
+    const result = await saveQuickResultAction({
+      matchId: nextMatchValue.id,
+      ownScore: nextMatchValue.ownScore ?? 0,
+      opponentScore: nextMatchValue.opponentScore ?? 0,
+      date: nextMatchValue.date,
+    });
+    setIsPersisting(false);
+
+    if (!result.ok) {
+      pushBanner(result.message);
+      return;
+    }
+
+    applyServerData(result.data);
     setQuickResultMatchId(null);
-    setSelectedMatchId(nextMatchValue.id);
-    pushBanner("Resultado actualizado.");
+    setSelectedMatchId(result.selectedMatchId ?? nextMatchValue.id);
+    pushBanner(result.message);
   }
 
   return (
@@ -324,6 +370,7 @@ export function AdminMatchesWorkspace({
           <button
             type="button"
             onClick={() => setDialogState({ mode: "create" })}
+            disabled={isPersisting || allowedTeams.length === 0}
             className="rr-button rr-button-primary text-[0.84rem]"
           >
             <Plus className="h-4 w-4" />
@@ -357,11 +404,11 @@ export function AdminMatchesWorkspace({
           }
           aside={
             <AdminCoachTeamSwitcher
-              options={coachPreviewTeamOptions}
+              options={coachTeamOptions}
               value={coachTeamSlug}
               onChange={(nextTeamSlug) => {
                 setCoachTeamSlug(nextTeamSlug);
-                setFilters(initialFilters);
+                setFilters(buildInitialFilters());
                 setCurrentPage(1);
                 setSelectedMatchId(null);
               }}
@@ -370,7 +417,9 @@ export function AdminMatchesWorkspace({
         />
       ) : null}
 
-      <div className={`grid gap-4 ${role === "COACH" ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-5"}`}>
+      <div
+        className={`grid gap-4 ${role === "COACH" ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-5"}`}
+      >
         <AdminMetricCard
           label="Proximos partidos"
           value={upcomingMatchesCount.toString()}
@@ -420,12 +469,14 @@ export function AdminMatchesWorkspace({
         showTeamFilter={role !== "COACH" && allowedTeams.length > 1}
         allowLiveFilter={allowLiveFilter}
         onChange={updateFilters}
-        onReset={() => updateFilters(initialFilters)}
+        onReset={() => updateFilters(buildInitialFilters(role === "COACH" ? undefined : initialSelectedTeamSlug))}
       />
 
       {screenState === "loading" ? (
         <div className="space-y-4">
-          <div className={`grid gap-4 ${role === "COACH" ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-5"}`}>
+          <div
+            className={`grid gap-4 ${role === "COACH" ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-5"}`}
+          >
             {Array.from({ length: role === "COACH" ? 4 : 5 }).map((_, index) => (
               <AdminPanel key={index} className="p-5">
                 <div className="space-y-3">
@@ -478,11 +529,12 @@ export function AdminMatchesWorkspace({
       {screenState === "ready" && scopedMatches.length === 0 ? (
         <AdminEmptyState
           title="Sin partidos cargados"
-          description="Cuando conectemos datos reales, esta pantalla mostrara calendario, previas y resultados por equipo."
+          description="Cuando haya calendario real en la temporada activa, esta pantalla mostrara jornadas, previas y resultados por equipo."
           action={
             <button
               type="button"
               onClick={() => setDialogState({ mode: "create" })}
+              disabled={isPersisting || allowedTeams.length === 0}
               className="rr-button rr-button-primary text-[0.82rem]"
             >
               Crear primer partido
@@ -491,16 +543,16 @@ export function AdminMatchesWorkspace({
         />
       ) : null}
 
-      {screenState === "ready" &&
-      scopedMatches.length > 0 &&
-      filteredMatches.length === 0 ? (
+      {screenState === "ready" && scopedMatches.length > 0 && filteredMatches.length === 0 ? (
         <AdminEmptyState
           title="Sin resultados"
           description="Ajusta filtros o busca otro rival para volver a ver partidos."
           action={
             <button
               type="button"
-              onClick={() => updateFilters(initialFilters)}
+              onClick={() =>
+                updateFilters(buildInitialFilters(role === "COACH" ? undefined : initialSelectedTeamSlug))
+              }
               className="rr-button rr-button-secondary text-[0.82rem]"
             >
               Limpiar filtros
@@ -514,20 +566,18 @@ export function AdminMatchesWorkspace({
           <MatchList
             role={role}
             matches={paginatedMatches}
+            disabled={isPersisting}
             selectedMatchId={selectedCoachMatch?.id}
             onViewMatch={(match) => setSelectedMatchId(match.id)}
             onEdit={(match) => setDialogState({ mode: "edit", matchId: match.id })}
             onQuickResult={(match) => setQuickResultMatchId(match.id)}
-            onManageHighlights={(match) =>
-              setDialogState({ mode: "edit", matchId: match.id })
-            }
+            onManageHighlights={(match) => setDialogState({ mode: "edit", matchId: match.id })}
           />
 
           <AdminPanel className="p-4">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-                Mostrando {pageStartIndex + 1}-{pageEndIndex} de{" "}
-                {filteredMatches.length} partidos
+                Mostrando {pageStartIndex + 1}-{pageEndIndex} de {filteredMatches.length} partidos
               </p>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
@@ -536,9 +586,7 @@ export function AdminMatchesWorkspace({
                   <select
                     value={pageSize}
                     onChange={(event) => {
-                      setPageSize(
-                        Number(event.target.value) as (typeof pageSizeOptions)[number],
-                      );
+                      setPageSize(Number(event.target.value) as (typeof pageSizeOptions)[number]);
                       setCurrentPage(1);
                     }}
                     className="min-h-10 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
@@ -560,7 +608,6 @@ export function AdminMatchesWorkspace({
                   >
                     {Array.from({ length: totalPages }).map((_, index) => {
                       const pageNumber = index + 1;
-
                       return (
                         <option key={pageNumber} value={pageNumber}>
                           {pageNumber} de {totalPages}
@@ -573,9 +620,7 @@ export function AdminMatchesWorkspace({
                 <div className="grid grid-cols-2 gap-2 sm:flex">
                   <button
                     type="button"
-                    onClick={() =>
-                      setCurrentPage((page) => Math.max(1, page - 1))
-                    }
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                     disabled={safeCurrentPage === 1}
                     className="rr-button rr-button-secondary min-h-10 justify-center px-3 text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
                   >
@@ -584,9 +629,7 @@ export function AdminMatchesWorkspace({
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      setCurrentPage((page) => Math.min(totalPages, page + 1))
-                    }
+                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                     disabled={safeCurrentPage === totalPages}
                     className="rr-button rr-button-secondary min-h-10 justify-center px-3 text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
                   >
@@ -620,8 +663,8 @@ export function AdminMatchesWorkspace({
                   />
                 </div>
                 <p className="text-[0.92rem] text-[color:var(--rr-muted)]">
-                  {selectedCoachMatch.matchday} ·{" "}
-                  {formatMatchDateLabel(selectedCoachMatch)} · {selectedCoachMatch.venue}
+                  {selectedCoachMatch.matchday} · {formatMatchDateLabel(selectedCoachMatch)} ·{" "}
+                  {selectedCoachMatch.venue}
                 </p>
                 <p className="text-[0.92rem] text-[color:var(--rr-muted)]">
                   {hasMatchResult(selectedCoachMatch)
@@ -633,6 +676,7 @@ export function AdminMatchesWorkspace({
               <button
                 type="button"
                 onClick={() => setQuickResultMatchId(selectedCoachMatch.id)}
+                disabled={isPersisting}
                 className="rr-button rr-button-primary justify-center text-[0.82rem]"
               >
                 <Trophy className="h-4 w-4" />
@@ -652,9 +696,8 @@ export function AdminMatchesWorkspace({
               {getCoachMatchVisualStatus(selectedCoachMatch) === "pending" ? (
                 <button
                   type="button"
-                  onClick={() =>
-                    setDialogState({ mode: "edit", matchId: selectedCoachMatch.id })
-                  }
+                  onClick={() => setDialogState({ mode: "edit", matchId: selectedCoachMatch.id })}
+                  disabled={isPersisting}
                   className="rr-button rr-button-secondary text-[0.82rem]"
                 >
                   <PenSquare className="h-4 w-4" />
@@ -690,9 +733,10 @@ export function AdminMatchesWorkspace({
         match={selectedDialogMatch}
         availableTeams={allowedTeams}
         existingMatches={scopedMatches}
-        seasons={
-          seasons.length > 0 ? seasons : [coachAssignedTeam?.season ?? "2026/2027"]
-        }
+        seasons={seasons.length > 0 ? seasons : [coachAssignedTeam?.season ?? "Sin temporada"]}
+        opponentOptions={opponentOptions}
+        venueOptions={venueOptions}
+        isSaving={isPersisting}
         onClose={() => setDialogState(null)}
         onSave={saveMatch}
       />
@@ -701,6 +745,7 @@ export function AdminMatchesWorkspace({
         key={quickResultMatchId ?? "quick-result-closed"}
         open={quickResultMatchId !== null}
         match={selectedQuickResultMatch}
+        isSaving={isPersisting}
         onClose={() => setQuickResultMatchId(null)}
         onSave={saveQuickResult}
       />

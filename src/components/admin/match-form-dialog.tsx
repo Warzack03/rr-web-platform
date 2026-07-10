@@ -7,12 +7,12 @@ import { MatchStatusSelector } from "@/components/admin/match-status-selector";
 import {
   getCoachMatchVisualStatus,
   getNextMatchdaySuggestion,
-  getOpponentOptionsForCompetition,
   getStoredMatchStatus,
   getVisualMatchStatus,
-  matchManagementVenueOptions,
   type MatchManagementMatch,
+  type MatchManagementOpponent,
   type MatchManagementTeam,
+  type MatchManagementVenue,
   type MatchVisualStatus,
 } from "@/lib/admin/match-management-mocks";
 import type { AdminRole } from "@/lib/admin/roles";
@@ -25,6 +25,9 @@ type MatchFormDialogProps = {
   availableTeams: MatchManagementTeam[];
   existingMatches: MatchManagementMatch[];
   seasons: string[];
+  opponentOptions: MatchManagementOpponent[];
+  venueOptions: MatchManagementVenue[];
+  isSaving?: boolean;
   onClose: () => void;
   onSave: (match: MatchManagementMatch) => void;
 };
@@ -67,6 +70,7 @@ const fieldClassName =
 function createDefaultState(
   availableTeams: MatchManagementTeam[],
   existingMatches: MatchManagementMatch[],
+  venueOptions: MatchManagementVenue[],
 ): MatchFormState {
   const defaultTeam = availableTeams[0];
 
@@ -81,7 +85,7 @@ function createDefaultState(
     isHome: true,
     date: "",
     time: "",
-    venue: matchManagementVenueOptions[0]?.name ?? "",
+    venue: venueOptions[0]?.name ?? "",
     status: "pending",
     ownScore: "",
     opponentScore: "",
@@ -133,13 +137,16 @@ export function MatchFormDialog({
   availableTeams,
   existingMatches,
   seasons,
+  opponentOptions,
+  venueOptions,
+  isSaving = false,
   onClose,
   onSave,
 }: MatchFormDialogProps) {
   const [formState, setFormState] = useState<MatchFormState>(() =>
     match
       ? createStateFromMatch(match, role)
-      : createDefaultState(availableTeams, existingMatches),
+      : createDefaultState(availableTeams, existingMatches, venueOptions),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -153,7 +160,27 @@ export function MatchFormDialog({
   const allowLiveStatus = role !== "COACH" && Boolean(selectedTeam?.isFirstTeam);
   const lockTeam = role === "COACH" || availableTeams.length <= 1;
   const isCoach = role === "COACH";
-  const opponentOptions = getOpponentOptionsForCompetition(selectedTeam?.competition);
+  const filteredOpponentOptions = opponentOptions.filter(
+    (opponent) => opponent.competition === selectedTeam?.competition,
+  );
+  const resolvedOpponentOptions =
+    filteredOpponentOptions.length > 0 ? filteredOpponentOptions : opponentOptions;
+  const opponentSelectionOptions =
+    formState.opponentName &&
+    !resolvedOpponentOptions.some((opponent) => opponent.name === formState.opponentName)
+      ? [
+          ...resolvedOpponentOptions,
+          {
+            id: `current-${formState.opponentName}`,
+            name: formState.opponentName,
+            competition: formState.competition,
+          },
+        ]
+      : resolvedOpponentOptions;
+  const venueSelectionOptions =
+    formState.venue && !venueOptions.some((venue) => venue.name === formState.venue)
+      ? [...venueOptions, { id: `current-${formState.venue}`, name: formState.venue }]
+      : venueOptions;
 
   function updateField<Key extends keyof MatchFormState>(
     key: Key,
@@ -168,7 +195,9 @@ export function MatchFormDialog({
   function handleTeamChange(nextTeamSlug: string) {
     const nextTeam = availableTeams.find((team) => team.slug === nextTeamSlug);
     const nextCompetition = nextTeam?.competition ?? "";
-    const nextOpponents = getOpponentOptionsForCompetition(nextCompetition);
+    const nextOpponents = opponentOptions.filter(
+      (opponent) => opponent.competition === nextCompetition,
+    );
 
     setFormState((currentValue) => ({
       ...currentValue,
@@ -306,7 +335,7 @@ export function MatchFormDialog({
               <p className="mt-2 max-w-xl text-[0.94rem] leading-5 text-[color:var(--rr-muted)]">
                 {isCoach
                   ? "Completa rival, fecha, campo y estado sin salir del flujo movil."
-                  : "Formulario en vista previa para validar calendario, previa y resultado sin tocar persistencia real."}
+                  : "Ajusta calendario, previa y resultado desde el mismo flujo operativo."}
               </p>
             </div>
           </div>
@@ -314,6 +343,7 @@ export function MatchFormDialog({
           <button
             type="button"
             onClick={onClose}
+            disabled={isSaving}
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[8px] border border-white/10 text-[color:var(--rr-muted)] transition hover:text-white"
             aria-label="Cerrar"
           >
@@ -404,16 +434,17 @@ export function MatchFormDialog({
 
             <label className="grid gap-2 md:col-span-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Rival</span>
-              <select
-                value={formState.opponentName}
-                onChange={(event) => updateField("opponentName", event.target.value)}
-                className={fieldClassName}
-              >
-                <option value="">Selecciona rival</option>
-                {opponentOptions.map((opponent) => (
-                  <option key={opponent.id} value={opponent.name}>
-                    {opponent.name}
-                  </option>
+                <select
+                  value={formState.opponentName}
+                  onChange={(event) => updateField("opponentName", event.target.value)}
+                  disabled={isSaving}
+                  className={fieldClassName}
+                >
+                  <option value="">Selecciona rival</option>
+                  {opponentSelectionOptions.map((opponent) => (
+                    <option key={opponent.id} value={opponent.name}>
+                      {opponent.name}
+                    </option>
                 ))}
               </select>
               {errors.opponentName ? (
@@ -423,32 +454,35 @@ export function MatchFormDialog({
 
             <label className="grid gap-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Fecha</span>
-              <input
-                type="date"
-                value={formState.date}
-                onChange={(event) => updateField("date", event.target.value)}
-                className={fieldClassName}
-              />
-            </label>
+                <input
+                  type="date"
+                  value={formState.date}
+                  onChange={(event) => updateField("date", event.target.value)}
+                  disabled={isSaving}
+                  className={fieldClassName}
+                />
+              </label>
 
             <label className="grid gap-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Hora</span>
-              <input
-                type="time"
-                value={formState.time}
-                onChange={(event) => updateField("time", event.target.value)}
-                className={fieldClassName}
-              />
-            </label>
+                <input
+                  type="time"
+                  value={formState.time}
+                  onChange={(event) => updateField("time", event.target.value)}
+                  disabled={isSaving}
+                  className={fieldClassName}
+                />
+              </label>
 
             <label className="grid gap-2 md:col-span-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Campo</span>
               <select
                 value={formState.venue}
                 onChange={(event) => updateField("venue", event.target.value)}
+                disabled={isSaving}
                 className={fieldClassName}
               >
-                {matchManagementVenueOptions.map((venue) => (
+                {venueSelectionOptions.map((venue) => (
                   <option key={venue.id} value={venue.name}>
                     {venue.name}
                   </option>
@@ -464,6 +498,7 @@ export function MatchFormDialog({
                 type="checkbox"
                 checked={formState.isHome}
                 onChange={(event) => updateField("isHome", event.target.checked)}
+                disabled={isSaving}
                 className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
               />
               Partido como local
@@ -479,6 +514,7 @@ export function MatchFormDialog({
                     updateField("time", "");
                   }
                 }}
+                disabled={isSaving}
                 className="h-4 w-4 rounded border border-[color:var(--rr-border)] bg-transparent accent-[color:var(--rr-gold)]"
               />
               Fecha por confirmar
@@ -489,7 +525,7 @@ export function MatchFormDialog({
             <div className="space-y-1">
               <p className="rr-kicker text-[color:var(--rr-gold)]">Estado</p>
               <p className="text-[0.92rem] text-[color:var(--rr-muted)]">
-                En esta vista no se usa el estado en vivo.
+                El estado en vivo solo aplica al Primer Equipo.
               </p>
             </div>
             <MatchStatusSelector
@@ -511,6 +547,7 @@ export function MatchFormDialog({
                   inputMode="numeric"
                   value={formState.ownScore}
                   onChange={(event) => updateField("ownScore", event.target.value)}
+                  disabled={isSaving}
                   className={fieldClassName}
                 />
                 {errors.ownScore ? (
@@ -527,6 +564,7 @@ export function MatchFormDialog({
                   inputMode="numeric"
                   value={formState.opponentScore}
                   onChange={(event) => updateField("opponentScore", event.target.value)}
+                  disabled={isSaving}
                   className={fieldClassName}
                 />
                 {errors.opponentScore ? (
@@ -541,6 +579,7 @@ export function MatchFormDialog({
                     type="url"
                     value={formState.highlightsUrl}
                     onChange={(event) => updateField("highlightsUrl", event.target.value)}
+                    disabled={isSaving}
                     className={fieldClassName}
                     placeholder="https://..."
                   />
@@ -556,15 +595,34 @@ export function MatchFormDialog({
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
               {isCoach
                 ? "Guarda la previa o el cambio de estado y vuelve a la jornada."
-                : "Guardado local de prueba para revisar permisos, responsive y flujo operativo."}
+                : "Los cambios se guardan sobre el calendario real del backoffice."}
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button type="button" onClick={onClose} className="rr-button rr-button-secondary text-[0.8rem]">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSaving}
+                className="rr-button rr-button-secondary text-[0.8rem]"
+              >
                 Cancelar
               </button>
-              <button type="submit" className="rr-button rr-button-primary text-[0.8rem]">
-                {mode === "create" ? (isCoach ? "Guardar partido" : "Crear partido") : "Guardar cambios"}
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="rr-button rr-button-primary text-[0.8rem]"
+              >
+                {mode === "create"
+                  ? isSaving
+                    ? isCoach
+                      ? "Guardando..."
+                      : "Creando..."
+                    : isCoach
+                      ? "Guardar partido"
+                      : "Crear partido"
+                  : isSaving
+                    ? "Guardando..."
+                    : "Guardar cambios"}
               </button>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { AdminTeamsWorkspace } from "@/components/admin/admin-teams-workspace";
-import { OWNER_ADMIN_ROLE } from "@/lib/admin/roles";
-import { getTeamManagementTeamsForRole } from "@/lib/admin/team-management-mocks";
+import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
+import { getAdminTeamsScreenData } from "@/server/services/admin-teams";
 
 type AdminTeamsPageProps = {
   searchParams: Promise<{
@@ -17,15 +17,18 @@ export default async function AdminTeamsPage({
   searchParams,
 }: AdminTeamsPageProps) {
   const user = await requireAdminSectionAccess("teams");
+  const data = await getAdminTeamsScreenData(user);
   const resolvedSearchParams = await searchParams;
-  void user;
   const initialUiState = getSingleValue(resolvedSearchParams.ui) === "error" ? "error" : "ready";
 
   return (
     <AdminTeamsWorkspace
-      key={`${OWNER_ADMIN_ROLE}-${initialUiState}`}
-      role={OWNER_ADMIN_ROLE}
-      initialTeams={getTeamManagementTeamsForRole(OWNER_ADMIN_ROLE)}
+      key={`${user.idString}-${initialUiState}`}
+      role={toAdminRole(user.role)}
+      initialTeams={data.teams}
+      seasonOptions={data.seasonOptions}
+      categoryOptions={data.categoryOptions}
+      competitionOptions={data.competitionOptions}
       initialUiState={initialUiState}
     />
   );

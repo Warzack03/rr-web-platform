@@ -1,3 +1,5 @@
+import { UserRole } from "@prisma/client";
+
 export type AdminRole = "SUPERADMIN" | "MANAGER" | "COACH";
 
 export const adminRoleLabels: Record<AdminRole, string> = {
@@ -14,4 +16,15 @@ export function isAdminRole(value: string | undefined): value is AdminRole {
 
 export function getPreviewRole(value: string | undefined, fallbackRole: AdminRole): AdminRole {
   return isAdminRole(value) ? value : fallbackRole;
+}
+
+export function toAdminRole(role: UserRole): AdminRole {
+  switch (role) {
+    case UserRole.SUPERADMIN:
+      return "SUPERADMIN";
+    case UserRole.MANAGER:
+      return "MANAGER";
+    case UserRole.COACH:
+      return "COACH";
+  }
 }

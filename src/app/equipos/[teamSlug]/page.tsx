@@ -11,7 +11,7 @@ import {
   TeamNewsPreview,
   TopScorerPanel,
 } from "@/components/public/team-overview-panels";
-import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
+import { getPublicAcademyTeamPageContentWithSource } from "@/lib/public/team-page-content";
 
 type TeamDetailPageProps = {
   params: Promise<{
@@ -23,7 +23,8 @@ export async function generateMetadata({
   params,
 }: TeamDetailPageProps): Promise<Metadata> {
   const { teamSlug } = await params;
-  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
+  const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
+  const teamSummary = result?.content;
 
   if (!teamSummary) {
     return {
@@ -41,14 +42,15 @@ export default async function AcademyTeamDetailPage({
   params,
 }: TeamDetailPageProps) {
   const { teamSlug } = await params;
-  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
+  const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
+  const teamSummary = result?.content;
 
   if (!teamSummary || !teamSummary.topScorer) {
     notFound();
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos">
+    <PublicSiteLayout activeNav="equipos" debugDataSource={result?.dataSource}>
       <PageHero
         chips={[
           { label: teamSummary.category, tone: "accent" },
