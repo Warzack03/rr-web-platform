@@ -6,6 +6,7 @@ export type AdminManagedPlayer = {
   slug: string;
   visible: boolean;
   active: boolean;
+  photoMediaId?: string;
   photoUrl?: string;
   teamSlug: string;
   teamName: string;

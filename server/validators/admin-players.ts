@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+const mediaReferenceSchema = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === "" || value.startsWith("/") || /^https?:\/\//.test(value),
+    "Introduce una ruta publica valida.",
+  );
+
 export const savePlayerProfileInputSchema = z.object({
   playerId: z.string().trim().min(1),
   publicName: z.string().trim().min(1, "Introduce un nombre publico."),
@@ -12,7 +20,8 @@ export const savePlayerProfileInputSchema = z.object({
   foot: z.enum(["Derecha", "Izquierda", "Ambas"]),
   visible: z.boolean(),
   active: z.boolean(),
-  photoUrl: z.string().trim().url("Introduce una URL valida.").or(z.literal("")),
+  photoMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
+  photoUrl: mediaReferenceSchema.or(z.literal("")),
 });
 
 export type SavePlayerProfileInput = z.infer<typeof savePlayerProfileInputSchema>;

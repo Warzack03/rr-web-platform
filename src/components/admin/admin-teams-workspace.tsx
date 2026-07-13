@@ -29,6 +29,7 @@ import {
 } from "@/components/admin/team-filters";
 import { TeamFormDialog } from "@/components/admin/team-form-dialog";
 import { TeamList } from "@/components/admin/team-list";
+import type { AdminMediaPickerItem } from "@/lib/admin/media-management";
 import type { AdminRole } from "@/lib/admin/roles";
 import type { TeamManagementTeam } from "@/lib/admin/team-management-mocks";
 
@@ -38,6 +39,7 @@ type AdminTeamsWorkspaceProps = {
   seasonOptions: string[];
   categoryOptions: string[];
   competitionOptions: string[];
+  mediaOptions: AdminMediaPickerItem[];
   initialUiState?: "ready" | "error";
 };
 
@@ -69,6 +71,7 @@ export function AdminTeamsWorkspace({
   seasonOptions,
   categoryOptions,
   competitionOptions,
+  mediaOptions,
   initialUiState = "ready",
 }: AdminTeamsWorkspaceProps) {
   const [teams, setTeams] = useState(() => sortTeams(initialTeams));
@@ -206,7 +209,9 @@ export function AdminTeamsWorkspace({
         roleLabel: coach.roleLabel,
         publicVisible: coach.publicVisible,
       })),
+      logoMediaId: nextTeam.logoMediaId,
       logoUrl: nextTeam.logoUrl,
+      bannerMediaId: nextTeam.bannerMediaId,
       bannerUrl: nextTeam.bannerUrl,
     });
 
@@ -497,6 +502,7 @@ export function AdminTeamsWorkspace({
         seasons={seasons}
         categories={categories}
         competitionOptions={resolvedCompetitionOptions}
+        mediaOptions={mediaOptions}
         onClose={() => setDialogState(null)}
         onSave={saveTeam}
       />

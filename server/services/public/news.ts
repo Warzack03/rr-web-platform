@@ -94,13 +94,18 @@ export async function getPublishedPublicNewsArticlesFromDb(): Promise<PublicNews
         externalVideoUrl: true,
         featured: true,
         publishedAt: true,
+        coverMedia: {
+          select: {
+            altText: true,
+          },
+        },
         author: {
           select: {
             displayName: true,
           },
         },
         teams: {
-          take: 1,
+          orderBy: [{ seasonTeam: { publicName: "asc" } }],
           select: {
             seasonTeam: {
               select: {
@@ -118,8 +123,9 @@ export async function getPublishedPublicNewsArticlesFromDb(): Promise<PublicNews
     });
 
     return posts.map((post) => {
-      const relatedTeam = post.teams[0]?.seasonTeam.publicName;
-      const isFirstTeam = post.teams[0]?.seasonTeam.team.isFirstTeam ?? false;
+      const relatedTeams = post.teams.map((item) => item.seasonTeam.publicName);
+      const relatedTeam = relatedTeams[0];
+      const isFirstTeam = post.teams.some((item) => item.seasonTeam.team.isFirstTeam);
       const category = inferCategory({
         relatedTeamName: relatedTeam,
         isFirstTeam,
@@ -138,9 +144,10 @@ export async function getPublishedPublicNewsArticlesFromDb(): Promise<PublicNews
           relatedTeamName: relatedTeam,
           isFirstTeam,
         }),
-        coverImageAlt: `Imagen de portada para ${post.title}.`,
+        coverImageAlt: post.coverMedia?.altText?.trim() || `Imagen de portada para ${post.title}.`,
         featured: post.featured,
         relatedTeam,
+        relatedTeams,
         badge: post.featured ? "Destacada" : undefined,
         content: buildContentBlocks(post.bodyMarkdown, post.externalVideoUrl),
       } satisfies PublicNewsArticle;

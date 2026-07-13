@@ -162,7 +162,7 @@ function getDashboardDescription(user: AuthenticatedAdmin, data: AdminDashboardD
     return "Vista operativa para coordinar equipos, contenido publico y actualizacion deportiva sin salir del panel.";
   }
 
-  return "Panel principal para vigilar el estado publico del club: temporada activa, equipos visibles, jornada, contenido y revision de importaciones.";
+  return "Panel principal para vigilar el estado publico del club: temporada activa, equipos visibles, jornada, contenido y biblioteca visual.";
 }
 
 function getVisibleControlAreas(role: UserRole) {
@@ -198,7 +198,7 @@ function getQuickActions(role: UserRole) {
   }
 
   return [
-    { href: "/admin/importaciones", label: "Revisar importaciones" },
+    { href: "/admin/media", label: "Revisar media" },
     { href: "/admin/usuarios", label: "Gestionar usuarios", accent: "slate" as const },
     { href: "/admin/partidos", label: "Abrir jornada" },
     { href: "/admin/noticias", label: "Revisar noticias" },
@@ -222,12 +222,15 @@ function getStatusItems(user: AuthenticatedAdmin, data: AdminDashboardData) {
 
   if (user.role === UserRole.SUPERADMIN) {
     items.push({
-      title: "Importaciones",
+      title: "Noticias",
       value:
-        data.importReviewCount && data.importReviewCount > 0
-          ? `${data.importReviewCount} por revisar`
-          : "Sin bloqueos",
-      detail: data.lastImportLabel ?? "Todavia no hay importaciones registradas.",
+        typeof data.draftNewsCount === "number" && data.draftNewsCount > 0
+          ? `${data.draftNewsCount} borradores`
+          : "Sin borradores",
+      detail:
+        typeof data.draftNewsCount === "number"
+          ? "Contenido pendiente antes de publicar."
+          : "Todavia no hay noticias registradas.",
     });
   } else if (user.role === UserRole.MANAGER) {
     items.push({

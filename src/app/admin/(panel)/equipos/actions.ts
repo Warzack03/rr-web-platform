@@ -1,8 +1,9 @@
 "use server";
 
-import { MediaType, MediaUsage, Prisma, UserRole } from "@prisma/client";
+import { MediaUsage, UserRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import type { AdminTeamsScreenData } from "@/server/services/admin-teams";
+import { resolveMediaAssetId } from "@/server/services/admin-media";
 import { getAdminTeamsScreenData } from "@/server/services/admin-teams";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
@@ -27,49 +28,6 @@ type AdminTeamsActionResult =
 
 function isNumericId(value: string) {
   return /^\d+$/.test(value);
-}
-
-async function resolveMediaId(
-  publicUrl: string,
-  usage: MediaUsage,
-  uploadedById: bigint,
-  tx: Prisma.TransactionClient,
-) {
-  const normalizedUrl = publicUrl.trim();
-
-  if (!normalizedUrl) {
-    return null;
-  }
-
-  const existing = await tx.mediaAsset.findFirst({
-    where: {
-      deletedAt: null,
-      publicUrl: normalizedUrl,
-      usage,
-    },
-    select: {
-      id: true,
-    },
-    orderBy: { id: "desc" },
-  });
-
-  if (existing) {
-    return existing.id;
-  }
-
-  const created = await tx.mediaAsset.create({
-    data: {
-      type: MediaType.IMAGE,
-      usage,
-      publicUrl: normalizedUrl,
-      uploadedById,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  return created.id;
 }
 
 async function ensureUniqueTeamSlug(
@@ -321,8 +279,24 @@ export async function saveTeamAction(
       }
 
       const [logoMediaId, bannerMediaId] = await Promise.all([
-        resolveMediaId(payload.logoUrl, MediaUsage.TEAM_LOGO, user.id, tx),
-        resolveMediaId(payload.bannerUrl, MediaUsage.TEAM_BANNER, user.id, tx),
+        resolveMediaAssetId(
+          {
+            mediaId: payload.logoMediaId,
+            publicUrl: payload.logoUrl,
+            usage: MediaUsage.TEAM_LOGO,
+            uploadedById: user.id,
+          },
+          tx,
+        ),
+        resolveMediaAssetId(
+          {
+            mediaId: payload.bannerMediaId,
+            publicUrl: payload.bannerUrl,
+            usage: MediaUsage.TEAM_BANNER,
+            uploadedById: user.id,
+          },
+          tx,
+        ),
       ]);
 
       await tx.team.update({
@@ -462,8 +436,24 @@ export async function saveTeamAction(
     }
 
     const [logoMediaId, bannerMediaId] = await Promise.all([
-      resolveMediaId(payload.logoUrl, MediaUsage.TEAM_LOGO, user.id, tx),
-      resolveMediaId(payload.bannerUrl, MediaUsage.TEAM_BANNER, user.id, tx),
+      resolveMediaAssetId(
+        {
+          mediaId: payload.logoMediaId,
+          publicUrl: payload.logoUrl,
+          usage: MediaUsage.TEAM_LOGO,
+          uploadedById: user.id,
+        },
+        tx,
+      ),
+      resolveMediaAssetId(
+        {
+          mediaId: payload.bannerMediaId,
+          publicUrl: payload.bannerUrl,
+          usage: MediaUsage.TEAM_BANNER,
+          uploadedById: user.id,
+        },
+        tx,
+      ),
     ]);
 
     const baseTeam =

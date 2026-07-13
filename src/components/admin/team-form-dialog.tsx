@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { X } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 import { z } from "zod";
+import { MediaPickerDialog } from "@/components/admin/media-picker-dialog";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { TeamCoachEditor } from "@/components/admin/team-coach-editor";
+import type { AdminMediaPickerItem } from "@/lib/admin/media-management";
 import {
   normalizeTeamManagementTeam,
   teamCoachRoleOptions,
@@ -23,6 +25,7 @@ type TeamFormDialogProps = {
   seasons: string[];
   categories: string[];
   competitionOptions: string[];
+  mediaOptions: AdminMediaPickerItem[];
   onClose: () => void;
   onSave: (team: TeamManagementTeam) => void;
 };
@@ -40,7 +43,9 @@ type TeamFormState = {
   isFirstTeam: boolean;
   displayOrder: number;
   coaches: TeamManagementCoach[];
+  logoMediaId?: string;
   logoUrl: string;
+  bannerMediaId?: string;
   bannerUrl: string;
   playerCount: number;
   nextMatchLabel: string;
@@ -111,7 +116,9 @@ function createDefaultTeam(
         publicVisible: true,
       },
     ],
+    logoMediaId: undefined,
     logoUrl: "",
+    bannerMediaId: undefined,
     bannerUrl: "",
     playerCount: 0,
     nextMatchLabel: "Pendiente de calendario",
@@ -133,7 +140,9 @@ function toFormState(team: TeamManagementTeam): TeamFormState {
     isFirstTeam: team.isFirstTeam,
     displayOrder: team.displayOrder,
     coaches: team.coaches,
+    logoMediaId: team.logoMediaId,
     logoUrl: team.logoUrl,
+    bannerMediaId: team.bannerMediaId,
     bannerUrl: team.bannerUrl,
     playerCount: team.playerCount,
     nextMatchLabel: team.nextMatchLabel,
@@ -210,6 +219,7 @@ export function TeamFormDialog({
   seasons,
   categories,
   competitionOptions,
+  mediaOptions,
   onClose,
   onSave,
 }: TeamFormDialogProps) {
@@ -219,6 +229,7 @@ export function TeamFormDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugTouched, setSlugTouched] = useState(Boolean(team?.slug));
   const [orderTouched, setOrderTouched] = useState(Boolean(team));
+  const [mediaPickerField, setMediaPickerField] = useState<"logo" | "banner" | null>(null);
 
   if (!open) {
     return null;
@@ -454,30 +465,88 @@ export function TeamFormDialog({
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Logo
                     </span>
-                    <input
-                      type="url"
-                      value={formState.logoUrl}
-                      onChange={(event) =>
-                        updateFormState("logoUrl", event.target.value)
-                      }
-                      className={fieldClassName}
-                      placeholder="https://..."
-                    />
+                    <div className="grid gap-3 rounded-[10px] border border-white/10 bg-white/4 p-3">
+                      <div className="overflow-hidden rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
+                        {formState.logoUrl ? (
+                          <img
+                            src={formState.logoUrl}
+                            alt={formState.name || "Logo del equipo"}
+                            className="h-24 w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-24 items-center justify-center text-[color:var(--rr-muted)]">
+                            <ImagePlus className="h-5 w-5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setMediaPickerField("logo")}
+                          className="rr-button rr-button-secondary text-[0.78rem]"
+                        >
+                          Elegir logo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormState((currentValue) => ({
+                              ...currentValue,
+                              logoMediaId: undefined,
+                              logoUrl: "",
+                            }))
+                          }
+                          disabled={!formState.logoUrl}
+                          className="rr-button rr-button-secondary text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </div>
                   </label>
 
                   <label className="grid gap-2 md:col-span-2 xl:col-span-3">
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Banner
                     </span>
-                    <input
-                      type="url"
-                      value={formState.bannerUrl}
-                      onChange={(event) =>
-                        updateFormState("bannerUrl", event.target.value)
-                      }
-                      className={fieldClassName}
-                      placeholder="https://..."
-                    />
+                    <div className="grid gap-3 rounded-[10px] border border-white/10 bg-white/4 p-3">
+                      <div className="overflow-hidden rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
+                        {formState.bannerUrl ? (
+                          <img
+                            src={formState.bannerUrl}
+                            alt={formState.name || "Banner del equipo"}
+                            className="h-32 w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-32 items-center justify-center text-[color:var(--rr-muted)]">
+                            <ImagePlus className="h-5 w-5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setMediaPickerField("banner")}
+                          className="rr-button rr-button-secondary text-[0.78rem]"
+                        >
+                          Elegir banner
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormState((currentValue) => ({
+                              ...currentValue,
+                              bannerMediaId: undefined,
+                              bannerUrl: "",
+                            }))
+                          }
+                          disabled={!formState.bannerUrl}
+                          className="rr-button rr-button-secondary text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </div>
                   </label>
                 </div>
               </div>
@@ -661,6 +730,33 @@ export function TeamFormDialog({
           </div>
         </form>
       </div>
+
+      <MediaPickerDialog
+        open={mediaPickerField !== null}
+        title={mediaPickerField === "banner" ? "Elegir banner de equipo" : "Elegir logo de equipo"}
+        description="Selecciona un recurso ya subido en la biblioteca real de media."
+        items={mediaOptions}
+        allowedUsages={mediaPickerField === "banner" ? ["TEAM_BANNER"] : ["TEAM_LOGO"]}
+        selectedMediaId={
+          mediaPickerField === "banner" ? formState.bannerMediaId : formState.logoMediaId
+        }
+        onClose={() => setMediaPickerField(null)}
+        onSelect={(item) => {
+          setFormState((currentValue) => ({
+            ...currentValue,
+            ...(mediaPickerField === "banner"
+              ? {
+                  bannerMediaId: item.id,
+                  bannerUrl: item.publicUrl,
+                }
+              : {
+                  logoMediaId: item.id,
+                  logoUrl: item.publicUrl,
+                }),
+          }));
+          setMediaPickerField(null);
+        }}
+      />
     </div>
   );
 }

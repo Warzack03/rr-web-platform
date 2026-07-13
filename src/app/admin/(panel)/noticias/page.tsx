@@ -1,9 +1,14 @@
-import { AdminSectionOverview } from "@/components/admin/admin-section-overview";
-import { OWNER_ADMIN_ROLE } from "@/lib/admin/roles";
+import { AdminNewsWorkspace } from "@/components/admin/admin-news-workspace";
 import { requireAdminSectionAccess } from "@/server/auth/session";
+import { getAdminMediaPickerOptions } from "@/server/services/admin-media";
+import { getAdminNewsScreenData } from "@/server/services/admin-news";
 
 export default async function AdminNewsPage() {
   const user = await requireAdminSectionAccess("news");
-  void user;
-  return <AdminSectionOverview section="noticias" role={OWNER_ADMIN_ROLE} />;
+  const [data, coverMediaOptions] = await Promise.all([
+    getAdminNewsScreenData(user),
+    getAdminMediaPickerOptions(["NEWS_COVER"]),
+  ]);
+
+  return <AdminNewsWorkspace initialData={data} coverMediaOptions={coverMediaOptions} />;
 }

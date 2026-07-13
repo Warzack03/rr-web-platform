@@ -38,8 +38,6 @@ export const adminNavigation: AdminNavItem[] = [
   { href: "/admin/jugadores", label: "Fichas y cromos", section: "players", status: "active" },
   { href: "/admin/media", label: "Media", section: "media", status: "active" },
   { href: "/admin/noticias", label: "Noticias", section: "news", status: "active" },
-  { href: "/admin/temporadas", label: "Temporadas", section: "seasons", status: "active" },
-  { href: "/admin/importaciones", label: "Importaciones", section: "imports", status: "active" },
 ];
 
 const adminSectionRoles: Record<AdminSectionKey, UserRole[]> = {

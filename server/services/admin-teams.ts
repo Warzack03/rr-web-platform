@@ -140,11 +140,13 @@ export async function getAdminTeamsScreenData(
         },
         logoMedia: {
           select: {
+            id: true,
             publicUrl: true,
           },
         },
         bannerMedia: {
           select: {
+            id: true,
             publicUrl: true,
           },
         },
@@ -207,7 +209,9 @@ export async function getAdminTeamsScreenData(
           | "Ayudante",
         publicVisible: coach.publicVisible,
       })),
+      logoMediaId: seasonTeam.logoMedia?.id.toString(),
       logoUrl: seasonTeam.logoMedia?.publicUrl ?? "",
+      bannerMediaId: seasonTeam.bannerMedia?.id.toString(),
       bannerUrl: seasonTeam.bannerMedia?.publicUrl ?? "",
       playerCount: seasonTeam.assignments.length,
       nextMatchLabel: mapNextMatchLabel(seasonTeam.matches[0] ?? null),

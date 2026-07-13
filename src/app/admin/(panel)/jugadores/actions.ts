@@ -1,8 +1,9 @@
 "use server";
 
-import { MediaType, MediaUsage, Prisma, UserRole } from "@prisma/client";
+import { MediaUsage, UserRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import type { AdminPlayersScreenData } from "@/server/services/admin-players";
+import { resolveMediaAssetId } from "@/server/services/admin-media";
 import { getAdminPlayersScreenData } from "@/server/services/admin-players";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
@@ -22,48 +23,6 @@ type AdminPlayersActionResult =
       ok: false;
       message: string;
     };
-
-async function resolvePhotoMediaId(
-  publicUrl: string,
-  uploadedById: bigint,
-  tx: Prisma.TransactionClient,
-) {
-  const normalizedUrl = publicUrl.trim();
-
-  if (!normalizedUrl) {
-    return null;
-  }
-
-  const existing = await tx.mediaAsset.findFirst({
-    where: {
-      deletedAt: null,
-      publicUrl: normalizedUrl,
-      usage: MediaUsage.PLAYER_PHOTO,
-    },
-    select: {
-      id: true,
-    },
-    orderBy: { id: "desc" },
-  });
-
-  if (existing) {
-    return existing.id;
-  }
-
-  const created = await tx.mediaAsset.create({
-    data: {
-      type: MediaType.IMAGE,
-      usage: MediaUsage.PLAYER_PHOTO,
-      publicUrl: normalizedUrl,
-      uploadedById,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  return created.id;
-}
 
 function revalidatePlayerPaths(teamSlug: string, previousSlug: string, nextSlug: string) {
   const slugs = Array.from(new Set([previousSlug, nextSlug].filter(Boolean)));
@@ -177,7 +136,15 @@ export async function savePlayerProfileAction(
   }
 
   await prisma.$transaction(async (tx) => {
-    const photoMediaId = await resolvePhotoMediaId(payload.photoUrl, user.id, tx);
+    const photoMediaId = await resolveMediaAssetId(
+      {
+        mediaId: payload.photoMediaId,
+        publicUrl: payload.photoUrl,
+        usage: MediaUsage.PLAYER_PHOTO,
+        uploadedById: user.id,
+      },
+      tx,
+    );
 
     await tx.player.update({
       where: {

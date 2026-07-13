@@ -267,12 +267,15 @@ async function getTeamNewsItems(teamName: string, isFirstTeam: boolean): Promise
   }
 
   const matchingArticles = articles.filter((article) => {
-    if (article.relatedTeam === teamName) {
+    if (article.relatedTeams?.includes(teamName) || article.relatedTeam === teamName) {
       return true;
     }
 
     if (isFirstTeam) {
-      return article.relatedTeam === "Primer Equipo";
+      return (
+        article.relatedTeams?.includes("Primer Equipo") ||
+        article.relatedTeam === "Primer Equipo"
+      );
     }
 
     return false;

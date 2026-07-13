@@ -26,7 +26,9 @@ export type TeamManagementTeam = {
   isFirstTeam: boolean;
   displayOrder: number;
   coaches: TeamManagementCoach[];
+  logoMediaId?: string;
   logoUrl: string;
+  bannerMediaId?: string;
   bannerUrl: string;
   playerCount: number;
   nextMatchLabel: string;

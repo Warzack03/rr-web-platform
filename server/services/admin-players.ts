@@ -46,6 +46,7 @@ type ScopedAssignment = {
     publicVisible: boolean;
     active: boolean;
     photoMedia: {
+      id: bigint;
       publicUrl: string;
     } | null;
   };
@@ -191,6 +192,7 @@ export async function getAdminPlayersScreenData(
           active: true,
           photoMedia: {
             select: {
+              id: true,
               publicUrl: true,
             },
           },
@@ -260,6 +262,7 @@ export async function getAdminPlayersScreenData(
       slug: assignment.player.slug,
       visible: assignment.player.publicVisible,
       active: assignment.player.active,
+      photoMediaId: assignment.player.photoMedia?.id.toString(),
       photoUrl: assignment.player.photoMedia?.publicUrl ?? undefined,
       teamSlug: assignment.seasonTeam.publicSlug,
       teamName: assignment.seasonTeam.publicName,

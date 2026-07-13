@@ -76,6 +76,7 @@ export type PublicNewsArticle = {
   coverImageAlt: string;
   featured: boolean;
   relatedTeam?: string;
+  relatedTeams?: string[];
   badge?: string;
   relatedSlugs?: string[];
   content: PublicNewsContentBlock[];

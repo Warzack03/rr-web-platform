@@ -17,7 +17,9 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { savePlayerProfileAction } from "@/app/admin/(panel)/jugadores/actions";
+import { MediaPickerDialog } from "@/components/admin/media-picker-dialog";
 import { PremiumPlayerCard } from "@/components/public/premium-player-card";
+import type { AdminMediaPickerItem } from "@/lib/admin/media-management";
 import {
   adminPlayerPositionOptions,
   type AdminPlayer,
@@ -39,6 +41,7 @@ type AdminPlayersWorkspaceProps = {
   initialPlayers: AdminManagedPlayer[];
   initialTeams: Array<{ slug: string; name: string }>;
   countryOptions: Array<{ value: string; label: string }>;
+  mediaOptions: AdminMediaPickerItem[];
   initialSelectedPlayerId?: string;
   initialTeamFilter?: string;
 };
@@ -102,6 +105,7 @@ export function AdminPlayersWorkspace({
   initialPlayers,
   initialTeams,
   countryOptions,
+  mediaOptions,
   initialSelectedPlayerId,
   initialTeamFilter = "all",
 }: AdminPlayersWorkspaceProps) {
@@ -116,6 +120,7 @@ export function AdminPlayersWorkspace({
   const [visibilityFilter, setVisibilityFilter] = useState<PlayerVisibilityFilter>("all");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [photoPickerOpen, setPhotoPickerOpen] = useState(false);
 
   const canManageProfiles = role !== "COACH";
   const hasUnsavedChanges = JSON.stringify(players) !== JSON.stringify(savedPlayers);
@@ -181,6 +186,7 @@ export function AdminPlayersWorkspace({
       foot: selectedPlayer.foot,
       visible: selectedPlayer.visible,
       active: selectedPlayer.active,
+      photoMediaId: selectedPlayer.photoMediaId ?? "",
       photoUrl: selectedPlayer.photoUrl ?? "",
     });
     setIsSaving(false);
@@ -489,19 +495,56 @@ export function AdminPlayersWorkspace({
 
                 <label className="grid gap-2 lg:col-span-2">
                   <span className={labelClassName()}>Foto/base</span>
-                  <input
-                    type="url"
-                    value={selectedPlayer.photoUrl ?? ""}
-                    onChange={(event) =>
-                      updateSelectedPlayer((player) => ({
-                        ...player,
-                        photoUrl: event.target.value || undefined,
-                      }))
-                    }
-                    disabled={!canManageProfiles || isSaving}
-                    className={inputClassName()}
-                    placeholder="https://..."
-                  />
+                  <div className="grid gap-3 rounded-[10px] border border-white/10 bg-white/4 p-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                    <div className="overflow-hidden rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
+                      {selectedPlayer.photoUrl ? (
+                        <img
+                          src={selectedPlayer.photoUrl}
+                          alt={selectedPlayer.publicName}
+                          className="h-28 w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-28 items-center justify-center text-[color:var(--rr-muted)]">
+                          <ImagePlus className="h-5 w-5" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 py-3 text-[0.9rem] text-white">
+                        {selectedPlayer.photoUrl
+                          ? "Recurso conectado desde biblioteca"
+                          : "Sin foto asignada"}
+                      </div>
+
+                      {canManageProfiles ? (
+                        <div className="flex flex-wrap gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setPhotoPickerOpen(true)}
+                            disabled={isSaving}
+                            className="rr-button rr-button-secondary text-[0.8rem]"
+                          >
+                            Elegir de media
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateSelectedPlayer((player) => ({
+                                ...player,
+                                photoMediaId: undefined,
+                                photoUrl: undefined,
+                              }))
+                            }
+                            disabled={isSaving || !selectedPlayer.photoUrl}
+                            className="rr-button rr-button-secondary text-[0.8rem] disabled:cursor-not-allowed disabled:opacity-45"
+                          >
+                            Quitar foto
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
                 </label>
               </div>
 
@@ -668,6 +711,24 @@ export function AdminPlayersWorkspace({
           </div>
         </div>
       </div>
+
+      <MediaPickerDialog
+        open={photoPickerOpen}
+        title="Elegir foto de jugador"
+        description="Selecciona una imagen ya subida en la biblioteca real."
+        items={mediaOptions}
+        allowedUsages={["PLAYER_PHOTO"]}
+        selectedMediaId={selectedPlayer.photoMediaId}
+        onClose={() => setPhotoPickerOpen(false)}
+        onSelect={(item) => {
+          updateSelectedPlayer((player) => ({
+            ...player,
+            photoMediaId: item.id,
+            photoUrl: item.publicUrl,
+          }));
+          setPhotoPickerOpen(false);
+        }}
+      />
     </div>
   );
 }

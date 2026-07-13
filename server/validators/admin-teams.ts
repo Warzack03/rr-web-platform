@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { teamCoachRoleOptions } from "@/lib/admin/team-management-mocks";
 
+const mediaReferenceSchema = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === "" || value.startsWith("/") || /^https?:\/\//.test(value),
+    "Introduce una ruta publica valida.",
+  );
+
 const coachInputSchema = z.object({
   id: z.string().trim().min(1),
   name: z.string().trim().min(1, "Cada entrenador necesita nombre."),
@@ -24,8 +32,10 @@ export const saveTeamInputSchema = z.object({
   isFirstTeam: z.boolean(),
   displayOrder: z.number().int().min(0, "El orden no puede ser negativo."),
   coaches: z.array(coachInputSchema).min(1, "Anade al menos un entrenador."),
-  logoUrl: z.string().trim().url("Introduce una URL valida para el logo.").or(z.literal("")),
-  bannerUrl: z.string().trim().url("Introduce una URL valida para el banner.").or(z.literal("")),
+  logoMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
+  logoUrl: mediaReferenceSchema.or(z.literal("")),
+  bannerMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
+  bannerUrl: mediaReferenceSchema.or(z.literal("")),
 });
 
 export const toggleTeamInputSchema = z.object({

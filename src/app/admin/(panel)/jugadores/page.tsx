@@ -1,6 +1,7 @@
 import { AdminPlayersWorkspace } from "@/components/admin/admin-players-workspace";
 import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
+import { getAdminMediaPickerOptions } from "@/server/services/admin-media";
 import { getAdminPlayersScreenData } from "@/server/services/admin-players";
 
 type AdminPlayersPageProps = {
@@ -18,7 +19,10 @@ export default async function AdminPlayersPage({
   searchParams,
 }: AdminPlayersPageProps) {
   const user = await requireAdminSectionAccess("players");
-  const data = await getAdminPlayersScreenData(user);
+  const [data, mediaOptions] = await Promise.all([
+    getAdminPlayersScreenData(user),
+    getAdminMediaPickerOptions(["PLAYER_PHOTO"]),
+  ]);
   const resolvedSearchParams = await searchParams;
   const requestedPlayerId = getSingleValue(resolvedSearchParams.player);
   const requestedTeamSlug = getSingleValue(resolvedSearchParams.team);
@@ -29,6 +33,7 @@ export default async function AdminPlayersPage({
       initialPlayers={data.players}
       initialTeams={data.teams}
       countryOptions={data.countryOptions}
+      mediaOptions={mediaOptions}
       initialSelectedPlayerId={
         requestedPlayerId && data.players.some((player) => player.id === requestedPlayerId)
           ? requestedPlayerId
