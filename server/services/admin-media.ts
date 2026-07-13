@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
+import { mkdir, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { MediaType, MediaUsage, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
@@ -231,6 +231,41 @@ function resolveStorageAbsolutePath(storagePath: string) {
   return absolutePath;
 }
 
+function buildRelativeStoragePath(
+  usage: AdminMediaUsage,
+  fileName: string,
+  dateParts?: { year: string; month: string },
+) {
+  const now = new Date();
+  const year = dateParts?.year ?? `${now.getFullYear()}`;
+  const month = dateParts?.month ?? `${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+  return path
+    .join(
+      "public",
+      "media",
+      "uploads",
+      getAdminMediaUsageFolder(usage),
+      year,
+      month,
+      fileName,
+    )
+    .replace(/\\/g, "/");
+}
+
+function extractStorageDateParts(storagePath: string) {
+  const match = storagePath.match(/\/(\d{4})\/(\d{2})\/[^/]+$/);
+
+  if (!match) {
+    return undefined;
+  }
+
+  return {
+    year: match[1],
+    month: match[2],
+  };
+}
+
 async function fetchMediaAssetForMutation(id: bigint) {
   return prisma.mediaAsset.findFirst({
     where: {
@@ -454,19 +489,7 @@ export async function storeUploadedMediaAsset(
   const extension = resolveExtension(file.name, file.type);
   const safeBaseName = sanitizeBaseName(file.name.replace(/\.[^/.]+$/, ""));
   const fileName = `${safeBaseName}-${randomUUID()}.${extension}`;
-  const folder = getAdminMediaUsageFolder(usageValue);
-  const now = new Date();
-  const relativeStoragePath = path
-    .join(
-      "public",
-      "media",
-      "uploads",
-      folder,
-      `${now.getFullYear()}`,
-      `${String(now.getMonth() + 1).padStart(2, "0")}`,
-      fileName,
-    )
-    .replace(/\\/g, "/");
+  const relativeStoragePath = buildRelativeStoragePath(usageValue, fileName);
   const absoluteStoragePath = resolveStorageAbsolutePath(relativeStoragePath);
 
   await mkdir(path.dirname(absoluteStoragePath), { recursive: true });
@@ -551,15 +574,44 @@ export async function updateMediaAssetMetadata(
     throw new Error("No puedes cambiar el uso de un recurso que ya esta enlazado.");
   }
 
+  let nextStoragePath = existing.storagePath ?? null;
+  let nextPublicUrl = existing.publicUrl;
+
+  if (
+    referenceCount === 0 &&
+    existing.storagePath &&
+    existing.usage !== nextUsage
+  ) {
+    const currentFileName = path.basename(existing.storagePath);
+    const movedStoragePath = buildRelativeStoragePath(
+      input.usage,
+      currentFileName,
+      extractStorageDateParts(existing.storagePath),
+    );
+
+    if (movedStoragePath !== existing.storagePath) {
+      const currentAbsolutePath = resolveStorageAbsolutePath(existing.storagePath);
+      const nextAbsolutePath = resolveStorageAbsolutePath(movedStoragePath);
+
+      await mkdir(path.dirname(nextAbsolutePath), { recursive: true });
+      await rename(currentAbsolutePath, nextAbsolutePath);
+
+      nextStoragePath = movedStoragePath;
+      nextPublicUrl = `/${movedStoragePath.replace(/^public\//, "")}`;
+    }
+  }
+
   const updated = await prisma.mediaAsset.update({
     where: {
       id: existing.id,
     },
     data: {
       usage: nextUsage,
+      storagePath: nextStoragePath,
+      publicUrl: nextPublicUrl,
       altText: normalizeAltText(
         input.altText,
-        deriveMediaLabelFromPath(existing.storagePath ?? existing.publicUrl),
+        deriveMediaLabelFromPath(nextStoragePath ?? nextPublicUrl),
       ),
       uploadedById: user.id,
     },
