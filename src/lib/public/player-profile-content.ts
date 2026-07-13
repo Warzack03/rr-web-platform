@@ -3,7 +3,7 @@ export type DominantFoot = "left" | "right" | "both" | "unknown";
 export type PublicPlayerType = "field" | "goalkeeper";
 export type PublicTeamType = "first-team" | "academy";
 export type PublicPlayerStatsLevel = "advanced" | "basic";
-export type PublicPlayerGroup = "defensas" | "mediocentros" | "delanteros";
+export type PublicPlayerGroup = "defensas" | "mediocentros" | "banda" | "delanteros";
 
 export type PublicPlayerStats = {
   matchesPlayed: number;
@@ -91,10 +91,13 @@ function inferPlayerGroupFromPosition(position: string): PublicPlayerGroup {
 
   if (
     normalizedPosition.includes("delantero") ||
-    normalizedPosition.includes("extremo") ||
-    normalizedPosition.includes("banda")
+    normalizedPosition.includes("extremo")
   ) {
     return "delanteros";
+  }
+
+  if (normalizedPosition.includes("banda")) {
+    return "banda";
   }
 
   return "mediocentros";

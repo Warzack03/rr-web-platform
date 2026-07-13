@@ -118,10 +118,13 @@ export function inferPlayerGroup(positionLabel: string): PublicPlayerGroup {
 
   if (
     normalizedLabel.includes("delantero") ||
-    normalizedLabel.includes("extremo") ||
-    normalizedLabel.includes("banda")
+    normalizedLabel.includes("extremo")
   ) {
     return "delanteros";
+  }
+
+  if (normalizedLabel.includes("banda")) {
+    return "banda";
   }
 
   return "mediocentros";

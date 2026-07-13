@@ -79,6 +79,11 @@ export default async function TeamSquadPage({
       players: squad.fieldPlayers.filter((player) => player.group === "mediocentros"),
     },
     {
+      key: "banda",
+      title: "Banda",
+      players: squad.fieldPlayers.filter((player) => player.group === "banda"),
+    },
+    {
       key: "delanteros",
       title: "Delanteros",
       players: squad.fieldPlayers.filter((player) => player.group === "delanteros"),
