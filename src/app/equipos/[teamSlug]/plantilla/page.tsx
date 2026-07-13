@@ -80,7 +80,7 @@ export default async function TeamSquadPage({
     },
     {
       key: "banda",
-      title: "Banda",
+      title: "Bandas",
       players: squad.fieldPlayers.filter((player) => player.group === "banda"),
     },
     {

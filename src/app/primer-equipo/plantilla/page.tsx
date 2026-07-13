@@ -39,7 +39,7 @@ export default async function FirstTeamSquadPage() {
     },
     {
       key: "banda",
-      title: "Banda",
+      title: "Bandas",
       players: squad.fieldPlayers.filter((player) => player.group === "banda"),
     },
     {
