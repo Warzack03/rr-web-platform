@@ -77,7 +77,7 @@ const teamFormSchema = z.object({
 });
 
 const fieldClassName =
-  "min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
+  "min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]";
 
 function slugify(value: string) {
   return value
@@ -122,7 +122,7 @@ function createDefaultTeam(
     bannerUrl: "",
     playerCount: 0,
     nextMatchLabel: "Pendiente de calendario",
-    accent: "from-[rgba(253,203,88,0.14)] to-[rgba(255,255,255,0.02)]",
+    accent: "from-[rgba(243,203,69,0.14)] to-[rgba(255,255,255,0.02)]",
   };
 }
 
@@ -342,8 +342,8 @@ export function TeamFormDialog({
 
   return (
     <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-[rgba(5,10,18,0.78)] px-4 py-6 backdrop-blur-sm sm:px-6 sm:py-10">
-      <div className="w-full max-w-5xl rounded-[12px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(16,37,67,0.98),rgba(7,19,34,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
-        <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.08)] px-5 py-5 sm:px-6">
+      <div className="w-full max-w-5xl rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(13,32,55,0.98),rgba(7,22,41,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.1)] px-5 py-5 sm:px-6">
           <div className="space-y-2">
             <p className="rr-kicker text-[color:var(--rr-gold)]">
               {mode === "create"
@@ -353,7 +353,7 @@ export function TeamFormDialog({
                   : "Editar equipo"}
             </p>
             <div>
-              <h2 className="rr-display text-[2.4rem] leading-[0.92] text-white">
+              <h2 className="rr-display text-[2.45rem] leading-[1] text-white">
                 {mode === "create"
                   ? "Crear equipo"
                   : mode === "coaches"
@@ -367,7 +367,7 @@ export function TeamFormDialog({
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[8px] border border-white/10 text-[color:var(--rr-muted)] transition hover:text-white"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.28)] hover:text-white"
             aria-label="Cerrar"
           >
             <X className="h-5 w-5 text-[color:var(--rr-gold)]" />
@@ -430,7 +430,7 @@ export function TeamFormDialog({
                           );
                         }}
                         disabled={formState.isFirstTeam}
-                        className="inline-flex min-h-11 items-center rounded-[8px] border border-white/10 px-3 text-[0.8rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                        className="inline-flex min-h-11 items-center rounded-full border border-white/10 px-3 text-[0.8rem] text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.24)] hover:text-white"
                       >
                         Auto
                       </button>
@@ -465,8 +465,8 @@ export function TeamFormDialog({
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Logo
                     </span>
-                    <div className="grid gap-3 rounded-[10px] border border-white/10 bg-white/4 p-3">
-                      <div className="overflow-hidden rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
+                    <div className="grid gap-3 rounded-[16px] border border-white/10 bg-white/4 p-3">
+                      <div className="overflow-hidden rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
                         {formState.logoUrl ? (
                           <img
                             src={formState.logoUrl}
@@ -509,8 +509,8 @@ export function TeamFormDialog({
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Banner
                     </span>
-                    <div className="grid gap-3 rounded-[10px] border border-white/10 bg-white/4 p-3">
-                      <div className="overflow-hidden rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
+                    <div className="grid gap-3 rounded-[16px] border border-white/10 bg-white/4 p-3">
+                      <div className="overflow-hidden rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
                         {formState.bannerUrl ? (
                           <img
                             src={formState.bannerUrl}
@@ -639,7 +639,7 @@ export function TeamFormDialog({
                 />
 
                 <div className="grid gap-3 md:grid-cols-3">
-                  <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+                  <label className="flex items-center gap-3 rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
                     <input
                       type="checkbox"
                       checked={formState.publicVisible}
@@ -651,7 +651,7 @@ export function TeamFormDialog({
                     Visible en la web
                   </label>
 
-                  <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+                  <label className="flex items-center gap-3 rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
                     <input
                       type="checkbox"
                       checked={formState.active}
@@ -663,7 +663,7 @@ export function TeamFormDialog({
                     Equipo activo
                   </label>
 
-                  <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+                  <label className="flex items-center gap-3 rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
                     <input
                       type="checkbox"
                       checked={formState.isFirstTeam}

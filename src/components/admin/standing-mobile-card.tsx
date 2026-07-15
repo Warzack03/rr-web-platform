@@ -88,7 +88,7 @@ function StandingMobileStepper({
       <span className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
         {label}
       </span>
-      <div className="grid grid-cols-[2.4rem_minmax(0,1fr)_2.4rem] items-center overflow-hidden rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)]">
+      <div className="grid grid-cols-[2.4rem_minmax(0,1fr)_2.4rem] items-center overflow-hidden rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
         <button
           type="button"
           onClick={() => updateValue(value - 1)}
@@ -111,7 +111,7 @@ function StandingMobileStepper({
         <button
           type="button"
           onClick={() => updateValue(value + 1)}
-          className="inline-flex h-10 items-center justify-center border-l border-[rgba(253,203,88,0.18)] bg-[rgba(253,203,88,0.1)] text-[color:var(--rr-gold)]"
+          className="inline-flex h-10 items-center justify-center border-l border-[rgba(243,203,69,0.2)] bg-[rgba(243,203,69,0.1)] text-[color:var(--rr-gold)]"
           aria-label={`Sumar ${label}`}
         >
           <Plus className="h-4 w-4" />
@@ -134,7 +134,7 @@ export function StandingMobileCard({
         "p-4 lg:hidden",
         errors.length > 0 ? "border-[rgba(214,64,69,0.34)]" : undefined,
         row.isOwnTeam
-          ? "border-[rgba(253,203,88,0.38)] bg-[linear-gradient(180deg,rgba(48,37,10,0.92),rgba(11,21,37,0.96))]"
+          ? "border-[rgba(243,203,69,0.38)] bg-[linear-gradient(160deg,rgba(243,203,69,0.12),rgba(255,255,255,0.028))]"
           : undefined,
       )}
     >
@@ -158,14 +158,14 @@ export function StandingMobileCard({
           </div>
 
           {row.isOwnTeam ? (
-            <span className="rounded-full border border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] px-2 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--rr-gold)]">
+            <span className="rounded-full border border-[rgba(243,203,69,0.32)] bg-[rgba(243,203,69,0.12)] px-2 py-1 text-[0.72rem] font-semibold text-[color:var(--rr-gold)]">
               Equipo del club
             </span>
           ) : null}
         </div>
 
         {errors.length > 0 ? (
-          <div className="rounded-[10px] border border-[rgba(214,64,69,0.34)] bg-[rgba(214,64,69,0.08)] px-3 py-3 text-[0.86rem] text-[#ffc3bc]">
+          <div className="rounded-[16px] border border-[rgba(221,108,112,0.34)] bg-[rgba(221,108,112,0.1)] px-3 py-3 text-[0.86rem] text-[#ffc1c4]">
             {errors[0]}
           </div>
         ) : null}
@@ -185,7 +185,7 @@ export function StandingMobileCard({
             <span className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
               DG
             </span>
-            <div className="min-h-10 rounded-[8px] border border-white/5 bg-white/5 px-3 py-2 text-[0.95rem] text-[color:var(--rr-muted)]">
+            <div className="min-h-10 rounded-[14px] border border-white/5 bg-white/5 px-3 py-2 text-[0.95rem] text-[color:var(--rr-muted)]">
               {row.goalDifference}
             </div>
           </div>
@@ -193,7 +193,7 @@ export function StandingMobileCard({
             <span className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
               Pts
             </span>
-            <div className="min-h-10 rounded-[8px] border border-white/5 bg-white/5 px-3 py-2 text-[0.95rem] text-[color:var(--rr-muted)]">
+            <div className="min-h-10 rounded-[14px] border border-white/5 bg-white/5 px-3 py-2 text-[0.95rem] text-[color:var(--rr-muted)]">
               {row.points}
             </div>
           </div>

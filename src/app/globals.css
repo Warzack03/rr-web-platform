@@ -289,5 +289,21 @@ select {
 .rr-admin input,
 .rr-admin textarea,
 .rr-admin select {
+  border-color: var(--rr-border);
+  border-radius: 14px;
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--rr-text);
   letter-spacing: 0;
+}
+
+.rr-admin input:focus,
+.rr-admin textarea:focus,
+.rr-admin select:focus {
+  border-color: rgba(243, 203, 69, 0.48);
+  box-shadow: 0 0 0 1px rgba(243, 203, 69, 0.08);
+}
+
+.rr-admin input::placeholder,
+.rr-admin textarea::placeholder {
+  color: rgba(170, 189, 216, 0.58);
 }

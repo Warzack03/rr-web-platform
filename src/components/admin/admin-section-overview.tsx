@@ -129,7 +129,7 @@ export function AdminSectionOverview({
       />
 
       {isMock ? (
-        <AdminPanel className="border-[rgba(253,203,88,0.24)] p-5 sm:p-6">
+        <AdminPanel className="border-[rgba(243,203,69,0.24)] p-5 sm:p-6">
           <div className="grid gap-5 xl:grid-cols-[1.12fr_0.88fr]">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
@@ -147,7 +147,7 @@ export function AdminSectionOverview({
             </div>
 
             <div className="grid gap-3">
-              <div className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4">
+              <div className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4">
                 <div className="flex items-center gap-3">
                   <LayoutTemplate className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
                   <p className="text-[0.95rem] font-semibold text-white">
@@ -158,7 +158,7 @@ export function AdminSectionOverview({
                   Revisar estructura, campos clave, prioridades y como se reflejara despues en la web publica.
                 </p>
               </div>
-              <div className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4">
+              <div className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4">
                 <div className="flex items-center gap-3">
                   <AlertTriangle className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
                   <p className="text-[0.95rem] font-semibold text-white">
@@ -202,7 +202,7 @@ export function AdminSectionOverview({
                 {group.items.map((item) => (
                   <div
                     key={item}
-                    className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.94rem] leading-6 text-[color:var(--rr-muted)]"
+                    className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.94rem] leading-6 text-[color:var(--rr-muted)]"
                   >
                     {item}
                   </div>
@@ -231,7 +231,7 @@ export function AdminSectionOverview({
                 <Link
                   key={recommendation.href}
                   href={recommendation.href}
-                  className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3 text-[0.94rem] text-white transition hover:border-[rgba(253,203,88,0.24)] hover:bg-[rgba(255,255,255,0.06)]"
+                  className="flex min-h-12 items-center justify-between rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3 text-[0.94rem] text-white transition hover:border-[rgba(243,203,69,0.24)] hover:bg-[rgba(255,255,255,0.06)]"
                 >
                   <span>{recommendation.label}</span>
                   <ArrowRight className="h-4 w-4 text-[color:var(--rr-gold)]" />
@@ -239,7 +239,7 @@ export function AdminSectionOverview({
               ))}
             </div>
 
-            <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-4">
+            <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-4">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
                 <p className="text-[0.95rem] font-semibold text-white">

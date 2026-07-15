@@ -49,10 +49,10 @@ type PlayerStatsMobileCardProps = {
 };
 
 const inputClassName =
-  "min-h-11 rounded-[10px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 text-[0.96rem] text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
+  "min-h-11 rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 text-[0.96rem] text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]";
 
 function getPlayerSubtitle(player: AdminPlayer) {
-  return `${player.position} · ${player.country} · ${player.foot}`;
+  return `${player.position} - ${player.country} - ${player.foot}`;
 }
 
 function getFieldTone(fieldKey: AdminEditableStatFieldKey): PlayerStatTone {
@@ -150,9 +150,9 @@ function MatchStatFieldInput({
         </span>
         <div
           className={cn(
-            "grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-2 rounded-[10px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-2 py-2",
+            "grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-2 rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-2 py-2",
             changed
-              ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.08)]"
+              ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.08)]"
               : undefined,
             disabled ? "opacity-55" : undefined,
           )}
@@ -160,7 +160,7 @@ function MatchStatFieldInput({
           <button
             type="button"
             onClick={() => onAdjustPlayer(player.id, field.key, -1)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] border border-white/10 bg-white/5 text-white disabled:cursor-not-allowed disabled:opacity-35"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white disabled:cursor-not-allowed disabled:opacity-35"
             aria-label={`Restar en ${field.label}`}
             disabled={disabled || matchEntry[field.key] <= 0}
           >
@@ -182,7 +182,7 @@ function MatchStatFieldInput({
           <button
             type="button"
             onClick={() => onAdjustPlayer(player.id, field.key, 1)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] border border-[rgba(253,203,88,0.24)] bg-[rgba(253,203,88,0.1)] text-[color:var(--rr-gold)] disabled:cursor-not-allowed disabled:opacity-35"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(243,203,69,0.24)] bg-[rgba(243,203,69,0.1)] text-[color:var(--rr-gold)] disabled:cursor-not-allowed disabled:opacity-35"
             aria-label={`Sumar en ${field.label}`}
             disabled={disabled}
           >
@@ -216,7 +216,7 @@ function MatchStatFieldInput({
         className={cn(
           inputClassName,
           changed
-            ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.08)]"
+            ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.08)]"
             : undefined,
           !matchEntry.played ? "cursor-not-allowed opacity-55" : undefined,
         )}
@@ -236,7 +236,7 @@ function DerivedMetricStrip({
       {items.map((item) => (
         <div
           key={item.label}
-          className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 py-3"
+          className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 py-3"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
@@ -297,8 +297,8 @@ export function PlayerStatsMobileCard({
                 {player.matchesPlayed} PJ
               </span>
               {isGuestPlayer ? (
-                <span className="rounded-full border border-[rgba(52,112,200,0.28)] bg-[rgba(52,112,200,0.1)] px-2 py-1 text-[0.74rem] text-[#9fc4ff]">
-                  Puntual{guestOriginTeamName ? ` · ${guestOriginTeamName}` : ""}
+                <span className="rounded-full border border-[rgba(107,159,255,0.28)] bg-[rgba(107,159,255,0.1)] px-2 py-1 text-[0.74rem] text-[#b8d3ff]">
+                  Puntual{guestOriginTeamName ? ` - ${guestOriginTeamName}` : ""}
                 </span>
               ) : null}
             </div>
@@ -324,9 +324,9 @@ export function PlayerStatsMobileCard({
           aria-checked={matchEntry.played}
           onClick={() => onTogglePlayed(player.id)}
           className={cn(
-            "flex w-full items-center justify-between rounded-[12px] border px-3 py-3 text-left transition",
+            "flex w-full items-center justify-between rounded-[16px] border px-3 py-3 text-left transition",
             matchEntry.played
-              ? "border-[rgba(253,203,88,0.3)] bg-[rgba(253,203,88,0.1)]"
+              ? "border-[rgba(243,203,69,0.3)] bg-[rgba(243,203,69,0.1)]"
               : "border-white/10 bg-white/4",
           )}
         >
@@ -342,7 +342,7 @@ export function PlayerStatsMobileCard({
             className={cn(
               "relative inline-flex h-7 w-12 shrink-0 rounded-full border transition",
               matchEntry.played
-                ? "border-[rgba(253,203,88,0.28)] bg-[rgba(253,203,88,0.16)]"
+                ? "border-[rgba(243,203,69,0.28)] bg-[rgba(243,203,69,0.16)]"
                 : "border-white/10 bg-white/6",
             )}
           >
@@ -360,7 +360,7 @@ export function PlayerStatsMobileCard({
             <span className="rr-kicker text-[color:var(--rr-gold)]">
               Acumulado y medias
             </span>
-            <div className="h-px flex-1 bg-[linear-gradient(90deg,rgba(253,203,88,0.35),transparent)]" />
+            <div className="h-px flex-1 bg-[linear-gradient(90deg,rgba(243,203,69,0.35),transparent)]" />
           </div>
           <DerivedMetricStrip items={derivedMetrics} />
         </div>
@@ -370,7 +370,7 @@ export function PlayerStatsMobileCard({
             <span className="rr-kicker text-[color:var(--rr-gold)]">
               Carga del partido
             </span>
-            <div className="h-px flex-1 bg-[linear-gradient(90deg,rgba(253,203,88,0.35),transparent)]" />
+            <div className="h-px flex-1 bg-[linear-gradient(90deg,rgba(243,203,69,0.35),transparent)]" />
           </div>
 
           <div

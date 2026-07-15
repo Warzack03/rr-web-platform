@@ -54,7 +54,7 @@ export function StandingPublishActions({
             </p>
           </div>
           {validationErrors.length > 0 ? (
-            <div className="rounded-[10px] border border-[rgba(214,64,69,0.34)] bg-[rgba(214,64,69,0.08)] px-3 py-3 text-[0.9rem] text-[#ffc3bc]">
+            <div className="rounded-[16px] border border-[rgba(214,64,69,0.34)] bg-[rgba(214,64,69,0.08)] px-3 py-3 text-[0.9rem] text-[#ffc1c4]">
               Hay {validationErrors.length} validaciones pendientes antes de guardar esta tabla.
             </div>
           ) : (

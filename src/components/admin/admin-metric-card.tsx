@@ -65,7 +65,7 @@ export function AdminMetricCard({
         {icon ? (
           <div
             className={cn(
-              "flex items-center justify-center rounded-[10px] border border-white/10 bg-white/5 text-[color:var(--rr-gold)]",
+              "flex items-center justify-center rounded-[16px] border border-white/10 bg-white/5 text-[color:var(--rr-gold)]",
               compact ? "h-11 w-11" : "h-12 w-12",
             )}
           >

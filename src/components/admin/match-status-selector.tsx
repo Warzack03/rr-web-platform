@@ -51,10 +51,10 @@ export function MatchStatusSelector({
             onClick={() => !disabled && onChange(option.value)}
             disabled={disabled}
             className={cn(
-              "rounded-[10px] border px-4 py-3 text-left transition",
+              "rounded-[16px] border px-4 py-3.5 text-left transition",
               active
-                ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.1)] text-white"
-                : "border-white/10 bg-white/4 text-[color:var(--rr-muted)] hover:border-[rgba(253,203,88,0.24)] hover:text-white",
+                ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.1)] text-white"
+                : "border-white/10 bg-white/4 text-[color:var(--rr-muted)] hover:border-[rgba(243,203,69,0.24)] hover:text-white",
               disabled && "cursor-not-allowed opacity-45 hover:border-white/10 hover:text-[color:var(--rr-muted)]",
             )}
           >

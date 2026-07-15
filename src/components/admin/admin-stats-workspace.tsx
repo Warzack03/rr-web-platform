@@ -672,7 +672,7 @@ export function AdminStatsWorkspace({
       ) : null}
 
       {role === "COACH" && selectedMatch ? (
-        <AdminPanel className="hidden border-[rgba(253,203,88,0.24)] p-5 sm:block sm:p-6">
+        <AdminPanel className="hidden border-[rgba(243,203,69,0.24)] p-5 sm:block sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">
               <p className="rr-kicker text-[color:var(--rr-gold)]">Partido activo</p>
@@ -763,8 +763,8 @@ export function AdminStatsWorkspace({
           <div className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
             <AdminPanel className="p-5">
               <div className="space-y-3">
-                <div className="h-12 animate-pulse rounded-[10px] bg-white/6" />
-                <div className="h-24 animate-pulse rounded-[10px] bg-white/6" />
+                <div className="h-12 animate-pulse rounded-[16px] bg-white/6" />
+                <div className="h-24 animate-pulse rounded-[16px] bg-white/6" />
               </div>
             </AdminPanel>
             <AdminPanel className="p-5">
@@ -772,7 +772,7 @@ export function AdminStatsWorkspace({
                 {Array.from({ length: 3 }).map((_, index) => (
                   <div
                     key={index}
-                    className="h-24 animate-pulse rounded-[10px] bg-white/6"
+                    className="h-24 animate-pulse rounded-[16px] bg-white/6"
                   />
                 ))}
               </div>
@@ -837,7 +837,7 @@ export function AdminStatsWorkspace({
                   </p>
                 </div>
 
-                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.84rem] text-[color:var(--rr-muted)]">
+                <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.84rem] text-[color:var(--rr-muted)]">
                   {activeSeasonLabel ?? selectedTeam?.season ?? "Temporada activa"} · Ultimo guardado:{" "}
                   <span
                     className={
@@ -867,7 +867,7 @@ export function AdminStatsWorkspace({
                         setRequestedTeamSlug(event.target.value);
                         resetReviewContext();
                       }}
-                      className="min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                      className="min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                     >
                       {allowedTeams.map((team) => (
                         <option key={team.slug} value={team.slug}>
@@ -894,7 +894,7 @@ export function AdminStatsWorkspace({
                       setRequestedMatchId(nextMatchId);
                       resetReviewContext();
                     }}
-                    className="min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                    className="min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                   >
                     {matches.map((match) => (
                       <option key={match.id} value={match.id}>
@@ -927,14 +927,14 @@ export function AdminStatsWorkspace({
                 </div>
               </div>
 
-              <div className="grid gap-3 rounded-[12px] border border-[rgba(52,112,200,0.24)] bg-[rgba(52,112,200,0.06)] px-4 py-3 xl:grid-cols-[auto_minmax(16rem,22rem)_auto] xl:items-center">
-                <p className="rr-kicker text-[#9fc4ff]">Jugador puntual</p>
+              <div className="grid gap-3 rounded-[12px] border border-[rgba(107,159,255,0.24)] bg-[rgba(107,159,255,0.06)] px-4 py-3 xl:grid-cols-[auto_minmax(16rem,22rem)_auto] xl:items-center">
+                <p className="rr-kicker text-[#b8d3ff]">Jugador puntual</p>
 
                 <div className="grid gap-3 sm:grid-cols-[minmax(16rem,22rem)_auto] xl:col-span-2">
                   <select
                     value={pendingGuestPlayerId}
                     onChange={(event) => setPendingGuestPlayerId(event.target.value)}
-                    className="min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                    className="min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                   >
                     <option value="">Selecciona un jugador</option>
                     {addableGuestPlayers.map((player) => (
@@ -995,7 +995,7 @@ export function AdminStatsWorkspace({
                           }}
                           className={`rounded-full border px-3 py-2 text-[0.82rem] font-medium transition ${
                             effectiveMobileSection === "outfield"
-                              ? "border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]"
+                              ? "border-[rgba(243,203,69,0.32)] bg-[rgba(243,203,69,0.12)] text-[color:var(--rr-gold)]"
                               : "border-white/10 bg-white/5 text-[color:var(--rr-muted)]"
                           }`}
                         >
@@ -1012,7 +1012,7 @@ export function AdminStatsWorkspace({
                           }}
                           className={`rounded-full border px-3 py-2 text-[0.82rem] font-medium transition ${
                             effectiveMobileSection === "goalkeepers"
-                              ? "border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]"
+                              ? "border-[rgba(243,203,69,0.32)] bg-[rgba(243,203,69,0.12)] text-[color:var(--rr-gold)]"
                               : "border-white/10 bg-white/5 text-[color:var(--rr-muted)]"
                           }`}
                         >
@@ -1025,9 +1025,9 @@ export function AdminStatsWorkspace({
                       <button
                         type="button"
                         onClick={() => setMobileViewMode("list")}
-                        className={`rounded-[10px] px-3 py-2 text-[0.82rem] font-medium transition ${
+                        className={`rounded-[16px] px-3 py-2 text-[0.82rem] font-medium transition ${
                           mobileViewMode === "list"
-                            ? "bg-[rgba(253,203,88,0.14)] text-[color:var(--rr-gold)]"
+                            ? "bg-[rgba(243,203,69,0.14)] text-[color:var(--rr-gold)]"
                             : "text-[color:var(--rr-muted)]"
                         }`}
                       >
@@ -1036,9 +1036,9 @@ export function AdminStatsWorkspace({
                       <button
                         type="button"
                         onClick={() => setMobileViewMode("focused")}
-                        className={`rounded-[10px] px-3 py-2 text-[0.82rem] font-medium transition ${
+                        className={`rounded-[16px] px-3 py-2 text-[0.82rem] font-medium transition ${
                           mobileViewMode === "focused"
-                            ? "bg-[rgba(253,203,88,0.14)] text-[color:var(--rr-gold)]"
+                            ? "bg-[rgba(243,203,69,0.14)] text-[color:var(--rr-gold)]"
                             : "text-[color:var(--rr-muted)]"
                         }`}
                       >
@@ -1047,7 +1047,7 @@ export function AdminStatsWorkspace({
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 text-[0.8rem]">
-                      <div className="rounded-[10px] border border-white/10 bg-white/4 px-3 py-2 text-[color:var(--rr-muted)]">
+                      <div className="rounded-[16px] border border-white/10 bg-white/4 px-3 py-2 text-[color:var(--rr-muted)]">
                         Pendientes:{" "}
                         <span className="font-semibold text-white">
                           {
@@ -1057,7 +1057,7 @@ export function AdminStatsWorkspace({
                           }
                         </span>
                       </div>
-                      <div className="rounded-[10px] border border-[rgba(52,112,200,0.24)] bg-[rgba(52,112,200,0.08)] px-3 py-2 text-[#9fc4ff]">
+                      <div className="rounded-[16px] border border-[rgba(107,159,255,0.24)] bg-[rgba(107,159,255,0.08)] px-3 py-2 text-[#b8d3ff]">
                         Revisados:{" "}
                         <span className="font-semibold text-white">
                           {
@@ -1067,7 +1067,7 @@ export function AdminStatsWorkspace({
                           }
                         </span>
                       </div>
-                      <div className="rounded-[10px] border border-[rgba(253,203,88,0.24)] bg-[rgba(253,203,88,0.08)] px-3 py-2 text-[color:var(--rr-gold)]">
+                      <div className="rounded-[16px] border border-[rgba(243,203,69,0.24)] bg-[rgba(243,203,69,0.08)] px-3 py-2 text-[color:var(--rr-gold)]">
                         Editados:{" "}
                         <span className="font-semibold text-white">
                           {
@@ -1080,11 +1080,11 @@ export function AdminStatsWorkspace({
                     </div>
 
                     {mobileViewMode === "focused" && focusedMobilePlayer ? (
-                      <div className="space-y-3 rounded-[12px] border border-[rgba(253,203,88,0.2)] bg-[rgba(253,203,88,0.06)] px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
+                      <div className="space-y-3 rounded-[12px] border border-[rgba(243,203,69,0.2)] bg-[rgba(243,203,69,0.06)] px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
                         <div>
                           Jugador {effectiveFocusedPlayerIndex + 1} de {mobileVisiblePlayers.length}
                         </div>
-                        <label className="flex items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-[rgba(7,19,34,0.42)] px-3 py-3">
+                        <label className="flex items-center justify-between gap-3 rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 py-3">
                           <div>
                             <p className="text-[0.88rem] font-medium text-white">
                               Autoavance
@@ -1100,7 +1100,7 @@ export function AdminStatsWorkspace({
                             onClick={() => setAutoAdvanceEnabled((current) => !current)}
                             className={`relative inline-flex h-7 w-12 shrink-0 rounded-full border transition ${
                               autoAdvanceEnabled
-                                ? "border-[rgba(253,203,88,0.28)] bg-[rgba(253,203,88,0.16)]"
+                                ? "border-[rgba(243,203,69,0.28)] bg-[rgba(243,203,69,0.16)]"
                                 : "border-white/10 bg-white/6"
                             }`}
                           >
@@ -1252,7 +1252,7 @@ export function AdminStatsWorkspace({
 
               {role === "COACH" ? (
                 <div className="sticky bottom-4 z-10">
-                  <div className="rounded-[12px] border border-[rgba(253,203,88,0.24)] bg-[rgba(10,18,31,0.96)] px-4 py-4 shadow-[0_12px_30px_rgba(0,0,0,0.22)]">
+                  <div className="rounded-[12px] border border-[rgba(243,203,69,0.24)] bg-[rgba(10,18,31,0.96)] px-4 py-4 shadow-[0_12px_30px_rgba(0,0,0,0.22)]">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="text-[0.9rem] text-[color:var(--rr-muted)]">
                         {hasUnsavedChanges

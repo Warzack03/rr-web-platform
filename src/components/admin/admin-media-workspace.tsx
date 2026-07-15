@@ -45,7 +45,7 @@ const mediaFilterOptions: Array<{ value: MediaFilter; label: string }> = [
 
 function inputClassName(className?: string) {
   return cn(
-    "min-h-11 rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]",
+    "min-h-11 rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]",
     className,
   );
 }
@@ -337,7 +337,7 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
 
               <div className="grid gap-2">
                 <span className={labelClassName()}>Subida nueva</span>
-                <div className="rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 py-2.5">
+                <div className="rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 py-2.5">
                   <select
                     value={uploadUsage}
                     onChange={(event) => setUploadUsage(event.target.value as AdminMediaUsage)}
@@ -383,7 +383,7 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
                     className={cn(
                       "overflow-hidden rounded-[12px] border text-left transition",
                       active
-                        ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.08)]"
+                        ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.08)]"
                         : "border-white/10 bg-[rgba(255,255,255,0.04)] hover:border-white/20",
                     )}
                   >
@@ -402,7 +402,7 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
                             {item.createdAtLabel}
                           </p>
                         </div>
-                        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-white/10 bg-white/5">
+                        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] border border-white/10 bg-white/5">
                           <Icon className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
                         </span>
                       </div>
@@ -442,7 +442,7 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
                   <ImagePlus className="h-5 w-5 text-[color:var(--rr-gold)]" />
                 </div>
 
-                <div className="overflow-hidden rounded-[14px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.12),transparent_40%),rgba(255,255,255,0.04)]">
+                <div className="overflow-hidden rounded-[14px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(243,203,69,0.12),transparent_40%),rgba(255,255,255,0.04)]">
                   <img
                     src={selectedItem.publicUrl}
                     alt={selectedItem.altText}
@@ -479,38 +479,38 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
                 </div>
 
                 <div className="grid gap-3">
-                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                  <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                     <p className={labelClassName()}>Nota de uso</p>
                     <p className="mt-2 text-[0.92rem] text-white">
                       {getAdminMediaUsageNote(draftUsage)}
                     </p>
                   </div>
-                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                  <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                     <p className={labelClassName()}>Guardado fisico</p>
                     <p className="mt-2 break-all text-[0.92rem] text-white">
                       {selectedItem.storagePath ?? "Recurso externo"}
                     </p>
                   </div>
-                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                  <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                     <p className={labelClassName()}>URL publica</p>
                     <p className="mt-2 break-all text-[0.92rem] text-white">
                       {selectedItem.publicUrl}
                     </p>
                   </div>
-                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                  <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                     <p className={labelClassName()}>Subido por</p>
                     <p className="mt-2 text-[0.92rem] text-white">
                       {selectedItem.uploadedByName}
                     </p>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                    <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                       <p className={labelClassName()}>Peso</p>
                       <p className="mt-2 text-[0.92rem] text-white">
                         {formatMediaBytes(selectedItem.sizeBytes)}
                       </p>
                     </div>
-                    <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                    <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                       <p className={labelClassName()}>Dimensiones</p>
                       <p className="mt-2 text-[0.92rem] text-white">
                         {selectedItem.width && selectedItem.height
@@ -519,7 +519,7 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
                       </p>
                     </div>
                   </div>
-                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                  <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                     <p className={labelClassName()}>Uso activo</p>
                     <p className="mt-2 text-[0.92rem] text-white">
                       {selectedItem.referenceCount > 0

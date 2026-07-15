@@ -85,7 +85,7 @@ export function AdminLoginForm({
               <input
                 value={login}
                 onChange={(event) => setLogin(event.target.value)}
-                className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.45)]"
+                className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                 placeholder="manager"
                 autoComplete="username"
               />
@@ -97,7 +97,7 @@ export function AdminLoginForm({
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.45)]"
+                className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                 placeholder="ChangeMe123!"
                 autoComplete="current-password"
               />

@@ -90,7 +90,7 @@ function StandingTeamCell({
       <div className="space-y-1">
         <p className="font-semibold text-white">{teamName}</p>
         {isOwnTeam ? (
-          <span className="inline-flex rounded-full border border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] px-2 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--rr-gold)]">
+          <span className="inline-flex rounded-full border border-[rgba(243,203,69,0.32)] bg-[rgba(243,203,69,0.12)] px-2 py-1 text-[0.7rem] font-semibold text-[color:var(--rr-gold)]">
             Equipo del club
           </span>
         ) : null}
@@ -115,7 +115,7 @@ function StandingStepperCell({
   }
 
   return (
-    <div className="grid w-full grid-cols-[1.95rem_minmax(0,1fr)_1.95rem] items-center overflow-hidden rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)]">
+    <div className="grid w-full grid-cols-[1.95rem_minmax(0,1fr)_1.95rem] items-center overflow-hidden rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
       <button
         type="button"
         onClick={() => updateValue(value - 1)}
@@ -138,7 +138,7 @@ function StandingStepperCell({
       <button
         type="button"
         onClick={() => updateValue(value + 1)}
-        className="inline-flex h-9 items-center justify-center border-l border-[rgba(253,203,88,0.18)] bg-[rgba(253,203,88,0.1)] text-[color:var(--rr-gold)] transition hover:bg-[rgba(253,203,88,0.16)]"
+        className="inline-flex h-9 items-center justify-center border-l border-[rgba(243,203,69,0.2)] bg-[rgba(243,203,69,0.1)] text-[color:var(--rr-gold)] transition hover:bg-[rgba(243,203,69,0.16)]"
         aria-label="Sumar"
       >
         <Plus className="h-3.5 w-3.5" />
@@ -185,13 +185,13 @@ export function EditableStandingTable({
             </div>
           </div>
 
-          <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
+          <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
             Pts = G x 3 + E - PTS SA. DG = GF - GC. El orden final se ajusta al guardar.
           </div>
         </div>
 
         {validationErrors.length > 0 ? (
-          <div className="mt-4 space-y-2 rounded-[10px] border border-[rgba(214,64,69,0.34)] bg-[rgba(214,64,69,0.08)] px-4 py-3 text-[0.92rem] text-[#ffc3bc]">
+          <div className="mt-4 space-y-2 rounded-[16px] border border-[rgba(221,108,112,0.34)] bg-[rgba(221,108,112,0.1)] px-4 py-3 text-[0.92rem] text-[#ffc1c4]">
             {validationErrors.slice(0, 3).map((error) => (
               <p key={error}>{error}</p>
             ))}
@@ -224,7 +224,7 @@ export function EditableStandingTable({
                     <th
                       key={label}
                       className={cn(
-                        "px-3 py-3 font-[var(--rr-font-body)] text-[0.78rem] font-bold uppercase tracking-[0.18em] text-[color:var(--rr-muted)]",
+                        "px-3 py-3 font-[var(--rr-font-body)] text-[0.78rem] font-bold text-[color:var(--rr-muted)]",
                         label === "Equipo" || label === "Pos" ? "text-left" : "text-center",
                       )}
                     >
@@ -242,7 +242,7 @@ export function EditableStandingTable({
                     "border-b border-[rgba(255,255,255,0.06)] align-top last:border-b-0",
                     rowErrors[row.id]?.length ? "bg-[rgba(214,64,69,0.08)]" : undefined,
                     row.isOwnTeam
-                      ? "bg-[rgba(253,203,88,0.08)]"
+                      ? "bg-[rgba(243,203,69,0.08)]"
                       : "hover:bg-[rgba(255,255,255,0.03)]",
                   )}
                 >
@@ -256,7 +256,7 @@ export function EditableStandingTable({
                       isOwnTeam={row.isOwnTeam}
                     />
                     {rowErrors[row.id]?.length ? (
-                      <p className="mt-2 text-[0.8rem] text-[#ffc3bc]">
+                      <p className="mt-2 text-[0.8rem] text-[#ffc1c4]">
                         {rowErrors[row.id][0]}
                       </p>
                     ) : null}
@@ -272,12 +272,12 @@ export function EditableStandingTable({
                     </td>
                   ))}
                   <td className="px-3 py-3">
-                    <div className="min-h-9 rounded-[8px] border border-white/5 bg-white/5 px-2 py-2 text-center text-[0.94rem] text-[color:var(--rr-muted)]">
+                    <div className="min-h-9 rounded-[14px] border border-white/5 bg-white/5 px-2 py-2 text-center text-[0.94rem] text-[color:var(--rr-muted)]">
                       {row.goalDifference}
                     </div>
                   </td>
                   <td className="px-3 py-3">
-                    <div className="min-h-9 rounded-[8px] border border-white/5 bg-white/5 px-2 py-2 text-center text-[0.94rem] text-[color:var(--rr-muted)]">
+                    <div className="min-h-9 rounded-[14px] border border-white/5 bg-white/5 px-2 py-2 text-center text-[0.94rem] text-[color:var(--rr-muted)]">
                       {row.points}
                     </div>
                   </td>
@@ -287,10 +287,10 @@ export function EditableStandingTable({
                         type="button"
                         onClick={() => onToggleOwnTeam(row.id)}
                         className={cn(
-                          "rounded-[8px] border px-2 py-2 transition",
+                          "rounded-full border px-2 py-2 transition",
                           row.isOwnTeam
-                            ? "border-[rgba(253,203,88,0.4)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]"
-                            : "border-white/10 bg-white/5 text-[color:var(--rr-muted)] hover:border-[rgba(253,203,88,0.28)]",
+                            ? "border-[rgba(243,203,69,0.4)] bg-[rgba(243,203,69,0.12)] text-[color:var(--rr-gold)]"
+                            : "border-white/10 bg-white/5 text-[color:var(--rr-muted)] hover:border-[rgba(243,203,69,0.28)]",
                         )}
                         aria-label={
                           row.isOwnTeam

@@ -45,7 +45,7 @@ function TeamActions({
   onToggleVisibility: (teamId: string) => void;
 }) {
   const iconButtonClassName =
-    "inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-white/10 bg-white/5 text-[color:var(--rr-muted)] transition hover:border-[rgba(253,203,88,0.26)] hover:text-white";
+    "inline-flex h-9 w-9 items-center justify-center rounded-[14px] border border-white/10 bg-white/5 text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.26)] hover:text-white";
 
   if (role === "COACH") {
     return (
@@ -234,7 +234,7 @@ export function TeamList({
             }
             footer={
               <div className="space-y-4">
-                <div className="rounded-[10px] border border-white/8 bg-white/4 p-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+                <div className="rounded-[16px] border border-white/8 bg-white/4 p-3 text-[0.9rem] text-[color:var(--rr-muted)]">
                   <p className="text-white">{team.competition}</p>
                   <p className="mt-1">{team.playerCount} jugadores</p>
                   {team.visibleCoaches.length > 0 ? (

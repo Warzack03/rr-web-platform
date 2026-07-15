@@ -284,11 +284,11 @@ export function AdminDashboard({
                   <Link
                     key={area.title}
                     href={area.href}
-                    className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 transition hover:border-[rgba(253,203,88,0.25)] hover:bg-[rgba(255,255,255,0.06)]"
+                    className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 transition hover:border-[rgba(243,203,69,0.25)] hover:bg-[rgba(255,255,255,0.06)]"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] border border-white/10 bg-white/5">
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/10 bg-white/5">
                           <Icon className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
                         </span>
                         <div>
@@ -345,7 +345,7 @@ export function AdminDashboard({
                   data.upcomingMatches.map((match) => (
                     <div
                       key={match.id}
-                      className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3"
+                      className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -365,7 +365,7 @@ export function AdminDashboard({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-4 text-[0.9rem] text-[color:var(--rr-muted)]">
+                  <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-4 text-[0.9rem] text-[color:var(--rr-muted)]">
                     No hay partidos pendientes dentro del scope actual.
                   </div>
                 )}
@@ -392,7 +392,7 @@ export function AdminDashboard({
                 data.recentResults.map((match) => (
                   <div
                     key={match.id}
-                    className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3"
+                    className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -411,7 +411,7 @@ export function AdminDashboard({
                   </div>
                 ))
               ) : (
-                <div className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.92rem] text-[color:var(--rr-muted)]">
+                <div className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.92rem] text-[color:var(--rr-muted)]">
                   Todavia no hay resultados jugados en el scope actual.
                 </div>
               )}
@@ -434,7 +434,7 @@ export function AdminDashboard({
               {statusItems.map((item) => (
                 <div
                   key={item.title}
-                  className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3"
+                  className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-3"
                 >
                   <p className="rr-kicker text-[color:var(--rr-gold)]">{item.title}</p>
                   <p className="mt-2 font-semibold text-white">{item.value}</p>

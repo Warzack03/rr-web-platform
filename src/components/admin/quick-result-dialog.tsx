@@ -20,7 +20,7 @@ const quickResultSchema = z.object({
 });
 
 const fieldClassName =
-  "min-h-14 rounded-[10px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-4 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
+  "min-h-14 rounded-[16px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]";
 
 export function QuickResultDialog({
   open,
@@ -79,12 +79,12 @@ export function QuickResultDialog({
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center bg-[rgba(5,10,18,0.74)] px-4 py-4 backdrop-blur-sm sm:items-center sm:px-6 sm:py-10">
-      <div className="w-full max-w-xl rounded-[12px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(16,37,67,0.98),rgba(7,19,34,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
-        <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.08)] px-5 py-5 sm:px-6">
+      <div className="w-full max-w-xl rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(13,32,55,0.98),rgba(7,22,41,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.1)] px-5 py-5 sm:px-6">
           <div className="space-y-2">
             <p className="rr-kicker text-[color:var(--rr-gold)]">Resultado rapido</p>
             <div>
-              <h2 className="rr-display text-[1.95rem] leading-[0.94] text-white sm:text-[2.15rem]">
+              <h2 className="rr-display text-[2rem] leading-[1] text-white sm:text-[2.2rem]">
                 {currentMatch.teamName} vs {currentMatch.opponentName}
               </h2>
               <p className="mt-2 text-[0.92rem] leading-5 text-[color:var(--rr-muted)]">
@@ -97,7 +97,7 @@ export function QuickResultDialog({
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[8px] border border-white/10 text-[color:var(--rr-muted)] transition hover:text-white"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.28)] hover:text-white"
             aria-label="Cerrar"
           >
             <X className="h-5 w-5 text-[color:var(--rr-gold)]" />
@@ -105,7 +105,7 @@ export function QuickResultDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 px-5 py-5 sm:px-6 sm:py-6">
-          <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+          <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
             {currentMatch.matchday} · {currentMatch.venue}
           </div>
 
@@ -127,7 +127,7 @@ export function QuickResultDialog({
               ) : null}
             </label>
 
-            <div className="flex h-14 items-center justify-center rounded-[10px] border border-[rgba(253,203,88,0.22)] bg-[rgba(253,203,88,0.08)] px-4 text-[color:var(--rr-gold)]">
+            <div className="flex h-14 items-center justify-center rounded-[16px] border border-[rgba(243,203,69,0.24)] bg-[rgba(243,203,69,0.1)] px-4 text-[color:var(--rr-gold)]">
               <Trophy className="h-5 w-5" />
             </div>
 

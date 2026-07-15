@@ -41,10 +41,10 @@ export function StandingsSelector({
                 type="button"
                 onClick={() => onSelect(standing.id)}
                 className={cn(
-                  "rounded-[10px] border px-4 py-4 text-left transition",
+                  "rounded-[16px] border px-4 py-4 text-left transition",
                   isSelected
-                    ? "border-[rgba(253,203,88,0.4)] bg-[rgba(253,203,88,0.08)] shadow-[0_0_0_1px_rgba(253,203,88,0.16)]"
-                    : "border-white/10 bg-[rgba(255,255,255,0.04)] hover:border-[rgba(253,203,88,0.24)] hover:bg-[rgba(255,255,255,0.06)]",
+                    ? "border-[rgba(243,203,69,0.4)] bg-[rgba(243,203,69,0.09)] shadow-[0_0_0_1px_rgba(243,203,69,0.16)]"
+                    : "border-white/10 bg-[rgba(255,255,255,0.045)] hover:border-[rgba(243,203,69,0.24)] hover:bg-[rgba(255,255,255,0.065)]",
                 )}
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">

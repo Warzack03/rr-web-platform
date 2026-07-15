@@ -70,7 +70,7 @@ const NEW_POST_KEY = "__new__";
 
 function inputClassName(className?: string) {
   return cn(
-    "min-h-11 rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]",
+    "min-h-11 rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]",
     className,
   );
 }
@@ -437,7 +437,7 @@ export function AdminNewsWorkspace({
                   className={cn(
                     "min-h-9 rounded-[9px] px-2 text-[0.76rem] font-medium transition",
                     statusFilter === value
-                      ? "bg-[rgba(253,203,88,0.14)] text-[color:var(--rr-gold)]"
+                      ? "bg-[rgba(243,203,69,0.14)] text-[color:var(--rr-gold)]"
                       : "text-[color:var(--rr-muted)]",
                   )}
                 >
@@ -476,9 +476,9 @@ export function AdminNewsWorkspace({
                       type="button"
                       onClick={() => selectEditor(post.id)}
                       className={cn(
-                        "rounded-[10px] border px-3 py-3 text-left transition",
+                        "rounded-[16px] border px-3 py-3 text-left transition",
                         active
-                          ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.1)]"
+                          ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.1)]"
                           : "border-white/10 bg-[rgba(255,255,255,0.04)] hover:border-white/20",
                       )}
                     >
@@ -502,7 +502,7 @@ export function AdminNewsWorkspace({
                       <p className="mt-3 text-[0.88rem] leading-5 text-[color:var(--rr-muted)]">
                         {post.excerpt}
                       </p>
-                      <p className="mt-3 text-[0.78rem] uppercase tracking-[0.14em] text-[color:var(--rr-muted)]">
+                      <p className="mt-3 text-[0.78rem] font-semibold text-[color:var(--rr-muted)]">
                         {getRelatedTeamLabels(post.relatedTeamLabels).join(" - ")}
                       </p>
                     </button>
@@ -624,7 +624,7 @@ export function AdminNewsWorkspace({
                 <button
                   type="button"
                   onClick={() => updateEditor("featured", !editorState.featured)}
-                  className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                  className="flex min-h-12 items-center justify-between rounded-[16px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(243,203,69,0.26)]"
                 >
                   <span>Destacar en portada</span>
                   <Star
@@ -645,7 +645,7 @@ export function AdminNewsWorkspace({
                       editorState.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED",
                     )
                   }
-                  className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                  className="flex min-h-12 items-center justify-between rounded-[16px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(243,203,69,0.26)]"
                 >
                   <span>
                     {editorState.status === "PUBLISHED"
@@ -709,9 +709,9 @@ export function AdminNewsWorkspace({
                       type="button"
                       onClick={() => updateEditor("relatedTeamIds", [])}
                       className={cn(
-                        "flex min-h-12 items-center justify-between rounded-[10px] border px-3 text-left transition",
+                        "flex min-h-12 items-center justify-between rounded-[16px] border px-3 text-left transition",
                         editorState.relatedTeamIds.length === 0
-                          ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.1)] text-white"
+                          ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.1)] text-white"
                           : "border-white/10 bg-white/4 text-[color:var(--rr-muted)]",
                       )}
                     >
@@ -729,9 +729,9 @@ export function AdminNewsWorkspace({
                           type="button"
                           onClick={() => toggleRelatedTeam(team.id)}
                           className={cn(
-                            "flex min-h-12 items-center justify-between rounded-[10px] border px-3 text-left transition",
+                            "flex min-h-12 items-center justify-between rounded-[16px] border px-3 text-left transition",
                             active
-                              ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.1)] text-white"
+                              ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.1)] text-white"
                               : "border-white/10 bg-white/4 text-[color:var(--rr-muted)]",
                           )}
                         >

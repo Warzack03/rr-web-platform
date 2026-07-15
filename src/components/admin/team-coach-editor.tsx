@@ -13,7 +13,7 @@ type TeamCoachEditorProps = {
 };
 
 const fieldClassName =
-  "min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
+  "min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]";
 
 function createEmptyCoach(): TeamManagementCoach {
   return {
@@ -50,7 +50,7 @@ export function TeamCoachEditor({
         {coaches.map((coach, index) => (
           <div
             key={coach.id}
-            className="rounded-[12px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(18,29,47,0.98),rgba(10,18,31,0.98))] p-4 sm:p-5"
+            className="rounded-[18px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.025))] p-4 sm:p-5"
           >
             <div className="flex items-center justify-between gap-3">
               <p className="rr-kicker text-[color:var(--rr-gold)]">
@@ -60,7 +60,7 @@ export function TeamCoachEditor({
               <button
                 type="button"
                 onClick={() => removeCoach(coach.id)}
-                className="inline-flex min-h-10 items-center gap-2 rounded-[8px] border border-white/10 px-3 text-[0.8rem] text-[color:var(--rr-muted)] transition hover:text-white"
+                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 px-3 text-[0.8rem] text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.24)] hover:text-white"
               >
                 <Trash2 className="h-4 w-4 text-[color:var(--rr-gold)]" />
                 Quitar

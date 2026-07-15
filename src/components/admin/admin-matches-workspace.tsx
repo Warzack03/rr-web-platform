@@ -589,7 +589,7 @@ export function AdminMatchesWorkspace({
                       setPageSize(Number(event.target.value) as (typeof pageSizeOptions)[number]);
                       setCurrentPage(1);
                     }}
-                    className="min-h-10 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                    className="min-h-10 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                   >
                     {pageSizeOptions.map((option) => (
                       <option key={option} value={option}>
@@ -604,7 +604,7 @@ export function AdminMatchesWorkspace({
                   <select
                     value={safeCurrentPage}
                     onChange={(event) => setCurrentPage(Number(event.target.value))}
-                    className="min-h-10 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                    className="min-h-10 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                   >
                     {Array.from({ length: totalPages }).map((_, index) => {
                       const pageNumber = index + 1;
@@ -647,7 +647,7 @@ export function AdminMatchesWorkspace({
       screenState === "ready" &&
       filteredMatches.length > 0 &&
       selectedCoachMatch ? (
-        <AdminPanel className="border-[rgba(253,203,88,0.24)] p-5 sm:p-6">
+        <AdminPanel className="border-[rgba(243,203,69,0.28)] p-5 sm:p-6">
           <div className="space-y-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-2">
@@ -686,7 +686,7 @@ export function AdminMatchesWorkspace({
               </button>
             </div>
 
-            <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+            <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
               {getCoachMatchVisualStatus(selectedCoachMatch) === "pending"
                 ? "Edita la previa si hace falta y marca el resultado cuando termine el partido."
                 : "El resultado ya esta cerrado. Desde aqui puedes revisar estadisticas y clasificacion."}

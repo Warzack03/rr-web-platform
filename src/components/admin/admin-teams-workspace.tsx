@@ -310,7 +310,7 @@ export function AdminTeamsWorkspace({
             </>
           }
           aside={
-            <div className="rounded-[10px] border border-white/10 bg-white/5 px-4 py-3">
+            <div className="rounded-[16px] border border-white/10 bg-white/5 px-4 py-3">
               <AdminStatusBadge label="Solo consulta" tone="slate" />
               <p className="mt-2 text-[0.84rem] leading-5 text-[color:var(--rr-muted)]">
                 Sin cambios de estructura, visibilidad o entrenadores desde esta vista.
@@ -396,7 +396,7 @@ export function AdminTeamsWorkspace({
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div
                     key={index}
-                    className="h-11 animate-pulse rounded-[8px] bg-white/6"
+                    className="h-11 animate-pulse rounded-[14px] bg-white/6"
                   />
                 ))}
               </div>

@@ -19,7 +19,7 @@ type MediaPickerDialogProps = {
 
 function inputClassName(className?: string) {
   return cn(
-    "min-h-11 rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]",
+    "min-h-11 rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]",
     className,
   );
 }
@@ -66,12 +66,12 @@ export function MediaPickerDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[rgba(5,10,18,0.78)] px-4 py-6 backdrop-blur-sm sm:px-6 sm:py-10">
-      <div className="w-full max-w-6xl rounded-[12px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(16,37,67,0.98),rgba(7,19,34,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
-        <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.08)] px-5 py-5 sm:px-6">
+      <div className="w-full max-w-6xl rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(13,32,55,0.98),rgba(7,22,41,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.1)] px-5 py-5 sm:px-6">
           <div className="space-y-2">
             <p className="rr-kicker text-[color:var(--rr-gold)]">Biblioteca real</p>
             <div>
-              <h2 className="rr-display text-[2.2rem] leading-[0.94] text-white">{title}</h2>
+              <h2 className="rr-display text-[2.25rem] leading-[1] text-white">{title}</h2>
               {description ? (
                 <p className="mt-2 max-w-2xl text-[0.92rem] leading-6 text-[color:var(--rr-muted)]">
                   {description}
@@ -83,7 +83,7 @@ export function MediaPickerDialog({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[8px] border border-white/10 text-[color:var(--rr-muted)] transition hover:text-white"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.28)] hover:text-white"
             aria-label="Cerrar selector de media"
           >
             <X className="h-5 w-5 text-[color:var(--rr-gold)]" />
@@ -112,10 +112,10 @@ export function MediaPickerDialog({
                     type="button"
                     onClick={() => onSelect(item)}
                     className={cn(
-                      "overflow-hidden rounded-[12px] border text-left transition",
+                      "overflow-hidden rounded-[16px] border text-left transition",
                       active
-                        ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.08)]"
-                        : "border-white/10 bg-[rgba(255,255,255,0.04)] hover:border-white/20",
+                        ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.09)]"
+                        : "border-white/10 bg-[rgba(255,255,255,0.045)] hover:border-white/20",
                     )}
                   >
                     <div className="aspect-[1.2/1] bg-[rgba(255,255,255,0.04)]">
@@ -138,7 +138,7 @@ export function MediaPickerDialog({
           </div>
 
           <div className="space-y-4 xl:sticky xl:top-[7rem] xl:self-start">
-            <div className="rounded-[14px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(18,29,47,0.98),rgba(10,18,31,0.98))] p-5 shadow-[0_12px_30px_rgba(0,0,0,0.22)]">
+            <div className="rounded-[20px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-5 shadow-[var(--rr-shadow)]">
               {selectedItem ? (
                 <div className="space-y-4">
                   <div>
@@ -157,15 +157,15 @@ export function MediaPickerDialog({
                   </div>
 
                   <div className="space-y-3 text-[0.88rem] text-[color:var(--rr-muted)]">
-                    <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                    <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                       <p className="rr-kicker text-[0.68rem]">Uso</p>
                       <p className="mt-2 text-white">{selectedItem.usageLabel}</p>
                     </div>
-                    <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                    <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                       <p className="rr-kicker text-[0.68rem]">Alt</p>
                       <p className="mt-2 text-white">{selectedItem.altText}</p>
                     </div>
-                    <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                    <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                       <p className="rr-kicker text-[0.68rem]">Tamanio</p>
                       <p className="mt-2 text-white">{formatMediaBytes(selectedItem.sizeBytes)}</p>
                     </div>

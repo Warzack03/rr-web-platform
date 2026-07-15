@@ -222,7 +222,7 @@ export function MatchList({
               }
               footer={
               <div className="space-y-4">
-                <div className="grid gap-3 rounded-[10px] border border-white/8 bg-white/4 p-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+                <div className="grid gap-3 rounded-[16px] border border-white/8 bg-white/4 p-3 text-[0.9rem] text-[color:var(--rr-muted)]">
                   <p>{getMatchLocationLabel(match)}</p>
                   <p>{match.competition}</p>
                   <p>{match.matchday}</p>

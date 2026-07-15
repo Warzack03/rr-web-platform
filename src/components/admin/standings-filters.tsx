@@ -22,7 +22,7 @@ type StandingsFiltersProps = {
 };
 
 const fieldClassName =
-  "min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
+  "min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]";
 
 export function StandingsFilters({
   value,
@@ -62,10 +62,10 @@ export function StandingsFilters({
               </span>
               <div
                 className={cn(
-                  "rounded-[10px] border p-3 transition",
+                  "rounded-[16px] border p-4 transition",
                   value.selectionMode === "team"
-                    ? "border-[rgba(253,203,88,0.3)] bg-[rgba(253,203,88,0.06)]"
-                    : "border-white/10 bg-white/[0.03] opacity-72",
+                    ? "border-[rgba(243,203,69,0.32)] bg-[rgba(243,203,69,0.08)]"
+                    : "border-white/10 bg-white/[0.04] opacity-78",
                 )}
               >
                 <div className="mb-3 flex items-center gap-2 text-[0.84rem] text-[color:var(--rr-muted)]">
@@ -99,10 +99,10 @@ export function StandingsFilters({
             </span>
             <div
               className={cn(
-                "rounded-[10px] border p-3 transition",
+                "rounded-[16px] border p-4 transition",
                 value.selectionMode === "competition"
-                  ? "border-[rgba(253,203,88,0.3)] bg-[rgba(253,203,88,0.06)]"
-                  : "border-white/10 bg-white/[0.03] opacity-72",
+                  ? "border-[rgba(243,203,69,0.32)] bg-[rgba(243,203,69,0.08)]"
+                  : "border-white/10 bg-white/[0.04] opacity-78",
               )}
             >
               <div className="mb-3 flex items-center gap-2 text-[0.84rem] text-[color:var(--rr-muted)]">
@@ -130,7 +130,7 @@ export function StandingsFilters({
           </label>
         </div>
 
-        <div className="flex items-start gap-2 rounded-[10px] border border-white/10 bg-white/[0.03] px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
+        <div className="flex items-start gap-2 rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 text-[0.88rem] text-[color:var(--rr-muted)]">
           <Layers2 className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--rr-gold)]" />
           <p>
             Solo se usa un criterio cada vez. Al elegir equipo o competicion, esa

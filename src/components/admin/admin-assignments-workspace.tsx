@@ -68,7 +68,7 @@ function getPositionLabel(position: AdminManagedAssignment["publicPosition"]) {
 
 function inputClassName(className?: string) {
   return cn(
-    "min-h-11 rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]",
+    "min-h-11 rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]",
     className,
   );
 }
@@ -433,7 +433,7 @@ export function AdminAssignmentsWorkspace({
 
               <div className="grid gap-2">
                 <span className={labelClassName()}>Temporada activa</span>
-                <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                <div className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/4 px-3 text-white">
                   {activeSeasonLabel ?? currentTeam.season}
                 </div>
               </div>
@@ -477,7 +477,7 @@ export function AdminAssignmentsWorkspace({
                       className={cn(
                         "grid gap-3 rounded-[12px] border px-4 py-3 transition lg:grid-cols-[minmax(0,1fr)_9rem_7rem] lg:items-center",
                         active
-                          ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.1)]"
+                          ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.1)]"
                           : "border-white/10 bg-[rgba(255,255,255,0.04)]",
                       )}
                     >
@@ -560,7 +560,7 @@ export function AdminAssignmentsWorkspace({
                       className={cn(
                         "min-h-10 rounded-[9px] px-2 text-[0.8rem] font-medium transition",
                         createDraft.mode === mode
-                          ? "bg-[rgba(253,203,88,0.14)] text-[color:var(--rr-gold)]"
+                          ? "bg-[rgba(243,203,69,0.14)] text-[color:var(--rr-gold)]"
                           : "text-[color:var(--rr-muted)]",
                       )}
                     >
@@ -627,7 +627,7 @@ export function AdminAssignmentsWorkspace({
                               keepCurrentTeamsActive: !currentDraft.keepCurrentTeamsActive,
                             }))
                           }
-                          className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                          className="flex min-h-11 items-center justify-between rounded-[16px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(243,203,69,0.26)]"
                         >
                           Mantener tambien su equipo actual
                           {createDraft.keepCurrentTeamsActive ? (
@@ -703,7 +703,7 @@ export function AdminAssignmentsWorkspace({
                       captain: !currentDraft.captain,
                     }))
                   }
-                  className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                  className="flex min-h-11 items-center justify-between rounded-[16px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(243,203,69,0.26)]"
                 >
                   Capitan
                   {createDraft.captain ? (
@@ -763,7 +763,7 @@ export function AdminAssignmentsWorkspace({
                     </Link>
                   </div>
 
-                  <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.86rem] text-[color:var(--rr-muted)]">
+                  <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.86rem] text-[color:var(--rr-muted)]">
                     {selectedPlayer?.visible ? "Visible" : "Oculto"} en web ·{" "}
                     {selectedPlayer?.hasPhoto ? "Con foto base" : "Sin foto base"}
                   </div>
@@ -874,7 +874,7 @@ export function AdminAssignmentsWorkspace({
                       key={control.label}
                       type="button"
                       onClick={control.onClick}
-                      className="flex min-h-11 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                      className="flex min-h-11 items-center justify-between rounded-[16px] border border-white/10 bg-white/5 px-4 text-left text-[0.9rem] text-white transition hover:border-[rgba(243,203,69,0.26)]"
                     >
                       {control.label}
                       {control.active ? (
@@ -887,7 +887,7 @@ export function AdminAssignmentsWorkspace({
                 </div>
 
                 {!selectedAssignment.active ? (
-                  <div className="rounded-[10px] border border-[rgba(253,203,88,0.22)] bg-[rgba(253,203,88,0.08)] px-4 py-3 text-[0.86rem] text-[color:var(--rr-muted)]">
+                  <div className="rounded-[16px] border border-[rgba(243,203,69,0.22)] bg-[rgba(243,203,69,0.08)] px-4 py-3 text-[0.86rem] text-[color:var(--rr-muted)]">
                     Esta asignacion queda en historico. Si la reactivas, el sistema mantendra como maximo dos equipos activos para ese jugador en la temporada.
                   </div>
                 ) : null}
@@ -919,7 +919,7 @@ export function AdminAssignmentsWorkspace({
                   issues.map((issue) => (
                     <div
                       key={issue.id}
-                      className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3"
+                      className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <p className="font-semibold text-white">{issue.title}</p>
@@ -931,7 +931,7 @@ export function AdminAssignmentsWorkspace({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-[10px] border border-[rgba(151,255,199,0.2)] bg-[rgba(31,98,64,0.18)] px-4 py-3 text-[0.9rem] text-[#b8ffd8]">
+                  <div className="rounded-[16px] border border-[rgba(151,255,199,0.2)] bg-[rgba(31,98,64,0.18)] px-4 py-3 text-[0.9rem] text-[#b8ffd8]">
                     Plantilla lista para publicarse.
                   </div>
                 )}
@@ -952,10 +952,10 @@ export function AdminAssignmentsWorkspace({
               </div>
 
               <div className="grid gap-2 text-[0.86rem] text-[color:var(--rr-muted)]">
-                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                   Aqui mandan dorsal, posicion, capitania y estado de la etapa.
                 </div>
-                <div className="rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                <div className="rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                   Nombre, slug, foto y visibilidad se rematan en Fichas y cromos.
                 </div>
               </div>

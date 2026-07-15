@@ -91,7 +91,7 @@ function getCardReadiness(player: AdminManagedPlayer) {
 
 function inputClassName(className?: string) {
   return cn(
-    "min-h-11 rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]",
+    "min-h-11 rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]",
     className,
   );
 }
@@ -318,7 +318,7 @@ export function AdminPlayersWorkspace({
                   className={cn(
                     "min-h-9 rounded-[9px] px-2 text-[0.78rem] font-medium transition",
                     visibilityFilter === value
-                      ? "bg-[rgba(253,203,88,0.14)] text-[color:var(--rr-gold)]"
+                      ? "bg-[rgba(243,203,69,0.14)] text-[color:var(--rr-gold)]"
                       : "text-[color:var(--rr-muted)]",
                   )}
                 >
@@ -337,9 +337,9 @@ export function AdminPlayersWorkspace({
                     type="button"
                     onClick={() => setSelectedPlayerId(player.id)}
                     className={cn(
-                      "rounded-[10px] border px-3 py-3 text-left transition",
+                      "rounded-[16px] border px-3 py-3 text-left transition",
                       active
-                        ? "border-[rgba(253,203,88,0.34)] bg-[rgba(253,203,88,0.1)]"
+                        ? "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.1)]"
                         : "border-white/10 bg-[rgba(255,255,255,0.04)] hover:border-white/20",
                     )}
                   >
@@ -434,21 +434,21 @@ export function AdminPlayersWorkspace({
 
                 <div className="grid gap-2">
                   <span className={labelClassName()}>Equipo</span>
-                  <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                  <div className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/4 px-3 text-white">
                     {selectedPlayer.teamName}
                   </div>
                 </div>
 
                 <div className="grid gap-2">
                   <span className={labelClassName()}>Dorsal</span>
-                  <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                  <div className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/4 px-3 text-white">
                     #{selectedPlayer.number}
                   </div>
                 </div>
 
                 <div className="grid gap-2">
                   <span className={labelClassName()}>Posicion</span>
-                  <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                  <div className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/4 px-3 text-white">
                     {mapPositionLabel(selectedPlayer.position)}
                   </div>
                 </div>
@@ -495,8 +495,8 @@ export function AdminPlayersWorkspace({
 
                 <label className="grid gap-2 lg:col-span-2">
                   <span className={labelClassName()}>Foto/base</span>
-                  <div className="grid gap-3 rounded-[10px] border border-white/10 bg-white/4 p-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
-                    <div className="overflow-hidden rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
+                  <div className="grid gap-3 rounded-[16px] border border-white/10 bg-white/4 p-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                    <div className="overflow-hidden rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
                       {selectedPlayer.photoUrl ? (
                         <img
                           src={selectedPlayer.photoUrl}
@@ -511,7 +511,7 @@ export function AdminPlayersWorkspace({
                     </div>
 
                     <div className="space-y-3">
-                      <div className="rounded-[8px] border border-white/10 bg-[rgba(7,19,34,0.92)] px-3 py-3 text-[0.9rem] text-white">
+                      <div className="rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 py-3 text-[0.9rem] text-white">
                         {selectedPlayer.photoUrl
                           ? "Recurso conectado desde biblioteca"
                           : "Sin foto asignada"}
@@ -559,7 +559,7 @@ export function AdminPlayersWorkspace({
                       }))
                     }
                     disabled={isSaving}
-                    className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                    className="flex min-h-12 items-center justify-between rounded-[16px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(243,203,69,0.26)]"
                   >
                     <span>Visible en web</span>
                     {selectedPlayer.visible ? (
@@ -578,7 +578,7 @@ export function AdminPlayersWorkspace({
                       }))
                     }
                     disabled={isSaving}
-                    className="flex min-h-12 items-center justify-between rounded-[10px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(253,203,88,0.26)]"
+                    className="flex min-h-12 items-center justify-between rounded-[16px] border border-white/10 bg-white/5 px-4 text-left text-[0.92rem] text-white transition hover:border-[rgba(243,203,69,0.26)]"
                   >
                     <span>Perfil activo</span>
                     <ShieldCheck className="h-4 w-4 text-[color:var(--rr-gold)]" />
@@ -616,8 +616,8 @@ export function AdminPlayersWorkspace({
           </AdminPanel>
 
           <div className="space-y-4 2xl:sticky 2xl:top-[7.5rem] 2xl:self-start">
-            <AdminPanel className="overflow-hidden border-[rgba(253,203,88,0.22)]">
-              <div className="border-b border-white/10 bg-[rgba(253,203,88,0.06)] px-5 py-4">
+            <AdminPanel className="overflow-hidden border-[rgba(243,203,69,0.22)]">
+              <div className="border-b border-white/10 bg-[rgba(243,203,69,0.06)] px-5 py-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="rr-kicker text-[color:var(--rr-gold)]">Preview principal</p>
@@ -630,7 +630,7 @@ export function AdminPlayersWorkspace({
               </div>
 
               <div className="space-y-5 p-5">
-                <div className="rounded-[14px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.12),transparent_38%),rgba(255,255,255,0.04)] px-3 py-5">
+                <div className="rounded-[14px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(243,203,69,0.12),transparent_38%),rgba(255,255,255,0.04)] px-3 py-5">
                   <PremiumPlayerCard
                     name={selectedPlayer.publicName}
                     number={selectedPlayer.number}
@@ -661,7 +661,7 @@ export function AdminPlayersWorkspace({
                 </div>
 
                 <div className="grid gap-3">
-                  <div className="flex items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3">
+                  <div className="flex items-center justify-between gap-3 rounded-[16px] border border-white/10 bg-white/4 px-4 py-3">
                     <span className="text-[0.92rem] text-[color:var(--rr-muted)]">
                       Preparacion del cromo
                     </span>
@@ -693,7 +693,7 @@ export function AdminPlayersWorkspace({
                   </div>
 
                   {!selectedPlayer.photoUrl ? (
-                    <div className="rounded-[10px] border border-[rgba(253,203,88,0.22)] bg-[rgba(253,203,88,0.08)] px-4 py-3">
+                    <div className="rounded-[16px] border border-[rgba(243,203,69,0.22)] bg-[rgba(243,203,69,0.08)] px-4 py-3">
                       <div className="flex items-center gap-3">
                         <ImagePlus className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
                         <p className="text-[0.9rem] font-semibold text-white">

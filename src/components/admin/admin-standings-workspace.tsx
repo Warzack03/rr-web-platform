@@ -530,14 +530,14 @@ export function AdminStandingsWorkspace({
             {Array.from({ length: 3 }).map((_, index) => (
               <AdminPanel key={index} className="p-5">
                 <div className="space-y-3">
-                  <div className="h-12 animate-pulse rounded-[10px] bg-white/6" />
-                  <div className="h-24 animate-pulse rounded-[10px] bg-white/6" />
+                  <div className="h-12 animate-pulse rounded-[16px] bg-white/6" />
+                  <div className="h-24 animate-pulse rounded-[16px] bg-white/6" />
                 </div>
               </AdminPanel>
             ))}
           </div>
           <AdminPanel className="p-5">
-            <div className="h-64 animate-pulse rounded-[10px] bg-white/6" />
+            <div className="h-64 animate-pulse rounded-[16px] bg-white/6" />
           </AdminPanel>
         </div>
       ) : null}
@@ -635,7 +635,7 @@ export function AdminStandingsWorkspace({
                 {selectedStanding.competition} - {selectedStanding.season}
               </p>
               {validationErrors.length > 0 ? (
-                <p className="text-[0.86rem] text-[#ffc3bc]">
+                <p className="text-[0.86rem] text-[#ffc1c4]">
                   {validationErrors.length} validaciones pendientes antes de guardar.
                 </p>
               ) : null}

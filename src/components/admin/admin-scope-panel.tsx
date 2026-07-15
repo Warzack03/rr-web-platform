@@ -17,7 +17,7 @@ export function AdminScopePanel({
   aside,
 }: AdminScopePanelProps) {
   return (
-    <AdminPanel className="border-[rgba(52,112,200,0.24)] px-5 py-4 sm:px-6">
+    <AdminPanel className="border-[rgba(107,159,255,0.24)] px-5 py-4 sm:px-6">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-end">
         <div className="space-y-3">
           <div className="space-y-2">

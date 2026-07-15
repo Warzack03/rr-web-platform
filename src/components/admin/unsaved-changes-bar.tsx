@@ -15,7 +15,7 @@ export function UnsavedChangesBar({
   isSaving = false,
 }: UnsavedChangesBarProps) {
   return (
-    <AdminPanel className="sticky bottom-4 z-10 border-[rgba(253,203,88,0.32)] px-4 py-4">
+    <AdminPanel className="sticky bottom-4 z-10 border-[rgba(243,203,69,0.32)] px-4 py-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-1 h-4.5 w-4.5 text-[color:var(--rr-gold)]" />

@@ -65,7 +65,7 @@ const matchFormSchema = z.object({
 });
 
 const fieldClassName =
-  "min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
+  "min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]";
 
 function createDefaultState(
   availableTeams: MatchManagementTeam[],
@@ -316,14 +316,14 @@ export function MatchFormDialog({
 
   return (
     <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-[rgba(5,10,18,0.78)] px-4 py-6 backdrop-blur-sm sm:px-6 sm:py-10">
-      <div className="w-full max-w-5xl rounded-[12px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(16,37,67,0.98),rgba(7,19,34,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
-        <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.08)] px-5 py-5 sm:px-6">
+      <div className="w-full max-w-5xl rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(13,32,55,0.98),rgba(7,22,41,0.98))] shadow-[0_32px_90px_rgba(0,0,0,0.42)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[rgba(255,255,255,0.1)] px-5 py-5 sm:px-6">
           <div className="space-y-2">
             <p className="rr-kicker text-[color:var(--rr-gold)]">
               {mode === "create" ? "Nuevo partido" : "Editar partido"}
             </p>
             <div>
-              <h2 className="rr-display text-[2.05rem] leading-[0.94] text-white sm:text-[2.25rem]">
+              <h2 className="rr-display text-[2.1rem] leading-[1] text-white sm:text-[2.35rem]">
                 {mode === "create"
                   ? isCoach
                     ? "Proximo partido"
@@ -344,7 +344,7 @@ export function MatchFormDialog({
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[8px] border border-white/10 text-[color:var(--rr-muted)] transition hover:text-white"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.28)] hover:text-white"
             aria-label="Cerrar"
           >
             <X className="h-5 w-5 text-[color:var(--rr-gold)]" />
@@ -353,7 +353,7 @@ export function MatchFormDialog({
 
         <form onSubmit={handleSubmit} className="space-y-6 px-5 py-5 sm:px-6 sm:py-6">
           {isCoach ? (
-            <div className="rounded-[10px] border border-[rgba(253,203,88,0.22)] bg-[rgba(253,203,88,0.06)] px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
+            <div className="rounded-[16px] border border-[rgba(243,203,69,0.24)] bg-[rgba(243,203,69,0.08)] px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
               Equipo activo: <span className="font-semibold text-white">{selectedTeam?.name ?? "Equipo asignado"}</span>
             </div>
           ) : null}
@@ -362,7 +362,7 @@ export function MatchFormDialog({
             {lockTeam ? (
               <div className="grid gap-2 md:col-span-2">
                 <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Equipo</span>
-                <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/4 px-3 text-white">
+                <div className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/4 px-3 text-white">
                   {selectedTeam?.name ?? "Equipo asignado"}
                 </div>
               </div>
@@ -407,7 +407,7 @@ export function MatchFormDialog({
               <div className="grid gap-2">
                 <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Competicion</span>
                 <div
-                  className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/[0.035] px-3 text-[color:var(--rr-muted)] opacity-80"
+                  className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.04] px-3 text-[color:var(--rr-muted)] opacity-80"
                   aria-label="Competicion asignada automaticamente"
                 >
                   {formState.competition}
@@ -493,7 +493,7 @@ export function MatchFormDialog({
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+            <label className="flex items-center gap-3 rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
               <input
                 type="checkbox"
                 checked={formState.isHome}
@@ -504,7 +504,7 @@ export function MatchFormDialog({
               Partido como local
             </label>
 
-            <label className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
+            <label className="flex items-center gap-3 rounded-[16px] border border-white/10 bg-white/4 px-4 py-3 text-[0.92rem] text-[color:var(--rr-muted)]">
               <input
                 type="checkbox"
                 checked={!formState.date}
