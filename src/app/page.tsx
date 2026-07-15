@@ -33,7 +33,7 @@ export default async function HomePage() {
     <PublicSiteLayout activeNav="home" debugDataSource={result?.dataSource}>
       <HomeHero content={content.hero} />
       <HomeFirstTeamBlock content={content.firstTeam} />
-      <HomeNewsSection content={content.news} />
+      {content.news ? <HomeNewsSection content={content.news} /> : null}
       <HomeAcademySummary content={content.academy} />
     </PublicSiteLayout>
   );

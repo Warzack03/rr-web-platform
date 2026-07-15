@@ -63,7 +63,7 @@ export type PublicHomePageContent = {
     href: string;
     featured: PublicNewsArticle;
     latest: PublicNewsArticle[];
-  };
+  } | null;
   academy: {
     eyebrow: string;
     title: string;
@@ -90,7 +90,7 @@ export async function getPublicHomePageContentWithSource(): Promise<{
     getLatestPublicNewsArticles(2),
   ]);
 
-  if (!dbSections?.firstTeam || !dbSections.academy || !featuredNews) {
+  if (!dbSections?.firstTeam || !dbSections.academy) {
     return null;
   }
 
@@ -113,12 +113,14 @@ export async function getPublicHomePageContentWithSource(): Promise<{
     },
     firstTeam: dbSections.firstTeam,
     academy: dbSections.academy,
-    news: {
-      title: "Actualidad",
-      href: "/noticias",
-      featured: featuredNews,
-      latest: latestNews,
-    },
+    news: featuredNews
+      ? {
+          title: "Actualidad",
+          href: "/noticias",
+          featured: featuredNews,
+          latest: latestNews,
+        }
+      : null,
   };
 
   return {
