@@ -11,7 +11,19 @@ export function PlayerContextLinks({ player }: PlayerContextLinksProps) {
     return null;
   }
 
-  const baseHref = `/equipos/${player.teamSlug}`;
+  const academyTeams = player.relatedTeams?.filter((team) => team.teamType === "academy") ?? [];
+  const baseTeamSlug =
+    academyTeams.length === 0
+      ? player.teamSlug
+      : academyTeams.length === 1
+        ? academyTeams[0].teamSlug
+        : null;
+
+  if (!baseTeamSlug) {
+    return null;
+  }
+
+  const baseHref = `/equipos/${baseTeamSlug}`;
   const links = [
     { href: baseHref, label: "Equipo", icon: Shield },
     { href: `${baseHref}/calendario`, label: "Calendario", icon: CalendarDays },

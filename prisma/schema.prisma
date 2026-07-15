@@ -429,6 +429,7 @@ model PlayerMatchStats {
   played               Boolean        @default(false)
   goals                Int            @default(0)
   assists              Int            @default(0)
+  mvp                  Int            @default(0)
   yellowCards          Int            @default(0)
   redCards             Int            @default(0)
   recoveries           Int            @default(0)

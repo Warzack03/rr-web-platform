@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsCard } from "@/components/public/news-card";
 import { PageHero, PageHeroIcons } from "@/components/public/page-hero";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   MatchPreviewPanel,
   MetricTile,
@@ -11,7 +11,7 @@ import {
   TeamNewsPreview,
   TopScorerPanel,
 } from "@/components/public/team-overview-panels";
-import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
+import { getPublicAcademyTeamPageContentWithSource } from "@/lib/public/team-page-content";
 
 type TeamDetailPageProps = {
   params: Promise<{
@@ -23,7 +23,8 @@ export async function generateMetadata({
   params,
 }: TeamDetailPageProps): Promise<Metadata> {
   const { teamSlug } = await params;
-  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
+  const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
+  const teamSummary = result?.content;
 
   if (!teamSummary) {
     return {
@@ -41,14 +42,22 @@ export default async function AcademyTeamDetailPage({
   params,
 }: TeamDetailPageProps) {
   const { teamSlug } = await params;
-  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
+  const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
+  const teamSummary = result?.content;
 
-  if (!teamSummary || !teamSummary.topScorer) {
-    notFound();
+  if (!teamSummary) {
+    return (
+      <PublicSiteLayout activeNav="equipos">
+        <PublicEmptyState
+          title="No hay datos del equipo"
+          description="Cuando este equipo tenga datos publicados en la DB, se mostrara su resumen aqui."
+        />
+      </PublicSiteLayout>
+    );
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos">
+    <PublicSiteLayout activeNav="equipos" debugDataSource={result?.dataSource}>
       <PageHero
         chips={[
           { label: teamSummary.category, tone: "accent" },
@@ -120,9 +129,11 @@ export default async function AcademyTeamDetailPage({
             </div>
           ) : null}
 
-          <div className="order-6 lg:col-span-4">
-            <TopScorerPanel {...teamSummary.topScorer} />
-          </div>
+          {teamSummary.topScorer ? (
+            <div className="order-6 lg:col-span-4">
+              <TopScorerPanel {...teamSummary.topScorer} />
+            </div>
+          ) : null}
         </div>
       </section>
     </PublicSiteLayout>

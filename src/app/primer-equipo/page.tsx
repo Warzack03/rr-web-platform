@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsCard } from "@/components/public/news-card";
 import { PageHero, PageHeroIcons } from "@/components/public/page-hero";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   MatchPreviewPanel,
   MetricTile,
@@ -11,7 +11,7 @@ import {
   TeamNewsPreview,
   TopScorerPanel,
 } from "@/components/public/team-overview-panels";
-import { getPublicTeamPageContent } from "@/lib/public/team-page-content";
+import { getPublicTeamPageContentWithSource } from "@/lib/public/team-page-content";
 
 export const metadata: Metadata = {
   title: "Primer Equipo",
@@ -19,14 +19,22 @@ export const metadata: Metadata = {
 };
 
 export default async function FirstTeamPage() {
-  const teamSummary = await getPublicTeamPageContent("primer-equipo");
+  const result = await getPublicTeamPageContentWithSource("primer-equipo");
+  const teamSummary = result?.content;
 
-  if (!teamSummary || !teamSummary.topScorer) {
-    notFound();
+  if (!teamSummary) {
+    return (
+      <PublicSiteLayout activeNav="primer-equipo">
+        <PublicEmptyState
+          title="No hay datos del Primer Equipo"
+          description="Cuando el Primer Equipo este publicado en la temporada activa, se mostrara su resumen aqui."
+        />
+      </PublicSiteLayout>
+    );
   }
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo">
+    <PublicSiteLayout activeNav="primer-equipo" debugDataSource={result?.dataSource}>
       <PageHero
         chips={[
           { label: teamSummary.competition, tone: "accent" },
@@ -91,9 +99,11 @@ export default async function FirstTeamPage() {
             </TeamNewsPreview>
           </div>
 
-          <div className="order-5 lg:order-6 lg:col-span-4">
-            <TopScorerPanel {...teamSummary.topScorer} />
-          </div>
+          {teamSummary.topScorer ? (
+            <div className="order-5 lg:order-6 lg:col-span-4">
+              <TopScorerPanel {...teamSummary.topScorer} />
+            </div>
+          ) : null}
         </div>
       </section>
     </PublicSiteLayout>

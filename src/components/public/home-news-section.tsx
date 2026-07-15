@@ -5,7 +5,7 @@ import { NewsCard } from "@/components/public/news-card";
 import type { PublicHomePageContent } from "@/lib/public/home-content";
 
 type HomeNewsSectionProps = {
-  content: PublicHomePageContent["news"];
+  content: NonNullable<PublicHomePageContent["news"]>;
 };
 
 export function HomeNewsSection({ content }: HomeNewsSectionProps) {
@@ -49,7 +49,11 @@ export function HomeNewsSection({ content }: HomeNewsSectionProps) {
   );
 }
 
-function HomeNewsRailItem({ article }: { article: PublicHomePageContent["news"]["latest"][number] }) {
+function HomeNewsRailItem({
+  article,
+}: {
+  article: NonNullable<PublicHomePageContent["news"]>["latest"][number];
+}) {
   return (
     <Link
       href={`/noticias/${article.slug}`}

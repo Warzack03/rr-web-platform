@@ -1,5 +1,3 @@
-import { UserRole } from "@prisma/client";
-
 export type AdminSectionKey =
   | "dashboard"
   | "seasons"
@@ -19,49 +17,41 @@ export type AdminNavItem = {
   href: string;
   label: string;
   section: AdminSectionKey;
-};
-
-export const roleLabels: Record<UserRole, string> = {
-  [UserRole.SUPERADMIN]: "Superadmin",
-  [UserRole.MANAGER]: "Manager",
-  [UserRole.COACH]: "Entrenador",
+  status: "active" | "preview";
 };
 
 export const adminNavigation: AdminNavItem[] = [
-  { href: "/admin", label: "Dashboard", section: "dashboard" },
-  { href: "/admin/temporadas", label: "Temporadas", section: "seasons" },
-  { href: "/admin/equipos", label: "Equipos", section: "teams" },
-  { href: "/admin/jugadores", label: "Jugadores", section: "players" },
-  { href: "/admin/asignaciones", label: "Asignaciones", section: "assignments" },
-  { href: "/admin/partidos", label: "Partidos", section: "matches" },
-  { href: "/admin/clasificaciones", label: "Clasificaciones", section: "standings" },
-  { href: "/admin/estadisticas", label: "Estadisticas", section: "stats" },
-  { href: "/admin/noticias", label: "Noticias", section: "news" },
-  { href: "/admin/media", label: "Media", section: "media" },
-  { href: "/admin/importaciones", label: "Importaciones", section: "imports" },
-  { href: "/admin/usuarios", label: "Usuarios", section: "users" },
+  { href: "/admin", label: "Panel", section: "dashboard", status: "active" },
+  { href: "/admin/partidos", label: "Jornada", section: "matches", status: "active" },
+  { href: "/admin/clasificaciones", label: "Clasificaciones", section: "standings", status: "active" },
+  { href: "/admin/estadisticas", label: "Estadisticas", section: "stats", status: "active" },
+  { href: "/admin/equipos", label: "Equipos", section: "teams", status: "active" },
+  { href: "/admin/asignaciones", label: "Plantilla", section: "assignments", status: "active" },
+  { href: "/admin/jugadores", label: "Fichas y cromos", section: "players", status: "active" },
+  { href: "/admin/media", label: "Media", section: "media", status: "active" },
+  { href: "/admin/noticias", label: "Noticias", section: "news", status: "active" },
 ];
 
-const adminSectionRoles: Record<AdminSectionKey, UserRole[]> = {
-  dashboard: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  seasons: [UserRole.SUPERADMIN, UserRole.MANAGER],
-  teams: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  players: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  assignments: [UserRole.SUPERADMIN, UserRole.MANAGER],
-  matches: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  standings: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  stats: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  news: [UserRole.SUPERADMIN, UserRole.MANAGER],
-  media: [UserRole.SUPERADMIN, UserRole.MANAGER],
-  imports: [UserRole.SUPERADMIN],
-  users: [UserRole.SUPERADMIN],
-  settings: [UserRole.SUPERADMIN],
-};
+const adminSectionKeys: ReadonlySet<AdminSectionKey> = new Set([
+  "dashboard",
+  "seasons",
+  "teams",
+  "players",
+  "assignments",
+  "matches",
+  "standings",
+  "stats",
+  "news",
+  "media",
+  "imports",
+  "users",
+  "settings",
+]);
 
-export function canAccessAdminSection(role: UserRole, section: AdminSectionKey) {
-  return adminSectionRoles[section].includes(role);
+export function canAccessAdminSection(_sectionRole: unknown, section: AdminSectionKey) {
+  return adminSectionKeys.has(section);
 }
 
-export function getAdminNavigationForRole(role: UserRole) {
-  return adminNavigation.filter((item) => canAccessAdminSection(role, item.section));
+export function getAdminNavigation() {
+  return adminNavigation;
 }

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { MatchDetailPage } from "@/components/public/match-detail-page";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
-  getFirstTeamMatchDetail,
-  getFirstTeamMatchDetailIds,
-} from "@/lib/public/first-team-match-detail-content";
+  getFirstTeamMatchDetailFromDb,
+  getFirstTeamMatchDetailIdsFromDb,
+} from "@/server/services/public/match-detail";
+
+export const revalidate = 300;
 
 type FirstTeamMatchDetailPageProps = {
   params: Promise<{
@@ -13,8 +15,10 @@ type FirstTeamMatchDetailPageProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return getFirstTeamMatchDetailIds().map((matchId) => ({
+export async function generateStaticParams() {
+  const dbIds = await getFirstTeamMatchDetailIdsFromDb();
+
+  return dbIds.map((matchId) => ({
     matchId,
   }));
 }
@@ -23,7 +27,7 @@ export async function generateMetadata({
   params,
 }: FirstTeamMatchDetailPageProps): Promise<Metadata> {
   const { matchId } = await params;
-  const detail = getFirstTeamMatchDetail(matchId);
+  const detail = await getFirstTeamMatchDetailFromDb(matchId);
 
   if (!detail) {
     return {
@@ -41,14 +45,27 @@ export default async function FirstTeamMatchDetailRoute({
   params,
 }: FirstTeamMatchDetailPageProps) {
   const { matchId } = await params;
-  const detail = getFirstTeamMatchDetail(matchId);
+  const detail = await getFirstTeamMatchDetailFromDb(matchId);
 
   if (!detail) {
-    notFound();
+    return (
+      <PublicSiteLayout activeNav="primer-equipo">
+        <PublicEmptyState
+          title="No hay datos del partido"
+          description="Cuando este partido tenga datos visibles en la DB, se mostrara aqui."
+        />
+      </PublicSiteLayout>
+    );
   }
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo">
+    <PublicSiteLayout
+      activeNav="primer-equipo"
+      debugDataSource={{
+        source: "db",
+        note: `primer-equipo/${matchId}`,
+      }}
+    >
       <MatchDetailPage
         detail={detail}
         backHref="/primer-equipo/calendario"

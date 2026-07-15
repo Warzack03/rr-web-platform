@@ -4,11 +4,7 @@
 
 A team can show multiple coaches publicly.
 
-Only one coach account per team is expected in MVP. Naming convention:
-
-- `entrenador_<team_slug>`
-
-The public coach list can include coaches that do not have platform accounts.
+The public coach list is managed as informative team data and does not require linked platform accounts.
 
 ## Season visibility
 
@@ -47,4 +43,3 @@ The shop moves to a subdomain:
 - `tienda.risingraimon.es`
 
 The new platform does not implement ecommerce in MVP.
-

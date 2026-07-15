@@ -1,5 +1,7 @@
 import { getAcademyTeamCalendarContent } from "@/lib/public/team-calendar-content";
 import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
+import { getPublicTeamPageContentFromDb } from "@/server/services/public/teams";
 
 export type TeamStub = {
   name: string;
@@ -87,7 +89,7 @@ export type PublicTeamPageContent = {
   news: TeamNewsItem[];
 };
 
-const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
+export const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
   "primer-equipo": {
     slug: "primer-equipo",
     variant: "first-team",
@@ -515,7 +517,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
   },
 };
 
-function getNextAcademyMatchFromCalendar(team: PublicTeamPageContent) {
+export function getNextAcademyMatchFromCalendar(team: PublicTeamPageContent) {
   const calendar = getAcademyTeamCalendarContent({
     slug: team.slug,
     name: team.name,
@@ -550,7 +552,7 @@ function getNextAcademyMatchFromCalendar(team: PublicTeamPageContent) {
   return team.nextMatch;
 }
 
-function getAcademyRecentResultsFromCalendar(team: PublicTeamPageContent) {
+export function getAcademyRecentResultsFromCalendar(team: PublicTeamPageContent) {
   const calendar = getAcademyTeamCalendarContent({
     slug: team.slug,
     name: team.name,
@@ -591,21 +593,57 @@ function getAcademyRecentResultsFromCalendar(team: PublicTeamPageContent) {
 export async function getPublicTeamPageContent(
   teamSlug: string,
 ): Promise<PublicTeamPageContent | null> {
-  return PUBLIC_TEAM_PAGE_MOCKS[teamSlug] ?? null;
+  const result = await getPublicTeamPageContentWithSource(teamSlug);
+
+  return result?.content ?? null;
+}
+
+export async function getPublicTeamPageContentWithSource(
+  teamSlug: string,
+): Promise<{
+  content: PublicTeamPageContent;
+  dataSource: PublicDataSourceInfo;
+} | null> {
+  const dbContent = await getPublicTeamPageContentFromDb(teamSlug);
+
+  if (dbContent) {
+    return {
+      content: dbContent,
+      dataSource: {
+        source: "db",
+        note: teamSlug,
+      },
+    };
+  }
+
+  return null;
 }
 
 export async function getPublicAcademyTeamPageContent(
   teamSlug: string,
 ): Promise<PublicTeamPageContent | null> {
-  const team = PUBLIC_TEAM_PAGE_MOCKS[teamSlug];
+  const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
 
-  if (!team || team.variant !== "academy") {
-    return null;
+  return result?.content ?? null;
+}
+
+export async function getPublicAcademyTeamPageContentWithSource(
+  teamSlug: string,
+): Promise<{
+  content: PublicTeamPageContent;
+  dataSource: PublicDataSourceInfo;
+} | null> {
+  const dbContent = await getPublicTeamPageContentFromDb(teamSlug);
+
+  if (dbContent && dbContent.variant === "academy") {
+    return {
+      content: dbContent,
+      dataSource: {
+        source: "db",
+        note: teamSlug,
+      },
+    };
   }
 
-  return {
-    ...team,
-    nextMatch: getNextAcademyMatchFromCalendar(team),
-    recentResults: getAcademyRecentResultsFromCalendar(team),
-  };
+  return null;
 }

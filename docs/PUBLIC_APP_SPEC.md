@@ -25,12 +25,14 @@ Esta es la especificacion consolidada de la parte publica de Rising Raimon. Se c
 /primer-equipo/plantilla
 /primer-equipo/calendario
 /primer-equipo/clasificacion
+/primer-equipo/estadisticas
 /primer-equipo/partidos/[matchId]
 /equipos
 /equipos/[teamSlug]
 /equipos/[teamSlug]/plantilla
 /equipos/[teamSlug]/calendario
 /equipos/[teamSlug]/clasificacion
+/equipos/[teamSlug]/estadisticas
 /equipos/[teamSlug]/partidos/[matchId]
 /equipos/[teamSlug]/jugadores/[playerSlug]
 /jugadores/[playerSlug]
@@ -202,6 +204,23 @@ Columnas:
 
 La clasificacion se edita manualmente. No se calcula a partir de partidos.
 
+## Estadisticas Primer Equipo `/primer-equipo/estadisticas`
+
+Objetivo: resumen publico de rendimiento del Primer Equipo.
+
+Debe mostrar:
+
+- Tabla o listado de jugadores de campo y porteros.
+- Estadisticas acumuladas de la temporada.
+- Metricas derivadas utiles cuando existan datos suficientes.
+- Enlaces discretos a ficha de jugador, equipo, plantilla, calendario y clasificacion.
+
+No debe mostrar:
+
+- Edicion de datos.
+- Datos privados o internos.
+- Graficas avanzadas si no existen datos reales suficientes.
+
 ## Listado de equipos `/equipos`
 
 Objetivo: indice de estructura deportiva.
@@ -331,6 +350,22 @@ Debe mostrar tabla completa manual con equipo propio destacado.
 No debe mostrar panel resumen superior de posicion/puntos.
 
 En mobile usar cards compactas.
+
+## Estadisticas cantera `/equipos/[teamSlug]/estadisticas`
+
+Objetivo: resumen publico simple de rendimiento del equipo.
+
+Debe mostrar:
+
+- Estadisticas acumuladas de la temporada por jugador.
+- Separacion clara entre jugadores de campo y porteros si aplica.
+- Enlaces discretos a ficha de jugador, equipo, plantilla, calendario y clasificacion.
+
+No debe mostrar:
+
+- Estadisticas avanzadas exclusivas del Primer Equipo.
+- Edicion de datos.
+- Datos privados o internos.
 
 ## Detalle jugador Primer Equipo `/jugadores/[playerSlug]`
 

@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PremiumPlayerCard } from "@/components/public/premium-player-card";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { SquadPageTitle } from "@/components/public/squad-page-title";
 import { SquadSection } from "@/components/public/squad-section";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
-import { TeamRoutePlaceholder } from "@/components/public/team-route-placeholder";
-import {
-  getAcademyPlayerHref,
-  getAcademyTeamSquadContent,
-} from "@/lib/public/player-profile-content";
+import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
+import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
 
 type TeamPlaceholderPageProps = {
   params: Promise<{
@@ -42,23 +39,32 @@ export default async function TeamSquadPage({
 }: TeamPlaceholderPageProps) {
   const { teamSlug } = await params;
   const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
-  const squad = getAcademyTeamSquadContent(teamSlug);
+  const dbSquad = await getPublicRosterContentFromDb(teamSlug);
 
   if (!teamSummary) {
-    notFound();
-  }
-
-  if (!squad) {
     return (
       <PublicSiteLayout activeNav="equipos">
-        <TeamRoutePlaceholder
-          eyebrow={teamSummary.name}
-          title="Plantilla"
-          description="Plantilla pendiente de publicar."
+        <PublicEmptyState
+          title="No hay datos del equipo"
+          description="Cuando este equipo exista en la DB y este visible, su plantilla aparecera aqui."
         />
       </PublicSiteLayout>
     );
   }
+
+  if (!dbSquad) {
+    return (
+      <PublicSiteLayout activeNav="equipos">
+        <PublicEmptyState
+          eyebrow={teamSummary.name}
+          title="No hay plantilla publicada"
+          description="Cuando haya jugadores visibles en la DB, la plantilla de este equipo aparecera aqui."
+        />
+      </PublicSiteLayout>
+    );
+  }
+
+  const squad = dbSquad;
 
   const fieldGroups = [
     {
@@ -72,6 +78,11 @@ export default async function TeamSquadPage({
       players: squad.fieldPlayers.filter((player) => player.group === "mediocentros"),
     },
     {
+      key: "banda",
+      title: "Bandas",
+      players: squad.fieldPlayers.filter((player) => player.group === "banda"),
+    },
+    {
       key: "delanteros",
       title: "Delanteros",
       players: squad.fieldPlayers.filter((player) => player.group === "delanteros"),
@@ -79,7 +90,7 @@ export default async function TeamSquadPage({
   ] as const;
 
   return (
-    <PublicSiteLayout activeNav="equipos">
+    <PublicSiteLayout activeNav="equipos" debugDataSource={{ source: "db", note: teamSlug }}>
       <div className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.08),transparent_58%)]" />
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
@@ -108,7 +119,15 @@ export default async function TeamSquadPage({
                   {squad.goalkeepers.map((player) => (
                     <PremiumPlayerCard
                       key={player.id}
-                      {...player}
+                      name={player.name}
+                      number={player.number}
+                      country={player.country}
+                      countryFlag={player.countryFlag}
+                      position={player.position}
+                      dominantFoot={player.dominantFoot}
+                      imageUrl={player.imageUrl}
+                      playerType={player.playerType}
+                      stats={player.stats}
                       teamType="academy"
                       href={getAcademyPlayerHref(teamSlug, player.slug)}
                       className="h-full"
@@ -136,7 +155,15 @@ export default async function TeamSquadPage({
                           {group.players.map((player) => (
                             <PremiumPlayerCard
                               key={player.id}
-                              {...player}
+                              name={player.name}
+                              number={player.number}
+                              country={player.country}
+                              countryFlag={player.countryFlag}
+                              position={player.position}
+                              dominantFoot={player.dominantFoot}
+                              imageUrl={player.imageUrl}
+                              playerType={player.playerType}
+                              stats={player.stats}
                               teamType="academy"
                               href={getAcademyPlayerHref(teamSlug, player.slug)}
                               className="h-full"

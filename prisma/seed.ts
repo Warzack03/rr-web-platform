@@ -20,8 +20,8 @@ const IMPORT_SOURCE = "seed";
 
 const adminSeed = {
   email: process.env.ADMIN_INITIAL_EMAIL ?? "admin@risingraimon.local",
-  username: process.env.ADMIN_INITIAL_USERNAME ?? "superadmin",
-  displayName: process.env.ADMIN_INITIAL_DISPLAY_NAME ?? "Superadmin Inicial",
+  username: process.env.ADMIN_INITIAL_USERNAME ?? "manager",
+  displayName: process.env.ADMIN_INITIAL_DISPLAY_NAME ?? "Manager Inicial",
   password: process.env.ADMIN_INITIAL_PASSWORD ?? DEFAULT_DEMO_PASSWORD,
 };
 
@@ -36,10 +36,7 @@ function slugify(value: string) {
 }
 
 async function main() {
-  const [superadminPasswordHash, demoPasswordHash] = await Promise.all([
-    bcrypt.hash(adminSeed.password, 10),
-    bcrypt.hash(DEFAULT_DEMO_PASSWORD, 10),
-  ]);
+  const adminPasswordHash = await bcrypt.hash(adminSeed.password, 10);
 
   await prisma.$transaction(async (tx) => {
     await tx.newsPostTeam.deleteMany();
@@ -62,35 +59,17 @@ async function main() {
     await tx.season.deleteMany();
     await tx.user.deleteMany();
 
-    const [superadmin, manager, coach] = await Promise.all([
-      tx.user.create({
-        data: {
-          email: adminSeed.email,
-          username: adminSeed.username,
-          passwordHash: superadminPasswordHash,
-          displayName: adminSeed.displayName,
-          role: UserRole.SUPERADMIN,
-        },
-      }),
-      tx.user.create({
-        data: {
-          email: "manager@risingraimon.local",
-          username: "manager",
-          passwordHash: demoPasswordHash,
-          displayName: "Manager Demo",
-          role: UserRole.MANAGER,
-        },
-      }),
-      tx.user.create({
-        data: {
-          email: "entrenador_primer_equipo@risingraimon.local",
-          username: "entrenador_primer_equipo",
-          passwordHash: demoPasswordHash,
-          displayName: "Entrenador Primer Equipo",
-          role: UserRole.COACH,
-        },
-      }),
-    ]);
+    const superadmin = await tx.user.create({
+      data: {
+        email: adminSeed.email,
+        username: adminSeed.username,
+        passwordHash: adminPasswordHash,
+        displayName: adminSeed.displayName,
+        role: UserRole.MANAGER,
+      },
+    });
+    const manager = superadmin;
+    const coach = superadmin;
 
     const importBatch = await tx.importBatch.create({
       data: {
@@ -268,20 +247,10 @@ async function main() {
       }),
     ]);
 
-    await tx.coachTeamPermission.create({
-      data: {
-        userId: coach.id,
-        seasonTeamId: primerSeasonTeam.id,
-        active: true,
-        createdById: superadmin.id,
-      },
-    });
-
     await tx.teamCoach.createMany({
       data: [
         {
           seasonTeamId: primerSeasonTeam.id,
-          userId: coach.id,
           name: "Marcos Varela",
           roleLabel: "Entrenador",
           publicVisible: true,
@@ -597,6 +566,7 @@ async function main() {
           played: true,
           goals: 1,
           assists: 0,
+          mvp: 1,
           yellowCards: 1,
           recoveries: 11,
           shots: 1,
@@ -613,6 +583,7 @@ async function main() {
           played: true,
           goals: 0,
           assists: 2,
+          mvp: 1,
           recoveries: 9,
           shots: 3,
           shotsOnTarget: 2,
@@ -628,6 +599,7 @@ async function main() {
           played: true,
           goals: 2,
           assists: 0,
+          mvp: 1,
           shots: 5,
           shotsOnTarget: 3,
           ownGoals: 0,
@@ -643,6 +615,7 @@ async function main() {
           played: true,
           goals: 1,
           assists: 1,
+          mvp: 1,
           shots: 4,
           shotsOnTarget: 2,
           createdById: coach.id,

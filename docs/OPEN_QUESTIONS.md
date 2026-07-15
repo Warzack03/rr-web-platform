@@ -26,8 +26,10 @@ Pendiente decidir:
 
 Pendiente decidir:
 
-- Si las estadisticas se editan por partido y se agregan automaticamente, o si se editan como acumulados por jugador.
-- Para MVP se recomienda empezar por acumulados manuales y evolucionar a stats por partido si hace falta.
+- Resuelto: la pantalla de backoffice trabajara con stats por partido como base
+  y mostrara a la vez el acumulado de temporada.
+- Resuelto: `PJ` debe salir de marcar si el jugador ha participado o no en cada
+  partido.
 
 ## Noticias
 
@@ -63,6 +65,7 @@ Pendiente decidir:
 - La pagina de detalle de equipo entra en MVP.
 - Las noticias nuevas entran en MVP.
 - El entrenador de equipo se muestra/gestiona en el equipo; staff de club queda separado.
+- Los entrenadores visibles del equipo son informativos y no requieren cuenta vinculada.
 - Solo superadmin/manager crean equipos y asignan entrenadores.
 - Entrenador solo edita datos permitidos de equipos asignados.
 - Participaciones de gol = goles + asistencias.

@@ -1,0 +1,39 @@
+import { AdminStandingsWorkspace } from "@/components/admin/admin-standings-workspace";
+import { toAdminRole } from "@/lib/admin/roles";
+import { requireAdminSectionAccess } from "@/server/auth/session";
+import { getAdminStandingsScreenData } from "@/server/services/admin-standings";
+
+type AdminStandingsPageProps = {
+  searchParams: Promise<{
+    ui?: string | string[];
+    team?: string | string[];
+  }>;
+};
+
+function getSingleValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function AdminStandingsPage({
+  searchParams,
+}: AdminStandingsPageProps) {
+  const user = await requireAdminSectionAccess("standings");
+  const role = toAdminRole(user.role);
+  const data = await getAdminStandingsScreenData(user);
+  const resolvedSearchParams = await searchParams;
+  const initialUiState =
+    getSingleValue(resolvedSearchParams.ui) === "error" ? "error" : "ready";
+
+  return (
+    <AdminStandingsWorkspace
+      key={`${role}-${initialUiState}-${getSingleValue(resolvedSearchParams.team) ?? "all"}`}
+      role={role}
+      initialUiState={initialUiState}
+      initialSelectedTeamSlug={getSingleValue(resolvedSearchParams.team)}
+      initialTables={data.tables}
+      initialTeams={data.teams}
+      activeSeasonLabel={data.activeSeasonName ?? undefined}
+      coachTeamOptions={data.coachTeamOptions}
+    />
+  );
+}

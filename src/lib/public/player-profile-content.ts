@@ -3,7 +3,7 @@ export type DominantFoot = "left" | "right" | "both" | "unknown";
 export type PublicPlayerType = "field" | "goalkeeper";
 export type PublicTeamType = "first-team" | "academy";
 export type PublicPlayerStatsLevel = "advanced" | "basic";
-export type PublicPlayerGroup = "defensas" | "mediocentros" | "delanteros";
+export type PublicPlayerGroup = "defensas" | "mediocentros" | "banda" | "delanteros";
 
 export type PublicPlayerStats = {
   matchesPlayed: number;
@@ -42,6 +42,11 @@ export type PublicPlayerProfile = {
   teamLabel: string;
   seasonLabel: string;
   shopHref?: string;
+  relatedTeams?: Array<{
+    teamSlug: string;
+    teamLabel: string;
+    teamType: PublicTeamType;
+  }>;
   stats: PublicPlayerStats;
 };
 
@@ -84,8 +89,15 @@ function inferPlayerGroupFromPosition(position: string): PublicPlayerGroup {
     return "defensas";
   }
 
-  if (normalizedPosition.includes("delantero") || normalizedPosition.includes("extremo")) {
+  if (
+    normalizedPosition.includes("delantero") ||
+    normalizedPosition.includes("extremo")
+  ) {
     return "delanteros";
+  }
+
+  if (normalizedPosition.includes("banda")) {
+    return "banda";
   }
 
   return "mediocentros";
@@ -1104,9 +1116,7 @@ export function getAcademyPlayerDetail(
 }
 
 export function getAcademyPlayerHref(teamSlug: string, playerSlug: string): string | undefined {
-  return getAcademyPlayerDetail(teamSlug, playerSlug)
-    ? `/equipos/${teamSlug}/jugadores/${playerSlug}`
-    : undefined;
+  return `/equipos/${teamSlug}/jugadores/${playerSlug}`;
 }
 
 export function findAcademyPlayersBySlug(playerSlug: string): AcademySquadPlayer[] {

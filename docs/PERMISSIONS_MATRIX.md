@@ -1,5 +1,11 @@
 # PERMISSIONS_MATRIX.md
 
+## Current status
+
+Superseded for product-facing MVP UI and runtime behavior by `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md`.
+
+The MVP now uses one internal manager/admin account. The matrix below is retained only as technical history in case role-based access is reintroduced later.
+
 ## Roles
 
 - `superadmin`
@@ -32,7 +38,7 @@
 | Set team public visibility | Yes | Yes | No |
 | Upload team logo/banner | Yes | Yes | No |
 | Add visible team coaches | Yes | Yes | No |
-| Assign existing coach to team | Yes | Yes | No |
+| Assign team scope to coach user | Yes | Yes | No |
 | Create/edit players | Yes | Yes | No |
 | Upload player photos | Yes | Yes | No |
 | Create/edit assignments | Yes | Yes | No |

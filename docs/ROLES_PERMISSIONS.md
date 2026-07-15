@@ -1,5 +1,11 @@
 # ROLES_PERMISSIONS.md
 
+## Current status
+
+Superseded for product-facing MVP UI and runtime behavior by `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md`.
+
+The MVP now uses one internal manager/admin account. The role model below is retained only as technical history in case multi-user access is reintroduced later.
+
 ## Roles
 
 ### Superadmin
@@ -57,15 +63,7 @@ Cannot:
 
 ## Coach accounts
 
-A team can show multiple public coaches. MVP expects only one coach account per team.
-
-Naming convention:
-
-```text
-entrenador_<team_slug>
-```
-
-Visible coaches may exist as plain public names even if they do not have user accounts.
+Visible coaches are informative team data. They do not imply a linked backoffice account.
 
 ## Team assignment permissions
 

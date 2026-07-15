@@ -8,12 +8,14 @@
 /primer-equipo/plantilla
 /primer-equipo/calendario
 /primer-equipo/clasificacion
+/primer-equipo/estadisticas
 /primer-equipo/partidos/[matchId]
 /equipos
 /equipos/[teamSlug]
 /equipos/[teamSlug]/plantilla
 /equipos/[teamSlug]/calendario
 /equipos/[teamSlug]/clasificacion
+/equipos/[teamSlug]/estadisticas
 /equipos/[teamSlug]/partidos/[matchId]
 /equipos/[teamSlug]/jugadores/[playerSlug]
 /jugadores/[playerSlug]
@@ -46,6 +48,7 @@ First Team owns:
 - `/primer-equipo/plantilla`
 - `/primer-equipo/calendario`
 - `/primer-equipo/clasificacion`
+- `/primer-equipo/estadisticas`
 - `/primer-equipo/partidos/[matchId]`
 - First Team players can use `/jugadores/[playerSlug]`.
 
@@ -55,6 +58,7 @@ Academy/rest teams own:
 - `/equipos/[teamSlug]/plantilla`
 - `/equipos/[teamSlug]/calendario`
 - `/equipos/[teamSlug]/clasificacion`
+- `/equipos/[teamSlug]/estadisticas`
 - `/equipos/[teamSlug]/partidos/[matchId]`
 - `/equipos/[teamSlug]/jugadores/[playerSlug]`
 

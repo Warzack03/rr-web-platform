@@ -1,8 +1,9 @@
+import type { PublicDataSourceInfo } from "@/lib/public/data-source";
+import type { TeamSectionNavLink } from "@/lib/public/team-section-links";
 import {
-  getPublicAcademyTeamPageContent,
-  getPublicTeamPageContent,
-} from "@/lib/public/team-page-content";
-import { getTeamSectionLinks, type TeamSectionNavLink } from "@/lib/public/team-section-links";
+  getAcademyTeamStandingsContentFromDb,
+  getFirstTeamStandingsContentFromDb,
+} from "@/server/services/public/standings";
 
 export type StandingRowData = {
   position: number;
@@ -67,7 +68,7 @@ function createStandingRow(
   };
 }
 
-const FIRST_TEAM_STANDINGS: StandingsMock = {
+export const FIRST_TEAM_STANDINGS: StandingsMock = {
   season: "Temporada 2024/2025",
   competition: "Primera Division",
   updatedAt: "18 Oct 2024",
@@ -85,7 +86,7 @@ const FIRST_TEAM_STANDINGS: StandingsMock = {
   ],
 };
 
-const ACADEMY_STANDINGS: Record<string, StandingsMock> = {
+export const ACADEMY_STANDINGS: Record<string, StandingsMock> = {
   "raimon-b": {
     updatedAt: "13 Oct 2024",
     rows: [
@@ -157,7 +158,7 @@ function sortRows(rows: StandingRowData[]) {
   return [...rows].sort((left, right) => left.position - right.position);
 }
 
-function createFallbackAcademyRows(teamName: string): StandingRowData[] {
+export function createFallbackAcademyRows(teamName: string): StandingRowData[] {
   return sortRows([
     createStandingRow(1, "Royal Academy", 8, 6, 1, 1, 18, 7, 19),
     createStandingRow(2, "Kirkwood FC", 8, 5, 2, 1, 15, 8, 17),
@@ -171,51 +172,55 @@ function createFallbackAcademyRows(teamName: string): StandingRowData[] {
 }
 
 export async function getFirstTeamStandingsContent(): Promise<TeamStandingsPageContent | null> {
-  const teamSummary = await getPublicTeamPageContent("primer-equipo");
+  const result = await getFirstTeamStandingsContentWithSource();
 
-  if (!teamSummary) {
-    return null;
+  return result?.content ?? null;
+}
+
+export async function getFirstTeamStandingsContentWithSource(): Promise<{
+  content: TeamStandingsPageContent;
+  dataSource: PublicDataSourceInfo;
+} | null> {
+  const dbContent = await getFirstTeamStandingsContentFromDb();
+
+  if (dbContent) {
+    return {
+      content: dbContent,
+      dataSource: {
+        source: "db",
+        note: "primer-equipo-clasificacion",
+      },
+    };
   }
 
-  return {
-    slug: teamSummary.slug,
-    variant: "first-team",
-    title: "Clasificacion",
-    subtitle: `Primer Equipo - ${FIRST_TEAM_STANDINGS.season}`,
-    season: FIRST_TEAM_STANDINGS.season ?? teamSummary.season,
-    teamName: "Rising Raimon",
-    competition: FIRST_TEAM_STANDINGS.competition ?? teamSummary.competition,
-    updatedAt: FIRST_TEAM_STANDINGS.updatedAt,
-    backHref: "/primer-equipo",
-    backLabel: "Volver al Primer Equipo",
-    navLinks: getTeamSectionLinks({ teamType: "first-team" }),
-    rows: sortRows(FIRST_TEAM_STANDINGS.rows),
-  };
+  return null;
 }
 
 export async function getAcademyTeamStandingsContent(
   teamSlug: string,
 ): Promise<TeamStandingsPageContent | null> {
-  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
+  const result = await getAcademyTeamStandingsContentWithSource(teamSlug);
 
-  if (!teamSummary) {
-    return null;
+  return result?.content ?? null;
+}
+
+export async function getAcademyTeamStandingsContentWithSource(
+  teamSlug: string,
+): Promise<{
+  content: TeamStandingsPageContent;
+  dataSource: PublicDataSourceInfo;
+} | null> {
+  const dbContent = await getAcademyTeamStandingsContentFromDb(teamSlug);
+
+  if (dbContent) {
+    return {
+      content: dbContent,
+      dataSource: {
+        source: "db",
+        note: `${teamSlug}-clasificacion`,
+      },
+    };
   }
 
-  const standings = ACADEMY_STANDINGS[teamSlug];
-
-  return {
-    slug: teamSummary.slug,
-    variant: "academy",
-    title: "Clasificacion",
-    subtitle: `${teamSummary.name} - ${standings?.season ?? teamSummary.season}`,
-    season: standings?.season ?? teamSummary.season,
-    teamName: teamSummary.name,
-    competition: standings?.competition ?? teamSummary.competition,
-    updatedAt: standings?.updatedAt,
-    backHref: `/equipos/${teamSummary.slug}`,
-    backLabel: `Volver a ${teamSummary.name}`,
-    navLinks: getTeamSectionLinks({ teamType: "academy", teamSlug: teamSummary.slug }),
-    rows: sortRows(standings?.rows ?? createFallbackAcademyRows(teamSummary.name)),
-  };
+  return null;
 }
