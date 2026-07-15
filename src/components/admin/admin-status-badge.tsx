@@ -7,11 +7,11 @@ type AdminStatusBadgeProps = {
 };
 
 const toneClasses: Record<NonNullable<AdminStatusBadgeProps["tone"]>, string> = {
-  gold: "border-[rgba(253,203,88,0.32)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]",
-  blue: "border-[rgba(52,112,200,0.34)] bg-[rgba(52,112,200,0.12)] text-[#9fc4ff]",
+  gold: "border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.12)] text-[color:var(--rr-gold)]",
+  blue: "border-[rgba(107,159,255,0.34)] bg-[rgba(107,159,255,0.12)] text-[#b8d3ff]",
   slate: "border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.06)] text-[color:var(--rr-muted)]",
-  danger: "border-[rgba(255,122,122,0.3)] bg-[rgba(214,64,69,0.14)] text-[#ffb4ab]",
-  success: "border-[rgba(151,255,199,0.24)] bg-[rgba(31,98,64,0.24)] text-[#b8ffd8]",
+  danger: "border-[rgba(221,108,112,0.34)] bg-[rgba(221,108,112,0.14)] text-[#ffc1c4]",
+  success: "border-[rgba(70,185,123,0.32)] bg-[rgba(70,185,123,0.16)] text-[#b8ffd8]",
 };
 
 export function AdminStatusBadge({
@@ -22,7 +22,7 @@ export function AdminStatusBadge({
   return (
     <span
       className={cn(
-        "rr-kicker inline-flex min-h-8 whitespace-nowrap items-center gap-2 rounded-full border px-3 py-1.5 text-[0.72rem]",
+        "inline-flex min-h-8 whitespace-nowrap items-center gap-2 rounded-full border px-3 py-1.5 text-[0.76rem] font-semibold",
         toneClasses[tone],
       )}
     >

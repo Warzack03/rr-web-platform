@@ -13,10 +13,10 @@ type AdminMetricCardProps = {
 };
 
 const accentClasses: Record<NonNullable<AdminMetricCardProps["tone"]>, string> = {
-  gold: "border-[rgba(253,203,88,0.22)] before:bg-[linear-gradient(90deg,rgba(253,203,88,0.48),transparent)]",
-  blue: "border-[rgba(52,112,200,0.24)] before:bg-[linear-gradient(90deg,rgba(52,112,200,0.48),transparent)]",
+  gold: "border-[rgba(243,203,69,0.28)] before:bg-[linear-gradient(90deg,rgba(243,203,69,0.58),transparent)]",
+  blue: "border-[rgba(107,159,255,0.26)] before:bg-[linear-gradient(90deg,rgba(107,159,255,0.5),transparent)]",
   slate: "border-[rgba(255,255,255,0.12)] before:bg-[linear-gradient(90deg,rgba(255,255,255,0.18),transparent)]",
-  danger: "border-[rgba(214,64,69,0.3)] before:bg-[linear-gradient(90deg,rgba(214,64,69,0.48),transparent)]",
+  danger: "border-[rgba(221,108,112,0.34)] before:bg-[linear-gradient(90deg,rgba(221,108,112,0.5),transparent)]",
 };
 
 export function AdminMetricCard({
@@ -32,7 +32,7 @@ export function AdminMetricCard({
     <AdminPanel
       className={cn(
         "relative overflow-hidden border before:absolute before:inset-x-0 before:top-0 before:h-px",
-        compact ? "px-4 py-4" : "px-5 py-5",
+        compact ? "px-5 py-5" : "px-6 py-6",
         accentClasses[tone],
         className,
       )}
@@ -44,7 +44,7 @@ export function AdminMetricCard({
             <p
               className={cn(
                 "rr-display leading-none text-white",
-                compact ? "text-[2rem]" : "text-[2.25rem]",
+                compact ? "text-[2.05rem]" : "text-[2.35rem]",
               )}
             >
               {value}
@@ -66,7 +66,7 @@ export function AdminMetricCard({
           <div
             className={cn(
               "flex items-center justify-center rounded-[10px] border border-white/10 bg-white/5 text-[color:var(--rr-gold)]",
-              compact ? "h-10 w-10" : "h-11 w-11",
+              compact ? "h-11 w-11" : "h-12 w-12",
             )}
           >
             {icon}

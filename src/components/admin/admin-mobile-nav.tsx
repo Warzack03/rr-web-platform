@@ -54,14 +54,14 @@ export function AdminMobileNav({
         href={item.href}
         onClick={() => setOpen(false)}
         className={cn(
-          "flex items-center gap-3 rounded-[10px] transition",
+          "flex items-center gap-3 rounded-[14px] transition",
           active
             ? isPreview
-              ? "min-h-10 border border-white/10 bg-[rgba(255,255,255,0.05)] px-3 py-2.5 text-white"
-              : "min-h-11 border border-[rgba(253,203,88,0.26)] bg-[rgba(253,203,88,0.1)] px-4 py-3 text-white"
+              ? "min-h-10 border border-white/10 bg-[rgba(255,255,255,0.06)] px-3 py-2.5 text-white"
+              : "min-h-11 border border-[rgba(243,203,69,0.34)] bg-[rgba(243,203,69,0.12)] px-4 py-3 text-white"
             : isPreview
-              ? "min-h-10 border border-transparent px-3 py-2.5 text-[color:var(--rr-muted)] opacity-72 hover:bg-white/4 hover:text-white"
-              : "min-h-11 border border-transparent px-4 py-3 text-[color:var(--rr-muted)] hover:border-white/8 hover:bg-white/5 hover:text-white",
+              ? "min-h-10 border border-transparent px-3 py-2.5 text-[color:var(--rr-muted)] opacity-80 hover:bg-white/5 hover:text-white"
+              : "min-h-11 border border-transparent px-4 py-3 text-[color:var(--rr-muted)] hover:border-white/10 hover:bg-white/5 hover:text-white",
         )}
       >
         <Icon
@@ -72,8 +72,8 @@ export function AdminMobileNav({
         />
         <span className={cn(isPreview ? "text-[0.9rem]" : undefined)}>{item.label}</span>
         {isPreview ? (
-          <span className="ml-auto inline-flex items-center rounded-full border border-white/8 bg-transparent px-1.5 py-0.5 text-[0.58rem] uppercase tracking-[0.12em] text-[color:var(--rr-muted)]">
-            Vista previa
+          <span className="ml-auto inline-flex items-center rounded-full border border-white/10 bg-white/4 px-2 py-0.5 text-[0.64rem] font-semibold text-[color:var(--rr-muted)]">
+            Preview
           </span>
         ) : null}
       </Link>
@@ -85,7 +85,7 @@ export function AdminMobileNav({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.05)] text-white lg:hidden"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.06)] text-white lg:hidden"
         aria-label="Abrir navegacion admin"
       >
         <Menu className="h-5 w-5 text-[color:var(--rr-gold)]" />
@@ -93,7 +93,7 @@ export function AdminMobileNav({
 
       {open ? (
         <div className="fixed inset-0 z-50 bg-[rgba(4,10,18,0.82)] backdrop-blur-sm lg:hidden">
-          <div className="ml-auto flex h-full w-[86vw] max-w-[22rem] flex-col border-l border-white/10 bg-[linear-gradient(180deg,rgba(8,18,31,0.98),rgba(8,18,31,0.96))]">
+          <div className="ml-auto flex h-full w-[86vw] max-w-[22rem] flex-col border-l border-white/10 bg-[linear-gradient(180deg,rgba(6,17,29,0.98),rgba(12,35,65,0.96))]">
             <div className="border-b border-white/10 px-5 py-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-2">
@@ -105,7 +105,7 @@ export function AdminMobileNav({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-[10px] border border-white/10 bg-white/5 text-white"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
                   aria-label="Cerrar navegacion admin"
                 >
                   <X className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
@@ -114,7 +114,7 @@ export function AdminMobileNav({
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {activeTeam ? (
-                  <span className="inline-flex min-h-8 items-center rounded-full border border-[rgba(253,203,88,0.24)] bg-[rgba(253,203,88,0.08)] px-3 text-[0.78rem] text-[color:var(--rr-gold)]">
+                  <span className="inline-flex min-h-8 items-center rounded-full border border-[rgba(243,203,69,0.3)] bg-[rgba(243,203,69,0.1)] px-3 text-[0.78rem] font-medium text-[color:var(--rr-gold)]">
                     Equipo: {formatSlugLabel(activeTeam)}
                   </span>
                 ) : null}
@@ -129,7 +129,7 @@ export function AdminMobileNav({
               {previewItems.length > 0 ? (
                 <div className="space-y-2 border-t border-white/10 pt-4">
                   <div className="space-y-1 px-4">
-                    <p className="text-[0.68rem] uppercase tracking-[0.16em] text-[color:var(--rr-muted)] opacity-80">
+                    <p className="text-[0.76rem] font-semibold text-[color:var(--rr-muted)] opacity-90">
                       Vista previa
                     </p>
                     <p className="text-[0.78rem] leading-5 text-[color:var(--rr-muted)] opacity-72">

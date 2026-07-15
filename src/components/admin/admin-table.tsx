@@ -20,12 +20,12 @@ export function AdminTable({ columns, rows, className }: AdminTableProps) {
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse">
           <thead>
-            <tr className="border-b border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)]">
+            <tr className="border-b border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.045)]">
               {columns.map((column) => (
                 <th
                   key={column.key}
                   className={cn(
-                    "px-4 py-3 text-left font-[var(--rr-font-body)] text-[0.82rem] font-bold uppercase tracking-[0.18em] text-[color:var(--rr-muted)]",
+                    "px-5 py-3.5 text-left font-[var(--rr-font-body)] text-[0.8rem] font-bold text-[color:var(--rr-muted)]",
                     column.className,
                   )}
                 >
@@ -38,12 +38,12 @@ export function AdminTable({ columns, rows, className }: AdminTableProps) {
             {rows.map((row, rowIndex) => (
               <tr
                 key={`row-${rowIndex}`}
-                className="border-b border-[rgba(255,255,255,0.06)] last:border-b-0 hover:bg-[rgba(255,255,255,0.03)]"
+                className="border-b border-[rgba(255,255,255,0.07)] transition last:border-b-0 hover:bg-[rgba(255,255,255,0.04)]"
               >
                 {columns.map((column) => (
                   <td
                     key={column.key}
-                    className={cn("px-4 py-4 align-top text-[0.98rem] text-[color:var(--rr-text)]", column.className)}
+                    className={cn("px-5 py-4.5 align-top text-[0.95rem] leading-6 text-[color:var(--rr-text)]", column.className)}
                   >
                     {row[column.key]}
                   </td>

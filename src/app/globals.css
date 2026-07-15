@@ -197,3 +197,97 @@ select {
   background: rgba(253, 203, 88, 0.08);
   color: var(--rr-gold);
 }
+
+.rr-admin {
+  --rr-bg: #071629;
+  --rr-bg-alt: #06111d;
+  --rr-bg-soft: #0d2037;
+  --rr-surface: #0d2037;
+  --rr-surface-strong: #122742;
+  --rr-surface-muted: #102136;
+  --rr-panel: rgba(13, 32, 55, 0.9);
+  --rr-panel-dark: rgba(7, 22, 41, 0.96);
+  --rr-text: #eef4ff;
+  --rr-muted: #aabdd8;
+  --rr-muted-soft: rgba(170, 189, 216, 0.72);
+  --rr-gold: #f3cb45;
+  --rr-on-gold: #07111d;
+  --rr-gold-soft: rgba(243, 203, 69, 0.18);
+  --rr-accent-blue: #6b9fff;
+  --rr-danger: #dd6c70;
+  --rr-success: #46b97b;
+  --rr-border: rgba(255, 255, 255, 0.12);
+  --rr-border-strong: rgba(243, 203, 69, 0.34);
+  --rr-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+  --rr-font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  --rr-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+  min-height: 100vh;
+  color: var(--rr-text);
+  font-family: var(--rr-font-body);
+  letter-spacing: 0;
+}
+
+.rr-admin .rr-display {
+  font-family: var(--rr-font-display);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.rr-admin .rr-brand {
+  font-family: var(--rr-font-display);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.rr-admin .rr-kicker {
+  font-family: var(--rr-font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.rr-admin .rr-button {
+  min-height: 2.75rem;
+  border-radius: 999px;
+  padding: 0.72rem 1.18rem;
+  font-family: var(--rr-font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: none;
+}
+
+.rr-admin .rr-button-primary {
+  border-color: rgba(243, 203, 69, 0.88);
+  background: linear-gradient(180deg, #ffe596 0%, var(--rr-gold) 100%);
+  color: var(--rr-on-gold);
+  box-shadow: 0 14px 30px rgba(243, 203, 69, 0.18);
+}
+
+.rr-admin .rr-button-primary:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(180deg, #fff0b6 0%, #f6d15d 100%);
+}
+
+.rr-admin .rr-button-secondary {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--rr-text);
+}
+
+.rr-admin .rr-button-secondary:hover {
+  transform: translateY(-1px);
+  border-color: rgba(243, 203, 69, 0.3);
+  background: rgba(243, 203, 69, 0.08);
+  color: var(--rr-text);
+}
+
+.rr-admin input,
+.rr-admin textarea,
+.rr-admin select {
+  letter-spacing: 0;
+}

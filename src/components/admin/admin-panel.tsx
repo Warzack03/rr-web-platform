@@ -10,7 +10,7 @@ export function AdminPanel({ children, className }: AdminPanelProps) {
   return (
     <section
       className={cn(
-        "rounded-[14px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(18,29,47,0.98),rgba(10,18,31,0.98))] shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
+        "rounded-[20px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] shadow-[var(--rr-shadow)] backdrop-blur-md",
         className,
       )}
     >

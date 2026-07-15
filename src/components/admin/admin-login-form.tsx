@@ -64,12 +64,12 @@ export function AdminLoginForm({
     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
       <form
         onSubmit={handleSubmit}
-        className="rounded-[10px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(20,31,49,0.98),rgba(10,18,31,0.98))] p-6 shadow-[var(--rr-shadow)] sm:p-8"
+        className="rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-6 shadow-[var(--rr-shadow)] backdrop-blur-md sm:p-8"
       >
         <div className="space-y-6">
           <div className="space-y-3">
             <p className="rr-kicker text-[color:var(--rr-gold)]">Acceso interno</p>
-            <h1 className="rr-display text-[3rem] leading-[0.92] text-white sm:text-[3.6rem]">
+            <h1 className="rr-display text-[3rem] leading-[1] text-white sm:text-[3.55rem]">
               Backoffice deportivo
             </h1>
             <p className="max-w-xl text-[1rem] leading-6 text-[color:var(--rr-muted)]">
@@ -85,7 +85,7 @@ export function AdminLoginForm({
               <input
                 value={login}
                 onChange={(event) => setLogin(event.target.value)}
-                className="min-h-12 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.9)] px-4 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.45)]"
                 placeholder="manager"
                 autoComplete="username"
               />
@@ -97,7 +97,7 @@ export function AdminLoginForm({
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="min-h-12 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.9)] px-4 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
+                className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.45)]"
                 placeholder="ChangeMe123!"
                 autoComplete="current-password"
               />
@@ -105,7 +105,7 @@ export function AdminLoginForm({
           </div>
 
           {feedback ? (
-            <div className="rounded-[8px] border border-[rgba(214,64,69,0.3)] bg-[rgba(214,64,69,0.12)] px-4 py-3 text-[0.94rem] text-[#ffb4ab]">
+            <div className="rounded-[14px] border border-[rgba(221,108,112,0.34)] bg-[rgba(221,108,112,0.12)] px-4 py-3 text-[0.94rem] text-[#ffc1c4]">
               {feedback}
             </div>
           ) : null}
@@ -121,11 +121,11 @@ export function AdminLoginForm({
         </div>
       </form>
 
-      <div className="rounded-[10px] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(11,22,38,0.96),rgba(7,14,24,0.96))] p-6 shadow-[var(--rr-shadow)] sm:p-8">
+      <div className="rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.025))] p-6 shadow-[var(--rr-shadow)] backdrop-blur-md sm:p-8">
         <div className="space-y-5">
           <div>
             <p className="rr-kicker text-[color:var(--rr-gold)]">Cuentas demo</p>
-            <h2 className="rr-display mt-2 text-[2.25rem] leading-[0.94] text-white">
+            <h2 className="rr-display mt-2 text-[2.35rem] leading-[1] text-white">
               Entrada rapida
             </h2>
           </div>
@@ -136,7 +136,7 @@ export function AdminLoginForm({
                 key={account.id}
                 type="button"
                 onClick={() => fillAccount(account.username)}
-                className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-left transition hover:border-[rgba(253,203,88,0.25)] hover:bg-[rgba(253,203,88,0.08)]"
+                className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.045)] px-4 py-4 text-left transition hover:border-[rgba(243,203,69,0.28)] hover:bg-[rgba(243,203,69,0.08)]"
               >
                 <p className="text-[1rem] font-semibold text-white">{account.displayName}</p>
                 <p className="mt-1 text-[0.92rem] text-[color:var(--rr-muted)]">
@@ -146,7 +146,7 @@ export function AdminLoginForm({
             ))}
           </div>
 
-          <div className="rounded-[10px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-4 py-4 text-[0.94rem] leading-6 text-[color:var(--rr-muted)]">
+          <div className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.045)] px-4 py-4 text-[0.94rem] leading-6 text-[color:var(--rr-muted)]">
             La cuenta inicial usa <span className="font-semibold text-white">ADMIN_INITIAL_PASSWORD</span> si existe, o <span className="font-semibold text-white">ChangeMe123!</span> en local.
           </div>
         </div>

@@ -15,7 +15,7 @@ type AdminCoachTeamSwitcherProps = {
 };
 
 const fieldClassName =
-  "min-h-11 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.92)] px-3 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]";
+  "min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.45)]";
 
 export function AdminCoachTeamSwitcher({
   options,
@@ -59,7 +59,7 @@ export function AdminCoachTeamSwitcher({
         <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
           Equipo activo
         </span>
-        <div className="flex min-h-11 items-center rounded-[8px] border border-white/10 bg-white/5 px-3 text-[0.92rem] text-white">
+        <div className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/5 px-3 text-[0.92rem] text-white">
           {selectedTeam?.name ?? "Equipo asignado"}
         </div>
       </div>
