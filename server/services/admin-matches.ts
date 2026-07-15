@@ -1,4 +1,4 @@
-import { MatchStatus, UserRole } from "@prisma/client";
+import { MatchStatus } from "@prisma/client";
 import type {
   MatchManagementMatch,
   MatchManagementOpponent,
@@ -89,7 +89,7 @@ function mapOpponentScore(match: {
 }
 
 export async function getAdminMatchesScope(
-  user: AuthenticatedAdmin,
+  _user: AuthenticatedAdmin,
 ): Promise<{
   activeSeason: {
     id: bigint;
@@ -97,24 +97,7 @@ export async function getAdminMatchesScope(
   } | null;
   teams: ScopedSeasonTeam[];
 }> {
-  const assignedPermissions =
-    user.role === UserRole.COACH
-      ? await prisma.coachTeamPermission.findMany({
-          where: {
-            userId: user.id,
-            active: true,
-            seasonTeam: {
-              active: true,
-              deletedAt: null,
-            },
-          },
-          select: {
-            seasonTeamId: true,
-          },
-        })
-      : [];
-
-  const scopedTeamIds = assignedPermissions.map((permission) => permission.seasonTeamId);
+  void _user;
 
   const siteSettings = await prisma.siteSettings.findFirst({
     orderBy: { updatedAt: "desc" },
@@ -142,13 +125,6 @@ export async function getAdminMatchesScope(
       seasonId: activeSeason.id,
       active: true,
       deletedAt: null,
-      ...(user.role === UserRole.COACH
-        ? {
-            id: {
-              in: scopedTeamIds.length > 0 ? scopedTeamIds : [BigInt(-1)],
-            },
-          }
-        : {}),
     },
     orderBy: [{ displayOrder: "asc" }, { publicName: "asc" }],
     select: {

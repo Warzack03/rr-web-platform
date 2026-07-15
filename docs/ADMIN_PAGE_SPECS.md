@@ -8,9 +8,16 @@ The admin should be practical, owner-focused and efficient. It should not contai
 
 ## Current direction
 
-The MVP backoffice is now focused on one owner/admin user. Existing role documentation below remains useful as technical history, but product-facing admin UI should behave as a single administrator panel.
+The MVP backoffice is now focused on one manager/admin user. Existing role documentation below remains useful as technical history only; product-facing admin UI and runtime behavior should behave as a single administrator panel.
 
 See `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md` for the current control model.
+
+Runtime access:
+
+- One active internal manager/admin account.
+- Username/password login.
+- No role selector, coach scope or role-specific navigation in the MVP.
+- Visible team coaches are public metadata, not login accounts.
 
 ## Roles
 

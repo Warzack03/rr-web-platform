@@ -1,6 +1,5 @@
 import type { PublicNewsArticle } from "@/lib/public/news-content";
 import type { PublicDataSourceInfo } from "@/lib/public/data-source";
-import { PUBLIC_NEWS_ARTICLES } from "@/lib/public/news-content";
 import { getPublishedPublicNewsArticlesFromDb } from "@/server/services/public/news";
 
 export async function getPublicNewsArticles() {
@@ -17,9 +16,9 @@ export async function getPublicNewsArticlesWithSource(): Promise<{
 
   if (!dbArticles || dbArticles.length === 0) {
     return {
-      articles: PUBLIC_NEWS_ARTICLES,
+      articles: [],
       dataSource: {
-        source: "mock",
+        source: "db",
         note: "news",
       },
     };

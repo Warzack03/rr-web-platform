@@ -37,7 +37,7 @@ If the previous frontend is unsatisfactory, rebuild the frontend from scratch ov
 - Keep WordPress/WooCommerce for shop, products, cart, Stripe payments, orders and buyer accounts.
 - The shop will live at `tienda.risingraimon.es`.
 - Do not implement ecommerce, cart, Stripe checkout or buyer accounts in the MVP.
-- The new app has internal users only: `superadmin`, `manager`, `entrenador`.
+- The new app has one internal admin/manager account for the MVP, with username/password access.
 - Buyer/customer users remain in WordPress/WooCommerce.
 - Keep the existing `rr-management` only as an internal administrative system.
 - Do not use `rr-management` as a live backend/runtime dependency for the public website.
@@ -97,7 +97,7 @@ If the project uses Prisma 7+ with MySQL, `PrismaClient` may require `@prisma/ad
 
 - Public sports website.
 - Sports backoffice.
-- Internal backoffice users and roles.
+- Internal backoffice manager account.
 - Public teams.
 - Public players.
 - Player cards/cromos.
@@ -127,14 +127,13 @@ If the project uses Prisma 7+ with MySQL, `PrismaClient` may require `@prisma/ad
 - Buyer/customer accounts.
 - Transactional commerce emails.
 
-## Roles and locked permissions
+## Backoffice access
 
-- `superadmin`: full access. Only role that can manage users, roles, coach-team permissions and imports from `rr-management`.
-- `manager`: manages sport/public content, teams, players, matches, standings, statistics, news and media. Cannot manage users/roles or imports.
-- `entrenador`: can only edit allowed data for assigned teams: next match, match results/status, standings and allowed goals/assists/statistics. Cannot upload media, create teams, manage users, import data or edit unrelated teams.
-- Team creation is restricted to `superadmin` and `manager`.
-- Managers can assign existing coaches to teams where the user already exists, only if the implemented permission model allows it; user creation remains `superadmin` only.
-- A team can show multiple public coaches, but MVP expects one coach account per team named `entrenador_<team_slug>`.
+- MVP backoffice access is a single internal manager/admin user with username/password.
+- The admin manages sport/public content, teams, players, matches, standings, statistics, news, media and future imports.
+- Do not build role-specific UI for `superadmin`, `manager` or `entrenador` in the MVP.
+- Visible team coaches are public team metadata only. They are not backoffice login accounts and do not imply permissions.
+- Existing database role fields may remain temporarily for compatibility, but product behavior must not depend on role-based branching.
 
 ## Sports rules
 
@@ -249,12 +248,14 @@ Canonical public routes:
 /primer-equipo/plantilla
 /primer-equipo/calendario
 /primer-equipo/clasificacion
+/primer-equipo/estadisticas
 /primer-equipo/partidos/[matchId]
 /equipos
 /equipos/[teamSlug]
 /equipos/[teamSlug]/plantilla
 /equipos/[teamSlug]/calendario
 /equipos/[teamSlug]/clasificacion
+/equipos/[teamSlug]/estadisticas
 /equipos/[teamSlug]/partidos/[matchId]
 /equipos/[teamSlug]/jugadores/[playerSlug]
 /jugadores/[playerSlug]

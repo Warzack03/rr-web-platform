@@ -18,13 +18,8 @@ export function getPreviewRole(value: string | undefined, fallbackRole: AdminRol
   return isAdminRole(value) ? value : fallbackRole;
 }
 
-export function toAdminRole(role: UserRole): AdminRole {
-  switch (role) {
-    case UserRole.SUPERADMIN:
-      return "SUPERADMIN";
-    case UserRole.MANAGER:
-      return "MANAGER";
-    case UserRole.COACH:
-      return "COACH";
-  }
+export function toAdminRole(_role: UserRole): AdminRole {
+  void _role;
+
+  return OWNER_ADMIN_ROLE;
 }

@@ -2,9 +2,11 @@
 
 ## Decision
 
-The backoffice is now designed for one internal owner/admin user.
+The backoffice is now designed for one internal manager/admin user.
 
-The product no longer needs separate day-to-day roles for `manager` or `entrenador` in the MVP UI. Existing auth and database role fields can remain for compatibility while the frontend and product flow are simplified around a single administrator.
+The product no longer needs separate day-to-day roles for `superadmin`, `manager` or `entrenador` in the MVP UI. Existing auth and database role fields can remain temporarily for compatibility while the frontend and product flow are simplified around a single administrator.
+
+The MVP login model is username/password for that manager/admin account. Public team coaches remain informative website data, not login users.
 
 ## What the admin must control
 
@@ -20,6 +22,7 @@ To keep the public website healthy, the admin needs control over:
 - Media: player photos, logos, banners, opponent logos, news covers and card base images.
 - News: title, slug, excerpt, structured content, cover, related teams, external video and publish state.
 - Imports: future rr-management snapshot upload, validation, diff preview and non-destructive merge.
+- Internal access: one active manager/admin account.
 
 ## Desktop vs mobile priority
 

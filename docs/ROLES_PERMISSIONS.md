@@ -2,9 +2,9 @@
 
 ## Current status
 
-Superseded for product-facing MVP UI by `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md`.
+Superseded for product-facing MVP UI and runtime behavior by `docs/BACKOFFICE_OWNER_CONTROL_MODEL.md`.
 
-The role model below is retained as technical history in case multi-user access is reintroduced later.
+The MVP now uses one internal manager/admin account. The role model below is retained only as technical history in case multi-user access is reintroduced later.
 
 ## Roles
 

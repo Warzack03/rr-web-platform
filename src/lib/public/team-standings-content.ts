@@ -1,9 +1,5 @@
-import {
-  getPublicAcademyTeamPageContent,
-  getPublicTeamPageContent,
-} from "@/lib/public/team-page-content";
 import type { PublicDataSourceInfo } from "@/lib/public/data-source";
-import { getTeamSectionLinks, type TeamSectionNavLink } from "@/lib/public/team-section-links";
+import type { TeamSectionNavLink } from "@/lib/public/team-section-links";
 import {
   getAcademyTeamStandingsContentFromDb,
   getFirstTeamStandingsContentFromDb,
@@ -72,7 +68,7 @@ function createStandingRow(
   };
 }
 
-const FIRST_TEAM_STANDINGS: StandingsMock = {
+export const FIRST_TEAM_STANDINGS: StandingsMock = {
   season: "Temporada 2024/2025",
   competition: "Primera Division",
   updatedAt: "18 Oct 2024",
@@ -90,7 +86,7 @@ const FIRST_TEAM_STANDINGS: StandingsMock = {
   ],
 };
 
-const ACADEMY_STANDINGS: Record<string, StandingsMock> = {
+export const ACADEMY_STANDINGS: Record<string, StandingsMock> = {
   "raimon-b": {
     updatedAt: "13 Oct 2024",
     rows: [
@@ -162,7 +158,7 @@ function sortRows(rows: StandingRowData[]) {
   return [...rows].sort((left, right) => left.position - right.position);
 }
 
-function createFallbackAcademyRows(teamName: string): StandingRowData[] {
+export function createFallbackAcademyRows(teamName: string): StandingRowData[] {
   return sortRows([
     createStandingRow(1, "Royal Academy", 8, 6, 1, 1, 18, 7, 19),
     createStandingRow(2, "Kirkwood FC", 8, 5, 2, 1, 15, 8, 17),
@@ -197,32 +193,7 @@ export async function getFirstTeamStandingsContentWithSource(): Promise<{
     };
   }
 
-  const teamSummary = await getPublicTeamPageContent("primer-equipo");
-
-  if (!teamSummary) {
-    return null;
-  }
-
-  return {
-    content: {
-      slug: teamSummary.slug,
-      variant: "first-team",
-      title: "Clasificacion",
-      subtitle: `Primer Equipo - ${FIRST_TEAM_STANDINGS.season}`,
-      season: FIRST_TEAM_STANDINGS.season ?? teamSummary.season,
-      teamName: "Rising Raimon",
-      competition: FIRST_TEAM_STANDINGS.competition ?? teamSummary.competition,
-      updatedAt: FIRST_TEAM_STANDINGS.updatedAt,
-      backHref: "/primer-equipo",
-      backLabel: "Volver al Primer Equipo",
-      navLinks: getTeamSectionLinks({ teamType: "first-team" }),
-      rows: sortRows(FIRST_TEAM_STANDINGS.rows),
-    },
-    dataSource: {
-      source: "mock",
-      note: "primer-equipo-clasificacion",
-    },
-  };
+  return null;
 }
 
 export async function getAcademyTeamStandingsContent(
@@ -251,32 +222,5 @@ export async function getAcademyTeamStandingsContentWithSource(
     };
   }
 
-  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
-
-  if (!teamSummary) {
-    return null;
-  }
-
-  const standings = ACADEMY_STANDINGS[teamSlug];
-
-  return {
-    content: {
-      slug: teamSummary.slug,
-      variant: "academy",
-      title: "Clasificacion",
-      subtitle: `${teamSummary.name} - ${standings?.season ?? teamSummary.season}`,
-      season: standings?.season ?? teamSummary.season,
-      teamName: teamSummary.name,
-      competition: standings?.competition ?? teamSummary.competition,
-      updatedAt: standings?.updatedAt,
-      backHref: `/equipos/${teamSummary.slug}`,
-      backLabel: `Volver a ${teamSummary.name}`,
-      navLinks: getTeamSectionLinks({ teamType: "academy", teamSlug: teamSummary.slug }),
-      rows: sortRows(standings?.rows ?? createFallbackAcademyRows(teamSummary.name)),
-    },
-    dataSource: {
-      source: "mock",
-      note: `${teamSlug}-clasificacion`,
-    },
-  };
+  return null;
 }

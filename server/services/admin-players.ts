@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import type { AdminManagedPlayer } from "@/lib/admin/player-management";
 import {
   normalizeAdminPlayerPosition,
@@ -70,26 +69,9 @@ function buildCountryOptions(players: AdminManagedPlayer[]) {
 }
 
 export async function getAdminPlayersScreenData(
-  user: AuthenticatedAdmin,
+  _user: AuthenticatedAdmin,
 ): Promise<AdminPlayersScreenData> {
-  const assignedPermissions =
-    user.role === UserRole.COACH
-      ? await prisma.coachTeamPermission.findMany({
-          where: {
-            userId: user.id,
-            active: true,
-            seasonTeam: {
-              active: true,
-              deletedAt: null,
-            },
-          },
-          select: {
-            seasonTeamId: true,
-          },
-        })
-      : [];
-
-  const scopedTeamIds = assignedPermissions.map((permission) => permission.seasonTeamId);
+  void _user;
 
   const siteSettings = await prisma.siteSettings.findFirst({
     orderBy: { updatedAt: "desc" },
@@ -102,13 +84,6 @@ export async function getAdminPlayersScreenData(
             where: {
               active: true,
               deletedAt: null,
-              ...(user.role === UserRole.COACH
-                ? {
-                    id: {
-                      in: scopedTeamIds.length > 0 ? scopedTeamIds : [BigInt(-1)],
-                    },
-                  }
-                : {}),
             },
             orderBy: [{ displayOrder: "asc" }, { publicName: "asc" }],
             select: {
@@ -143,13 +118,6 @@ export async function getAdminPlayersScreenData(
       seasonId: activeSeason.id,
       active: true,
       deletedAt: null,
-      ...(user.role === UserRole.COACH
-        ? {
-            seasonTeamId: {
-              in: scopedTeamIds.length > 0 ? scopedTeamIds : [BigInt(-1)],
-            },
-          }
-        : {}),
     },
     orderBy: [
       { isPrimary: "desc" },

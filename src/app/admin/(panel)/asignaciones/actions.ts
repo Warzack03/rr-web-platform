@@ -1,6 +1,5 @@
 "use server";
 
-import { UserRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { slugifyPlayerName } from "@/lib/admin/player-management";
 import type { AdminAssignmentsScreenData } from "@/server/services/admin-assignments";
@@ -115,29 +114,13 @@ function revalidateAssignmentPaths(input: Array<{ teamSlug: string; playerSlug?:
 }
 
 async function assertAssignmentWriteRole() {
-  const user = await requireAdminSectionAccess("assignments");
-
-  if (user.role === UserRole.COACH) {
-    return {
-      ok: false as const,
-      message: "Esta cuenta solo puede consultar la plantilla.",
-    };
-  }
-
-  return {
-    ok: true as const,
-    user,
-  };
+  return requireAdminSectionAccess("assignments");
 }
 
 export async function saveAssignmentAction(
   input: SaveAssignmentInput,
 ): Promise<AdminAssignmentsActionResult> {
-  const access = await assertAssignmentWriteRole();
-
-  if (!access.ok) {
-    return access;
-  }
+  const user = await assertAssignmentWriteRole();
 
   const parsed = saveAssignmentInputSchema.safeParse(input);
 
@@ -150,7 +133,6 @@ export async function saveAssignmentAction(
     };
   }
 
-  const { user } = access;
   const { activeSeason, teams } = await getAdminAssignmentsScope(user);
 
   if (!activeSeason || teams.length === 0) {
@@ -293,11 +275,7 @@ export async function saveAssignmentAction(
 export async function createAssignmentAction(
   input: CreateAssignmentInput,
 ): Promise<AdminAssignmentsActionResult> {
-  const access = await assertAssignmentWriteRole();
-
-  if (!access.ok) {
-    return access;
-  }
+  const user = await assertAssignmentWriteRole();
 
   const parsed = createAssignmentInputSchema.safeParse(input);
 
@@ -308,7 +286,6 @@ export async function createAssignmentAction(
     };
   }
 
-  const { user } = access;
   const { activeSeason, teams } = await getAdminAssignmentsScope(user);
 
   if (!activeSeason || teams.length === 0) {

@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PlayerDetailPage } from "@/components/public/player-detail-page";
-import {
-  getAcademyPlayerDetail,
-  getAcademyPlayerStaticParams,
-} from "@/lib/public/player-profile-content";
-import type { PublicDataSourceInfo } from "@/lib/public/data-source";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   getAcademyPlayerDetailFromDb,
   getAcademyPlayerStaticParamsFromDb,
@@ -22,24 +17,14 @@ type AcademyPlayerDetailRouteProps = {
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  const [dbParams, mockParams] = await Promise.all([
-    getAcademyPlayerStaticParamsFromDb(),
-    Promise.resolve(getAcademyPlayerStaticParams()),
-  ]);
-
-  return Array.from(
-    new Map(
-      [...dbParams, ...mockParams].map((param) => [`${param.teamSlug}:${param.playerSlug}`, param]),
-    ).values(),
-  );
+  return getAcademyPlayerStaticParamsFromDb();
 }
 
 export async function generateMetadata({
   params,
 }: AcademyPlayerDetailRouteProps): Promise<Metadata> {
   const { teamSlug, playerSlug } = await params;
-  const player =
-    (await getAcademyPlayerDetailFromDb(teamSlug, playerSlug)) ?? getAcademyPlayerDetail(teamSlug, playerSlug);
+  const player = await getAcademyPlayerDetailFromDb(teamSlug, playerSlug);
 
   if (!player) {
     return {
@@ -58,19 +43,21 @@ export default async function AcademyPlayerDetailRoute({
 }: AcademyPlayerDetailRouteProps) {
   const { teamSlug, playerSlug } = await params;
   const dbPlayer = await getAcademyPlayerDetailFromDb(teamSlug, playerSlug);
-  const player = dbPlayer ?? getAcademyPlayerDetail(teamSlug, playerSlug);
-  const dataSource: PublicDataSourceInfo = {
-    source: dbPlayer ? "db" : "mock",
-    note: `${teamSlug}/${playerSlug}`,
-  };
 
-  if (!player || player.teamSlug !== teamSlug) {
-    notFound();
+  if (!dbPlayer || dbPlayer.teamSlug !== teamSlug) {
+    return (
+      <PublicSiteLayout activeNav="equipos">
+        <PublicEmptyState
+          title="No hay datos del jugador"
+          description="Cuando este jugador tenga una ficha visible en la DB, se mostrara aqui."
+        />
+      </PublicSiteLayout>
+    );
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
-      <PlayerDetailPage player={player} />
+    <PublicSiteLayout activeNav="equipos" debugDataSource={{ source: "db", note: `${teamSlug}/${playerSlug}` }}>
+      <PlayerDetailPage player={dbPlayer} />
     </PublicSiteLayout>
   );
 }

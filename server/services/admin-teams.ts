@@ -1,4 +1,4 @@
-import { MatchStatus, UserRole } from "@prisma/client";
+import { MatchStatus } from "@prisma/client";
 import type { TeamManagementTeam } from "@/lib/admin/team-management-mocks";
 import { normalizeTeamManagementTeam } from "@/lib/admin/team-management-mocks";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
@@ -56,30 +56,10 @@ function mapNextMatchLabel(match: {
   return `${formatMatchDate(match.dateTime)} - ${match.opponentName}`;
 }
 
-function buildScopedTeamIdsFilter(teamIds: bigint[]) {
-  return teamIds.length > 0 ? { in: teamIds } : { in: [BigInt(-1)] };
-}
-
 export async function getAdminTeamsScreenData(
-  user: AuthenticatedAdmin,
+  _user: AuthenticatedAdmin,
 ): Promise<AdminTeamsScreenData> {
-  const assignedPermissions =
-    user.role === UserRole.COACH
-      ? await prisma.coachTeamPermission.findMany({
-          where: {
-            userId: user.id,
-            active: true,
-            seasonTeam: {
-              deletedAt: null,
-            },
-          },
-          select: {
-            seasonTeamId: true,
-          },
-        })
-      : [];
-
-  const scopedTeamIds = assignedPermissions.map((permission) => permission.seasonTeamId);
+  void _user;
 
   const [seasons, competitions, seasonTeams] = await Promise.all([
     prisma.season.findMany({
@@ -108,11 +88,6 @@ export async function getAdminTeamsScreenData(
         season: {
           deletedAt: null,
         },
-        ...(user.role === UserRole.COACH
-          ? {
-              id: buildScopedTeamIdsFilter(scopedTeamIds),
-            }
-          : {}),
       },
       orderBy: [
         { season: { startDate: "desc" } },

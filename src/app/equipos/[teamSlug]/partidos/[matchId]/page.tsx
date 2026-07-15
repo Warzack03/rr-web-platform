@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { MatchDetailPage } from "@/components/public/match-detail-page";
-import {
-  getAcademyMatchDetail,
-  getAcademyMatchDetailStaticParams,
-} from "@/lib/public/academy-match-detail-content";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   getAcademyMatchDetailFromDb,
   getAcademyMatchDetailStaticParamsFromDb,
@@ -21,25 +17,14 @@ type AcademyMatchDetailPageProps = {
 };
 
 export async function generateStaticParams() {
-  const [mockParams, dbParams] = await Promise.all([
-    getAcademyMatchDetailStaticParams(),
-    getAcademyMatchDetailStaticParamsFromDb(),
-  ]);
-
-  return Array.from(
-    new Map(
-      [...dbParams, ...mockParams].map((item) => [`${item.teamSlug}:${item.matchId}`, item]),
-    ).values(),
-  );
+  return getAcademyMatchDetailStaticParamsFromDb();
 }
 
 export async function generateMetadata({
   params,
 }: AcademyMatchDetailPageProps): Promise<Metadata> {
   const { teamSlug, matchId } = await params;
-  const detail =
-    (await getAcademyMatchDetailFromDb(teamSlug, matchId)) ??
-    (await getAcademyMatchDetail(teamSlug, matchId));
+  const detail = await getAcademyMatchDetailFromDb(teamSlug, matchId);
 
   if (!detail) {
     return {
@@ -57,18 +42,24 @@ export default async function AcademyMatchDetailPage({
   params,
 }: AcademyMatchDetailPageProps) {
   const { teamSlug, matchId } = await params;
-  const dbDetail = await getAcademyMatchDetailFromDb(teamSlug, matchId);
-  const detail = dbDetail ?? (await getAcademyMatchDetail(teamSlug, matchId));
+  const detail = await getAcademyMatchDetailFromDb(teamSlug, matchId);
 
   if (!detail) {
-    notFound();
+    return (
+      <PublicSiteLayout activeNav="equipos">
+        <PublicEmptyState
+          title="No hay datos del partido"
+          description="Cuando este partido tenga datos visibles en la DB, se mostrara aqui."
+        />
+      </PublicSiteLayout>
+    );
   }
 
   return (
     <PublicSiteLayout
       activeNav="equipos"
       debugDataSource={{
-        source: dbDetail ? "db" : "mock",
+        source: "db",
         note: `${teamSlug}/${matchId}`,
       }}
     >

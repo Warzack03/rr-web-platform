@@ -1,4 +1,4 @@
-import { MatchStatus, UserRole } from "@prisma/client";
+import { MatchStatus } from "@prisma/client";
 import type { AdminStatsState, AdminMatchPlayerEntry } from "@/lib/admin/admin-stats";
 import type { MatchManagementMatch, MatchManagementTeam } from "@/lib/admin/match-management-mocks";
 import type { AdminPlayer } from "@/lib/admin/mock-data";
@@ -124,25 +124,9 @@ function createEmptyCarryOver() {
   };
 }
 
-export async function getAdminStatsScope(user: AuthenticatedAdmin) {
-  const assignedPermissions =
-    user.role === UserRole.COACH
-      ? await prisma.coachTeamPermission.findMany({
-          where: {
-            userId: user.id,
-            active: true,
-            seasonTeam: {
-              active: true,
-              deletedAt: null,
-            },
-          },
-          select: {
-            seasonTeamId: true,
-          },
-        })
-      : [];
+export async function getAdminStatsScope(_user: AuthenticatedAdmin) {
+  void _user;
 
-  const scopedTeamIds = assignedPermissions.map((permission) => permission.seasonTeamId);
   const siteSettings = await prisma.siteSettings.findFirst({
     orderBy: { updatedAt: "desc" },
     select: {
@@ -169,13 +153,6 @@ export async function getAdminStatsScope(user: AuthenticatedAdmin) {
       seasonId: activeSeason.id,
       active: true,
       deletedAt: null,
-      ...(user.role === UserRole.COACH
-        ? {
-            id: {
-              in: scopedTeamIds.length > 0 ? scopedTeamIds : [BigInt(-1)],
-            },
-          }
-        : {}),
     },
     orderBy: [{ displayOrder: "asc" }, { publicName: "asc" }],
     select: {

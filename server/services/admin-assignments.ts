@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import type {
   AdminAssignmentPlayerOption,
   AdminAssignmentTeam,
@@ -20,25 +19,9 @@ export type AdminAssignmentsScreenData = {
   playerOptions: AdminAssignmentPlayerOption[];
 };
 
-export async function getAdminAssignmentsScope(user: AuthenticatedAdmin) {
-  const assignedPermissions =
-    user.role === UserRole.COACH
-      ? await prisma.coachTeamPermission.findMany({
-          where: {
-            userId: user.id,
-            active: true,
-            seasonTeam: {
-              active: true,
-              deletedAt: null,
-            },
-          },
-          select: {
-            seasonTeamId: true,
-          },
-        })
-      : [];
+export async function getAdminAssignmentsScope(_user: AuthenticatedAdmin) {
+  void _user;
 
-  const scopedTeamIds = assignedPermissions.map((permission) => permission.seasonTeamId);
   const siteSettings = await prisma.siteSettings.findFirst({
     orderBy: { updatedAt: "desc" },
     select: {
@@ -65,13 +48,6 @@ export async function getAdminAssignmentsScope(user: AuthenticatedAdmin) {
       seasonId: activeSeason.id,
       active: true,
       deletedAt: null,
-      ...(user.role === UserRole.COACH
-        ? {
-            id: {
-              in: scopedTeamIds.length > 0 ? scopedTeamIds : [BigInt(-1)],
-            },
-          }
-        : {}),
     },
     orderBy: [{ displayOrder: "asc" }, { publicName: "asc" }],
     select: {

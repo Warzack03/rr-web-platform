@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsCard } from "@/components/public/news-card";
 import { PageHero, PageHeroIcons } from "@/components/public/page-hero";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   MatchPreviewPanel,
   MetricTile,
@@ -45,8 +45,15 @@ export default async function AcademyTeamDetailPage({
   const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
   const teamSummary = result?.content;
 
-  if (!teamSummary || !teamSummary.topScorer) {
-    notFound();
+  if (!teamSummary) {
+    return (
+      <PublicSiteLayout activeNav="equipos">
+        <PublicEmptyState
+          title="No hay datos del equipo"
+          description="Cuando este equipo tenga datos publicados en la DB, se mostrara su resumen aqui."
+        />
+      </PublicSiteLayout>
+    );
   }
 
   return (
@@ -122,9 +129,11 @@ export default async function AcademyTeamDetailPage({
             </div>
           ) : null}
 
-          <div className="order-6 lg:col-span-4">
-            <TopScorerPanel {...teamSummary.topScorer} />
-          </div>
+          {teamSummary.topScorer ? (
+            <div className="order-6 lg:col-span-4">
+              <TopScorerPanel {...teamSummary.topScorer} />
+            </div>
+          ) : null}
         </div>
       </section>
     </PublicSiteLayout>

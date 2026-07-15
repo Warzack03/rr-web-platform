@@ -1,8 +1,4 @@
-import { getAcademyTeamSquadContent } from "@/lib/public/player-profile-content";
 import type { PublicDataSourceInfo } from "@/lib/public/data-source";
-import { getFirstTeamSquadContent } from "@/lib/public/first-team-squad-content";
-import { getPublicAcademyTeamPageContent, getPublicTeamPageContent } from "@/lib/public/team-page-content";
-import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import type { TeamStatisticsPageContent } from "@/lib/public/team-statistics-utils";
 import {
   getAcademyTeamStatisticsPageContentFromDb,
@@ -31,34 +27,7 @@ export async function getFirstTeamStatisticsPageContentWithSource(): Promise<{
     };
   }
 
-  const teamSummary = await getPublicTeamPageContent("primer-equipo");
-
-  if (!teamSummary) {
-    return null;
-  }
-
-  const squad = getFirstTeamSquadContent();
-
-  return {
-    content: {
-      teamType: "first-team",
-      teamSlug: "primer-equipo",
-      teamName: teamSummary.name,
-      season: teamSummary.season,
-      competition: teamSummary.competition,
-      title: teamSummary.name,
-      subtitle: "Resumen estadistico de toda la plantilla.",
-      backHref: "/primer-equipo",
-      backLabel: "Volver al Primer Equipo",
-      navLinks: getTeamSectionLinks({ teamType: "first-team" }),
-      fieldPlayers: squad.fieldPlayers,
-      goalkeepers: squad.goalkeepers,
-    },
-    dataSource: {
-      source: "mock",
-      note: "stats",
-    },
-  };
+  return null;
 }
 
 export async function getAcademyTeamStatisticsPageContent(
@@ -87,32 +56,5 @@ export async function getAcademyTeamStatisticsPageContentWithSource(
     };
   }
 
-  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
-  const squad = getAcademyTeamSquadContent(teamSlug);
-
-  if (!teamSummary || !squad) {
-    return null;
-  }
-
-  return {
-    content: {
-      teamType: "academy",
-      teamSlug: teamSummary.slug,
-      teamName: teamSummary.name,
-      season: teamSummary.season,
-      competition: teamSummary.competition,
-      category: teamSummary.category,
-      title: teamSummary.name,
-      subtitle: "Resumen estadistico del grupo con lectura compacta para movil.",
-      backHref: `/equipos/${teamSummary.slug}`,
-      backLabel: `Volver a ${teamSummary.name}`,
-      navLinks: getTeamSectionLinks({ teamType: "academy", teamSlug: teamSummary.slug }),
-      fieldPlayers: squad.fieldPlayers,
-      goalkeepers: squad.goalkeepers,
-    },
-    dataSource: {
-      source: "mock",
-      note: teamSlug,
-    },
-  };
+  return null;
 }

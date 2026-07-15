@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { HomeAcademySummary } from "@/components/public/home-academy-summary";
 import { HomeFirstTeamBlock } from "@/components/public/home-first-team-block";
 import { HomeHero } from "@/components/public/home-hero";
 import { HomeNewsSection } from "@/components/public/home-news-section";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { getPublicHomePageContentWithSource } from "@/lib/public/home-content";
 
 export const metadata: Metadata = {
@@ -19,7 +19,14 @@ export default async function HomePage() {
   const content = result?.content;
 
   if (!content) {
-    notFound();
+    return (
+      <PublicSiteLayout activeNav="home">
+        <PublicEmptyState
+          title="No hay datos publicados"
+          description="Cuando el backoffice tenga temporada, equipos y noticias publicados, la portada se mostrara aqui."
+        />
+      </PublicSiteLayout>
+    );
   }
 
   return (

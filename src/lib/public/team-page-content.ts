@@ -89,7 +89,7 @@ export type PublicTeamPageContent = {
   news: TeamNewsItem[];
 };
 
-const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
+export const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
   "primer-equipo": {
     slug: "primer-equipo",
     variant: "first-team",
@@ -517,7 +517,7 @@ const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
   },
 };
 
-function getNextAcademyMatchFromCalendar(team: PublicTeamPageContent) {
+export function getNextAcademyMatchFromCalendar(team: PublicTeamPageContent) {
   const calendar = getAcademyTeamCalendarContent({
     slug: team.slug,
     name: team.name,
@@ -552,7 +552,7 @@ function getNextAcademyMatchFromCalendar(team: PublicTeamPageContent) {
   return team.nextMatch;
 }
 
-function getAcademyRecentResultsFromCalendar(team: PublicTeamPageContent) {
+export function getAcademyRecentResultsFromCalendar(team: PublicTeamPageContent) {
   const calendar = getAcademyTeamCalendarContent({
     slug: team.slug,
     name: team.name,
@@ -616,19 +616,7 @@ export async function getPublicTeamPageContentWithSource(
     };
   }
 
-  const mockContent = PUBLIC_TEAM_PAGE_MOCKS[teamSlug] ?? null;
-
-  if (!mockContent) {
-    return null;
-  }
-
-  return {
-    content: mockContent,
-    dataSource: {
-      source: "mock",
-      note: teamSlug,
-    },
-  };
+  return null;
 }
 
 export async function getPublicAcademyTeamPageContent(
@@ -657,21 +645,5 @@ export async function getPublicAcademyTeamPageContentWithSource(
     };
   }
 
-  const team = PUBLIC_TEAM_PAGE_MOCKS[teamSlug];
-
-  if (!team || team.variant !== "academy") {
-    return null;
-  }
-
-  return {
-    content: {
-      ...team,
-      nextMatch: getNextAcademyMatchFromCalendar(team),
-      recentResults: getAcademyRecentResultsFromCalendar(team),
-    },
-    dataSource: {
-      source: "mock",
-      note: teamSlug,
-    },
-  };
+  return null;
 }

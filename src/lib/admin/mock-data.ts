@@ -963,14 +963,10 @@ export const adminMockImports: AdminImportItem[] = [
   },
 ];
 
-export function getAssignedTeamSlugs(role: AdminRole) {
-  if (role !== "COACH") {
-    return adminMockTeams.map((team) => team.slug);
-  }
+export function getAssignedTeamSlugs(_role: AdminRole) {
+  void _role;
 
-  return adminMockUsers.find((user) => user.role === "COACH" && user.username)?.assignedTeamSlugs ?? [
-    "primer-equipo",
-  ];
+  return adminMockTeams.map((team) => team.slug);
 }
 
 export function getTeamsForRole(role: AdminRole) {
@@ -988,128 +984,24 @@ export function getPlayersForRole(role: AdminRole) {
   return adminMockPlayers.filter((player) => allowedTeamSlugs.has(player.teamSlug));
 }
 
-export function getNewsForRole(role: AdminRole) {
-  if (role === "COACH") {
-    return [];
-  }
+export function getNewsForRole(_role: AdminRole) {
+  void _role;
 
   return adminMockNews;
 }
 
-export function getImportsForRole(role: AdminRole) {
-  return role === "SUPERADMIN" ? adminMockImports : [];
+export function getImportsForRole(_role: AdminRole) {
+  void _role;
+
+  return adminMockImports;
 }
 
-export function getDashboardView(role: AdminRole): AdminDashboardView {
-  if (role === "COACH") {
-    const assignedTeam = getTeamsForRole(role)[0];
-    const teamMatches = getMatchesForRole(role);
-    const nextMatch =
-      teamMatches.find((match) => match.status === "live" || match.status === "scheduled") ?? teamMatches[0];
-    const standing = adminMockStandings.find((table) => table.teamSlug === assignedTeam?.slug);
-    const topPlayers = getPlayersForRole(role)
-      .sort((left, right) => right.goals + right.assists - (left.goals + left.assists))
-      .slice(0, 2);
-
-    return {
-      heading: assignedTeam?.name ?? "Equipo asignado",
-      intro: "Resumen corto para dia de partido: proximo paso, resultado reciente y accesos rapidos del equipo asignado.",
-      metrics: [
-        {
-          label: "Proximo paso",
-          value: nextMatch?.status === "live" ? "En juego" : "Partido listo",
-          detail: nextMatch?.dateLabel ?? "Sin partido asignado",
-          tone: nextMatch?.status === "live" ? "danger" : "gold",
-        },
-        {
-          label: "Ultimo resultado",
-          value: "2 - 2",
-          detail: "Empate frente a Escuela Sur Madrid",
-          tone: "blue",
-        },
-        {
-          label: "Clasificacion",
-          value: standing?.rows.find((row) => row.ownTeam)?.position.toString() ?? "-",
-          detail: standing?.updatedLabel ?? "Tabla pendiente",
-          tone: "slate",
-        },
-      ],
-      quickActions: [
-        { label: "Actualizar proximo partido", href: "/admin/partidos" },
-        { label: "Introducir resultado", href: "/admin/partidos" },
-        { label: "Editar clasificacion", href: "/admin/clasificaciones", accent: "slate" },
-        { label: "Editar goles y asistencias", href: "/admin/estadisticas" },
-      ],
-      focusCards: [
-        {
-          title: "Jugadores a mano",
-          value: topPlayers.map((player) => player.name).join(" - "),
-          detail: "Referencia directa para registrar la aportacion ofensiva.",
-        },
-        {
-          title: "Pendiente",
-          value: "Validar MVP y porterias a cero",
-          detail: "Revisa los ultimos datos antes de cerrar el partido.",
-        },
-      ],
-    };
-  }
-
-  if (role === "MANAGER") {
-    return {
-      heading: "Control deportivo y publico",
-      intro: "Vision operativa para coordinar equipos, contenido y calendario sin mezclar tareas de superadmin.",
-      metrics: [
-        {
-          label: "Temporada activa",
-          value: adminMockSeasons[0].name,
-          detail: adminMockSeasons[0].dateRange,
-          tone: "gold",
-        },
-        {
-          label: "Equipos visibles",
-          value: adminMockTeams.filter((team) => team.visible).length.toString(),
-          detail: "6 estructuras con identidad publica preparada",
-          tone: "blue",
-        },
-        {
-          label: "Proximos partidos",
-          value: adminMockMatches.filter((match) => match.status === "scheduled").length.toString(),
-          detail: "Pendientes de revisar horario o rival",
-          tone: "slate",
-        },
-        {
-          label: "Noticias en borrador",
-          value: adminMockNews.filter((item) => item.status === "draft").length.toString(),
-          detail: "Piezas pendientes de publicar",
-          tone: "gold",
-        },
-      ],
-      quickActions: [
-        { label: "Crear noticia", href: "/admin/noticias" },
-        { label: "Editar partido", href: "/admin/partidos" },
-        { label: "Actualizar clasificacion", href: "/admin/clasificaciones" },
-        { label: "Gestionar equipo", href: "/admin/equipos", accent: "slate" },
-        { label: "Subir media", href: "/admin/media" },
-      ],
-      focusCards: [
-        {
-          title: "Media pendiente",
-          value: "4 recursos por revisar",
-          detail: "Banners, fotos de jugador y placeholders de rivales.",
-        },
-        {
-          title: "Entradas activas",
-          value: "3 publicaciones destacadas",
-          detail: "Revisa portada, cantera y primer equipo.",
-        },
-      ],
-    };
-  }
+export function getDashboardView(_role: AdminRole): AdminDashboardView {
+  void _role;
 
   return {
-    heading: "Control global del backoffice",
-    intro: "Vista global del estado deportivo, usuarios internos e importaciones antes de abrir el resto de secciones.",
+    heading: "Control deportivo y publico",
+    intro: "Vision operativa para coordinar equipos, contenido y calendario desde un unico panel.",
     metrics: [
       {
         label: "Temporada activa",
@@ -1118,9 +1010,9 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
         tone: "gold",
       },
       {
-        label: "Usuarios internos",
-        value: adminMockUsers.filter((user) => user.email).length.toString(),
-        detail: "Compatibilidad tecnica de la demo",
+        label: "Equipos visibles",
+        value: adminMockTeams.filter((team) => team.visible).length.toString(),
+        detail: "Estructuras con identidad publica preparada",
         tone: "blue",
       },
       {
@@ -1137,11 +1029,11 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
       },
     ],
     quickActions: [
-      { label: "Importar desde rr-management", href: "/admin/importaciones" },
-      { label: "Gestionar usuarios", href: "/admin/usuarios" },
+      { label: "Editar partido", href: "/admin/partidos" },
+      { label: "Actualizar clasificacion", href: "/admin/clasificaciones" },
       { label: "Gestionar equipos", href: "/admin/equipos", accent: "slate" },
       { label: "Revisar noticias", href: "/admin/noticias" },
-      { label: "Ver partidos", href: "/admin/partidos" },
+      { label: "Subir media", href: "/admin/media" },
     ],
     focusCards: [
       {
@@ -1158,8 +1050,8 @@ export function getDashboardView(role: AdminRole): AdminDashboardView {
   };
 }
 
-export function getSectionOverview(section: string, role: AdminRole): AdminSectionOverviewConfig {
-  const isCoach = role === "COACH";
+export function getSectionOverview(section: string, _role: AdminRole): AdminSectionOverviewConfig {
+  const isCoach = false;
 
   switch (section) {
     case "temporadas":
@@ -1194,7 +1086,7 @@ export function getSectionOverview(section: string, role: AdminRole): AdminSecti
         highlights: [
           {
             title: "Perfiles visibles",
-            items: getPlayersForRole(role)
+            items: getPlayersForRole(_role)
               .slice(0, 4)
               .map((player) => `${player.number} - ${player.name} - ${player.position}`),
           },

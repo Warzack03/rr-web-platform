@@ -347,15 +347,13 @@ export function getResolvedCoachPreviewTeamSlug(preferredSlug?: string) {
 }
 
 export function getMatchManagementTeamsForRole(
-  role: AdminRole,
-  preferredCoachTeamSlug?: string,
+  _role: AdminRole,
+  _preferredCoachTeamSlug?: string,
 ) {
-  if (role !== "COACH") {
-    return matchManagementTeams;
-  }
+  void _role;
+  void _preferredCoachTeamSlug;
 
-  const selectedCoachTeamSlug = getResolvedCoachPreviewTeamSlug(preferredCoachTeamSlug);
-  return matchManagementTeams.filter((team) => team.slug === selectedCoachTeamSlug);
+  return matchManagementTeams;
 }
 
 export function getMatchManagementMatchesForRole(

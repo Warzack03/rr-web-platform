@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { CalendarPageTitle } from "@/components/public/calendar-page-title";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { TeamCalendar } from "@/components/public/team-calendar";
-import { getFirstTeamCalendarContent } from "@/lib/public/team-calendar-content";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
-import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import { getPublicTeamCalendarContentFromDb } from "@/server/services/public/calendar";
 
@@ -17,14 +16,22 @@ export const revalidate = 300;
 
 export default async function FirstTeamCalendarPage() {
   const dbCalendar = await getPublicTeamCalendarContentFromDb("primer-equipo");
-  const calendar = dbCalendar ?? getFirstTeamCalendarContent();
-  const dataSource: PublicDataSourceInfo = {
-    source: dbCalendar ? "db" : "mock",
-    note: "primer-equipo",
-  };
+
+  if (!dbCalendar) {
+    return (
+      <PublicSiteLayout activeNav="primer-equipo">
+        <PublicEmptyState
+          title="No hay calendario publicado"
+          description="Cuando haya partidos visibles en la DB, el calendario del Primer Equipo aparecera aqui."
+        />
+      </PublicSiteLayout>
+    );
+  }
+
+  const calendar = dbCalendar;
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo" debugDataSource={dataSource}>
+    <PublicSiteLayout activeNav="primer-equipo" debugDataSource={{ source: "db", note: "primer-equipo" }}>
       <div className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.1),transparent_56%)]" />
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />

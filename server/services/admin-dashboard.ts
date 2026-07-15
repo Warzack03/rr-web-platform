@@ -1,4 +1,4 @@
-import { ImportStatus, MatchStatus, NewsStatus, UserRole } from "@prisma/client";
+import { ImportStatus, MatchStatus, NewsStatus } from "@prisma/client";
 import { prisma } from "@/server/db/prisma";
 import { type AuthenticatedAdmin } from "@/server/auth/session";
 import {
@@ -55,33 +55,9 @@ function mapImportStatusLabel(status: ImportStatus) {
 }
 
 export async function getAdminDashboardData(
-  user: AuthenticatedAdmin,
+  _user: AuthenticatedAdmin,
 ): Promise<AdminDashboardData> {
-  const assignedPermissions =
-    user.role === UserRole.COACH
-      ? await prisma.coachTeamPermission.findMany({
-          where: {
-            userId: user.id,
-            active: true,
-            seasonTeam: {
-              active: true,
-              deletedAt: null,
-            },
-          },
-          select: {
-            seasonTeamId: true,
-            seasonTeam: {
-              select: {
-                publicName: true,
-              },
-            },
-          },
-        })
-      : [];
-
-  const assignedTeamIds = assignedPermissions.map((permission) => permission.seasonTeamId);
-  const assignedTeams = assignedPermissions.map((permission) => permission.seasonTeam.publicName);
-  const scopedTeamIds = assignedTeamIds.length > 0 ? assignedTeamIds : [BigInt(-1)];
+  void _user;
 
   const siteSettings = await prisma.siteSettings.findFirst({
     include: {
@@ -101,24 +77,10 @@ export async function getAdminDashboardData(
     publicVisible: true,
     deletedAt: null,
     ...(activeSeasonId ? { seasonId: activeSeasonId } : {}),
-    ...(user.role === UserRole.COACH
-      ? {
-          id: {
-            in: scopedTeamIds,
-          },
-        }
-      : {}),
   };
   const matchScopeWhere = {
     deletedAt: null,
     ...(activeSeasonId ? { seasonId: activeSeasonId } : {}),
-    ...(user.role === UserRole.COACH
-      ? {
-          seasonTeamId: {
-            in: scopedTeamIds,
-          },
-        }
-      : {}),
   };
 
   const [
@@ -156,21 +118,17 @@ export async function getAdminDashboardData(
         },
       },
     }),
-    user.role === UserRole.COACH
-      ? Promise.resolve(null)
-      : prisma.newsPost.count({
-          where: {
-            deletedAt: null,
-            status: NewsStatus.DRAFT,
-          },
-        }),
-    user.role === UserRole.COACH
-      ? Promise.resolve(null)
-      : prisma.mediaAsset.count({
-          where: {
-            deletedAt: null,
-          },
-        }),
+    prisma.newsPost.count({
+      where: {
+        deletedAt: null,
+        status: NewsStatus.DRAFT,
+      },
+    }),
+    prisma.mediaAsset.count({
+      where: {
+        deletedAt: null,
+      },
+    }),
     prisma.seasonTeam.findMany({
       where: teamScopeWhere,
       select: {
@@ -180,25 +138,21 @@ export async function getAdminDashboardData(
         competitionName: true,
       },
     }),
-    user.role === UserRole.SUPERADMIN
-      ? prisma.importBatch.findFirst({
-          orderBy: { updatedAt: "desc" },
-          select: {
-            fileName: true,
-            status: true,
-          },
-        })
-      : Promise.resolve(null),
-    user.role === UserRole.SUPERADMIN
-      ? prisma.importBatch.count({
-          where: {
-            ...(activeSeasonId ? { seasonId: activeSeasonId } : {}),
-            status: {
-              not: ImportStatus.APPLIED,
-            },
-          },
-        })
-      : Promise.resolve(null),
+    prisma.importBatch.findFirst({
+      orderBy: { updatedAt: "desc" },
+      select: {
+        fileName: true,
+        status: true,
+      },
+    }),
+    prisma.importBatch.count({
+      where: {
+        ...(activeSeasonId ? { seasonId: activeSeasonId } : {}),
+        status: {
+          not: ImportStatus.APPLIED,
+        },
+      },
+    }),
     prisma.match.findMany({
       where: {
         ...matchScopeWhere,
@@ -279,7 +233,7 @@ export async function getAdminDashboardData(
       ? `${lastImport.fileName ?? "importacion"} · ${mapImportStatusLabel(lastImport.status)}`
       : null,
     importReviewCount,
-    assignedTeams,
+    assignedTeams: [],
     upcomingMatches: upcomingMatches.map((match) => ({
       id: match.id.toString(),
       teamName: match.seasonTeam.publicName,

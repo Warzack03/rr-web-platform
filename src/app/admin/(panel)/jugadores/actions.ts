@@ -1,6 +1,6 @@
 "use server";
 
-import { MediaUsage, UserRole } from "@prisma/client";
+import { MediaUsage } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import type { AdminPlayersScreenData } from "@/server/services/admin-players";
 import { resolveMediaAssetId } from "@/server/services/admin-media";
@@ -50,13 +50,6 @@ export async function savePlayerProfileAction(
   input: SavePlayerProfileInput,
 ): Promise<AdminPlayersActionResult> {
   const user = await requireAdminSectionAccess("players");
-
-  if (user.role === UserRole.COACH) {
-    return {
-      ok: false,
-      message: "Esta cuenta solo puede consultar fichas publicas.",
-    };
-  }
 
   const parsed = savePlayerProfileInputSchema.safeParse(input);
 

@@ -9,7 +9,7 @@ import {
   Trophy,
   UsersRound,
 } from "lucide-react";
-import { MatchStatus, UserRole } from "@prisma/client";
+import { MatchStatus } from "@prisma/client";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
@@ -139,73 +139,34 @@ function getMatchTone(status: MatchStatus) {
   }
 }
 
-function getDashboardHeading(user: AuthenticatedAdmin, data: AdminDashboardData) {
-  if (user.role === UserRole.COACH) {
-    return data.assignedTeams[0] ?? "Mi jornada";
-  }
+function getDashboardHeading(_user: AuthenticatedAdmin, _data: AdminDashboardData) {
+  void _user;
+  void _data;
 
-  if (user.role === UserRole.MANAGER) {
-    return "Control deportivo y publico";
-  }
-
-  return "Control global de la web publica";
+  return "Control deportivo y publico";
 }
 
-function getDashboardDescription(user: AuthenticatedAdmin, data: AdminDashboardData) {
-  if (user.role === UserRole.COACH) {
-    return data.assignedTeams.length > 0
-      ? `Resumen corto para trabajar solo con ${data.assignedTeams.join(", ")}: jornada, clasificacion y estadisticas del equipo asignado.`
-      : "Resumen corto para el trabajo de campo: jornada, clasificacion y estadisticas del equipo asignado.";
-  }
+function getDashboardDescription(_user: AuthenticatedAdmin, _data: AdminDashboardData) {
+  void _user;
+  void _data;
 
-  if (user.role === UserRole.MANAGER) {
-    return "Vista operativa para coordinar equipos, contenido publico y actualizacion deportiva sin salir del panel.";
-  }
-
-  return "Panel principal para vigilar el estado publico del club: temporada activa, equipos visibles, jornada, contenido y biblioteca visual.";
+  return "Vista operativa para coordinar equipos, contenido publico y actualizacion deportiva sin salir del panel.";
 }
 
-function getVisibleControlAreas(role: UserRole) {
-  if (role === UserRole.COACH) {
-    return publicControlAreas.filter((area) =>
-      ["/admin/partidos", "/admin/clasificaciones", "/admin/estadisticas"].includes(area.href),
-    );
-  }
-
-  if (role === UserRole.MANAGER) {
-    return publicControlAreas.filter((area) => area.href !== "/admin/media");
-  }
-
+function getVisibleControlAreas() {
   return publicControlAreas;
 }
 
-function getQuickActions(role: UserRole) {
-  if (role === UserRole.COACH) {
-    return [
-      { href: "/admin/partidos", label: "Actualizar resultado" },
-      { href: "/admin/estadisticas", label: "Cargar goles y asistencias" },
-      { href: "/admin/clasificaciones", label: "Guardar clasificacion", accent: "slate" as const },
-    ];
-  }
-
-  if (role === UserRole.MANAGER) {
-    return [
-      { href: "/admin/partidos", label: "Abrir jornada" },
-      { href: "/admin/clasificaciones", label: "Actualizar clasificacion" },
-      { href: "/admin/noticias", label: "Revisar noticias" },
-      { href: "/admin/equipos", label: "Gestionar equipos", accent: "slate" as const },
-    ];
-  }
-
+function getQuickActions() {
   return [
-    { href: "/admin/media", label: "Revisar media" },
-    { href: "/admin/usuarios", label: "Gestionar usuarios", accent: "slate" as const },
     { href: "/admin/partidos", label: "Abrir jornada" },
+    { href: "/admin/clasificaciones", label: "Actualizar clasificacion" },
     { href: "/admin/noticias", label: "Revisar noticias" },
+    { href: "/admin/equipos", label: "Gestionar equipos", accent: "slate" as const },
   ];
 }
 
-function getStatusItems(user: AuthenticatedAdmin, data: AdminDashboardData) {
+function getStatusItems(_user: AuthenticatedAdmin, data: AdminDashboardData) {
   const items = [
     {
       title: "Cobertura de clasificaciones",
@@ -220,48 +181,23 @@ function getStatusItems(user: AuthenticatedAdmin, data: AdminDashboardData) {
     },
   ];
 
-  if (user.role === UserRole.SUPERADMIN) {
-    items.push({
-      title: "Noticias",
-      value:
-        typeof data.draftNewsCount === "number" && data.draftNewsCount > 0
-          ? `${data.draftNewsCount} borradores`
-          : "Sin borradores",
-      detail:
-        typeof data.draftNewsCount === "number"
-          ? "Contenido pendiente antes de publicar."
-          : "Todavia no hay noticias registradas.",
-    });
-  } else if (user.role === UserRole.MANAGER) {
-    items.push({
-      title: "Noticias",
-      value:
-        typeof data.draftNewsCount === "number" && data.draftNewsCount > 0
-          ? `${data.draftNewsCount} borradores`
-          : "Sin borradores",
-      detail:
-        typeof data.draftNewsCount === "number"
-          ? "Contenido pendiente antes de publicar."
-          : "Este rol no gestiona noticias.",
-    });
-  } else {
-    items.push({
-      title: "Equipos asignados",
-      value: data.assignedTeams.length > 0 ? `${data.assignedTeams.length}` : "0",
-      detail:
-        data.assignedTeams.length > 0
-          ? data.assignedTeams.join(", ")
-          : "No hay equipos asignados a esta cuenta.",
-    });
-  }
+  items.push({
+    title: "Noticias",
+    value:
+      typeof data.draftNewsCount === "number" && data.draftNewsCount > 0
+        ? `${data.draftNewsCount} borradores`
+        : "Sin borradores",
+    detail:
+      typeof data.draftNewsCount === "number"
+        ? "Contenido pendiente antes de publicar."
+        : "Todavia no hay noticias registradas.",
+  });
 
-  if (user.role !== UserRole.COACH) {
-    items.push({
-      title: "Media",
-      value: typeof data.mediaCount === "number" ? `${data.mediaCount}` : "0",
-      detail: "Activos visuales registrados en la biblioteca publica.",
-    });
-  }
+  items.push({
+    title: "Media",
+    value: typeof data.mediaCount === "number" ? `${data.mediaCount}` : "0",
+    detail: "Activos visuales registrados en la biblioteca publica.",
+  });
 
   return items;
 }
@@ -273,8 +209,8 @@ export function AdminDashboard({
   user: AuthenticatedAdmin;
   data: AdminDashboardData;
 }) {
-  const controlAreas = getVisibleControlAreas(user.role);
-  const quickActions = getQuickActions(user.role);
+  const controlAreas = getVisibleControlAreas();
+  const quickActions = getQuickActions();
   const statusItems = getStatusItems(user, data);
 
   return (
@@ -296,23 +232,15 @@ export function AdminDashboard({
         <AdminMetricCard
           label="Temporada activa"
           value={data.activeSeasonName ?? "Sin temporada"}
-          detail={
-            user.role === UserRole.COACH && data.assignedTeams.length > 0
-              ? data.assignedTeams.join(", ")
-              : "Contexto publico activo"
-          }
+          detail="Contexto publico activo"
           tone="gold"
           icon={<CalendarDays className="h-5 w-5" />}
           compact
         />
         <AdminMetricCard
-          label={user.role === UserRole.COACH ? "Equipos asignados" : "Equipos visibles"}
+          label="Equipos visibles"
           value={data.teamCount.toString()}
-          detail={
-            user.role === UserRole.COACH
-              ? "Equipos dentro de tu alcance"
-              : "Estructuras activas en la web"
-          }
+          detail="Estructuras activas en la web"
           tone="blue"
           icon={<Shield className="h-5 w-5" />}
           compact

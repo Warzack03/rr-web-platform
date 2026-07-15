@@ -10,7 +10,6 @@ import {
   MediaUsage,
   PrismaClient,
   SeasonStatus,
-  UserRole,
   type Prisma,
 } from "@prisma/client";
 import { getRuntimeDatabaseConfig } from "../server/db/runtime-config";
@@ -466,7 +465,6 @@ async function main() {
 
   const [superadmin] = await prisma.user.findMany({
     where: {
-      role: UserRole.SUPERADMIN,
       active: true,
     },
     orderBy: [{ id: "asc" }],

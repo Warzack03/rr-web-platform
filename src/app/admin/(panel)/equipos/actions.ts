@@ -1,6 +1,6 @@
 "use server";
 
-import { MediaUsage, UserRole } from "@prisma/client";
+import { MediaUsage } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import type { AdminTeamsScreenData } from "@/server/services/admin-teams";
 import { resolveMediaAssetId } from "@/server/services/admin-media";
@@ -116,24 +116,12 @@ function revalidateTeamPaths(teamSlugs: string[]) {
 }
 
 async function getScopedSeasonTeamForWrite(
-  userId: bigint,
-  role: UserRole,
   seasonTeamId: bigint,
 ) {
   return prisma.seasonTeam.findFirst({
     where: {
       id: seasonTeamId,
       deletedAt: null,
-      ...(role === UserRole.COACH
-        ? {
-            coachPermissions: {
-              some: {
-                userId,
-                active: true,
-              },
-            },
-          }
-        : {}),
     },
     select: {
       id: true,
@@ -162,29 +150,13 @@ async function getScopedSeasonTeamForWrite(
 }
 
 async function assertTeamWriteRole() {
-  const user = await requireAdminSectionAccess("teams");
-
-  if (user.role === UserRole.COACH) {
-    return {
-      ok: false as const,
-      message: "Esta cuenta solo puede consultar equipos.",
-    };
-  }
-
-  return {
-    ok: true as const,
-    user,
-  };
+  return requireAdminSectionAccess("teams");
 }
 
 export async function saveTeamAction(
   input: SaveTeamInput,
 ): Promise<AdminTeamsActionResult> {
-  const access = await assertTeamWriteRole();
-
-  if (!access.ok) {
-    return access;
-  }
+  const user = await assertTeamWriteRole();
 
   const parsed = saveTeamInputSchema.safeParse(input);
 
@@ -195,7 +167,6 @@ export async function saveTeamAction(
     };
   }
 
-  const { user } = access;
   const payload = {
     ...parsed.data,
     slug: parsed.data.isFirstTeam ? "primer-equipo" : parsed.data.slug,
@@ -229,11 +200,7 @@ export async function saveTeamAction(
   });
 
   if (payload.seasonTeamId && isNumericId(payload.seasonTeamId)) {
-    const existing = await getScopedSeasonTeamForWrite(
-      user.id,
-      user.role,
-      BigInt(payload.seasonTeamId),
-    );
+    const existing = await getScopedSeasonTeamForWrite(BigInt(payload.seasonTeamId));
 
     if (!existing) {
       return {
@@ -536,11 +503,7 @@ async function toggleTeamFieldAction(
   input: ToggleTeamInput,
   field: "active" | "publicVisible",
 ): Promise<AdminTeamsActionResult> {
-  const access = await assertTeamWriteRole();
-
-  if (!access.ok) {
-    return access;
-  }
+  const user = await assertTeamWriteRole();
 
   const parsed = toggleTeamInputSchema.safeParse(input);
 
@@ -551,12 +514,7 @@ async function toggleTeamFieldAction(
     };
   }
 
-  const { user } = access;
-  const existing = await getScopedSeasonTeamForWrite(
-    user.id,
-    user.role,
-    BigInt(parsed.data.seasonTeamId),
-  );
+  const existing = await getScopedSeasonTeamForWrite(BigInt(parsed.data.seasonTeamId));
 
   if (!existing) {
     return {

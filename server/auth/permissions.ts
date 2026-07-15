@@ -1,5 +1,3 @@
-import { UserRole } from "@prisma/client";
-
 export type AdminSectionKey =
   | "dashboard"
   | "seasons"
@@ -22,12 +20,6 @@ export type AdminNavItem = {
   status: "active" | "preview";
 };
 
-export const roleLabels: Record<UserRole, string> = {
-  [UserRole.SUPERADMIN]: "Administrador",
-  [UserRole.MANAGER]: "Administrador",
-  [UserRole.COACH]: "Administrador",
-};
-
 export const adminNavigation: AdminNavItem[] = [
   { href: "/admin", label: "Panel", section: "dashboard", status: "active" },
   { href: "/admin/partidos", label: "Jornada", section: "matches", status: "active" },
@@ -40,26 +32,26 @@ export const adminNavigation: AdminNavItem[] = [
   { href: "/admin/noticias", label: "Noticias", section: "news", status: "active" },
 ];
 
-const adminSectionRoles: Record<AdminSectionKey, UserRole[]> = {
-  dashboard: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  seasons: [UserRole.SUPERADMIN, UserRole.MANAGER],
-  teams: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  players: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  assignments: [UserRole.SUPERADMIN, UserRole.MANAGER],
-  matches: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  standings: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  stats: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.COACH],
-  news: [UserRole.SUPERADMIN, UserRole.MANAGER],
-  media: [UserRole.SUPERADMIN, UserRole.MANAGER],
-  imports: [UserRole.SUPERADMIN],
-  users: [UserRole.SUPERADMIN],
-  settings: [UserRole.SUPERADMIN],
-};
+const adminSectionKeys: ReadonlySet<AdminSectionKey> = new Set([
+  "dashboard",
+  "seasons",
+  "teams",
+  "players",
+  "assignments",
+  "matches",
+  "standings",
+  "stats",
+  "news",
+  "media",
+  "imports",
+  "users",
+  "settings",
+]);
 
-export function canAccessAdminSection(role: UserRole, section: AdminSectionKey) {
-  return adminSectionRoles[section]?.includes(role) ?? false;
+export function canAccessAdminSection(_sectionRole: unknown, section: AdminSectionKey) {
+  return adminSectionKeys.has(section);
 }
 
-export function getAdminNavigationForRole(role: UserRole) {
-  return adminNavigation.filter((item) => canAccessAdminSection(role, item.section));
+export function getAdminNavigation() {
+  return adminNavigation;
 }

@@ -5,8 +5,7 @@ import {
   FeaturedFirstTeamPanel,
   TeamsPageHeader,
 } from "@/components/public/teams-directory";
-import type { PublicDataSourceInfo } from "@/lib/public/data-source";
-import { getTeamsDirectoryContent } from "@/lib/public/teams-directory-content";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { getPublicTeamsDirectoryContentFromDb } from "@/server/services/public/teams";
 
 export const metadata: Metadata = {
@@ -18,21 +17,27 @@ export const revalidate = 300;
 
 export default async function TeamsPage() {
   const dbContent = await getPublicTeamsDirectoryContentFromDb();
-  const content = dbContent ?? getTeamsDirectoryContent();
-  const dataSource: PublicDataSourceInfo = {
-    source: dbContent ? "db" : "mock",
-    note: "equipos",
-  };
+
+  if (!dbContent) {
+    return (
+      <PublicSiteLayout activeNav="equipos">
+        <PublicEmptyState
+          title="No hay equipos publicados"
+          description="Cuando haya equipos visibles en la temporada activa, apareceran en esta seccion."
+        />
+      </PublicSiteLayout>
+    );
+  }
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
-      <TeamsPageHeader {...content.hero} />
-      <FeaturedFirstTeamPanel {...content.featuredFirstTeam} />
+    <PublicSiteLayout activeNav="equipos" debugDataSource={{ source: "db", note: "equipos" }}>
+      <TeamsPageHeader {...dbContent.hero} />
+      <FeaturedFirstTeamPanel {...dbContent.featuredFirstTeam} />
       <AcademyTeamsGrid
-        title={content.academy.title}
-        chip={content.academy.chip}
-        teams={content.academy.teams}
-        promo={content.academy.promo}
+        title={dbContent.academy.title}
+        chip={dbContent.academy.chip}
+        teams={dbContent.academy.teams}
+        promo={dbContent.academy.promo}
       />
     </PublicSiteLayout>
   );

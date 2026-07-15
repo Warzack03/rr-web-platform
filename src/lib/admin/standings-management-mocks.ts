@@ -585,19 +585,13 @@ export function getResolvedStandingsCoachPreviewTeamSlug(
 }
 
 export function getStandingsManagementTeamsForRole(
-  role: AdminRole,
-  preferredCoachTeamSlug?: string,
+  _role: AdminRole,
+  _preferredCoachTeamSlug?: string,
 ) {
-  if (role !== "COACH") {
-    return standingsManagementTeams;
-  }
+  void _role;
+  void _preferredCoachTeamSlug;
 
-  const selectedCoachTeamSlug =
-    getResolvedStandingsCoachPreviewTeamSlug(preferredCoachTeamSlug);
-
-  return standingsManagementTeams.filter(
-    (team) => team.slug === selectedCoachTeamSlug,
-  );
+  return standingsManagementTeams;
 }
 
 export function getStandingsManagementTablesForRole(

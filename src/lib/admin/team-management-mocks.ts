@@ -1,5 +1,5 @@
 import type { AdminRole } from "@/lib/admin/roles";
-import { adminMockSeasons, adminMockUsers } from "@/lib/admin/mock-data";
+import { adminMockSeasons } from "@/lib/admin/mock-data";
 
 export type TeamCoachRoleLabel =
   | "Entrenador principal"
@@ -299,17 +299,11 @@ export const adminTeamManagementTeams: TeamManagementTeam[] = [
 export const adminTeamManagementSeasons = adminMockSeasons;
 
 export function getCoachPreviewUser() {
-  return (
-    adminMockUsers.find((user) => user.id === "user-coach-primer-equipo") ??
-    adminMockUsers.find((user) => user.role === "COACH")
-  );
+  return undefined;
 }
 
-export function getTeamManagementTeamsForRole(role: AdminRole) {
-  if (role !== "COACH") {
-    return adminTeamManagementTeams;
-  }
+export function getTeamManagementTeamsForRole(_role: AdminRole) {
+  void _role;
 
-  const assignedTeamSlugs = new Set(getCoachPreviewUser()?.assignedTeamSlugs ?? []);
-  return adminTeamManagementTeams.filter((team) => assignedTeamSlugs.has(team.slug));
+  return adminTeamManagementTeams;
 }

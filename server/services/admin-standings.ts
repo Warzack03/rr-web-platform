@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import type {
   StandingManagementRow,
   StandingManagementTable,
@@ -68,27 +67,9 @@ function mapUpdatedByLabel(
 }
 
 export async function getAdminStandingsScope(
-  user: AuthenticatedAdmin,
+  _user: AuthenticatedAdmin,
 ): Promise<AdminStandingsScope> {
-  const assignedPermissions =
-    user.role === UserRole.COACH
-      ? await prisma.coachTeamPermission.findMany({
-          where: {
-            userId: user.id,
-            active: true,
-            seasonTeam: {
-              active: true,
-              deletedAt: null,
-            },
-          },
-          select: {
-            seasonTeamId: true,
-          },
-        })
-      : [];
-
-  const assignedTeamIds = assignedPermissions.map((permission) => permission.seasonTeamId);
-  const scopedTeamIds = assignedTeamIds.length > 0 ? assignedTeamIds : [BigInt(-1)];
+  void _user;
 
   const siteSettings = await prisma.siteSettings.findFirst({
     orderBy: { updatedAt: "desc" },
@@ -116,13 +97,6 @@ export async function getAdminStandingsScope(
       seasonId: activeSeason.id,
       active: true,
       deletedAt: null,
-      ...(user.role === UserRole.COACH
-        ? {
-            id: {
-              in: scopedTeamIds,
-            },
-          }
-        : {}),
     },
     orderBy: [
       { displayOrder: "asc" },

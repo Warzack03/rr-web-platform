@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PlayerDetailPage } from "@/components/public/player-detail-page";
-import {
-  getFirstTeamPlayerDetail,
-  getFirstTeamPlayerSlugs,
-} from "@/lib/public/first-team-squad-content";
-import {
-  findAcademyPlayersBySlug,
-  getAcademyPlayerHref,
-  getAcademyPlayerSlugs,
-} from "@/lib/public/player-profile-content";
+import { PublicEmptyState } from "@/components/public/public-empty-state";
+import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
 import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import {
   findPublicAcademyPlayersBySlugFromDb,
@@ -38,8 +31,6 @@ export async function generateStaticParams() {
     new Set([
       ...dbFirstTeamPlayerSlugs,
       ...dbAcademyParams.map((param) => param.playerSlug),
-      ...getFirstTeamPlayerSlugs(),
-      ...getAcademyPlayerSlugs(),
     ]),
   ).map((playerSlug) => ({
     playerSlug,
@@ -51,11 +42,9 @@ export async function generateMetadata({
 }: PlayerDetailRouteProps): Promise<Metadata> {
   const { playerSlug } = await params;
   const dbPlayer = await getPublicPlayerDetailFromDb(playerSlug);
-  const player = dbPlayer ?? getFirstTeamPlayerDetail(playerSlug);
-  const dbAcademyMatches = player ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
-  const academyMatches = dbAcademyMatches.length > 0 ? dbAcademyMatches : findAcademyPlayersBySlug(playerSlug);
+  const academyMatches = dbPlayer ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
 
-  if (!player) {
+  if (!dbPlayer) {
     if (academyMatches.length === 1) {
       const academyPlayer = academyMatches[0];
 
@@ -78,8 +67,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${player.name} | ${player.teamLabel}`,
-    description: `Ficha publica de ${player.name}, ${player.position.toLowerCase()} en la temporada ${player.seasonLabel}.`,
+    title: `${dbPlayer.name} | ${dbPlayer.teamLabel}`,
+    description: `Ficha publica de ${dbPlayer.name}, ${dbPlayer.position.toLowerCase()} en la temporada ${dbPlayer.seasonLabel}.`,
   };
 }
 
@@ -88,21 +77,19 @@ export default async function PlayerDetailRoute({
 }: PlayerDetailRouteProps) {
   const { playerSlug } = await params;
   const dbPlayer = await getPublicPlayerDetailFromDb(playerSlug);
-  const player = dbPlayer ?? getFirstTeamPlayerDetail(playerSlug);
-  const dbAcademyMatches = player ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
-  const academyMatches = dbAcademyMatches.length > 0 ? dbAcademyMatches : findAcademyPlayersBySlug(playerSlug);
+  const academyMatches = dbPlayer ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
   const dataSource: PublicDataSourceInfo = {
-    source: dbPlayer || dbAcademyMatches.length > 0 ? "db" : "mock",
+    source: "db",
     note: playerSlug,
   };
 
-  if (player) {
+  if (dbPlayer) {
     return (
       <PublicSiteLayout
-        activeNav={player.teamType === "first-team" ? "primer-equipo" : "equipos"}
+        activeNav={dbPlayer.teamType === "first-team" ? "primer-equipo" : "equipos"}
         debugDataSource={dataSource}
       >
-        <PlayerDetailPage player={player} />
+        <PlayerDetailPage player={dbPlayer} />
       </PublicSiteLayout>
     );
   }
@@ -152,5 +139,12 @@ export default async function PlayerDetailRoute({
     );
   }
 
-  notFound();
+  return (
+    <PublicSiteLayout activeNav="equipos">
+      <PublicEmptyState
+        title="No hay datos del jugador"
+        description="Cuando este jugador tenga una ficha visible en la DB, se mostrara aqui."
+      />
+    </PublicSiteLayout>
+  );
 }

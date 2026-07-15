@@ -16,7 +16,7 @@ const demoAccounts = [
     id: "admin-demo",
     displayName: "Administrador",
     roleLabel: "Control total",
-    username: "superadmin",
+    username: "manager",
   },
 ] as const;
 
@@ -86,7 +86,7 @@ export function AdminLoginForm({
                 value={login}
                 onChange={(event) => setLogin(event.target.value)}
                 className="min-h-12 rounded-[8px] border border-[color:var(--rr-border)] bg-[rgba(7,19,34,0.9)] px-4 text-white outline-none transition focus:border-[rgba(253,203,88,0.45)]"
-                placeholder="superadmin"
+                placeholder="manager"
                 autoComplete="username"
               />
             </label>

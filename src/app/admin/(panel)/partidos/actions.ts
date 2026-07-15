@@ -1,6 +1,6 @@
 "use server";
 
-import { MatchStatus, UserRole } from "@prisma/client";
+import { MatchStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import type { AdminMatchesScreenData } from "@/server/services/admin-matches";
 import {
@@ -129,14 +129,13 @@ async function assertMatchWriteRole() {
 
   return {
     user,
-    isCoach: user.role === UserRole.COACH,
   };
 }
 
 export async function saveMatchAction(
   input: SaveMatchInput,
 ): Promise<AdminMatchesActionResult> {
-  const { user, isCoach } = await assertMatchWriteRole();
+  const { user } = await assertMatchWriteRole();
   const parsed = saveMatchInputSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -188,7 +187,7 @@ export async function saveMatchAction(
     };
   }
 
-  if (payload.highlightsUrl && (!targetTeam.team.isFirstTeam || payload.status !== "played" || isCoach)) {
+  if (payload.highlightsUrl && (!targetTeam.team.isFirstTeam || payload.status !== "played")) {
     return {
       ok: false,
       message: "Los highlights solo se guardan para partidos jugados del Primer Equipo.",
