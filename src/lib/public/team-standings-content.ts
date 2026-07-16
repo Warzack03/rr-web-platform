@@ -9,6 +9,8 @@ export type StandingRowData = {
   position: number;
   team: string;
   teamSlug?: string;
+  logoUrl?: string;
+  logoAlt?: string;
   played: number;
   won: number;
   drawn: number;

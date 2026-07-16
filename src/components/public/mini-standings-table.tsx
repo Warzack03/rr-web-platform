@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Shield } from "lucide-react";
 import type { StandingRowData } from "@/lib/public/team-standings-content";
+import { StandingTeamCrest } from "@/components/public/standing-team-crest";
 import { getPublicTeamHref } from "@/lib/public/team-section-links";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ export function MiniStandingsTable({
         <div className="rr-bolt-divider w-14" />
       </div>
 
-      <div className="mt-5 overflow-hidden border border-white/10 bg-[rgba(7,22,41,0.34)]">
+      <div className="mt-5 overflow-hidden border border-white/10 bg-[rgba(7,22,41,0.42)]">
         {rows.map((row) => (
           <MiniStandingsRow key={`${row.position}-${row.team}`} row={row} />
         ))}
@@ -43,9 +43,9 @@ export function MiniStandingsTable({
 function MiniStandingsRow({ row }: { row: StandingRowData }) {
   const teamHref = row.teamSlug ? getPublicTeamHref(row.teamSlug) : undefined;
   const className = cn(
-    "group grid grid-cols-[3rem_minmax(0,1fr)_3rem] items-center gap-3 border-t border-white/8 px-3 py-3 first:border-t-0",
+    "group grid grid-cols-[3rem_minmax(0,1fr)_3.4rem] items-center gap-3 border-t border-white/8 px-3 py-3.5 first:border-t-0",
     teamHref && "transition hover:bg-[rgba(255,255,255,0.035)]",
-    row.isClub && "bg-[rgba(253,203,88,0.08)]",
+    row.isClub && "bg-[rgba(253,203,88,0.09)] shadow-[inset_3px_0_0_rgba(253,203,88,0.7)]",
   );
   const content = (
     <>
@@ -53,7 +53,7 @@ function MiniStandingsRow({ row }: { row: StandingRowData }) {
         className={cn(
           "rr-kicker inline-flex h-9 w-9 items-center justify-center border text-[0.82rem] text-white",
           row.isClub
-            ? "border-[color:var(--rr-border-strong)] text-[color:var(--rr-gold)]"
+            ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.12)] font-bold text-[color:var(--rr-gold)]"
             : "border-white/10 text-[color:var(--rr-muted)]",
         )}
       >
@@ -61,22 +61,13 @@ function MiniStandingsRow({ row }: { row: StandingRowData }) {
       </span>
 
       <div className="flex min-w-0 items-center gap-3">
-        <span
-          className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center border",
-            row.isClub
-              ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)]"
-              : "border-white/10 bg-[rgba(255,255,255,0.03)]",
-          )}
-        >
-          <Shield
-            className={cn(
-              "h-4 w-4",
-              row.isClub ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
-            )}
-            strokeWidth={1.8}
-          />
-        </span>
+        <StandingTeamCrest
+          logoUrl={row.logoUrl}
+          logoAlt={row.logoAlt}
+          isClub={row.isClub}
+          className="h-9 w-9"
+          iconClassName="h-4 w-4"
+        />
         <div className="min-w-0">
           <p className="truncate text-[1rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">
             {row.team}
@@ -87,7 +78,7 @@ function MiniStandingsRow({ row }: { row: StandingRowData }) {
         </div>
       </div>
 
-      <div className="text-right">
+      <div className="text-center">
         <div className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">PTS</div>
         <div className="rr-display mt-1 text-[1.7rem] leading-none text-white">{row.points}</div>
       </div>

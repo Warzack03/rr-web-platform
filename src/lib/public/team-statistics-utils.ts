@@ -223,6 +223,12 @@ export function formatStatValue(player: PublicPlayerProfile, key: StatSortKey): 
   }).format(value);
 }
 
+export function getStatMetricValue(player: PublicPlayerProfile, key: StatSortKey): number | undefined {
+  const value = getSortValue(player, key);
+
+  return typeof value === "number" ? value : undefined;
+}
+
 function getSortValue(player: PublicPlayerProfile, key: StatSortKey): number | string | undefined {
   const { stats } = player;
   const derivedStats = calculateDerivedStats(player);

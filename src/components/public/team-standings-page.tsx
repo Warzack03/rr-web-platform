@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ChevronLeft, Clock3, Shield, Trophy } from "lucide-react";
+import { ChevronLeft, Clock3, Trophy } from "lucide-react";
 import type { StandingRowData, TeamStandingsPageContent } from "@/lib/public/team-standings-content";
+import { StandingTeamCrest } from "@/components/public/standing-team-crest";
 import { getPublicTeamHref } from "@/lib/public/team-section-links";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { cn } from "@/lib/utils";
@@ -102,10 +103,10 @@ type StandingsTableProps = {
 
 export function StandingsTable({ rows }: StandingsTableProps) {
   return (
-    <section className="rr-panel hidden overflow-hidden lg:block">
+    <section className="rr-panel hidden overflow-hidden border-white/15 bg-[rgba(12,35,65,0.82)] shadow-[0_18px_56px_rgba(0,0,0,0.22)] lg:block">
       <table className="w-full table-fixed border-collapse">
         <thead>
-          <tr className="border-b border-white/10 bg-[rgba(255,255,255,0.03)]">
+          <tr className="border-b border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.025))]">
             <StandingsTableHead className="w-[6.2rem] pl-6 text-left">Pos</StandingsTableHead>
             <StandingsTableHead className="w-[23rem] text-left">Equipo</StandingsTableHead>
             <StandingsTableHead>PJ</StandingsTableHead>
@@ -130,11 +131,11 @@ export function StandingsTable({ rows }: StandingsTableProps) {
 
 function StandingsMobileTable({ rows }: StandingsTableProps) {
   return (
-    <section className="rr-panel overflow-hidden lg:hidden">
+    <section className="rr-panel overflow-hidden border-white/15 bg-[rgba(12,35,65,0.82)] lg:hidden">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[34rem] border-collapse">
           <thead>
-            <tr className="border-b border-white/10 bg-[rgba(255,255,255,0.03)]">
+            <tr className="border-b border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.025))]">
               <StandingsTableHead className="w-14 pl-4 text-left">Pos</StandingsTableHead>
               <StandingsTableHead className="min-w-[11rem] text-left">Equipo</StandingsTableHead>
               <StandingsTableHead className="w-14">PJ</StandingsTableHead>
@@ -166,7 +167,7 @@ function StandingsTableHead({
   return (
     <th
       className={cn(
-        "rr-kicker px-2 py-4 text-right text-[0.8rem] text-[color:var(--rr-muted)]",
+        "rr-kicker px-2 py-4 text-center text-[0.8rem] text-[color:var(--rr-muted)]",
         className,
       )}
     >
@@ -186,14 +187,14 @@ export function StandingRow({ row }: StandingRowProps) {
   return (
     <tr
       className={cn(
-        "border-t border-white/8 transition hover:bg-[rgba(255,255,255,0.025)]",
-        row.isClub && "bg-[rgba(253,203,88,0.08)]",
+        "border-t border-white/8 transition hover:bg-[rgba(255,255,255,0.035)]",
+        row.isClub && "bg-[rgba(253,203,88,0.09)] shadow-[inset_4px_0_0_rgba(253,203,88,0.75)]",
       )}
     >
       <td className="px-2 py-4 pl-6">
         <div
           className={cn(
-            "flex h-11 w-11 items-center justify-center border text-[1.1rem] font-semibold text-white",
+            "flex h-11 w-11 items-center justify-center border text-[1.1rem] font-bold text-white",
             row.isClub
               ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]"
               : "border-white/10 bg-[rgba(255,255,255,0.04)]",
@@ -220,7 +221,7 @@ export function StandingRow({ row }: StandingRowProps) {
       <StandingsValue className={row.goalDifference > 0 ? "text-[color:var(--rr-gold)]" : undefined}>
         {formatGoalDifference(row.goalDifference)}
       </StandingsValue>
-      <StandingsValue className="pr-6 text-white">{row.points}</StandingsValue>
+      <StandingsValue className="pr-6 text-[1.16rem] font-bold text-white">{row.points}</StandingsValue>
     </tr>
   );
 }
@@ -232,14 +233,14 @@ function StandingsMobileRow({ row }: StandingRowProps) {
   return (
     <tr
       className={cn(
-        "border-t border-white/8 transition hover:bg-[rgba(255,255,255,0.025)]",
-        row.isClub && "bg-[rgba(253,203,88,0.08)]",
+        "border-t border-white/8 transition hover:bg-[rgba(255,255,255,0.035)]",
+        row.isClub && "bg-[rgba(253,203,88,0.09)] shadow-[inset_3px_0_0_rgba(253,203,88,0.75)]",
       )}
     >
       <td className="px-2 py-3 pl-4">
         <div
           className={cn(
-            "flex h-9 w-9 items-center justify-center border text-[0.96rem] font-semibold",
+            "flex h-9 w-9 items-center justify-center border text-[0.96rem] font-bold",
             row.isClub
               ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.12)] text-[color:var(--rr-gold)]"
               : "border-white/10 bg-[rgba(255,255,255,0.04)] text-white",
@@ -285,35 +286,34 @@ function StandingTeamIdentity({
 }) {
   if (compact) {
     return (
-      <div className="min-w-0">
-        <p className="truncate text-[0.98rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">
-          {row.team}
-        </p>
-        {row.isClub ? (
-          <p className="rr-kicker mt-1 text-[0.66rem] text-[color:var(--rr-gold)]">Rising Raimon</p>
-        ) : null}
+      <div className="flex min-w-0 items-center gap-2.5">
+        <StandingTeamCrest
+          logoUrl={row.logoUrl}
+          logoAlt={row.logoAlt}
+          isClub={row.isClub}
+          className="h-8 w-8"
+          iconClassName="h-4 w-4"
+        />
+        <div className="min-w-0">
+          <p className="truncate text-[0.98rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">
+            {row.team}
+          </p>
+          {row.isClub ? (
+            <p className="rr-kicker mt-1 text-[0.66rem] text-[color:var(--rr-gold)]">Rising Raimon</p>
+          ) : null}
+        </div>
       </div>
     );
   }
 
   return (
     <>
-      <div
-        className={cn(
-          "flex h-11 w-11 shrink-0 items-center justify-center border",
-          row.isClub
-            ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)]"
-            : "border-white/10 bg-[rgba(255,255,255,0.03)]",
-        )}
-      >
-        <Shield
-          className={cn(
-            "h-5 w-5",
-            row.isClub ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
-          )}
-          strokeWidth={1.8}
-        />
-      </div>
+      <StandingTeamCrest
+        logoUrl={row.logoUrl}
+        logoAlt={row.logoAlt}
+        isClub={row.isClub}
+        className="h-11 w-11"
+      />
       <div className="min-w-0">
         <p className="text-[1.14rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">
           {row.team}
@@ -336,7 +336,12 @@ function StandingsValue({
   className?: string;
 }) {
   return (
-    <td className={cn("px-2 py-4 text-right text-[1.08rem] text-[color:var(--rr-muted)]", className)}>
+    <td
+      className={cn(
+        "px-2 py-4 text-center text-[1.08rem] font-semibold tabular-nums text-[color:var(--rr-muted)]",
+        className,
+      )}
+    >
       {children}
     </td>
   );

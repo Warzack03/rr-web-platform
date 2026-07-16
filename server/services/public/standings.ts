@@ -27,6 +27,10 @@ type DbSeasonTeam = {
 type StandingTeamLink = {
   publicName: string;
   publicSlug: string;
+  logoMedia: {
+    publicUrl: string;
+    altText: string | null;
+  } | null;
 };
 
 function formatUpdatedLabel(date: Date) {
@@ -61,24 +65,30 @@ function mapStandingRows(
   teams: StandingTeamLink[],
 ): StandingRowData[] {
   const teamByName = new Map(
-    teams.map((team) => [normalizeTeamName(team.publicName), team.publicSlug]),
+    teams.map((team) => [normalizeTeamName(team.publicName), team]),
   );
 
   return sortRows(
-    rows.map((row) => ({
-      position: row.position,
-      team: row.teamName,
-      teamSlug: teamByName.get(normalizeTeamName(row.teamName)),
-      played: row.played,
-      won: row.won,
-      drawn: row.drawn,
-      lost: row.lost,
-      goalsFor: row.goalsFor,
-      goalsAgainst: row.goalsAgainst,
-      goalDifference: row.goalDifference,
-      points: row.points,
-      isClub: row.isOwnTeam,
-    })),
+    rows.map((row) => {
+      const linkedTeam = teamByName.get(normalizeTeamName(row.teamName));
+
+      return {
+        position: row.position,
+        team: row.teamName,
+        teamSlug: linkedTeam?.publicSlug,
+        logoUrl: linkedTeam?.logoMedia?.publicUrl,
+        logoAlt: linkedTeam?.logoMedia?.altText ?? `Escudo ${row.teamName}`,
+        played: row.played,
+        won: row.won,
+        drawn: row.drawn,
+        lost: row.lost,
+        goalsFor: row.goalsFor,
+        goalsAgainst: row.goalsAgainst,
+        goalDifference: row.goalDifference,
+        points: row.points,
+        isClub: row.isOwnTeam,
+      };
+    }),
   );
 }
 
@@ -187,6 +197,12 @@ async function buildStandingsPageContentFromDb(
     select: {
       publicName: true,
       publicSlug: true,
+      logoMedia: {
+        select: {
+          publicUrl: true,
+          altText: true,
+        },
+      },
     },
   });
   const standingTable = pickBestStandingTableForTeam(standingTables, team);

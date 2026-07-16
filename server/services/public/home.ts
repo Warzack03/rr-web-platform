@@ -78,26 +78,36 @@ function mapStandingRows(
   teams: Array<{
     publicName: string;
     publicSlug: string;
+    logoMedia: {
+      publicUrl: string;
+      altText: string | null;
+    } | null;
   }>,
 ): StandingRowData[] {
   const teamByName = new Map(
-    teams.map((team) => [normalizeTeamName(team.publicName), team.publicSlug]),
+    teams.map((team) => [normalizeTeamName(team.publicName), team]),
   );
 
-  return rows.map((row) => ({
-    position: row.position,
-    team: row.teamName,
-    teamSlug: teamByName.get(normalizeTeamName(row.teamName)),
-    played: row.played,
-    won: row.won,
-    drawn: row.drawn,
-    lost: row.lost,
-    goalsFor: row.goalsFor,
-    goalsAgainst: row.goalsAgainst,
-    goalDifference: row.goalDifference,
-    points: row.points,
-    isClub: row.isOwnTeam,
-  }));
+  return rows.map((row) => {
+    const linkedTeam = teamByName.get(normalizeTeamName(row.teamName));
+
+    return {
+      position: row.position,
+      team: row.teamName,
+      teamSlug: linkedTeam?.publicSlug,
+      logoUrl: linkedTeam?.logoMedia?.publicUrl,
+      logoAlt: linkedTeam?.logoMedia?.altText ?? `Escudo ${row.teamName}`,
+      played: row.played,
+      won: row.won,
+      drawn: row.drawn,
+      lost: row.lost,
+      goalsFor: row.goalsFor,
+      goalsAgainst: row.goalsAgainst,
+      goalDifference: row.goalDifference,
+      points: row.points,
+      isClub: row.isOwnTeam,
+    };
+  });
 }
 
 function normalizeTeamName(teamName: string) {
@@ -130,6 +140,12 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
                 team: {
                   select: {
                     isFirstTeam: true,
+                  },
+                },
+                logoMedia: {
+                  select: {
+                    publicUrl: true,
+                    altText: true,
                   },
                 },
                 assignments: {
