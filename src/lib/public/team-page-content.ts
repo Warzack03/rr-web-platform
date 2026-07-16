@@ -32,6 +32,7 @@ export type SquadHighlight = {
   name: string;
   position: string;
   number: number;
+  href?: string;
 };
 
 export type PublicTeamPageContent = {

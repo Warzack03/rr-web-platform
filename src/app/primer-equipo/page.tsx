@@ -45,7 +45,7 @@ export default async function FirstTeamPage() {
         actions={[
           {
             href: teamSummary.links.squad,
-            label: "Ver plantilla",
+            label: "Plantilla",
             icon: PageHeroIcons.squad,
           },
           {

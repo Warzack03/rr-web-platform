@@ -8,6 +8,7 @@ import {
 export type StandingRowData = {
   position: number;
   team: string;
+  teamSlug?: string;
   played: number;
   won: number;
   drawn: number;

@@ -24,6 +24,11 @@ type DbSeasonTeam = {
   };
 };
 
+type StandingTeamLink = {
+  publicName: string;
+  publicSlug: string;
+};
+
 function formatUpdatedLabel(date: Date) {
   return new Intl.DateTimeFormat("es-ES", {
     day: "2-digit",
@@ -53,11 +58,17 @@ function mapStandingRows(
     points: number;
     isOwnTeam: boolean;
   }>,
+  teams: StandingTeamLink[],
 ): StandingRowData[] {
+  const teamByName = new Map(
+    teams.map((team) => [normalizeTeamName(team.publicName), team.publicSlug]),
+  );
+
   return sortRows(
     rows.map((row) => ({
       position: row.position,
       team: row.teamName,
+      teamSlug: teamByName.get(normalizeTeamName(row.teamName)),
       played: row.played,
       won: row.won,
       drawn: row.drawn,
@@ -69,6 +80,10 @@ function mapStandingRows(
       isClub: row.isOwnTeam,
     })),
   );
+}
+
+function normalizeTeamName(teamName: string) {
+  return teamName.trim().toLowerCase();
 }
 
 async function getActiveVisibleSeasonTeamBySlug(
@@ -162,6 +177,18 @@ async function buildStandingsPageContentFromDb(
       },
     },
   });
+  const visibleTeams = await prisma.seasonTeam.findMany({
+    where: {
+      seasonId: team.season.id,
+      active: true,
+      publicVisible: true,
+      deletedAt: null,
+    },
+    select: {
+      publicName: true,
+      publicSlug: true,
+    },
+  });
   const standingTable = pickBestStandingTableForTeam(standingTables, team);
 
   const isFirstTeam = team.team.isFirstTeam;
@@ -187,7 +214,7 @@ async function buildStandingsPageContentFromDb(
           teamType: "academy",
           teamSlug: team.publicSlug,
         }),
-    rows: mapStandingRows(standingTable?.rows ?? []),
+    rows: mapStandingRows(standingTable?.rows ?? [], visibleTeams),
   };
 }
 

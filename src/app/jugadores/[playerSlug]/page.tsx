@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PlayerDetailPage } from "@/components/public/player-detail-page";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
-import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
 import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import {
   findPublicAcademyPlayersBySlugFromDb,
@@ -96,7 +94,12 @@ export default async function PlayerDetailRoute({
 
   if (academyMatches.length === 1) {
     const academyPlayer = academyMatches[0];
-    redirect(getAcademyPlayerHref(academyPlayer.teamSlug, academyPlayer.slug) ?? "/equipos");
+
+    return (
+      <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
+        <PlayerDetailPage player={academyPlayer} />
+      </PublicSiteLayout>
+    );
   }
 
   if (academyMatches.length > 1) {
@@ -119,7 +122,7 @@ export default async function PlayerDetailRoute({
             {academyMatches.map((academyPlayer) => (
               <Link
                 key={`${academyPlayer.teamSlug}-${academyPlayer.slug}`}
-                href={getAcademyPlayerHref(academyPlayer.teamSlug, academyPlayer.slug) ?? "/equipos"}
+                href={`/jugadores/${academyPlayer.slug}`}
                 className="rr-panel-dark border border-[color:var(--rr-border)] px-5 py-5 transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]"
               >
                 <p className="rr-kicker text-[0.78rem] text-[color:var(--rr-gold)]">

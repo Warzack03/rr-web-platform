@@ -75,10 +75,19 @@ function mapStandingRows(
     points: number;
     isOwnTeam: boolean;
   }>,
+  teams: Array<{
+    publicName: string;
+    publicSlug: string;
+  }>,
 ): StandingRowData[] {
+  const teamByName = new Map(
+    teams.map((team) => [normalizeTeamName(team.publicName), team.publicSlug]),
+  );
+
   return rows.map((row) => ({
     position: row.position,
     team: row.teamName,
+    teamSlug: teamByName.get(normalizeTeamName(row.teamName)),
     played: row.played,
     won: row.won,
     drawn: row.drawn,
@@ -89,6 +98,10 @@ function mapStandingRows(
     points: row.points,
     isClub: row.isOwnTeam,
   }));
+}
+
+function normalizeTeamName(teamName: string) {
+  return teamName.trim().toLowerCase();
 }
 
 export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | null> {
@@ -309,7 +322,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
             }),
           };
         }),
-        standingsRows: mapStandingRows(standingTable?.rows ?? []),
+        standingsRows: mapStandingRows(standingTable?.rows ?? [], activeSeason.seasonTeams),
       },
       academy: {
         eyebrow: "Cantera Rising",

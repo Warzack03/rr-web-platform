@@ -6,6 +6,10 @@ export type TeamSectionNavLink = {
   href: string;
 };
 
+export function getPublicTeamHref(teamSlug: string): string {
+  return teamSlug === "primer-equipo" ? "/primer-equipo" : `/equipos/${teamSlug}`;
+}
+
 type TeamSectionLinksInput =
   | {
       teamType: "first-team";

@@ -320,9 +320,7 @@ function mapPlayerPerformances(input: {
       shirtNumber: assignment?.shirtNumber ?? 0,
       name: buildPlayerName(row.player),
       position: mapPositionLabel(assignment?.position ?? null),
-      href: input.isFirstTeam
-        ? `/jugadores/${row.player.slug}`
-        : `/equipos/${input.teamSlug}/jugadores/${row.player.slug}`,
+      href: `/jugadores/${row.player.slug}`,
       goals: row.goals > 0 ? row.goals : undefined,
       assists: row.assists > 0 ? row.assists : undefined,
       yellowCards: row.yellowCards > 0 ? row.yellowCards : undefined,

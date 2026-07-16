@@ -188,9 +188,7 @@ export function sortPlayers(
 }
 
 export function getPlayerDetailHref(player: PublicPlayerProfile): string {
-  return player.teamType === "first-team"
-    ? `/jugadores/${player.slug}`
-    : `/equipos/${player.teamSlug}/jugadores/${player.slug}`;
+  return `/jugadores/${player.slug}`;
 }
 
 export function getPlayerLabel(player: PublicPlayerProfile): string {

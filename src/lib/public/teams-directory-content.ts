@@ -41,12 +41,15 @@ export type AcademyPromoContent = {
 export type TeamsDirectoryContent = {
   hero: TeamsPageHeroContent;
   featuredFirstTeam: FeaturedFirstTeamContent;
-  academy: {
-    title: string;
-    chip: string;
-    teams: AcademyTeamCardContent[];
-    promo: AcademyPromoContent;
-  };
+  academy: TeamsDirectorySectionContent;
+  catalunya?: TeamsDirectorySectionContent;
+};
+
+export type TeamsDirectorySectionContent = {
+  title: string;
+  chip: string;
+  teams: AcademyTeamCardContent[];
+  promo?: AcademyPromoContent;
 };
 
 const TEAMS_DIRECTORY_CONTENT: TeamsDirectoryContent = {

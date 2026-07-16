@@ -1115,8 +1115,8 @@ export function getAcademyPlayerDetail(
   );
 }
 
-export function getAcademyPlayerHref(teamSlug: string, playerSlug: string): string | undefined {
-  return `/equipos/${teamSlug}/jugadores/${playerSlug}`;
+export function getAcademyPlayerHref(_teamSlug: string, playerSlug: string): string | undefined {
+  return `/jugadores/${playerSlug}`;
 }
 
 export function findAcademyPlayersBySlug(playerSlug: string): AcademySquadPlayer[] {

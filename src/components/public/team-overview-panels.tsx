@@ -369,7 +369,7 @@ export function SquadPreviewPanel({
           href={href}
           className="rr-kicker hidden text-[0.86rem] text-[color:var(--rr-gold)] transition hover:text-[#ffd46f] sm:inline-flex"
         >
-          Ver plantilla
+          Plantilla
         </Link>
       </div>
 
@@ -387,20 +387,10 @@ export function SquadPreviewPanel({
 
         <div className="space-y-3">
           {highlights.map((player) => (
-            <article
+            <SquadHighlightItem
               key={`${player.name}-${player.number}`}
-              className="flex items-center gap-3 border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-3"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.08)]">
-                <span className="rr-display text-[1.4rem] leading-none text-[color:var(--rr-gold)]">
-                  {player.number}
-                </span>
-              </div>
-              <div className="min-w-0">
-                <p className="rr-display truncate text-[1.8rem] leading-none text-white">{player.name}</p>
-                <p className="rr-kicker mt-1 text-[0.82rem] text-[color:var(--rr-muted)]">{player.position}</p>
-              </div>
-            </article>
+              player={player}
+            />
           ))}
         </div>
       </div>
@@ -408,11 +398,41 @@ export function SquadPreviewPanel({
       <div className="mt-5 sm:hidden">
         <CTAButton href={href} className="w-full">
           <Users className="h-4 w-4" strokeWidth={1.9} />
-          Ver plantilla
+          Plantilla
         </CTAButton>
       </div>
     </section>
   );
+}
+
+function SquadHighlightItem({ player }: { player: SquadHighlight }) {
+  const className =
+    "group flex items-center gap-3 border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-3 transition hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]";
+  const content = (
+    <>
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.08)]">
+        <span className="rr-display text-[1.4rem] leading-none text-[color:var(--rr-gold)]">
+          {player.number}
+        </span>
+      </div>
+      <div className="min-w-0">
+        <p className="rr-display truncate text-[1.8rem] leading-none text-white transition group-hover:text-[color:var(--rr-gold)]">
+          {player.name}
+        </p>
+        <p className="rr-kicker mt-1 text-[0.82rem] text-[color:var(--rr-muted)]">{player.position}</p>
+      </div>
+    </>
+  );
+
+  if (player.href) {
+    return (
+      <Link href={player.href} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <article className={className}>{content}</article>;
 }
 
 type TeamInfoPanelProps = {

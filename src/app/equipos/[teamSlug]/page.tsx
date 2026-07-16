@@ -69,7 +69,7 @@ export default async function AcademyTeamDetailPage({
         actions={[
           {
             href: teamSummary.links.squad,
-            label: "Ver plantilla",
+            label: "Plantilla",
             icon: PageHeroIcons.squad,
           },
           {

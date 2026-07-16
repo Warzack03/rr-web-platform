@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft, Clock3, Shield, Trophy } from "lucide-react";
 import type { StandingRowData, TeamStandingsPageContent } from "@/lib/public/team-standings-content";
+import { getPublicTeamHref } from "@/lib/public/team-section-links";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { cn } from "@/lib/utils";
 
@@ -179,6 +180,9 @@ type StandingRowProps = {
 };
 
 export function StandingRow({ row }: StandingRowProps) {
+  const teamHref = row.teamSlug ? getPublicTeamHref(row.teamSlug) : undefined;
+  const teamIdentity = <StandingTeamIdentity row={row} compact={false} />;
+
   return (
     <tr
       className={cn(
@@ -199,32 +203,13 @@ export function StandingRow({ row }: StandingRowProps) {
         </div>
       </td>
       <td className="px-2 py-4 text-left">
-        <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              "flex h-11 w-11 shrink-0 items-center justify-center border",
-              row.isClub
-                ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)]"
-                : "border-white/10 bg-[rgba(255,255,255,0.03)]",
-            )}
-          >
-            <Shield
-              className={cn(
-                "h-5 w-5",
-                row.isClub ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
-              )}
-              strokeWidth={1.8}
-            />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[1.14rem] font-semibold text-white">{row.team}</p>
-            {row.isClub ? (
-              <p className="rr-kicker mt-1 text-[0.72rem] text-[color:var(--rr-gold)]">
-                Equipo Rising Raimon
-              </p>
-            ) : null}
-          </div>
-        </div>
+        {teamHref ? (
+          <Link href={teamHref} className="group inline-flex max-w-full items-center gap-3">
+            {teamIdentity}
+          </Link>
+        ) : (
+          <div className="flex items-center gap-3">{teamIdentity}</div>
+        )}
       </td>
       <StandingsValue>{row.played}</StandingsValue>
       <StandingsValue>{row.won}</StandingsValue>
@@ -241,6 +226,9 @@ export function StandingRow({ row }: StandingRowProps) {
 }
 
 function StandingsMobileRow({ row }: StandingRowProps) {
+  const teamHref = row.teamSlug ? getPublicTeamHref(row.teamSlug) : undefined;
+  const teamIdentity = <StandingTeamIdentity row={row} compact />;
+
   return (
     <tr
       className={cn(
@@ -261,12 +249,13 @@ function StandingsMobileRow({ row }: StandingRowProps) {
         </div>
       </td>
       <td className="px-2 py-3 text-left">
-        <div className="min-w-0">
-          <p className="truncate text-[0.98rem] font-semibold text-white">{row.team}</p>
-          {row.isClub ? (
-            <p className="rr-kicker mt-1 text-[0.66rem] text-[color:var(--rr-gold)]">Rising Raimon</p>
-          ) : null}
-        </div>
+        {teamHref ? (
+          <Link href={teamHref} className="group block min-w-0">
+            {teamIdentity}
+          </Link>
+        ) : (
+          teamIdentity
+        )}
       </td>
       <StandingsValue className="py-3 text-[0.95rem]">{row.played}</StandingsValue>
       <StandingsValue className="py-3 text-[0.95rem]">{row.won}</StandingsValue>
@@ -284,6 +273,58 @@ function StandingsMobileRow({ row }: StandingRowProps) {
         {row.points}
       </StandingsValue>
     </tr>
+  );
+}
+
+function StandingTeamIdentity({
+  row,
+  compact,
+}: {
+  row: StandingRowData;
+  compact: boolean;
+}) {
+  if (compact) {
+    return (
+      <div className="min-w-0">
+        <p className="truncate text-[0.98rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">
+          {row.team}
+        </p>
+        {row.isClub ? (
+          <p className="rr-kicker mt-1 text-[0.66rem] text-[color:var(--rr-gold)]">Rising Raimon</p>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div
+        className={cn(
+          "flex h-11 w-11 shrink-0 items-center justify-center border",
+          row.isClub
+            ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)]"
+            : "border-white/10 bg-[rgba(255,255,255,0.03)]",
+        )}
+      >
+        <Shield
+          className={cn(
+            "h-5 w-5",
+            row.isClub ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
+          )}
+          strokeWidth={1.8}
+        />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[1.14rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">
+          {row.team}
+        </p>
+        {row.isClub ? (
+          <p className="rr-kicker mt-1 text-[0.72rem] text-[color:var(--rr-gold)]">
+            Equipo Rising Raimon
+          </p>
+        ) : null}
+      </div>
+    </>
   );
 }
 
