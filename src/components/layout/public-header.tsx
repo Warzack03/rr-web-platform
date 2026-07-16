@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Menu, Shield } from "lucide-react";
+import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -18,8 +19,15 @@ export function PublicHeader({ activeKey }: PublicHeaderProps) {
     <header className="sticky top-0 z-50 border-b border-[color:var(--rr-border)] bg-[rgba(7,22,41,0.9)] backdrop-blur-md">
       <div className="mx-auto flex h-[72px] w-full max-w-[1280px] items-center justify-between gap-4 px-5 md:px-8 xl:px-16">
         <Link href="/" className="flex shrink-0 items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.08)] text-[color:var(--rr-gold)]">
-            <Shield className="h-4 w-4" strokeWidth={1.8} />
+          <span className="flex h-11 w-11 items-center justify-center">
+            <Image
+              src="/media/teams/logos/escudo-madrid.webp"
+              alt="Escudo Rising Raimon Madrid"
+              width={44}
+              height={44}
+              priority
+              className="h-11 w-11 object-contain"
+            />
           </span>
           <span className="rr-brand text-[2.25rem] leading-none text-[color:var(--rr-gold)] sm:text-[2.7rem]">
             Rising Raimon
