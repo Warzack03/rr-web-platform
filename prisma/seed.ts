@@ -25,6 +25,17 @@ const adminSeed = {
   password: process.env.ADMIN_INITIAL_PASSWORD ?? DEFAULT_DEMO_PASSWORD,
 };
 
+const testManagerSeed = {
+  email: "risingraimon@risingraimon.local",
+  username: "risingraimon",
+  displayName: "Manager Pruebas",
+  password: "risingraimon",
+};
+
+function shouldSeedTestManager() {
+  return process.env.ENABLE_TEST_MANAGER === "true" || process.env.NODE_ENV !== "production";
+}
+
 function slugify(value: string) {
   return value
     .normalize("NFD")
@@ -37,6 +48,7 @@ function slugify(value: string) {
 
 async function main() {
   const adminPasswordHash = await bcrypt.hash(adminSeed.password, 10);
+  const testManagerPasswordHash = await bcrypt.hash(testManagerSeed.password, 10);
 
   await prisma.$transaction(async (tx) => {
     await tx.newsPostTeam.deleteMany();
@@ -68,6 +80,19 @@ async function main() {
         role: UserRole.MANAGER,
       },
     });
+
+    if (shouldSeedTestManager()) {
+      await tx.user.create({
+        data: {
+          email: testManagerSeed.email,
+          username: testManagerSeed.username,
+          passwordHash: testManagerPasswordHash,
+          displayName: testManagerSeed.displayName,
+          role: UserRole.MANAGER,
+        },
+      });
+    }
+
     const manager = superadmin;
     const coach = superadmin;
 

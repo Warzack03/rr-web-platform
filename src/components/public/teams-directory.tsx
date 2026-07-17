@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Gem, Shield, Sparkles, Trophy } from "lucide-react";
+import { ArrowRight, CalendarDays, Gem, Sparkles, Users } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
 import { cn } from "@/lib/utils";
 import type {
@@ -60,7 +60,7 @@ export function FeaturedFirstTeamPanel({
 
             <div className="mt-auto flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
               <CTAButton href={primaryCta.href} className="w-full sm:w-auto">
-                <Trophy className="h-4 w-4" strokeWidth={1.9} />
+                <Users className="h-4 w-4" strokeWidth={1.9} />
                 {primaryCta.label}
               </CTAButton>
               <CTAButton href={secondaryCta.href} variant="secondary" className="w-full sm:w-auto">
@@ -116,14 +116,9 @@ function AcademyVisualCard({ team }: { team: AcademyTeamCardContent }) {
       </div>
 
       <div className="flex min-h-[15rem] flex-col p-5 md:p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div>
             <p className="rr-kicker text-[color:var(--rr-gold)]">{team.category}</p>
             <h3 className="rr-display mt-3 text-[2.5rem] leading-[0.9] text-white">{team.name}</h3>
-          </div>
-          <span className="flex h-11 w-11 items-center justify-center rounded-[0.5rem] border border-[color:var(--rr-gold)] bg-[rgba(7,22,41,0.88)] text-[color:var(--rr-gold)]">
-            <Shield className="h-4 w-4" strokeWidth={1.9} />
-          </span>
         </div>
 
         <p className="mt-2 text-[0.92rem] uppercase tracking-[0.16em] text-[color:var(--rr-muted)]/80">

@@ -5,6 +5,8 @@ import { getPublicTeamPageContentFromDb } from "@/server/services/public/teams";
 export type TeamStub = {
   name: string;
   highlight?: boolean;
+  logoUrl?: string;
+  logoAlt?: string;
 };
 
 export type MatchResult = {

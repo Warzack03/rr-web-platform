@@ -10,6 +10,7 @@
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "db:seed": "prisma db seed",
+    "db:ensure-test-manager": "tsx prisma/ensure-test-manager.ts",
     "db:purge:sports": "tsx prisma/purge-sports.ts",
     "db:bootstrap:initial": "tsx prisma/bootstrap-initial.ts"
   },

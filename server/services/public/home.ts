@@ -284,6 +284,8 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
           home: {
             name: firstTeamDisplayName,
             highlight: true,
+            logoUrl: firstTeam.logoMedia?.publicUrl,
+            logoAlt: firstTeam.logoMedia?.altText ?? `Escudo ${firstTeamDisplayName}`,
           },
           away: {
             name: nextMatch.opponentName,
@@ -307,6 +309,8 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
           home: {
             name: firstTeamDisplayName,
             highlight: true,
+            logoUrl: firstTeam.logoMedia?.publicUrl,
+            logoAlt: firstTeam.logoMedia?.altText ?? `Escudo ${firstTeamDisplayName}`,
           },
           away: {
             name: "Rival pendiente",
@@ -378,6 +382,10 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
           name: getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam),
           category: team.category ?? "Cantera",
           competition: team.competitionName ?? "Competicion pendiente",
+          logoUrl: team.logoMedia?.publicUrl,
+          logoAlt:
+            team.logoMedia?.altText ??
+            `Escudo ${getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam)}`,
         })),
       },
     };

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, ChartNoAxesColumn, Clock3, MapPin, Shield, Users } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
@@ -128,6 +129,8 @@ export function MatchPreviewPanel({ match, compact = false }: MatchPreviewPanelP
 }
 
 function MatchTeamBadge({ team }: { team: TeamStub }) {
+  const hasLogo = Boolean(team.logoUrl?.startsWith("/"));
+
   return (
     <div className="text-center">
       <div
@@ -136,10 +139,20 @@ function MatchTeamBadge({ team }: { team: TeamStub }) {
           team.highlight ? "border-[color:var(--rr-gold)]" : "border-[color:var(--rr-border)]",
         )}
       >
-        <Shield
-          className={cn("h-9 w-9", team.highlight ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]")}
-          strokeWidth={1.8}
-        />
+        {hasLogo ? (
+          <Image
+            src={team.logoUrl as string}
+            alt={team.logoAlt ?? `Escudo ${team.name}`}
+            width={72}
+            height={72}
+            className="h-16 w-16 object-contain sm:h-[4.5rem] sm:w-[4.5rem]"
+          />
+        ) : (
+          <Shield
+            className={cn("h-9 w-9", team.highlight ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]")}
+            strokeWidth={1.8}
+          />
+        )}
       </div>
       <div className="rr-kicker mt-3 text-[0.96rem] text-white">{team.name}</div>
     </div>

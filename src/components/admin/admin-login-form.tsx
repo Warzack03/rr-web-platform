@@ -11,15 +11,6 @@ type AdminLoginFormProps = {
   error?: string;
 };
 
-const demoAccounts = [
-  {
-    id: "admin-demo",
-    displayName: "Administrador",
-    roleLabel: "Control total",
-    username: "manager",
-  },
-] as const;
-
 export function AdminLoginForm({
   callbackUrl = "/admin",
   error,
@@ -31,12 +22,6 @@ export function AdminLoginForm({
     error ? "Credenciales invalidas o sesion no disponible." : null,
   );
   const [isPending, startTransition] = useTransition();
-
-  function fillAccount(username: string) {
-    setLogin(username);
-    setPassword("ChangeMe123!");
-    setFeedback(null);
-  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,7 +46,7 @@ export function AdminLoginForm({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+    <div className="mx-auto w-full max-w-[680px]">
       <form
         onSubmit={handleSubmit}
         className="rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-6 shadow-[var(--rr-shadow)] backdrop-blur-md sm:p-8"
@@ -86,7 +71,7 @@ export function AdminLoginForm({
                 value={login}
                 onChange={(event) => setLogin(event.target.value)}
                 className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
-                placeholder="manager"
+                placeholder="Introduce tu email o usuario"
                 autoComplete="username"
               />
             </label>
@@ -98,7 +83,7 @@ export function AdminLoginForm({
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
-                placeholder="ChangeMe123!"
+                placeholder="Introduce tu contrasena"
                 autoComplete="current-password"
               />
             </label>
@@ -120,37 +105,6 @@ export function AdminLoginForm({
           </button>
         </div>
       </form>
-
-      <div className="rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.025))] p-6 shadow-[var(--rr-shadow)] backdrop-blur-md sm:p-8">
-        <div className="space-y-5">
-          <div>
-            <p className="rr-kicker text-[color:var(--rr-gold)]">Cuentas demo</p>
-            <h2 className="rr-display mt-2 text-[2.35rem] leading-[1] text-white">
-              Entrada rapida
-            </h2>
-          </div>
-
-          <div className="grid gap-3">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.id}
-                type="button"
-                onClick={() => fillAccount(account.username)}
-                className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.045)] px-4 py-4 text-left transition hover:border-[rgba(243,203,69,0.28)] hover:bg-[rgba(243,203,69,0.08)]"
-              >
-                <p className="text-[1rem] font-semibold text-white">{account.displayName}</p>
-                <p className="mt-1 text-[0.92rem] text-[color:var(--rr-muted)]">
-                  {account.roleLabel} · {account.username}
-                </p>
-              </button>
-            ))}
-          </div>
-
-          <div className="rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.045)] px-4 py-4 text-[0.94rem] leading-6 text-[color:var(--rr-muted)]">
-            La cuenta inicial usa <span className="font-semibold text-white">ADMIN_INITIAL_PASSWORD</span> si existe, o <span className="font-semibold text-white">ChangeMe123!</span> en local.
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

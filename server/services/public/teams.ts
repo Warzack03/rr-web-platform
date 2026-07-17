@@ -39,6 +39,10 @@ type DbSeasonTeam = {
     isFirstTeam: boolean;
     branch: string | null;
   };
+  logoMedia: {
+    publicUrl: string;
+    altText: string | null;
+  } | null;
   coaches: Array<{
     name: string;
     displayOrder: number;
@@ -244,6 +248,12 @@ async function getActiveVisibleSeasonTeams() {
                 select: {
                   isFirstTeam: true,
                   branch: true,
+                },
+              },
+              logoMedia: {
+                select: {
+                  publicUrl: true,
+                  altText: true,
                 },
               },
               coaches: {
@@ -524,6 +534,8 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
           home: {
             name: displayName,
             highlight: true,
+            logoUrl: team.logoMedia?.publicUrl,
+            logoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
           },
           away: {
             name: nextMatch.opponentName,
@@ -545,6 +557,8 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
           home: {
             name: displayName,
             highlight: true,
+            logoUrl: team.logoMedia?.publicUrl,
+            logoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
           },
           away: {
             name: "Rival pendiente",
@@ -649,7 +663,7 @@ export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirec
       description: getTeamSummaryDescription(firstTeam),
       primaryCta: {
         href: "/primer-equipo/plantilla",
-        label: "Ver plantilla completa",
+        label: "Ver plantilla",
       },
       secondaryCta: {
         href: "/primer-equipo/calendario",

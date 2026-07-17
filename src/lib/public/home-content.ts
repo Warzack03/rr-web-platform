@@ -42,6 +42,8 @@ export type HomeAcademyTeamLink = {
   name: string;
   category: string;
   competition: string;
+  logoUrl?: string;
+  logoAlt?: string;
 };
 
 export type PublicHomePageContent = {
@@ -99,7 +101,7 @@ export async function getPublicHomePageContent(): Promise<PublicHomePageContent 
         label: "Ver proximo partido",
       },
       secondaryHref: "/primer-equipo",
-      secondaryLabel: "Ir a Rising Raimon A",
+      secondaryLabel: "Ir a Primer Equipo",
     },
     firstTeam: dbSections.firstTeam,
     academy: dbSections.academy,
