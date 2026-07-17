@@ -188,9 +188,7 @@ export function sortPlayers(
 }
 
 export function getPlayerDetailHref(player: PublicPlayerProfile): string {
-  return player.teamType === "first-team"
-    ? `/jugadores/${player.slug}`
-    : `/equipos/${player.teamSlug}/jugadores/${player.slug}`;
+  return `/jugadores/${player.slug}`;
 }
 
 export function getPlayerLabel(player: PublicPlayerProfile): string {
@@ -223,6 +221,12 @@ export function formatStatValue(player: PublicPlayerProfile, key: StatSortKey): 
   return Intl.NumberFormat("es-ES", {
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+export function getStatMetricValue(player: PublicPlayerProfile, key: StatSortKey): number | undefined {
+  const value = getSortValue(player, key);
+
+  return typeof value === "number" ? value : undefined;
 }
 
 function getSortValue(player: PublicPlayerProfile, key: StatSortKey): number | string | undefined {

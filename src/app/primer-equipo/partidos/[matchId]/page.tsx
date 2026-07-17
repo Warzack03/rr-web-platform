@@ -59,13 +59,7 @@ export default async function FirstTeamMatchDetailRoute({
   }
 
   return (
-    <PublicSiteLayout
-      activeNav="primer-equipo"
-      debugDataSource={{
-        source: "db",
-        note: `primer-equipo/${matchId}`,
-      }}
-    >
+    <PublicSiteLayout activeNav="primer-equipo">
       <MatchDetailPage
         detail={detail}
         backHref="/primer-equipo/calendario"

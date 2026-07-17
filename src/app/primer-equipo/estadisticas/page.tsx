@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { TeamStatisticsPage } from "@/components/public/team-statistics-page";
-import { getFirstTeamStatisticsPageContentWithSource } from "@/lib/public/team-statistics-content";
+import { getFirstTeamStatisticsPageContent } from "@/lib/public/team-statistics-content";
 import { parseTeamStatisticsInitialState } from "@/lib/public/team-statistics-url-state";
 
 export const metadata: Metadata = {
@@ -20,8 +20,7 @@ export default async function FirstTeamStatisticsRoute({
   searchParams,
 }: FirstTeamStatisticsRouteProps) {
   const resolvedSearchParams = await searchParams;
-  const result = await getFirstTeamStatisticsPageContentWithSource();
-  const content = result?.content;
+  const content = await getFirstTeamStatisticsPageContent();
 
   if (!content) {
     return (
@@ -35,7 +34,7 @@ export default async function FirstTeamStatisticsRoute({
   }
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo" debugDataSource={result?.dataSource}>
+    <PublicSiteLayout activeNav="primer-equipo">
       <TeamStatisticsPage
         content={content}
         initialState={parseTeamStatisticsInitialState(resolvedSearchParams, content.teamType)}

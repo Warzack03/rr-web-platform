@@ -30,7 +30,7 @@ export default async function TeamsPage() {
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={{ source: "db", note: "equipos" }}>
+    <PublicSiteLayout activeNav="equipos">
       <TeamsPageHeader {...dbContent.hero} />
       <FeaturedFirstTeamPanel {...dbContent.featuredFirstTeam} />
       <AcademyTeamsGrid
@@ -39,6 +39,14 @@ export default async function TeamsPage() {
         teams={dbContent.academy.teams}
         promo={dbContent.academy.promo}
       />
+      {dbContent.catalunya ? (
+        <AcademyTeamsGrid
+          title={dbContent.catalunya.title}
+          chip={dbContent.catalunya.chip}
+          teams={dbContent.catalunya.teams}
+          promo={dbContent.catalunya.promo}
+        />
+      ) : null}
     </PublicSiteLayout>
   );
 }

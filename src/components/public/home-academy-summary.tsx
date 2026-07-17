@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, Shield, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
 import type { PublicHomePageContent } from "@/lib/public/home-content";
 
@@ -64,9 +65,17 @@ export function HomeAcademySummary({ content }: HomeAcademySummaryProps) {
                   className="group flex items-center justify-between gap-4 border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-4 transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)] text-[color:var(--rr-gold)]">
-                      <Shield className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
+                    {team.logoUrl?.startsWith("/") ? (
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center">
+                        <Image
+                          src={team.logoUrl}
+                          alt={team.logoAlt ?? `Escudo ${team.name}`}
+                          width={48}
+                          height={48}
+                          className="h-12 w-12 object-contain"
+                        />
+                      </span>
+                    ) : null}
                     <div className="min-w-0">
                       <p className="rr-display text-[2rem] leading-none text-white">{team.name}</p>
                       <p className="mt-1 truncate text-[0.94rem] uppercase tracking-[0.14em] text-[color:var(--rr-muted)]/82">

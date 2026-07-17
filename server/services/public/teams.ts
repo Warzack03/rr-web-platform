@@ -11,6 +11,10 @@ import type {
   TeamNewsItem,
   TeamQuickInfoItem,
 } from "@/lib/public/team-page-content";
+import {
+  getPublicTeamDisplayName,
+  getTeamsDirectoryTeamName,
+} from "@/lib/public/team-display-name";
 import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import { getPublishedPublicNewsArticlesFromDb } from "@/server/services/public/news";
 import { prisma } from "@/server/db/prisma";
@@ -33,19 +37,24 @@ type DbSeasonTeam = {
   };
   team: {
     isFirstTeam: boolean;
+    branch: string | null;
   };
+  logoMedia: {
+    publicUrl: string;
+    altText: string | null;
+  } | null;
   coaches: Array<{
     name: string;
     displayOrder: number;
   }>;
-  assignments: Array<{
-    shirtNumber: number | null;
-    position: string | null;
-    player: {
-      publicName: string | null;
-      slug: string;
-    };
-  }>;
+    assignments: Array<{
+      shirtNumber: number | null;
+      position: string | null;
+      player: {
+        publicName: string | null;
+        slug: string;
+      };
+    }>;
 };
 
 function formatMatchDateLabel(date: Date | null) {
@@ -180,13 +189,31 @@ function mapDirectoryTeam(team: DbSeasonTeam): AcademyTeamCardContent {
   return {
     slug: team.publicSlug,
     category: normalizeCategory(team.category, team.team.isFirstTeam),
-    name: team.publicName,
+    name: getTeamsDirectoryTeamName(team.publicName, team.team.isFirstTeam),
     competition: team.competitionName ?? "Competicion pendiente",
     description: getTeamsDirectoryDescription(team),
     ctaLabel: "Ver equipo",
     featured: false,
     accent: "slate",
   };
+}
+
+function isCatalunyaDirectoryTeam(team: DbSeasonTeam) {
+  const searchableText = [
+    team.team.branch,
+    team.publicName,
+    team.publicSlug,
+    team.competitionName,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join(" ")
+    .toLowerCase();
+
+  return (
+    searchableText.includes("catalunya") ||
+    searchableText.includes("barcelona") ||
+    searchableText.includes("tarragona")
+  );
 }
 
 async function getActiveVisibleSeasonTeams() {
@@ -220,6 +247,13 @@ async function getActiveVisibleSeasonTeams() {
               team: {
                 select: {
                   isFirstTeam: true,
+                  branch: true,
+                },
+              },
+              logoMedia: {
+                select: {
+                  publicUrl: true,
+                  altText: true,
                 },
               },
               coaches: {
@@ -317,6 +351,7 @@ function buildSquadPreview(team: DbSeasonTeam, links: ReturnType<typeof getTeamL
       name: assignment.player.publicName ?? assignment.player.slug,
       position: assignment.position ?? "Jugador",
       number: assignment.shirtNumber ?? 0,
+      href: `/jugadores/${assignment.player.slug}`,
     }));
 
   return {
@@ -333,6 +368,7 @@ function buildSquadPreview(team: DbSeasonTeam, links: ReturnType<typeof getTeamL
 async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTeamPageContent> {
   const links = getTeamLinks(team.publicSlug, team.team.isFirstTeam);
   const coachNames = team.coaches.map((coach) => coach.name);
+  const displayName = getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam);
 
   const [nextMatch, recentResults, standingTables, playedMatches, playerStats, news] = await Promise.all([
     prisma.match.findFirst({
@@ -447,7 +483,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     0,
   );
 
-  const topScorerMap = new Map<string, { name: string; goals: number }>();
+  const topScorerMap = new Map<string, { name: string; goals: number; slug: string }>();
   for (const stat of playerStats) {
     const key = stat.player.slug;
     const current = topScorerMap.get(key);
@@ -459,6 +495,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       topScorerMap.set(key, {
         name: playerName,
         goals: stat.goals,
+        slug: stat.player.slug,
       });
     }
   }
@@ -469,10 +506,12 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       ? {
           name: team.assignments[0].player.publicName ?? team.assignments[0].player.slug,
           goals: 0,
+          slug: team.assignments[0].player.slug,
         }
       : {
           name: "Plantilla pendiente",
           goals: 0,
+          slug: "",
         });
 
   const ownStandingRow = standingTable
@@ -482,7 +521,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
   return {
     slug: team.publicSlug,
     variant: team.team.isFirstTeam ? "first-team" : "academy",
-    name: team.publicName,
+    name: displayName,
     category: normalizeCategory(team.category, team.team.isFirstTeam),
     competition: team.competitionName ?? "Competicion pendiente",
     season: team.season.name,
@@ -493,8 +532,10 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     nextMatch: nextMatch
       ? {
           home: {
-            name: nextMatch.seasonTeam.publicName,
+            name: displayName,
             highlight: true,
+            logoUrl: team.logoMedia?.publicUrl,
+            logoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
           },
           away: {
             name: nextMatch.opponentName,
@@ -514,8 +555,10 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
         }
       : {
           home: {
-            name: team.publicName,
+            name: displayName,
             highlight: true,
+            logoUrl: team.logoMedia?.publicUrl,
+            logoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
           },
           away: {
             name: "Rival pendiente",
@@ -564,7 +607,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     topScorer: {
       name: topScorer.name,
       goals: topScorer.goals,
-      href: undefined,
+      href: topScorer.slug ? `/jugadores/${topScorer.slug}` : undefined,
     },
     squadPreview: buildSquadPreview(team, links),
     quickInfo: buildQuickInfo(team, coachNames),
@@ -589,11 +632,25 @@ export async function getPublicTeamPageContentFromDb(
   }
 }
 
+export async function getPublicNonFirstTeamSlugsFromDb(): Promise<string[]> {
+  try {
+    const teams = await getActiveVisibleSeasonTeams();
+
+    return teams
+      .filter((team) => !team.team.isFirstTeam)
+      .map((team) => team.publicSlug);
+  } catch {
+    return [];
+  }
+}
+
 export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirectoryContent | null> {
   try {
     const teams = await getActiveVisibleSeasonTeams();
     const firstTeam = teams.find((team) => team.team.isFirstTeam);
-    const academyTeams = teams.filter((team) => !team.team.isFirstTeam);
+    const nonFirstTeamTeams = teams.filter((team) => !team.team.isFirstTeam);
+    const catalunyaTeams = nonFirstTeamTeams.filter(isCatalunyaDirectoryTeam);
+    const academyTeams = nonFirstTeamTeams.filter((team) => !isCatalunyaDirectoryTeam(team));
 
     if (!firstTeam) {
       return null;
@@ -602,11 +659,11 @@ export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirec
     const featuredFirstTeam: FeaturedFirstTeamContent = {
       sectionTitle: "Primer Equipo",
       eyebrow: "Plantilla profesional",
-      name: firstTeam.publicName,
+      name: getTeamsDirectoryTeamName(firstTeam.publicName, firstTeam.team.isFirstTeam),
       description: getTeamSummaryDescription(firstTeam),
       primaryCta: {
         href: "/primer-equipo/plantilla",
-        label: "Ver plantilla completa",
+        label: "Ver plantilla",
       },
       secondaryCta: {
         href: "/primer-equipo/calendario",
@@ -615,6 +672,7 @@ export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirec
     };
 
     const visibleAcademyTeams = academyTeams.map(mapDirectoryTeam);
+    const visibleCatalunyaTeams = catalunyaTeams.map(mapDirectoryTeam);
     const promoTarget = visibleAcademyTeams[visibleAcademyTeams.length - 1] ?? visibleAcademyTeams[0];
     const promo: AcademyPromoContent = {
       eyebrow: "Metodologia",
@@ -639,6 +697,14 @@ export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirec
         teams: visibleAcademyTeams,
         promo,
       },
+      catalunya:
+        visibleCatalunyaTeams.length > 0
+          ? {
+              title: "Catalunya",
+              chip: "Sede Catalunya",
+              teams: visibleCatalunyaTeams,
+            }
+          : undefined,
     };
   } catch {
     return null;

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
-import { PlayerDetailPage } from "@/components/public/player-detail-page";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   getAcademyPlayerDetailFromDb,
@@ -44,6 +44,10 @@ export default async function AcademyPlayerDetailRoute({
   const { teamSlug, playerSlug } = await params;
   const dbPlayer = await getAcademyPlayerDetailFromDb(teamSlug, playerSlug);
 
+  if (dbPlayer && dbPlayer.teamSlug === teamSlug) {
+    redirect(`/jugadores/${playerSlug}`);
+  }
+
   if (!dbPlayer || dbPlayer.teamSlug !== teamSlug) {
     return (
       <PublicSiteLayout activeNav="equipos">
@@ -54,10 +58,4 @@ export default async function AcademyPlayerDetailRoute({
       </PublicSiteLayout>
     );
   }
-
-  return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={{ source: "db", note: `${teamSlug}/${playerSlug}` }}>
-      <PlayerDetailPage player={dbPlayer} />
-    </PublicSiteLayout>
-  );
 }

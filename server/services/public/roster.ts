@@ -5,6 +5,7 @@ import type {
   PublicPlayerStats,
   PublicPlayerType,
 } from "@/lib/public/player-profile-content";
+import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 import {
   aggregatePublicPlayerStats,
@@ -105,6 +106,11 @@ export async function getPublicRosterContentFromDb(
       return null;
     }
 
+    const teamDisplayName = getPublicTeamDisplayName(
+      seasonTeam.publicName,
+      seasonTeam.team.isFirstTeam,
+    );
+
     const playerIds = seasonTeam.assignments.map((assignment) => assignment.player.id);
 
     const statRows =
@@ -167,7 +173,7 @@ export async function getPublicRosterContentFromDb(
         teamType: seasonTeam.team.isFirstTeam ? "first-team" : "academy",
         statsLevel: seasonTeam.team.isFirstTeam ? "advanced" : "basic",
         teamSlug: seasonTeam.publicSlug,
-        teamLabel: seasonTeam.publicName,
+        teamLabel: teamDisplayName,
         seasonLabel: seasonTeam.season.name,
         shopHref: seasonTeam.team.isFirstTeam ? siteSettings?.shopUrl ?? undefined : undefined,
         stats: aggregatePublicPlayerStats(statMap.get(assignment.player.id) ?? []),
@@ -175,9 +181,11 @@ export async function getPublicRosterContentFromDb(
     });
 
     return {
-      pageTitle: `Plantilla - ${seasonTeam.publicName}`,
+      pageTitle: seasonTeam.team.isFirstTeam
+        ? "Plantilla - Primer Equipo"
+        : `Plantilla - ${teamDisplayName}`,
       teamSlug: seasonTeam.publicSlug,
-      teamLabel: seasonTeam.publicName,
+      teamLabel: teamDisplayName,
       seasonLabel: seasonTeam.season.name,
       goalkeepers: allPlayers.filter((player) => player.playerType === "goalkeeper"),
       fieldPlayers: allPlayers.filter((player) => player.playerType === "field"),

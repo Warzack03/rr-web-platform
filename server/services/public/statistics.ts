@@ -31,7 +31,7 @@ function buildStatisticsContentFromDb(input: {
     backHref: input.teamType === "first-team" ? "/primer-equipo" : `/equipos/${input.teamSlug}`,
     backLabel:
       input.teamType === "first-team"
-        ? "Volver al Primer Equipo"
+        ? "Volver a Rising Raimon A"
         : `Volver a ${input.teamName}`,
     navLinks:
       input.teamType === "first-team"

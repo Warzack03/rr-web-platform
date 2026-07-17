@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PlayerDetailPage } from "@/components/public/player-detail-page";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
-import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
-import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import {
   findPublicAcademyPlayersBySlugFromDb,
   getAcademyPlayerStaticParamsFromDb,
@@ -78,17 +75,10 @@ export default async function PlayerDetailRoute({
   const { playerSlug } = await params;
   const dbPlayer = await getPublicPlayerDetailFromDb(playerSlug);
   const academyMatches = dbPlayer ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
-  const dataSource: PublicDataSourceInfo = {
-    source: "db",
-    note: playerSlug,
-  };
 
   if (dbPlayer) {
     return (
-      <PublicSiteLayout
-        activeNav={dbPlayer.teamType === "first-team" ? "primer-equipo" : "equipos"}
-        debugDataSource={dataSource}
-      >
+      <PublicSiteLayout activeNav={dbPlayer.teamType === "first-team" ? "primer-equipo" : "equipos"}>
         <PlayerDetailPage player={dbPlayer} />
       </PublicSiteLayout>
     );
@@ -96,14 +86,19 @@ export default async function PlayerDetailRoute({
 
   if (academyMatches.length === 1) {
     const academyPlayer = academyMatches[0];
-    redirect(getAcademyPlayerHref(academyPlayer.teamSlug, academyPlayer.slug) ?? "/equipos");
+
+    return (
+      <PublicSiteLayout activeNav="equipos">
+        <PlayerDetailPage player={academyPlayer} />
+      </PublicSiteLayout>
+    );
   }
 
   if (academyMatches.length > 1) {
     const playerName = academyMatches[0].name;
 
     return (
-      <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
+      <PublicSiteLayout activeNav="equipos">
         <section className="mx-auto w-full max-w-[1120px] px-5 py-14 md:px-8 md:py-18 xl:px-16">
           <div className="rr-panel max-w-2xl px-8 py-8">
             <p className="rr-kicker text-[color:var(--rr-gold)]">Ruta global</p>
@@ -119,7 +114,7 @@ export default async function PlayerDetailRoute({
             {academyMatches.map((academyPlayer) => (
               <Link
                 key={`${academyPlayer.teamSlug}-${academyPlayer.slug}`}
-                href={getAcademyPlayerHref(academyPlayer.teamSlug, academyPlayer.slug) ?? "/equipos"}
+                href={`/jugadores/${academyPlayer.slug}`}
                 className="rr-panel-dark border border-[color:var(--rr-border)] px-5 py-5 transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]"
               >
                 <p className="rr-kicker text-[0.78rem] text-[color:var(--rr-gold)]">

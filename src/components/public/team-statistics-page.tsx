@@ -19,7 +19,6 @@ import {
   ChevronLeft,
   RotateCcw,
   Search,
-  Shield,
   TableProperties,
 } from "lucide-react";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
@@ -36,6 +35,7 @@ import {
   formatStatValue,
   getPlayerDetailHref,
   getPlayerLabel,
+  getStatMetricValue,
   getStatsColumns,
   sortPlayers,
   type SortDirection,
@@ -586,12 +586,19 @@ export function PlayerStatsTable({
   compact = false,
   className,
 }: PlayerStatsTableProps) {
+  const topStatValues = getTopStatValues(players, columns);
+
   return (
-    <section className={cn("rr-panel overflow-hidden", className)}>
+    <section
+      className={cn(
+        "rr-panel overflow-hidden border-white/15 bg-[rgba(12,35,65,0.82)] shadow-[0_18px_56px_rgba(0,0,0,0.22)]",
+        className,
+      )}
+    >
       <div className="overflow-x-auto">
         <table className={cn("w-full min-w-[52rem] border-collapse", compact && "min-w-[48rem]")}>
           <thead>
-            <tr className="border-b border-white/10 bg-[rgba(255,255,255,0.03)]">
+            <tr className="border-b border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.025))]">
               {columns.map((column, index) => (
                 <SortableStatHeader
                   key={column.key}
@@ -604,16 +611,33 @@ export function PlayerStatsTable({
             </tr>
           </thead>
           <tbody>
-            {players.map((player) => (
+            {players.map((player, playerIndex) => (
               <tr
                 key={player.id}
-                className="border-t border-white/8 transition hover:bg-[rgba(255,255,255,0.025)]"
+                className={cn(
+                  "border-t border-white/8 transition hover:bg-[rgba(255,255,255,0.035)]",
+                  playerIndex === 0 &&
+                    sortKey &&
+                    sortKey !== "player" &&
+                    "bg-[rgba(253,203,88,0.055)] shadow-[inset_4px_0_0_rgba(253,203,88,0.58)]",
+                )}
               >
                 {columns.map((column, index) =>
                   index === 0 ? (
-                    <PlayerIdentityCell key={column.key} player={player} sticky />
+                    <PlayerIdentityCell
+                      key={column.key}
+                      player={player}
+                      sticky
+                      highlighted={playerIndex === 0 && Boolean(sortKey && sortKey !== "player")}
+                    />
                   ) : (
-                    <StatValue key={column.key} player={player} statKey={column.key} />
+                    <StatValue
+                      key={column.key}
+                      player={player}
+                      statKey={column.key}
+                      active={sortKey === column.key}
+                      topValue={topStatValues.get(column.key)}
+                    />
                   ),
                 )}
               </tr>
@@ -643,15 +667,20 @@ export function SortableStatHeader({
   return (
     <th
       className={cn(
-        "px-3 py-4 text-left text-[0.8rem] md:px-4",
-        sticky && "sticky left-0 z-20 bg-[rgba(20,34,54,0.98)]",
+        "px-3 py-4 text-center text-[0.8rem] md:px-4",
+        sticky && "sticky left-0 z-20 bg-[rgba(20,34,54,0.98)] text-left",
+        isActive && !sticky && "bg-[rgba(253,203,88,0.055)]",
       )}
     >
       <PressableButton
         type="submit"
         name={TEAM_STATISTICS_PARAM_NAMES.action}
         value={TEAM_STATISTICS_ACTIONS.sort(column.key)}
-        className="inline-flex items-center gap-2 text-left text-[color:var(--rr-muted)] transition hover:text-white"
+        className={cn(
+          "inline-flex items-center justify-center gap-2 text-center text-[color:var(--rr-muted)] transition hover:text-white",
+          sticky && "justify-start text-left",
+          isActive && "text-white",
+        )}
       >
         <span className="rr-kicker whitespace-nowrap">{column.label}</span>
         <Icon
@@ -669,13 +698,33 @@ export function SortableStatHeader({
 export function StatValue({
   player,
   statKey,
+  active = false,
+  topValue,
 }: {
   player: PublicPlayerProfile;
   statKey: StatSortKey;
+  active?: boolean;
+  topValue?: number;
 }) {
+  const metricValue = getStatMetricValue(player, statKey);
+  const isTopValue = typeof topValue === "number" && metricValue === topValue;
+
   return (
-    <td className="px-3 py-4 text-right text-[1rem] text-[color:var(--rr-muted)] md:px-4">
-      {formatStatValue(player, statKey)}
+    <td
+      className={cn(
+        "px-3 py-4 text-center text-[1.05rem] font-semibold tabular-nums text-[color:var(--rr-muted)] md:px-4",
+        active && "bg-[rgba(253,203,88,0.045)] text-white",
+      )}
+    >
+      <span
+        className={cn(
+          "inline-flex min-w-9 justify-center",
+          active && "text-[1.12rem] font-bold text-white",
+          isTopValue && "font-bold text-[color:var(--rr-gold)]",
+        )}
+      >
+        {formatStatValue(player, statKey)}
+      </span>
     </td>
   );
 }
@@ -683,9 +732,11 @@ export function StatValue({
 export function PlayerIdentityCell({
   player,
   sticky = false,
+  highlighted = false,
 }: {
   player: PublicPlayerProfile;
   sticky?: boolean;
+  highlighted?: boolean;
 }) {
   const href = getPlayerDetailHref(player);
 
@@ -694,10 +745,18 @@ export function PlayerIdentityCell({
       className={cn(
         "min-w-[15rem] px-3 py-4 md:px-4",
         sticky && "sticky left-0 z-10 bg-[rgba(17,29,46,0.98)]",
+        highlighted && sticky && "bg-[rgba(34,38,45,0.98)]",
       )}
     >
       <Link href={href} className="group flex items-center gap-3">
-        <div className="relative h-14 w-12 shrink-0 overflow-hidden border border-white/10 bg-[rgba(255,255,255,0.03)]">
+        <div
+          className={cn(
+            "relative flex h-14 w-12 shrink-0 items-center justify-center overflow-hidden border bg-[rgba(255,255,255,0.03)]",
+            highlighted
+              ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.1)] shadow-[inset_0_0_18px_rgba(253,203,88,0.08)]"
+              : "border-white/10",
+          )}
+        >
           {player.imageUrl ? (
             <Image
               src={player.imageUrl}
@@ -708,7 +767,9 @@ export function PlayerIdentityCell({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.02)]">
-              <Shield className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
+              <span className="rr-display text-[1.8rem] leading-none text-[color:var(--rr-gold)]">
+                {getPlayerInitials(player)}
+              </span>
             </div>
           )}
         </div>
@@ -718,7 +779,6 @@ export function PlayerIdentityCell({
             {getPlayerLabel(player)}
           </p>
           <p className="mt-1 text-[0.95rem] text-[color:var(--rr-muted)]">
-            {player.number ? `${String(player.number).padStart(2, "0")} · ` : ""}
             {player.playerType === "goalkeeper" ? "Portero" : player.position}
           </p>
         </div>
@@ -742,6 +802,8 @@ export function PlayerStatsMobileCards({
   columns,
   className,
 }: PlayerStatsMobileCardsProps) {
+  const topStatValues = getTopStatValues(players, columns);
+
   return (
     <div className={cn("grid gap-4", className)}>
       {players.map((player) => (
@@ -751,6 +813,7 @@ export function PlayerStatsMobileCards({
           teamType={teamType}
           playerType={playerType}
           columns={columns}
+          topStatValues={topStatValues}
         />
       ))}
     </div>
@@ -762,6 +825,7 @@ type PlayerStatsCardProps = {
   teamType: TeamStatisticsPageContent["teamType"];
   playerType: PublicPlayerType;
   columns: StatsColumn[];
+  topStatValues: Map<StatSortKey, number>;
 };
 
 export function PlayerStatsCard({
@@ -769,6 +833,7 @@ export function PlayerStatsCard({
   teamType,
   playerType,
   columns,
+  topStatValues,
 }: PlayerStatsCardProps) {
   const [expanded, setExpanded] = useState(false);
   const href = getPlayerDetailHref(player);
@@ -780,9 +845,12 @@ export function PlayerStatsCard({
   );
 
   return (
-    <article className="rr-panel overflow-hidden px-4 py-4">
+    <article className="rr-panel overflow-hidden border-white/15 bg-[rgba(12,35,65,0.82)] px-4 py-4 shadow-[0_18px_56px_rgba(0,0,0,0.18)]">
       <div className="flex items-start gap-4">
-        <Link href={href} className="relative block h-24 w-20 shrink-0 overflow-hidden border border-white/10">
+        <Link
+          href={href}
+          className="relative flex h-24 w-20 shrink-0 items-center justify-center overflow-hidden border border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)] shadow-[inset_0_0_22px_rgba(253,203,88,0.08)]"
+        >
           {player.imageUrl ? (
             <Image
               src={player.imageUrl}
@@ -792,8 +860,10 @@ export function PlayerStatsCard({
               className="object-cover object-top"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.03)]">
-              <Shield className="h-6 w-6 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
+            <div className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.025)]">
+              <span className="rr-display text-[2.6rem] leading-none text-[color:var(--rr-gold)]">
+                {getPlayerInitials(player)}
+              </span>
             </div>
           )}
         </Link>
@@ -811,21 +881,25 @@ export function PlayerStatsCard({
                 {player.stats.matchesPlayed} PJ
               </p>
             </div>
-            <span className="rr-kicker border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-2 py-1 text-[0.72rem] text-[color:var(--rr-gold)]">
-              #{String(player.number).padStart(2, "0")}
-            </span>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
             {summaryStats.map((item) => (
               <div
                 key={item.key}
-                className="border border-white/8 bg-[rgba(255,255,255,0.03)] px-3 py-3"
+                className="border border-white/8 bg-[rgba(255,255,255,0.035)] px-3 py-3 text-center"
               >
                 <p className="rr-kicker text-[0.68rem] text-[color:var(--rr-muted)]">
                   {item.label}
                 </p>
-                <p className="mt-2 text-[1.25rem] font-semibold text-white">{item.value}</p>
+                <p
+                  className={cn(
+                    "mt-2 text-[1.28rem] font-bold tabular-nums text-white",
+                    isTopStatValue(player, item.key, topStatValues) && "text-[color:var(--rr-gold)]",
+                  )}
+                >
+                  {item.value}
+                </p>
               </div>
             ))}
           </div>
@@ -860,7 +934,12 @@ export function PlayerStatsCard({
       </div>
 
       {expanded && expandedStats.length ? (
-        <PlayerStatsExpandedDetails className="mt-4" items={expandedStats} />
+        <PlayerStatsExpandedDetails
+          className="mt-4"
+          items={expandedStats}
+          player={player}
+          topStatValues={topStatValues}
+        />
       ) : null}
     </article>
   );
@@ -868,23 +947,86 @@ export function PlayerStatsCard({
 
 export function PlayerStatsExpandedDetails({
   items,
+  player,
+  topStatValues,
   className,
 }: {
   items: Array<{ key: StatSortKey; label: string; value: string }>;
+  player: PublicPlayerProfile;
+  topStatValues: Map<StatSortKey, number>;
   className?: string;
 }) {
   return (
     <div className={cn("grid gap-3 border-t border-white/8 pt-4 sm:grid-cols-2", className)}>
       {items.map((item) => (
-        <div key={item.key} className="border border-white/8 bg-[rgba(255,255,255,0.02)] px-3 py-3">
+        <div key={item.key} className="border border-white/8 bg-[rgba(255,255,255,0.02)] px-3 py-3 text-center">
           <p className="rr-kicker text-[0.66rem] text-[color:var(--rr-muted)]">
             {item.label}
           </p>
-          <p className="mt-2 text-[1.02rem] font-semibold text-white">{item.value}</p>
+          <p
+            className={cn(
+              "mt-2 text-[1.05rem] font-semibold tabular-nums text-white",
+              isTopStatValue(player, item.key, topStatValues) && "font-bold text-[color:var(--rr-gold)]",
+            )}
+          >
+            {item.value}
+          </p>
         </div>
       ))}
     </div>
   );
+}
+
+const TOP_STAT_EXCLUDED_KEYS = new Set<StatSortKey>([
+  "player",
+  "yellowCards",
+  "redCards",
+  "ownGoals",
+]);
+
+function getTopStatValues(players: PublicPlayerProfile[], columns: StatsColumn[]) {
+  const topValues = new Map<StatSortKey, number>();
+
+  for (const column of columns) {
+    if (TOP_STAT_EXCLUDED_KEYS.has(column.key)) {
+      continue;
+    }
+
+    const values = players
+      .map((player) => getStatMetricValue(player, column.key))
+      .filter((value): value is number => typeof value === "number");
+
+    if (values.length === 0) {
+      continue;
+    }
+
+    const maxValue = Math.max(...values);
+
+    if (maxValue > 0) {
+      topValues.set(column.key, maxValue);
+    }
+  }
+
+  return topValues;
+}
+
+function isTopStatValue(
+  player: PublicPlayerProfile,
+  statKey: StatSortKey,
+  topStatValues: Map<StatSortKey, number>,
+) {
+  const topValue = topStatValues.get(statKey);
+
+  return typeof topValue === "number" && getStatMetricValue(player, statKey) === topValue;
+}
+
+function getPlayerInitials(player: PublicPlayerProfile) {
+  return getPlayerLabel(player)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 function StatisticsEmptyState({

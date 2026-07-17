@@ -3,6 +3,7 @@ import type {
   TeamStandingsPageContent,
 } from "@/lib/public/team-standings-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
+import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 import {
   buildStandingTableScopeWhere,
@@ -22,6 +23,18 @@ type DbSeasonTeam = {
   team: {
     isFirstTeam: boolean;
   };
+};
+
+type StandingTeamLink = {
+  publicName: string;
+  publicSlug: string;
+  team: {
+    isFirstTeam: boolean;
+  };
+  logoMedia: {
+    publicUrl: string;
+    altText: string | null;
+  } | null;
 };
 
 function formatUpdatedLabel(date: Date) {
@@ -53,22 +66,46 @@ function mapStandingRows(
     points: number;
     isOwnTeam: boolean;
   }>,
+  teams: StandingTeamLink[],
 ): StandingRowData[] {
-  return sortRows(
-    rows.map((row) => ({
-      position: row.position,
-      team: row.teamName,
-      played: row.played,
-      won: row.won,
-      drawn: row.drawn,
-      lost: row.lost,
-      goalsFor: row.goalsFor,
-      goalsAgainst: row.goalsAgainst,
-      goalDifference: row.goalDifference,
-      points: row.points,
-      isClub: row.isOwnTeam,
-    })),
+  const teamByName = new Map(
+    teams.map((team) => [normalizeTeamName(team.publicName), team]),
   );
+
+  return sortRows(
+    rows.map((row) => {
+      const linkedTeam = teamByName.get(normalizeTeamName(row.teamName));
+
+      return {
+        position: row.position,
+        team: linkedTeam
+          ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
+          : row.teamName,
+        teamSlug: linkedTeam?.publicSlug,
+        logoUrl: linkedTeam?.logoMedia?.publicUrl,
+        logoAlt:
+          linkedTeam?.logoMedia?.altText ??
+          `Escudo ${
+            linkedTeam
+              ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
+              : row.teamName
+          }`,
+        played: row.played,
+        won: row.won,
+        drawn: row.drawn,
+        lost: row.lost,
+        goalsFor: row.goalsFor,
+        goalsAgainst: row.goalsAgainst,
+        goalDifference: row.goalDifference,
+        points: row.points,
+        isClub: row.isOwnTeam,
+      };
+    }),
+  );
+}
+
+function normalizeTeamName(teamName: string) {
+  return teamName.trim().toLowerCase();
 }
 
 async function getActiveVisibleSeasonTeamBySlug(
@@ -162,23 +199,47 @@ async function buildStandingsPageContentFromDb(
       },
     },
   });
+  const visibleTeams = await prisma.seasonTeam.findMany({
+    where: {
+      seasonId: team.season.id,
+      active: true,
+      publicVisible: true,
+      deletedAt: null,
+    },
+    select: {
+      publicName: true,
+      publicSlug: true,
+      team: {
+        select: {
+          isFirstTeam: true,
+        },
+      },
+      logoMedia: {
+        select: {
+          publicUrl: true,
+          altText: true,
+        },
+      },
+    },
+  });
   const standingTable = pickBestStandingTableForTeam(standingTables, team);
 
   const isFirstTeam = team.team.isFirstTeam;
+  const teamDisplayName = getPublicTeamDisplayName(team.publicName, isFirstTeam);
 
   return {
     slug: team.publicSlug,
     variant: isFirstTeam ? "first-team" : "academy",
     title: "Clasificacion",
-    subtitle: `${team.publicName} - ${team.season.name}`,
+    subtitle: `${teamDisplayName} - ${team.season.name}`,
     season: team.season.name,
-    teamName: team.publicName,
+    teamName: teamDisplayName,
     competition: standingTable?.competition?.name ?? team.competitionName ?? undefined,
     updatedAt:
       standingTable?.updatedLabel ??
       (standingTable ? formatUpdatedLabel(standingTable.updatedAt) : undefined),
     backHref: isFirstTeam ? "/primer-equipo" : `/equipos/${team.publicSlug}`,
-    backLabel: isFirstTeam ? "Volver al Primer Equipo" : `Volver a ${team.publicName}`,
+    backLabel: isFirstTeam ? "Volver a Rising Raimon A" : `Volver a ${teamDisplayName}`,
     navLinks: isFirstTeam
       ? getTeamSectionLinks({
           teamType: "first-team",
@@ -187,7 +248,7 @@ async function buildStandingsPageContentFromDb(
           teamType: "academy",
           teamSlug: team.publicSlug,
         }),
-    rows: mapStandingRows(standingTable?.rows ?? []),
+    rows: mapStandingRows(standingTable?.rows ?? [], visibleTeams),
   };
 }
 

@@ -1,11 +1,12 @@
 import { getAcademyTeamCalendarContent } from "@/lib/public/team-calendar-content";
 import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
-import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import { getPublicTeamPageContentFromDb } from "@/server/services/public/teams";
 
 export type TeamStub = {
   name: string;
   highlight?: boolean;
+  logoUrl?: string;
+  logoAlt?: string;
 };
 
 export type MatchResult = {
@@ -32,6 +33,7 @@ export type SquadHighlight = {
   name: string;
   position: string;
   number: number;
+  href?: string;
 };
 
 export type PublicTeamPageContent = {
@@ -593,56 +595,16 @@ export function getAcademyRecentResultsFromCalendar(team: PublicTeamPageContent)
 export async function getPublicTeamPageContent(
   teamSlug: string,
 ): Promise<PublicTeamPageContent | null> {
-  const result = await getPublicTeamPageContentWithSource(teamSlug);
-
-  return result?.content ?? null;
-}
-
-export async function getPublicTeamPageContentWithSource(
-  teamSlug: string,
-): Promise<{
-  content: PublicTeamPageContent;
-  dataSource: PublicDataSourceInfo;
-} | null> {
-  const dbContent = await getPublicTeamPageContentFromDb(teamSlug);
-
-  if (dbContent) {
-    return {
-      content: dbContent,
-      dataSource: {
-        source: "db",
-        note: teamSlug,
-      },
-    };
-  }
-
-  return null;
+  return getPublicTeamPageContentFromDb(teamSlug);
 }
 
 export async function getPublicAcademyTeamPageContent(
   teamSlug: string,
 ): Promise<PublicTeamPageContent | null> {
-  const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
-
-  return result?.content ?? null;
-}
-
-export async function getPublicAcademyTeamPageContentWithSource(
-  teamSlug: string,
-): Promise<{
-  content: PublicTeamPageContent;
-  dataSource: PublicDataSourceInfo;
-} | null> {
   const dbContent = await getPublicTeamPageContentFromDb(teamSlug);
 
   if (dbContent && dbContent.variant === "academy") {
-    return {
-      content: dbContent,
-      dataSource: {
-        source: "db",
-        note: teamSlug,
-      },
-    };
+    return dbContent;
   }
 
   return null;

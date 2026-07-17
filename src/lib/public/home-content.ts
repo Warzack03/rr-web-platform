@@ -1,7 +1,6 @@
 import type { PublicNewsArticle } from "@/lib/public/news-content";
 import type { MatchResult, TeamStub } from "@/lib/public/team-page-content";
 import type { StandingRowData } from "@/lib/public/team-standings-content";
-import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import { getPublicHomeDbSections } from "@/server/services/public/home";
 import {
   getFeaturedPublicNewsArticle,
@@ -43,6 +42,8 @@ export type HomeAcademyTeamLink = {
   name: string;
   category: string;
   competition: string;
+  logoUrl?: string;
+  logoAlt?: string;
 };
 
 export type PublicHomePageContent = {
@@ -75,15 +76,6 @@ export type PublicHomePageContent = {
 };
 
 export async function getPublicHomePageContent(): Promise<PublicHomePageContent | null> {
-  const result = await getPublicHomePageContentWithSource();
-
-  return result?.content ?? null;
-}
-
-export async function getPublicHomePageContentWithSource(): Promise<{
-  content: PublicHomePageContent;
-  dataSource: PublicDataSourceInfo;
-} | null> {
   const [dbSections, featuredNews, latestNews] = await Promise.all([
     getPublicHomeDbSections(),
     getFeaturedPublicNewsArticle(),
@@ -97,7 +89,7 @@ export async function getPublicHomePageContentWithSource(): Promise<{
   const nextMatchHref =
     dbSections.firstTeam.nextMatch.href ?? dbSections.firstTeam.calendarHref;
 
-  const content: PublicHomePageContent = {
+  return {
     hero: {
       eyebrow: "Rising Raimon",
       titleLead: "Mas que un club,",
@@ -109,7 +101,7 @@ export async function getPublicHomePageContentWithSource(): Promise<{
         label: "Ver proximo partido",
       },
       secondaryHref: "/primer-equipo",
-      secondaryLabel: "Ir al Primer Equipo",
+      secondaryLabel: "Ir a Primer Equipo",
     },
     firstTeam: dbSections.firstTeam,
     academy: dbSections.academy,
@@ -121,13 +113,5 @@ export async function getPublicHomePageContentWithSource(): Promise<{
           latest: latestNews,
         }
       : null,
-  };
-
-  return {
-    content,
-    dataSource: {
-      source: "db",
-      note: "home",
-    },
   };
 }

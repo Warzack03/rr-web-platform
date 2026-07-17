@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { TeamStatisticsPage } from "@/components/public/team-statistics-page";
-import { getAcademyTeamStatisticsPageContentWithSource } from "@/lib/public/team-statistics-content";
+import { getAcademyTeamStatisticsPageContent } from "@/lib/public/team-statistics-content";
 import { parseTeamStatisticsInitialState } from "@/lib/public/team-statistics-url-state";
+import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamStatisticsRouteProps = {
   params: Promise<{
@@ -14,12 +15,19 @@ type TeamStatisticsRouteProps = {
 
 export const revalidate = 300;
 
+export async function generateStaticParams() {
+  const teamSlugs = await getPublicNonFirstTeamSlugsFromDb();
+
+  return teamSlugs.map((teamSlug) => ({
+    teamSlug,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: TeamStatisticsRouteProps): Promise<Metadata> {
   const { teamSlug } = await params;
-  const result = await getAcademyTeamStatisticsPageContentWithSource(teamSlug);
-  const content = result?.content;
+  const content = await getAcademyTeamStatisticsPageContent(teamSlug);
 
   if (!content) {
     return {
@@ -39,8 +47,7 @@ export default async function AcademyTeamStatisticsRoute({
 }: TeamStatisticsRouteProps) {
   const { teamSlug } = await params;
   const resolvedSearchParams = await searchParams;
-  const result = await getAcademyTeamStatisticsPageContentWithSource(teamSlug);
-  const content = result?.content;
+  const content = await getAcademyTeamStatisticsPageContent(teamSlug);
 
   if (!content) {
     return (
@@ -54,7 +61,7 @@ export default async function AcademyTeamStatisticsRoute({
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={result?.dataSource}>
+    <PublicSiteLayout activeNav="equipos">
       <TeamStatisticsPage
         content={content}
         initialState={parseTeamStatisticsInitialState(resolvedSearchParams, content.teamType)}

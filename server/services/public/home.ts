@@ -1,6 +1,7 @@
 import { MatchStatus } from "@prisma/client";
 import type { PublicHomePageContent } from "@/lib/public/home-content";
 import type { StandingRowData } from "@/lib/public/team-standings-content";
+import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import { prisma } from "@/server/db/prisma";
 import {
@@ -75,20 +76,54 @@ function mapStandingRows(
     points: number;
     isOwnTeam: boolean;
   }>,
+  teams: Array<{
+    publicName: string;
+    publicSlug: string;
+    team: {
+      isFirstTeam: boolean;
+    };
+    logoMedia: {
+      publicUrl: string;
+      altText: string | null;
+    } | null;
+  }>,
 ): StandingRowData[] {
-  return rows.map((row) => ({
-    position: row.position,
-    team: row.teamName,
-    played: row.played,
-    won: row.won,
-    drawn: row.drawn,
-    lost: row.lost,
-    goalsFor: row.goalsFor,
-    goalsAgainst: row.goalsAgainst,
-    goalDifference: row.goalDifference,
-    points: row.points,
-    isClub: row.isOwnTeam,
-  }));
+  const teamByName = new Map(
+    teams.map((team) => [normalizeTeamName(team.publicName), team]),
+  );
+
+  return rows.map((row) => {
+    const linkedTeam = teamByName.get(normalizeTeamName(row.teamName));
+
+    return {
+      position: row.position,
+      team: linkedTeam
+        ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
+        : row.teamName,
+      teamSlug: linkedTeam?.publicSlug,
+      logoUrl: linkedTeam?.logoMedia?.publicUrl,
+      logoAlt:
+        linkedTeam?.logoMedia?.altText ??
+        `Escudo ${
+          linkedTeam
+            ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
+            : row.teamName
+        }`,
+      played: row.played,
+      won: row.won,
+      drawn: row.drawn,
+      lost: row.lost,
+      goalsFor: row.goalsFor,
+      goalsAgainst: row.goalsAgainst,
+      goalDifference: row.goalDifference,
+      points: row.points,
+      isClub: row.isOwnTeam,
+    };
+  });
+}
+
+function normalizeTeamName(teamName: string) {
+  return teamName.trim().toLowerCase();
 }
 
 export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | null> {
@@ -117,6 +152,12 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
                 team: {
                   select: {
                     isFirstTeam: true,
+                  },
+                },
+                logoMedia: {
+                  select: {
+                    publicUrl: true,
+                    altText: true,
                   },
                 },
                 assignments: {
@@ -148,6 +189,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
     }
 
     const academyTeams = activeSeason.seasonTeams.filter((team) => !team.team.isFirstTeam);
+    const firstTeamDisplayName = getPublicTeamDisplayName(firstTeam.publicName, true);
     const academyCategoryCount = new Set(
       academyTeams.map((team) => team.category).filter((category): category is string => Boolean(category)),
     ).size;
@@ -240,8 +282,10 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
     const nextMatchData = nextMatch
       ? {
           home: {
-            name: nextMatch.seasonTeam.publicName,
+            name: firstTeamDisplayName,
             highlight: true,
+            logoUrl: firstTeam.logoMedia?.publicUrl,
+            logoAlt: firstTeam.logoMedia?.altText ?? `Escudo ${firstTeamDisplayName}`,
           },
           away: {
             name: nextMatch.opponentName,
@@ -263,8 +307,10 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         }
       : {
           home: {
-            name: firstTeam.publicName,
+            name: firstTeamDisplayName,
             highlight: true,
+            logoUrl: firstTeam.logoMedia?.publicUrl,
+            logoAlt: firstTeam.logoMedia?.altText ?? `Escudo ${firstTeamDisplayName}`,
           },
           away: {
             name: "Rival pendiente",
@@ -280,7 +326,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
 
     return {
       firstTeam: {
-        eyebrow: "Primer Equipo",
+        eyebrow: "Rising Raimon A",
         title: "La arena de batalla",
         description:
           "El pulso competitivo del club, resumido en lo que viene y en lo que deja cada jornada.",
@@ -309,7 +355,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
             }),
           };
         }),
-        standingsRows: mapStandingRows(standingTable?.rows ?? []),
+        standingsRows: mapStandingRows(standingTable?.rows ?? [], activeSeason.seasonTeams),
       },
       academy: {
         eyebrow: "Cantera Rising",
@@ -333,9 +379,13 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         ],
         teams: academyTeams.slice(0, 4).map((team) => ({
           slug: team.publicSlug,
-          name: team.publicName,
+          name: getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam),
           category: team.category ?? "Cantera",
           competition: team.competitionName ?? "Competicion pendiente",
+          logoUrl: team.logoMedia?.publicUrl,
+          logoAlt:
+            team.logoMedia?.altText ??
+            `Escudo ${getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam)}`,
         })),
       },
     };

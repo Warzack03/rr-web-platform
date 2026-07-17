@@ -22,7 +22,7 @@ export function PlayerShopCTA({ player }: PlayerShopCTAProps) {
             Consigue la <span className="text-[color:var(--rr-gold)]">#{player.number}</span>
           </h2>
           <p className="mt-4 max-w-[26rem] text-[1.1rem] text-[color:var(--rr-muted)]">
-            Equipate con la camiseta de {player.name} y lleva el estilo del Primer Equipo.
+            Equipate con la camiseta de {player.name} y lleva el estilo de Rising Raimon A.
           </p>
           <a
             href={player.shopHref}
