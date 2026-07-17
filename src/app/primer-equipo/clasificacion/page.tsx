@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { TeamStandingsPage } from "@/components/public/team-standings-page";
-import { getFirstTeamStandingsContentWithSource } from "@/lib/public/team-standings-content";
+import { getFirstTeamStandingsContent } from "@/lib/public/team-standings-content";
 
 export const metadata: Metadata = {
   title: "Clasificacion | Primer Equipo",
@@ -12,8 +12,7 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function FirstTeamStandingPage() {
-  const result = await getFirstTeamStandingsContentWithSource();
-  const content = result?.content;
+  const content = await getFirstTeamStandingsContent();
 
   if (!content) {
     return (
@@ -27,7 +26,7 @@ export default async function FirstTeamStandingPage() {
   }
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo" debugDataSource={result?.dataSource}>
+    <PublicSiteLayout activeNav="primer-equipo">
       <TeamStandingsPage content={content} />
     </PublicSiteLayout>
   );

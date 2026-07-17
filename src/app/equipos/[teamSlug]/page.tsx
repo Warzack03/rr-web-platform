@@ -11,7 +11,8 @@ import {
   TeamNewsPreview,
   TopScorerPanel,
 } from "@/components/public/team-overview-panels";
-import { getPublicAcademyTeamPageContentWithSource } from "@/lib/public/team-page-content";
+import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
+import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamDetailPageProps = {
   params: Promise<{
@@ -19,12 +20,19 @@ type TeamDetailPageProps = {
   }>;
 };
 
+export async function generateStaticParams() {
+  const teamSlugs = await getPublicNonFirstTeamSlugsFromDb();
+
+  return teamSlugs.map((teamSlug) => ({
+    teamSlug,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: TeamDetailPageProps): Promise<Metadata> {
   const { teamSlug } = await params;
-  const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
-  const teamSummary = result?.content;
+  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
 
   if (!teamSummary) {
     return {
@@ -42,8 +50,7 @@ export default async function AcademyTeamDetailPage({
   params,
 }: TeamDetailPageProps) {
   const { teamSlug } = await params;
-  const result = await getPublicAcademyTeamPageContentWithSource(teamSlug);
-  const teamSummary = result?.content;
+  const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
 
   if (!teamSummary) {
     return (
@@ -57,7 +64,7 @@ export default async function AcademyTeamDetailPage({
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={result?.dataSource}>
+    <PublicSiteLayout activeNav="equipos">
       <PageHero
         chips={[
           { label: teamSummary.category, tone: "accent" },

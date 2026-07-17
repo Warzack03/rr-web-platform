@@ -30,7 +30,7 @@ export default async function TeamsPage() {
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={{ source: "db", note: "equipos" }}>
+    <PublicSiteLayout activeNav="equipos">
       <TeamsPageHeader {...dbContent.hero} />
       <FeaturedFirstTeamPanel {...dbContent.featuredFirstTeam} />
       <AcademyTeamsGrid

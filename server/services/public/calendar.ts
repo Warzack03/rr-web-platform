@@ -5,6 +5,7 @@ import type {
   CalendarMatchday,
   TeamCalendarContent,
 } from "@/lib/public/team-calendar-content";
+import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 
 type DbCalendarTeam = {
@@ -147,9 +148,10 @@ function mapCalendarMatch(input: {
 }): CalendarMatch {
   const { match, team } = input;
   const status = mapCalendarMatchStatus(match.status, team.team.isFirstTeam);
+  const displayName = getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam);
   const ownTeam = {
-    name: team.publicName,
-    crestLabel: buildCrestLabel(team.publicName),
+    name: displayName,
+    crestLabel: buildCrestLabel(displayName),
     isClub: true,
   };
   const opponentTeam = {
@@ -186,9 +188,11 @@ function mapCalendarMatch(input: {
 }
 
 function buildCalendarContent(team: DbCalendarTeam, matchdays: CalendarMatchday[]): TeamCalendarContent {
+  const displayName = getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam);
+
   return {
     pageTitle: "Calendario de partidos",
-    subtitle: `${team.publicName} - ${team.season.name}`,
+    subtitle: `${displayName} - ${team.season.name}`,
     matchdays,
   };
 }

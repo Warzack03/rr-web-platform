@@ -5,7 +5,7 @@ import { NewsHero } from "@/components/public/news-hero";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   getFeaturedPublicNewsArticle,
-  getPublicNewsArticlesWithSource,
+  getPublicNewsArticles,
 } from "@/server/services/public/news-content";
 
 export const metadata: Metadata = {
@@ -16,13 +16,12 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function NewsPage() {
-  const result = await getPublicNewsArticlesWithSource();
-  const articles = result.articles;
+  const articles = await getPublicNewsArticles();
   const featuredArticle = (await getFeaturedPublicNewsArticle()) ?? articles[0];
 
   if (!featuredArticle) {
     return (
-      <PublicSiteLayout activeNav="noticias" debugDataSource={result.dataSource}>
+      <PublicSiteLayout activeNav="noticias">
         <PublicEmptyState
           title="No hay noticias publicadas"
           description="Cuando haya noticias visibles en la DB, apareceran en esta seccion."
@@ -34,7 +33,7 @@ export default async function NewsPage() {
   const gridArticles = articles.filter((article) => article.slug !== featuredArticle?.slug);
 
   return (
-    <PublicSiteLayout activeNav="noticias" debugDataSource={result.dataSource}>
+    <PublicSiteLayout activeNav="noticias">
       <NewsHero article={featuredArticle} />
       <NewsGrid articles={gridArticles} />
     </PublicSiteLayout>

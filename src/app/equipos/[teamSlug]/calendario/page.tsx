@@ -7,6 +7,7 @@ import { TeamSectionNavigation } from "@/components/public/team-section-navigati
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import { getPublicTeamCalendarContentFromDb } from "@/server/services/public/calendar";
+import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamPlaceholderPageProps = {
   params: Promise<{
@@ -15,6 +16,14 @@ type TeamPlaceholderPageProps = {
 };
 
 export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const teamSlugs = await getPublicNonFirstTeamSlugsFromDb();
+
+  return teamSlugs.map((teamSlug) => ({
+    teamSlug,
+  }));
+}
 
 export async function generateMetadata({
   params,
@@ -68,7 +77,7 @@ export default async function AcademyTeamCalendarPage({
   const calendar = dbCalendar;
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={{ source: "db", note: teamSlug }}>
+    <PublicSiteLayout activeNav="equipos">
       <div className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.1),transparent_56%)]" />
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />

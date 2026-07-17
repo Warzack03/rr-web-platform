@@ -3,6 +3,7 @@ import type {
   PublicNewsCategory,
   PublicNewsImageTone,
 } from "@/lib/public/news-content";
+import { getTeamsDirectoryTeamName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 
 function formatNewsDateLabel(date: Date | null) {
@@ -123,7 +124,12 @@ export async function getPublishedPublicNewsArticlesFromDb(): Promise<PublicNews
     });
 
     return posts.map((post) => {
-      const relatedTeams = post.teams.map((item) => item.seasonTeam.publicName);
+      const relatedTeams = post.teams.map((item) =>
+        getTeamsDirectoryTeamName(
+          item.seasonTeam.publicName,
+          item.seasonTeam.team.isFirstTeam,
+        ),
+      );
       const relatedTeam = relatedTeams[0];
       const isFirstTeam = post.teams.some((item) => item.seasonTeam.team.isFirstTeam);
       const category = inferCategory({

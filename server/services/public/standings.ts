@@ -3,6 +3,7 @@ import type {
   TeamStandingsPageContent,
 } from "@/lib/public/team-standings-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
+import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 import {
   buildStandingTableScopeWhere,
@@ -27,6 +28,9 @@ type DbSeasonTeam = {
 type StandingTeamLink = {
   publicName: string;
   publicSlug: string;
+  team: {
+    isFirstTeam: boolean;
+  };
   logoMedia: {
     publicUrl: string;
     altText: string | null;
@@ -74,10 +78,18 @@ function mapStandingRows(
 
       return {
         position: row.position,
-        team: row.teamName,
+        team: linkedTeam
+          ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
+          : row.teamName,
         teamSlug: linkedTeam?.publicSlug,
         logoUrl: linkedTeam?.logoMedia?.publicUrl,
-        logoAlt: linkedTeam?.logoMedia?.altText ?? `Escudo ${row.teamName}`,
+        logoAlt:
+          linkedTeam?.logoMedia?.altText ??
+          `Escudo ${
+            linkedTeam
+              ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
+              : row.teamName
+          }`,
         played: row.played,
         won: row.won,
         drawn: row.drawn,
@@ -197,6 +209,11 @@ async function buildStandingsPageContentFromDb(
     select: {
       publicName: true,
       publicSlug: true,
+      team: {
+        select: {
+          isFirstTeam: true,
+        },
+      },
       logoMedia: {
         select: {
           publicUrl: true,
@@ -208,20 +225,21 @@ async function buildStandingsPageContentFromDb(
   const standingTable = pickBestStandingTableForTeam(standingTables, team);
 
   const isFirstTeam = team.team.isFirstTeam;
+  const teamDisplayName = getPublicTeamDisplayName(team.publicName, isFirstTeam);
 
   return {
     slug: team.publicSlug,
     variant: isFirstTeam ? "first-team" : "academy",
     title: "Clasificacion",
-    subtitle: `${team.publicName} - ${team.season.name}`,
+    subtitle: `${teamDisplayName} - ${team.season.name}`,
     season: team.season.name,
-    teamName: team.publicName,
+    teamName: teamDisplayName,
     competition: standingTable?.competition?.name ?? team.competitionName ?? undefined,
     updatedAt:
       standingTable?.updatedLabel ??
       (standingTable ? formatUpdatedLabel(standingTable.updatedAt) : undefined),
     backHref: isFirstTeam ? "/primer-equipo" : `/equipos/${team.publicSlug}`,
-    backLabel: isFirstTeam ? "Volver al Primer Equipo" : `Volver a ${team.publicName}`,
+    backLabel: isFirstTeam ? "Volver a Rising Raimon A" : `Volver a ${teamDisplayName}`,
     navLinks: isFirstTeam
       ? getTeamSectionLinks({
           teamType: "first-team",

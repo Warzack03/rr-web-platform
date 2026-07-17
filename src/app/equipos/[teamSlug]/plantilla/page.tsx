@@ -9,12 +9,21 @@ import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
+import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamPlaceholderPageProps = {
   params: Promise<{
     teamSlug: string;
   }>;
 };
+
+export async function generateStaticParams() {
+  const teamSlugs = await getPublicNonFirstTeamSlugsFromDb();
+
+  return teamSlugs.map((teamSlug) => ({
+    teamSlug,
+  }));
+}
 
 export async function generateMetadata({
   params,
@@ -90,7 +99,7 @@ export default async function TeamSquadPage({
   ] as const;
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={{ source: "db", note: teamSlug }}>
+    <PublicSiteLayout activeNav="equipos">
       <div className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.08),transparent_58%)]" />
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />

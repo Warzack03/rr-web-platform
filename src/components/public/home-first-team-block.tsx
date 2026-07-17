@@ -28,7 +28,7 @@ export function HomeFirstTeamBlock({ content }: HomeFirstTeamBlockProps) {
             className="rr-kicker inline-flex items-center gap-2 text-[0.84rem] text-[color:var(--rr-muted)] transition hover:text-[color:var(--rr-gold)]"
           >
             <Shield className="h-4 w-4" strokeWidth={1.9} />
-            Ver Primer Equipo
+            Ver Rising Raimon A
           </Link>
           <Link
             href={content.calendarHref}

@@ -1,6 +1,7 @@
 import { MatchStatus } from "@prisma/client";
 import type { PublicHomePageContent } from "@/lib/public/home-content";
 import type { StandingRowData } from "@/lib/public/team-standings-content";
+import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import { prisma } from "@/server/db/prisma";
 import {
@@ -78,6 +79,9 @@ function mapStandingRows(
   teams: Array<{
     publicName: string;
     publicSlug: string;
+    team: {
+      isFirstTeam: boolean;
+    };
     logoMedia: {
       publicUrl: string;
       altText: string | null;
@@ -93,10 +97,18 @@ function mapStandingRows(
 
     return {
       position: row.position,
-      team: row.teamName,
+      team: linkedTeam
+        ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
+        : row.teamName,
       teamSlug: linkedTeam?.publicSlug,
       logoUrl: linkedTeam?.logoMedia?.publicUrl,
-      logoAlt: linkedTeam?.logoMedia?.altText ?? `Escudo ${row.teamName}`,
+      logoAlt:
+        linkedTeam?.logoMedia?.altText ??
+        `Escudo ${
+          linkedTeam
+            ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
+            : row.teamName
+        }`,
       played: row.played,
       won: row.won,
       drawn: row.drawn,
@@ -177,6 +189,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
     }
 
     const academyTeams = activeSeason.seasonTeams.filter((team) => !team.team.isFirstTeam);
+    const firstTeamDisplayName = getPublicTeamDisplayName(firstTeam.publicName, true);
     const academyCategoryCount = new Set(
       academyTeams.map((team) => team.category).filter((category): category is string => Boolean(category)),
     ).size;
@@ -269,7 +282,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
     const nextMatchData = nextMatch
       ? {
           home: {
-            name: nextMatch.seasonTeam.publicName,
+            name: firstTeamDisplayName,
             highlight: true,
           },
           away: {
@@ -292,7 +305,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         }
       : {
           home: {
-            name: firstTeam.publicName,
+            name: firstTeamDisplayName,
             highlight: true,
           },
           away: {
@@ -309,7 +322,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
 
     return {
       firstTeam: {
-        eyebrow: "Primer Equipo",
+        eyebrow: "Rising Raimon A",
         title: "La arena de batalla",
         description:
           "El pulso competitivo del club, resumido en lo que viene y en lo que deja cada jornada.",
@@ -362,7 +375,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         ],
         teams: academyTeams.slice(0, 4).map((team) => ({
           slug: team.publicSlug,
-          name: team.publicName,
+          name: getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam),
           category: team.category ?? "Cantera",
           competition: team.competitionName ?? "Competicion pendiente",
         })),

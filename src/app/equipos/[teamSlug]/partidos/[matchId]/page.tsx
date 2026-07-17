@@ -56,13 +56,7 @@ export default async function AcademyMatchDetailPage({
   }
 
   return (
-    <PublicSiteLayout
-      activeNav="equipos"
-      debugDataSource={{
-        source: "db",
-        note: `${teamSlug}/${matchId}`,
-      }}
-    >
+    <PublicSiteLayout activeNav="equipos">
       <MatchDetailPage
         detail={detail}
         backHref={`/equipos/${teamSlug}/calendario`}

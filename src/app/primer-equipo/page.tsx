@@ -11,7 +11,7 @@ import {
   TeamNewsPreview,
   TopScorerPanel,
 } from "@/components/public/team-overview-panels";
-import { getPublicTeamPageContentWithSource } from "@/lib/public/team-page-content";
+import { getPublicTeamPageContent } from "@/lib/public/team-page-content";
 
 export const metadata: Metadata = {
   title: "Primer Equipo",
@@ -19,8 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function FirstTeamPage() {
-  const result = await getPublicTeamPageContentWithSource("primer-equipo");
-  const teamSummary = result?.content;
+  const teamSummary = await getPublicTeamPageContent("primer-equipo");
 
   if (!teamSummary) {
     return (
@@ -34,7 +33,7 @@ export default async function FirstTeamPage() {
   }
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo" debugDataSource={result?.dataSource}>
+    <PublicSiteLayout activeNav="primer-equipo">
       <PageHero
         chips={[
           { label: teamSummary.competition, tone: "accent" },

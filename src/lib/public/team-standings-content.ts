@@ -1,4 +1,3 @@
-import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import type { TeamSectionNavLink } from "@/lib/public/team-section-links";
 import {
   getAcademyTeamStandingsContentFromDb,
@@ -175,55 +174,11 @@ export function createFallbackAcademyRows(teamName: string): StandingRowData[] {
 }
 
 export async function getFirstTeamStandingsContent(): Promise<TeamStandingsPageContent | null> {
-  const result = await getFirstTeamStandingsContentWithSource();
-
-  return result?.content ?? null;
-}
-
-export async function getFirstTeamStandingsContentWithSource(): Promise<{
-  content: TeamStandingsPageContent;
-  dataSource: PublicDataSourceInfo;
-} | null> {
-  const dbContent = await getFirstTeamStandingsContentFromDb();
-
-  if (dbContent) {
-    return {
-      content: dbContent,
-      dataSource: {
-        source: "db",
-        note: "primer-equipo-clasificacion",
-      },
-    };
-  }
-
-  return null;
+  return getFirstTeamStandingsContentFromDb();
 }
 
 export async function getAcademyTeamStandingsContent(
   teamSlug: string,
 ): Promise<TeamStandingsPageContent | null> {
-  const result = await getAcademyTeamStandingsContentWithSource(teamSlug);
-
-  return result?.content ?? null;
-}
-
-export async function getAcademyTeamStandingsContentWithSource(
-  teamSlug: string,
-): Promise<{
-  content: TeamStandingsPageContent;
-  dataSource: PublicDataSourceInfo;
-} | null> {
-  const dbContent = await getAcademyTeamStandingsContentFromDb(teamSlug);
-
-  if (dbContent) {
-    return {
-      content: dbContent,
-      dataSource: {
-        source: "db",
-        note: `${teamSlug}-clasificacion`,
-      },
-    };
-  }
-
-  return null;
+  return getAcademyTeamStandingsContentFromDb(teamSlug);
 }

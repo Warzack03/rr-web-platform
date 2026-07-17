@@ -11,6 +11,10 @@ import type {
   TeamNewsItem,
   TeamQuickInfoItem,
 } from "@/lib/public/team-page-content";
+import {
+  getPublicTeamDisplayName,
+  getTeamsDirectoryTeamName,
+} from "@/lib/public/team-display-name";
 import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import { getPublishedPublicNewsArticlesFromDb } from "@/server/services/public/news";
 import { prisma } from "@/server/db/prisma";
@@ -181,7 +185,7 @@ function mapDirectoryTeam(team: DbSeasonTeam): AcademyTeamCardContent {
   return {
     slug: team.publicSlug,
     category: normalizeCategory(team.category, team.team.isFirstTeam),
-    name: team.publicName,
+    name: getTeamsDirectoryTeamName(team.publicName, team.team.isFirstTeam),
     competition: team.competitionName ?? "Competicion pendiente",
     description: getTeamsDirectoryDescription(team),
     ctaLabel: "Ver equipo",
@@ -354,6 +358,7 @@ function buildSquadPreview(team: DbSeasonTeam, links: ReturnType<typeof getTeamL
 async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTeamPageContent> {
   const links = getTeamLinks(team.publicSlug, team.team.isFirstTeam);
   const coachNames = team.coaches.map((coach) => coach.name);
+  const displayName = getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam);
 
   const [nextMatch, recentResults, standingTables, playedMatches, playerStats, news] = await Promise.all([
     prisma.match.findFirst({
@@ -506,7 +511,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
   return {
     slug: team.publicSlug,
     variant: team.team.isFirstTeam ? "first-team" : "academy",
-    name: team.publicName,
+    name: displayName,
     category: normalizeCategory(team.category, team.team.isFirstTeam),
     competition: team.competitionName ?? "Competicion pendiente",
     season: team.season.name,
@@ -517,7 +522,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     nextMatch: nextMatch
       ? {
           home: {
-            name: nextMatch.seasonTeam.publicName,
+            name: displayName,
             highlight: true,
           },
           away: {
@@ -538,7 +543,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
         }
       : {
           home: {
-            name: team.publicName,
+            name: displayName,
             highlight: true,
           },
           away: {
@@ -613,6 +618,18 @@ export async function getPublicTeamPageContentFromDb(
   }
 }
 
+export async function getPublicNonFirstTeamSlugsFromDb(): Promise<string[]> {
+  try {
+    const teams = await getActiveVisibleSeasonTeams();
+
+    return teams
+      .filter((team) => !team.team.isFirstTeam)
+      .map((team) => team.publicSlug);
+  } catch {
+    return [];
+  }
+}
+
 export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirectoryContent | null> {
   try {
     const teams = await getActiveVisibleSeasonTeams();
@@ -628,7 +645,7 @@ export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirec
     const featuredFirstTeam: FeaturedFirstTeamContent = {
       sectionTitle: "Primer Equipo",
       eyebrow: "Plantilla profesional",
-      name: firstTeam.publicName,
+      name: getTeamsDirectoryTeamName(firstTeam.publicName, firstTeam.team.isFirstTeam),
       description: getTeamSummaryDescription(firstTeam),
       primaryCta: {
         href: "/primer-equipo/plantilla",

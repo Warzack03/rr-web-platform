@@ -1,4 +1,5 @@
 import type { PublicPlayerProfile } from "@/lib/public/player-profile-content";
+import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 import {
   aggregatePublicPlayerStats,
@@ -61,7 +62,10 @@ type PlayerStatRow = {
 function buildCandidateTeamRef(candidate: PlayerAssignmentCandidate) {
   return {
     teamSlug: candidate.seasonTeam.publicSlug,
-    teamLabel: candidate.seasonTeam.publicName,
+    teamLabel: getPublicTeamDisplayName(
+      candidate.seasonTeam.publicName,
+      candidate.seasonTeam.team.isFirstTeam,
+    ),
     teamType: candidate.seasonTeam.team.isFirstTeam ? ("first-team" as const) : ("academy" as const),
   };
 }
@@ -95,7 +99,10 @@ function mapCandidateToProfile(
     teamType,
     statsLevel: teamType === "first-team" ? "advanced" : "basic",
     teamSlug: candidate.seasonTeam.publicSlug,
-    teamLabel: candidate.seasonTeam.publicName,
+    teamLabel: getPublicTeamDisplayName(
+      candidate.seasonTeam.publicName,
+      candidate.seasonTeam.team.isFirstTeam,
+    ),
     seasonLabel: candidate.seasonTeam.season.name,
     shopHref: teamType === "first-team" ? shopUrl ?? undefined : undefined,
     relatedTeams: [buildCandidateTeamRef(candidate)],

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsArticlePage } from "@/components/public/news-article-page";
 import {
-  getPublicNewsArticlesWithSource,
+  getPublicNewsArticles,
   getResolvedPublicNewsArticleBySlug,
   getResolvedRelatedPublicNewsArticles,
 } from "@/server/services/public/news-content";
@@ -15,7 +15,7 @@ type NewsDetailPageProps = {
 };
 
 export async function generateStaticParams() {
-  const { articles } = await getPublicNewsArticlesWithSource();
+  const articles = await getPublicNewsArticles();
 
   return articles.map((article) => ({
     slug: article.slug,
@@ -40,7 +40,6 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;
-  const result = await getPublicNewsArticlesWithSource();
   const article = await getResolvedPublicNewsArticleBySlug(slug);
 
   if (!article) {
@@ -50,7 +49,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const relatedArticles = await getResolvedRelatedPublicNewsArticles(slug);
 
   return (
-    <PublicSiteLayout activeNav="noticias" debugDataSource={result.dataSource}>
+    <PublicSiteLayout activeNav="noticias">
       <NewsArticlePage article={article} relatedArticles={relatedArticles} />
     </PublicSiteLayout>
   );

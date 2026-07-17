@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { TeamStandingsPage } from "@/components/public/team-standings-page";
-import { getAcademyTeamStandingsContentWithSource } from "@/lib/public/team-standings-content";
+import { getAcademyTeamStandingsContent } from "@/lib/public/team-standings-content";
+import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamStandingsPageProps = {
   params: Promise<{
@@ -12,12 +13,19 @@ type TeamStandingsPageProps = {
 
 export const revalidate = 300;
 
+export async function generateStaticParams() {
+  const teamSlugs = await getPublicNonFirstTeamSlugsFromDb();
+
+  return teamSlugs.map((teamSlug) => ({
+    teamSlug,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: TeamStandingsPageProps): Promise<Metadata> {
   const { teamSlug } = await params;
-  const result = await getAcademyTeamStandingsContentWithSource(teamSlug);
-  const content = result?.content;
+  const content = await getAcademyTeamStandingsContent(teamSlug);
 
   if (!content) {
     return {
@@ -35,8 +43,7 @@ export default async function TeamStandingPage({
   params,
 }: TeamStandingsPageProps) {
   const { teamSlug } = await params;
-  const result = await getAcademyTeamStandingsContentWithSource(teamSlug);
-  const content = result?.content;
+  const content = await getAcademyTeamStandingsContent(teamSlug);
 
   if (!content) {
     return (
@@ -50,7 +57,7 @@ export default async function TeamStandingPage({
   }
 
   return (
-    <PublicSiteLayout activeNav="equipos" debugDataSource={result?.dataSource}>
+    <PublicSiteLayout activeNav="equipos">
       <TeamStandingsPage content={content} />
     </PublicSiteLayout>
   );

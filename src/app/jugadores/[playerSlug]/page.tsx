@@ -3,7 +3,6 @@ import Link from "next/link";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PlayerDetailPage } from "@/components/public/player-detail-page";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
-import type { PublicDataSourceInfo } from "@/lib/public/data-source";
 import {
   findPublicAcademyPlayersBySlugFromDb,
   getAcademyPlayerStaticParamsFromDb,
@@ -76,17 +75,10 @@ export default async function PlayerDetailRoute({
   const { playerSlug } = await params;
   const dbPlayer = await getPublicPlayerDetailFromDb(playerSlug);
   const academyMatches = dbPlayer ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
-  const dataSource: PublicDataSourceInfo = {
-    source: "db",
-    note: playerSlug,
-  };
 
   if (dbPlayer) {
     return (
-      <PublicSiteLayout
-        activeNav={dbPlayer.teamType === "first-team" ? "primer-equipo" : "equipos"}
-        debugDataSource={dataSource}
-      >
+      <PublicSiteLayout activeNav={dbPlayer.teamType === "first-team" ? "primer-equipo" : "equipos"}>
         <PlayerDetailPage player={dbPlayer} />
       </PublicSiteLayout>
     );
@@ -96,7 +88,7 @@ export default async function PlayerDetailRoute({
     const academyPlayer = academyMatches[0];
 
     return (
-      <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
+      <PublicSiteLayout activeNav="equipos">
         <PlayerDetailPage player={academyPlayer} />
       </PublicSiteLayout>
     );
@@ -106,7 +98,7 @@ export default async function PlayerDetailRoute({
     const playerName = academyMatches[0].name;
 
     return (
-      <PublicSiteLayout activeNav="equipos" debugDataSource={dataSource}>
+      <PublicSiteLayout activeNav="equipos">
         <section className="mx-auto w-full max-w-[1120px] px-5 py-14 md:px-8 md:py-18 xl:px-16">
           <div className="rr-panel max-w-2xl px-8 py-8">
             <p className="rr-kicker text-[color:var(--rr-gold)]">Ruta global</p>

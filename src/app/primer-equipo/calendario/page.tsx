@@ -31,7 +31,7 @@ export default async function FirstTeamCalendarPage() {
   const calendar = dbCalendar;
 
   return (
-    <PublicSiteLayout activeNav="primer-equipo" debugDataSource={{ source: "db", note: "primer-equipo" }}>
+    <PublicSiteLayout activeNav="primer-equipo">
       <div className="relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.1),transparent_56%)]" />
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />

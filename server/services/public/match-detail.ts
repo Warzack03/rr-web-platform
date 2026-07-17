@@ -4,6 +4,7 @@ import type {
   MatchDetailScorer,
   PlayerPerformance,
 } from "@/lib/public/match-detail-content";
+import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import {
   buildPlayerName,
@@ -342,9 +343,10 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
   const { match, statRows, assignments } = input;
   const isFirstTeam = match.seasonTeam.team.isFirstTeam;
   const status = mapPublicMatchStatus(match.status, isFirstTeam);
+  const teamDisplayName = getPublicTeamDisplayName(match.seasonTeam.publicName, isFirstTeam);
   const ownTeam = {
-    name: match.seasonTeam.publicName,
-    crestLabel: buildCrestLabel(match.seasonTeam.publicName),
+    name: teamDisplayName,
+    crestLabel: buildCrestLabel(teamDisplayName),
     isClub: true,
   };
   const opponentTeam = {
@@ -405,12 +407,12 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
     context: isFirstTeam
       ? undefined
       : {
-          teamName: match.seasonTeam.publicName,
+          teamName: teamDisplayName,
           season: match.season.name,
           backToCalendarHref: `/equipos/${match.seasonTeam.publicSlug}/calendario`,
           backToCalendarLabel: "Volver al calendario",
           backToTeamHref: `/equipos/${match.seasonTeam.publicSlug}`,
-          backToTeamLabel: `Volver a ${match.seasonTeam.publicName}`,
+          backToTeamLabel: `Volver a ${teamDisplayName}`,
         },
     previewNote: buildPreviewNote({
       status: match.status,
