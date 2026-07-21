@@ -5,7 +5,7 @@ import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { SquadPageTitle } from "@/components/public/squad-page-title";
 import { SquadSection } from "@/components/public/squad-section";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
-import { getAcademyPlayerHref } from "@/lib/public/player-profile-content";
+import { getGlobalPlayerHref } from "@/lib/public/player-routes";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
@@ -138,7 +138,7 @@ export default async function TeamSquadPage({
                       playerType={player.playerType}
                       stats={player.stats}
                       teamType="academy"
-                      href={getAcademyPlayerHref(teamSlug, player.slug)}
+                      href={getGlobalPlayerHref(player.slug)}
                       className="h-full"
                     />
                   ))}
@@ -174,7 +174,7 @@ export default async function TeamSquadPage({
                               playerType={player.playerType}
                               stats={player.stats}
                               teamType="academy"
-                              href={getAcademyPlayerHref(teamSlug, player.slug)}
+                              href={getGlobalPlayerHref(player.slug)}
                               className="h-full"
                             />
                           ))}

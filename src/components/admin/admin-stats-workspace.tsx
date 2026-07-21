@@ -5,12 +5,10 @@ import { startTransition, useEffect, useState } from "react";
 import { AlertTriangle, ShieldCheck, Target, Trophy, Users } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
-import { AdminCoachTeamSwitcher } from "@/components/admin/admin-coach-team-switcher";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { PlayerStatsMobileCard } from "@/components/admin/player-stats-mobile-card";
-import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import {
   cloneAdminStatsState,
@@ -33,20 +31,15 @@ import {
 } from "@/lib/admin/stats-management";
 import { saveAdminStatsAction } from "@/app/admin/(panel)/estadisticas/actions";
 import {
-  coachPreviewTeamSlugs,
   formatMatchDateLabel,
-  getCoachMatchVisualStatus,
   getVisualMatchStatus,
   type MatchManagementMatch,
   type MatchManagementTeam,
-  sortCoachMatchManagementMatches,
   sortMatchManagementMatches,
-} from "@/lib/admin/match-management-mocks";
-import type { AdminRole } from "@/lib/admin/roles";
+} from "@/lib/admin/match-management";
 import type { AdminStatsState } from "@/lib/admin/admin-stats";
 
 type AdminStatsWorkspaceProps = {
-  role: AdminRole;
   initialUiState?: "ready" | "error";
   initialSelectedTeamSlug?: string;
   initialSelectedMatchId?: string;
@@ -56,7 +49,6 @@ type AdminStatsWorkspaceProps = {
   initialPlayers: AdminStatsPlayerContext[];
   initialPlayerCatalog: AdminStatsCatalogPlayer[];
   initialStatsState: AdminStatsState;
-  coachTeamOptions: Array<{ slug: string; name: string }>;
 };
 
 type ScreenState = "loading" | "ready" | "error";
@@ -64,25 +56,6 @@ type MobileStatsSection = "outfield" | "goalkeepers";
 type MobileStatsViewMode = "list" | "focused";
 type MobilePlayerReviewState = "pending" | "reviewed" | "edited";
 type VisibleStatsPlayer = AdminStatsPlayerContext;
-
-function getInitialCoachTeamSlug(
-  options: Array<{ slug: string; name: string }>,
-  initialSelectedTeamSlug?: string,
-) {
-  if (options.some((option) => option.slug === initialSelectedTeamSlug)) {
-    return initialSelectedTeamSlug ?? options[0]?.slug ?? "";
-  }
-
-  if (
-    coachPreviewTeamSlugs.includes(
-      initialSelectedTeamSlug as (typeof coachPreviewTeamSlugs)[number],
-    )
-  ) {
-    return initialSelectedTeamSlug ?? options[0]?.slug ?? "";
-  }
-
-  return options[0]?.slug ?? "";
-}
 
 function getStatusBadge(status: "pending" | "live" | "played") {
   if (status === "live") {
@@ -160,7 +133,6 @@ function createGuestPlayerContext(
 }
 
 export function AdminStatsWorkspace({
-  role,
   initialUiState = "ready",
   initialSelectedTeamSlug,
   initialSelectedMatchId,
@@ -170,7 +142,6 @@ export function AdminStatsWorkspace({
   initialPlayers,
   initialPlayerCatalog,
   initialStatsState,
-  coachTeamOptions,
 }: AdminStatsWorkspaceProps) {
   const [screenState, setScreenState] = useState<ScreenState>("loading");
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
@@ -181,9 +152,6 @@ export function AdminStatsWorkspace({
   const [statsState, setStatsState] = useState(initialStatsState);
   const [savedStatsState, setSavedStatsState] = useState(initialStatsState);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
-  const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
-    getInitialCoachTeamSlug(coachTeamOptions, initialSelectedTeamSlug),
-  );
   const [requestedTeamSlug, setRequestedTeamSlug] = useState<string>(
     initialSelectedTeamSlug ?? "",
   );
@@ -217,28 +185,16 @@ export function AdminStatsWorkspace({
   }, [bannerMessage]);
 
   const teamNameBySlug = new Map(teams.map((team) => [team.slug, team.name]));
-  const currentCoachTeamOptions =
-    coachTeamOptions.length > 0
-      ? coachTeamOptions
-      : teams.map((team) => ({ slug: team.slug, name: team.name }));
-  const allowedTeams =
-    role === "COACH"
-      ? teams.filter((team) => team.slug === coachTeamSlug)
-      : teams;
+  const allowedTeams = teams;
   const resolvedTeamSlug =
-    role === "COACH"
-      ? coachTeamSlug
-      : allowedTeams.find((team) => team.slug === requestedTeamSlug)?.slug ??
-        allowedTeams[0]?.slug ??
-        "";
+    allowedTeams.find((team) => team.slug === requestedTeamSlug)?.slug ??
+    allowedTeams[0]?.slug ??
+    "";
   const selectedTeam = allowedTeams.find((team) => team.slug === resolvedTeamSlug);
   const rawMatches = allMatches.filter(
     (match) => match.teamSlug === resolvedTeamSlug && match.status === "played",
   );
-  const matches =
-    role === "COACH"
-      ? sortCoachMatchManagementMatches(rawMatches)
-      : sortMatchManagementMatches(rawMatches);
+  const matches = sortMatchManagementMatches(rawMatches);
   const selectedMatch =
     matches.find((match) => match.id === requestedMatchId) ?? matches[0];
   const visiblePlayerSeeds = allPlayers.filter((player) => player.teamSlug === resolvedTeamSlug);
@@ -266,11 +222,9 @@ export function AdminStatsWorkspace({
     originTeamName: player.originTeamName,
   }));
   const selectedMatchStatus = selectedMatch
-    ? role === "COACH"
-      ? getCoachMatchVisualStatus(selectedMatch)
-      : getVisualMatchStatus(selectedMatch.status)
+    ? getVisualMatchStatus(selectedMatch.status)
     : null;
-  const statusBadge = selectedMatchStatus ? getStatusBadge(selectedMatchStatus) : null;
+  const statusBadge = getStatusBadge(selectedMatchStatus ?? "pending");
   const goalkeepers = players.filter((player) => isGoalkeeperPlayer(player));
   const outfieldPlayers = players.filter((player) => !isGoalkeeperPlayer(player));
   const outfieldFields = getAdminStatFields({
@@ -542,7 +496,6 @@ export function AdminStatsWorkspace({
 
   function canChangeMatch(nextMatchId: string) {
     if (
-      role !== "COACH" ||
       nextMatchId === (selectedMatch?.id ?? "") ||
       pendingPlayerCount === 0
     ) {
@@ -574,12 +527,10 @@ export function AdminStatsWorkspace({
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
-        eyebrow={role === "COACH" ? "Partido y acumulado" : "Control de estadisticas"}
+        eyebrow="Control de estadisticas"
         title="Estadisticas"
         description={
-          role === "COACH"
-            ? "Elige el partido activo, marca quien ha jugado y carga sus stats. El acumulado y las medias se recalculan en la misma pantalla."
-            : "Selecciona equipo y partido activo para cargar la participacion y mantener visible el acumulado de temporada."
+          "Selecciona equipo y partido activo para cargar la participacion y mantener visible el acumulado de temporada."
         }
         actions={
           <Link
@@ -592,121 +543,6 @@ export function AdminStatsWorkspace({
       />
 
       {bannerMessage ? <AdminFeedbackBanner message={bannerMessage} /> : null}
-
-      {role === "COACH" ? (
-        <>
-          <AdminPanel className="p-4 sm:hidden">
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <p className="rr-kicker text-[color:var(--rr-gold)]">
-                  Flujo de entrenador
-                </p>
-                <p className="text-[0.98rem] font-semibold text-white">
-                  Partido activo y acumulado a la vista
-                </p>
-                <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-                  Carga quien ha jugado y que ha hecho, sin perder el total de temporada.
-                </p>
-              </div>
-
-              <AdminCoachTeamSwitcher
-                options={currentCoachTeamOptions}
-                value={coachTeamSlug}
-                onChange={(nextCoachTeamSlug) => {
-                  setCoachTeamSlug(nextCoachTeamSlug);
-                  resetReviewContext();
-                }}
-              />
-
-              <div className="grid gap-2">
-                <Link
-                  href={`/admin/partidos?team=${selectedTeam?.slug ?? ""}`}
-                  className="rr-button rr-button-secondary w-full justify-center text-[0.8rem]"
-                >
-                  Ver partidos
-                </Link>
-                <Link
-                  href={`/admin/clasificaciones?team=${selectedTeam?.slug ?? ""}`}
-                  className="rr-button rr-button-secondary w-full justify-center text-[0.8rem]"
-                >
-                  Editar clasificacion
-                </Link>
-              </div>
-            </div>
-          </AdminPanel>
-
-          <div className="hidden sm:block">
-            <AdminScopePanel
-              eyebrow="Flujo de entrenador"
-              title="Una carga por partido, una lectura acumulada"
-              description="Arriba eliges el partido que estas cerrando. Debajo decides quien ha jugado y ves a la vez el acumulado de temporada."
-              actions={
-                <>
-                  <Link
-                    href={`/admin/partidos?team=${selectedTeam?.slug ?? ""}`}
-                    className="rr-button rr-button-secondary text-[0.8rem]"
-                  >
-                    Ver partidos
-                  </Link>
-                  <Link
-                    href={`/admin/clasificaciones?team=${selectedTeam?.slug ?? ""}`}
-                    className="rr-button rr-button-secondary text-[0.8rem]"
-                  >
-                    Editar clasificacion
-                  </Link>
-                </>
-              }
-              aside={
-                <AdminCoachTeamSwitcher
-                  options={currentCoachTeamOptions}
-                  value={coachTeamSlug}
-                  onChange={(nextCoachTeamSlug) => {
-                    setCoachTeamSlug(nextCoachTeamSlug);
-                    resetReviewContext();
-                  }}
-                />
-              }
-            />
-          </div>
-        </>
-      ) : null}
-
-      {role === "COACH" && selectedMatch ? (
-        <AdminPanel className="hidden border-[rgba(243,203,69,0.24)] p-5 sm:block sm:p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Partido activo</p>
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-[1.12rem] font-semibold text-white sm:text-[1.25rem]">
-                  {selectedTeam?.name} vs {selectedMatch.opponentName}
-                </h2>
-                {statusBadge ? (
-                  <AdminStatusBadge
-                    label={statusBadge.label}
-                    tone={statusBadge.tone}
-                    pulse={statusBadge.pulse}
-                  />
-                ) : null}
-              </div>
-              <p className="text-[0.92rem] text-[color:var(--rr-muted)]">
-                {selectedMatch.matchday} · {formatMatchDateLabel(selectedMatch)} ·{" "}
-                {selectedMatch.venue}
-              </p>
-              <p className="text-[0.86rem] text-[color:var(--rr-muted)]">
-                {selectedMatchPlayedCount} de {players.length} jugadores marcados como participantes.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={saveStats}
-              className="rr-button rr-button-primary justify-center text-[0.82rem]"
-            >
-              Guardar estadisticas
-            </button>
-          </div>
-        </AdminPanel>
-      ) : null}
 
       <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         <AdminMetricCard
@@ -851,12 +687,8 @@ export function AdminStatsWorkspace({
                 </div>
               </div>
 
-              <div
-                className={`grid gap-4 ${
-                  role !== "COACH" ? "xl:grid-cols-[18rem_minmax(0,1fr)]" : ""
-                }`}
-              >
-                {role !== "COACH" ? (
+              <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]">
+                {true ? (
                   <label className="grid gap-2">
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                       Equipo
@@ -962,7 +794,7 @@ export function AdminStatsWorkspace({
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="rr-kicker text-[color:var(--rr-gold)]">
-                    {role === "COACH" ? "Carga por partido" : "Partido y temporada"}
+                    Partido y temporada
                   </p>
                   <h2 className="rr-display mt-2 text-[1.35rem] leading-[0.98] text-white sm:text-[1.85rem] sm:leading-[0.96]">
                     Participacion, acumulado y medias
@@ -974,9 +806,7 @@ export function AdminStatsWorkspace({
                 <button
                   type="button"
                   onClick={saveStats}
-                  className={`rr-button rr-button-primary text-[0.84rem] ${
-                    role === "COACH" ? "hidden lg:inline-flex" : ""
-                  }`}
+                  className="rr-button rr-button-primary text-[0.84rem]"
                 >
                   Guardar
                 </button>
@@ -1249,36 +1079,6 @@ export function AdminStatsWorkspace({
                   </section>
                 ) : null}
               </div>
-
-              {role === "COACH" ? (
-                <div className="sticky bottom-4 z-10">
-                  <div className="rounded-[12px] border border-[rgba(243,203,69,0.24)] bg-[rgba(10,18,31,0.96)] px-4 py-4 shadow-[0_12px_30px_rgba(0,0,0,0.22)]">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="text-[0.9rem] text-[color:var(--rr-muted)]">
-                        {hasUnsavedChanges
-                          ? "Hay cambios pendientes en este partido."
-                          : "Todo guardado. Puedes volver a partidos o clasificacion."}
-                      </div>
-
-                      <div className="flex flex-col gap-3 sm:flex-row">
-                        <Link
-                          href={`/admin/partidos?team=${selectedTeam?.slug ?? ""}`}
-                          className="rr-button rr-button-secondary text-[0.8rem]"
-                        >
-                          Volver a partidos
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={saveStats}
-                          className="rr-button rr-button-primary text-[0.8rem]"
-                        >
-                          Guardar estadisticas
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
             </div>
           </AdminPanel>
         </div>

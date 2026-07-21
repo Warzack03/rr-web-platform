@@ -2,7 +2,7 @@ import type {
   PublicPlayerProfile,
   PublicPlayerType,
   PublicTeamType,
-} from "@/lib/public/player-profile-content";
+} from "@/lib/public/player-profile-types";
 import type { TeamSectionNavLink } from "@/lib/public/team-section-links";
 
 export type StatSortKey =

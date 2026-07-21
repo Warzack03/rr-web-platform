@@ -23,21 +23,19 @@ import type { AdminMediaPickerItem } from "@/lib/admin/media-management";
 import {
   adminPlayerPositionOptions,
   type AdminPlayer,
-} from "@/lib/admin/mock-data";
+} from "@/lib/admin/player-management";
 import type { AdminManagedPlayer } from "@/lib/admin/player-management";
 import { slugifyPlayerName } from "@/lib/admin/player-management";
 import type {
   DominantFoot,
   PublicPlayerType,
-} from "@/lib/public/player-profile-content";
-import type { AdminRole } from "@/lib/admin/roles";
+} from "@/lib/public/player-profile-types";
 import { cn } from "@/lib/utils";
 
 type PlayerVisibilityFilter = "all" | "visible" | "hidden";
 type PlayerPositionFilter = "all" | AdminPlayer["position"];
 
 type AdminPlayersWorkspaceProps = {
-  role: AdminRole;
   initialPlayers: AdminManagedPlayer[];
   initialTeams: Array<{ slug: string; name: string }>;
   countryOptions: Array<{ value: string; label: string }>;
@@ -101,7 +99,6 @@ function labelClassName() {
 }
 
 export function AdminPlayersWorkspace({
-  role,
   initialPlayers,
   initialTeams,
   countryOptions,
@@ -122,7 +119,7 @@ export function AdminPlayersWorkspace({
   const [isSaving, setIsSaving] = useState(false);
   const [photoPickerOpen, setPhotoPickerOpen] = useState(false);
 
-  const canManageProfiles = role !== "COACH";
+  const canManageProfiles = true;
   const hasUnsavedChanges = JSON.stringify(players) !== JSON.stringify(savedPlayers);
 
   const filteredPlayers = useMemo(() => {

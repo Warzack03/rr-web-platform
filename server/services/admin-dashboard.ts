@@ -1,4 +1,4 @@
-import { ImportStatus, MatchStatus, NewsStatus } from "@prisma/client";
+import { MatchStatus, NewsStatus } from "@prisma/client";
 import { prisma } from "@/server/db/prisma";
 import { type AuthenticatedAdmin } from "@/server/auth/session";
 import {
@@ -32,27 +32,10 @@ export type AdminDashboardData = {
   missingStandingTablesCount: number;
   draftNewsCount: number | null;
   mediaCount: number | null;
-  lastImportLabel: string | null;
-  importReviewCount: number | null;
   assignedTeams: string[];
   upcomingMatches: DashboardMatch[];
   recentResults: DashboardResult[];
 };
-
-function mapImportStatusLabel(status: ImportStatus) {
-  switch (status) {
-    case ImportStatus.UPLOADED:
-      return "Subida";
-    case ImportStatus.VALIDATED:
-      return "Validada";
-    case ImportStatus.APPLIED:
-      return "Aplicada";
-    case ImportStatus.FAILED:
-      return "Fallida";
-    case ImportStatus.CANCELLED:
-      return "Cancelada";
-  }
-}
 
 export async function getAdminDashboardData(
   _user: AuthenticatedAdmin,
@@ -90,8 +73,6 @@ export async function getAdminDashboardData(
     draftNewsCount,
     mediaCount,
     visibleTeams,
-    lastImport,
-    importReviewCount,
     upcomingMatches,
     recentResults,
   ] = await Promise.all([
@@ -136,21 +117,6 @@ export async function getAdminDashboardData(
         publicName: true,
         competitionId: true,
         competitionName: true,
-      },
-    }),
-    prisma.importBatch.findFirst({
-      orderBy: { updatedAt: "desc" },
-      select: {
-        fileName: true,
-        status: true,
-      },
-    }),
-    prisma.importBatch.count({
-      where: {
-        ...(activeSeasonId ? { seasonId: activeSeasonId } : {}),
-        status: {
-          not: ImportStatus.APPLIED,
-        },
       },
     }),
     prisma.match.findMany({
@@ -229,10 +195,6 @@ export async function getAdminDashboardData(
     missingStandingTablesCount,
     draftNewsCount,
     mediaCount,
-    lastImportLabel: lastImport
-      ? `${lastImport.fileName ?? "importacion"} · ${mapImportStatusLabel(lastImport.status)}`
-      : null,
-    importReviewCount,
     assignedTeams: [],
     upcomingMatches: upcomingMatches.map((match) => ({
       id: match.id.toString(),

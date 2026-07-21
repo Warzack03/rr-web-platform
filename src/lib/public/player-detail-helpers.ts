@@ -2,7 +2,7 @@ import type {
   PublicPlayerStats,
   PublicPlayerStatsLevel,
   PublicPlayerType,
-} from "@/lib/public/player-profile-content";
+} from "@/lib/public/player-profile-types";
 
 export type PlayerStatTone = "default" | "warning" | "danger";
 export type PlayerStatIcon =

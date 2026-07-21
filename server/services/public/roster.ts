@@ -4,7 +4,7 @@ import type {
   PublicPlayerGroup,
   PublicPlayerStats,
   PublicPlayerType,
-} from "@/lib/public/player-profile-content";
+} from "@/lib/public/player-profile-types";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 import {

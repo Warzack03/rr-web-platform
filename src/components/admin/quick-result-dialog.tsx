@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Trophy, X } from "lucide-react";
 import { z } from "zod";
-import type { MatchManagementMatch } from "@/lib/admin/match-management-mocks";
+import type { MatchManagementMatch } from "@/lib/admin/match-management";
 
 type QuickResultDialogProps = {
   open: boolean;

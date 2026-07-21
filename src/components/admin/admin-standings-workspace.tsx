@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { startTransition, useEffect, useState } from "react";
 import {
   AlertTriangle,
@@ -12,12 +11,10 @@ import {
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
-import { AdminCoachTeamSwitcher } from "@/components/admin/admin-coach-team-switcher";
 import { EditableStandingTable } from "@/components/admin/editable-standing-table";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
-import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
 import {
   StandingsFilters,
   type StandingsFiltersValue,
@@ -32,20 +29,17 @@ import type {
   StandingManagementRow,
   StandingManagementTeam,
   StandingManagementTable,
-} from "@/lib/admin/standings-management-mocks";
+} from "@/lib/admin/standings-management";
 import {
   normalizeStandingTable,
-} from "@/lib/admin/standings-management-mocks";
-import type { AdminRole } from "@/lib/admin/roles";
+} from "@/lib/admin/standings-management";
 
 type AdminStandingsWorkspaceProps = {
-  role: AdminRole;
   initialUiState?: "ready" | "error";
   initialSelectedTeamSlug?: string;
   initialTables: StandingManagementTable[];
   initialTeams: StandingManagementTeam[];
   activeSeasonLabel?: string;
-  coachTeamOptions: Array<{ slug: string; name: string }>;
 };
 
 type ScreenState = "loading" | "ready" | "error";
@@ -82,17 +76,6 @@ function mergeTables(
 
 function createBanner(message: string, tone: BannerTone) {
   return { message, tone };
-}
-
-function getResolvedCoachTeamSlug(
-  options: Array<{ slug: string; name: string }>,
-  preferredSlug?: string,
-) {
-  if (preferredSlug && options.some((option) => option.slug === preferredSlug)) {
-    return preferredSlug;
-  }
-
-  return options[0]?.slug ?? "";
 }
 
 function getRowValidationErrors(row: StandingManagementRow, index: number) {
@@ -147,13 +130,11 @@ function getStandingRowErrorMap(standing: StandingManagementTable) {
 }
 
 export function AdminStandingsWorkspace({
-  role,
   initialUiState = "ready",
   initialSelectedTeamSlug,
   initialTables,
   initialTeams,
   activeSeasonLabel,
-  coachTeamOptions,
 }: AdminStandingsWorkspaceProps) {
   const [savedTables, setSavedTables] = useState(() =>
     sortStandingsManagementTables(initialTables),
@@ -167,30 +148,24 @@ export function AdminStandingsWorkspace({
     tone: BannerTone;
   } | null>(null);
   const [isPersisting, setIsPersisting] = useState(false);
-  const [coachTeamSlug, setCoachTeamSlug] = useState<string>(
-    getResolvedCoachTeamSlug(coachTeamOptions, initialSelectedTeamSlug),
-  );
   const [filters, setFilters] = useState<StandingsFiltersValue>(initialFilters);
 
   const mergedTables = mergeTables(savedTables, draftTables);
-  const allowedTeams =
-    role === "COACH"
-      ? initialTeams.filter((team) => team.slug === coachTeamSlug)
-      : initialTeams;
+  const allowedTeams = initialTeams;
   const allowedTeamSlugs = new Set(allowedTeams.map((team) => team.slug));
   const scopedTables = mergedTables.filter((table) =>
     allowedTeamSlugs.has(table.teamSlug),
   );
   const seasons = Array.from(new Set(scopedTables.map((table) => table.season)));
   const defaultTeamSlug =
-    (role === "COACH" ? allowedTeams[0]?.slug : initialSelectedTeamSlug) ??
+    initialSelectedTeamSlug ??
     allowedTeams[0]?.slug ??
     "";
   const competitions = Array.from(
     new Set(allowedTeams.map((team) => team.competition)),
   );
   const defaultCompetition = competitions[0] ?? "";
-  const canSelectByTeam = role !== "COACH" && allowedTeams.length > 1;
+  const canSelectByTeam = allowedTeams.length > 1;
   const activeFilters: StandingsFiltersValue = {
     selectionMode: canSelectByTeam ? filters.selectionMode : "competition",
     team:
@@ -257,7 +232,6 @@ export function AdminStandingsWorkspace({
   const teamsWithStandingCount = new Set(
     scopedTables.map((standing) => standing.teamSlug),
   ).size;
-  const selectedCoachTeam = allowedTeams[0];
 
   function pushBanner(message: string, tone: BannerTone = "success") {
     startTransition(() => setBanner(createBanner(message, tone)));
@@ -414,12 +388,10 @@ export function AdminStandingsWorkspace({
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
-        eyebrow={role === "COACH" ? "Tabla manual" : "Gestion manual"}
+        eyebrow="Gestion manual"
         title="Clasificaciones"
         description={
-          role === "COACH"
-            ? "Edita la tabla de tu equipo y guarda."
-            : "Gestion manual de tablas por equipo y competicion."
+          "Gestion manual de tablas por equipo y competicion."
         }
       />
 
@@ -427,40 +399,6 @@ export function AdminStandingsWorkspace({
         <AdminFeedbackBanner
           message={banner.message}
           tone={banner.tone === "danger" ? "danger" : "success"}
-        />
-      ) : null}
-
-      {role === "COACH" ? (
-        <AdminScopePanel
-          eyebrow="Flujo de entrenador"
-          title="Clasificacion compacta"
-          description="Actualiza PJ, G, E, P, GF y GC. El orden final se ajusta al guardar."
-          actions={
-            <>
-              <Link
-                href={`/admin/partidos?team=${selectedCoachTeam?.slug ?? ""}`}
-                className="rr-button rr-button-secondary text-[0.8rem]"
-              >
-                Ver partidos
-              </Link>
-              <Link
-                href={`/admin/estadisticas?team=${selectedCoachTeam?.slug ?? ""}`}
-                className="rr-button rr-button-secondary text-[0.8rem]"
-              >
-                Ir a estadisticas
-              </Link>
-            </>
-          }
-          aside={
-            <AdminCoachTeamSwitcher
-              options={coachTeamOptions}
-              value={coachTeamSlug}
-              onChange={(nextCoachTeamSlug) => {
-                setCoachTeamSlug(nextCoachTeamSlug);
-                setFilters(initialFilters);
-              }}
-            />
-          }
         />
       ) : null}
 
@@ -646,7 +584,7 @@ export function AdminStandingsWorkspace({
             standing={selectedStanding}
             validationErrors={validationErrors}
             rowErrors={rowErrors}
-            canToggleOwnTeam={role !== "COACH"}
+            canToggleOwnTeam
             onUpdateField={updateRowField}
             onToggleOwnTeam={toggleOwnTeam}
           />

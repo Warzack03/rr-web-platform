@@ -1,33 +1,27 @@
 "use client";
 
-import { ArrowUpRight, PenSquare, Trophy, Video } from "lucide-react";
+import { PenSquare, Trophy, Video } from "lucide-react";
 import { AdminListCard } from "@/components/admin/admin-list-card";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { AdminTable } from "@/components/admin/admin-table";
 import {
   formatMatchDateLabel,
-  getCoachMatchVisualStatus,
   getMatchLocationLabel,
   getMatchResultLabel,
   getVisualMatchStatus,
-  type CoachMatchVisualStatus,
   type MatchManagementMatch,
   type MatchVisualStatus,
-} from "@/lib/admin/match-management-mocks";
-import type { AdminRole } from "@/lib/admin/roles";
+} from "@/lib/admin/match-management";
 
 type MatchListProps = {
-  role: AdminRole;
   matches: MatchManagementMatch[];
   disabled?: boolean;
-  selectedMatchId?: string;
-  onViewMatch: (match: MatchManagementMatch) => void;
   onEdit: (match: MatchManagementMatch) => void;
   onQuickResult: (match: MatchManagementMatch) => void;
   onManageHighlights: (match: MatchManagementMatch) => void;
 };
 
-function getStatusBadgeProps(status: MatchVisualStatus | CoachMatchVisualStatus) {
+function getStatusBadgeProps(status: MatchVisualStatus) {
   switch (status) {
     case "live":
       return { label: "En vivo", tone: "danger" as const, pulse: true };
@@ -38,21 +32,13 @@ function getStatusBadgeProps(status: MatchVisualStatus | CoachMatchVisualStatus)
   }
 }
 
-function getCoachResultLabel(match: MatchManagementMatch) {
-  return getCoachMatchVisualStatus(match) === "played"
-    ? getMatchResultLabel(match)
-    : "Sin resultado";
-}
-
 function MatchActions({
-  role,
   match,
   disabled,
   onEdit,
   onQuickResult,
   onManageHighlights,
 }: {
-  role: AdminRole;
   match: MatchManagementMatch;
   disabled?: boolean;
   onEdit: (match: MatchManagementMatch) => void;
@@ -61,7 +47,7 @@ function MatchActions({
 }) {
   const visualStatus = getVisualMatchStatus(match.status);
   const canManageHighlights =
-    role !== "COACH" && match.isFirstTeam && visualStatus === "played";
+    match.isFirstTeam && visualStatus === "played";
 
   return (
     <div className="flex flex-wrap gap-2 lg:flex-nowrap">
@@ -103,22 +89,15 @@ function MatchActions({
 }
 
 export function MatchList({
-  role,
   matches,
   disabled,
-  selectedMatchId,
-  onViewMatch,
   onEdit,
   onQuickResult,
   onManageHighlights,
 }: MatchListProps) {
-  const isCoach = role === "COACH";
   const rows = matches.map((match) => {
-    const visualStatus = isCoach
-      ? getCoachMatchVisualStatus(match)
-      : getVisualMatchStatus(match.status);
+    const visualStatus = getVisualMatchStatus(match.status);
     const statusBadge = getStatusBadgeProps(visualStatus);
-    const isSelected = match.id === selectedMatchId;
 
     return {
       date: (
@@ -157,27 +136,11 @@ export function MatchList({
       ),
       result: (
         <div>
-          <p>{isCoach ? getCoachResultLabel(match) : getMatchResultLabel(match)}</p>
+          <p>{getMatchResultLabel(match)}</p>
         </div>
       ),
-      actions: isCoach ? (
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => onViewMatch(match)}
-            className={
-              isSelected
-                ? "rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
-                : "rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
-            }
-          >
-            <ArrowUpRight className="h-3.5 w-3.5" />
-            Ver partido
-          </button>
-        </div>
-      ) : (
+      actions: (
         <MatchActions
-          role={role}
           match={match}
           disabled={disabled}
           onEdit={onEdit}
@@ -192,11 +155,8 @@ export function MatchList({
     <>
       <div className="grid gap-3 lg:hidden">
         {matches.map((match) => {
-          const visualStatus = isCoach
-            ? getCoachMatchVisualStatus(match)
-            : getVisualMatchStatus(match.status);
+          const visualStatus = getVisualMatchStatus(match.status);
           const statusBadge = getStatusBadgeProps(visualStatus);
-          const isSelected = match.id === selectedMatchId;
 
           return (
             <AdminListCard
@@ -212,7 +172,7 @@ export function MatchList({
                     pulse={statusBadge.pulse}
                   />
                   <AdminStatusBadge
-                    label={isCoach ? getCoachResultLabel(match) : getMatchResultLabel(match)}
+                    label={getMatchResultLabel(match)}
                     tone="blue"
                   />
                   {!match.date ? (
@@ -228,33 +188,13 @@ export function MatchList({
                   <p>{match.matchday}</p>
                 </div>
 
-                  {isCoach ? (
-                    <div className="flex flex-col gap-3">
-                      <button
-                        type="button"
-                        onClick={() => onViewMatch(match)}
-                        disabled={disabled}
-                        className="rr-button rr-button-primary w-full justify-center text-[0.8rem]"
-                      >
-                        <ArrowUpRight className="h-4 w-4" />
-                        Ver partido
-                      </button>
-                      {isSelected ? (
-                        <p className="text-[0.82rem] text-[color:var(--rr-gold)]">
-                          Partido abierto abajo.
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : (
-                    <MatchActions
-                      role={role}
-                      match={match}
-                      disabled={disabled}
-                      onEdit={onEdit}
-                      onQuickResult={onQuickResult}
-                      onManageHighlights={onManageHighlights}
-                    />
-                  )}
+                  <MatchActions
+                    match={match}
+                    disabled={disabled}
+                    onEdit={onEdit}
+                    onQuickResult={onQuickResult}
+                    onManageHighlights={onManageHighlights}
+                  />
                 </div>
               }
             />

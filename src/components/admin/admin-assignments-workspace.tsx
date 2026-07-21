@@ -27,7 +27,7 @@ import type {
   AdminAssignmentTeam,
   AdminManagedAssignment,
 } from "@/lib/admin/assignment-management";
-import { adminPlayerPositionOptions } from "@/lib/admin/mock-data";
+import { adminPlayerPositionOptions } from "@/lib/admin/player-management";
 import { cn } from "@/lib/utils";
 
 type AssignmentIssue = {

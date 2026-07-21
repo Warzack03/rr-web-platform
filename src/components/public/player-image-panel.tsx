@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Shield } from "lucide-react";
-import type { PublicPlayerProfile } from "@/lib/public/player-profile-content";
+import type { PublicPlayerProfile } from "@/lib/public/player-profile-types";
 
 type PlayerImagePanelProps = {
   player: PublicPlayerProfile;

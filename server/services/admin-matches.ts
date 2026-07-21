@@ -4,7 +4,7 @@ import type {
   MatchManagementOpponent,
   MatchManagementTeam,
   MatchManagementVenue,
-} from "@/lib/admin/match-management-mocks";
+} from "@/lib/admin/match-management";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 
@@ -14,7 +14,6 @@ export type AdminMatchesScreenData = {
   matches: MatchManagementMatch[];
   opponentOptions: MatchManagementOpponent[];
   venueOptions: MatchManagementVenue[];
-  coachTeamOptions: Array<{ slug: string; name: string }>;
 };
 
 type ScopedSeasonTeam = {
@@ -164,7 +163,6 @@ export async function getAdminMatchesScreenData(
       matches: [],
       opponentOptions: [],
       venueOptions: [],
-      coachTeamOptions: [],
     };
   }
 
@@ -290,9 +288,5 @@ export async function getAdminMatchesScreenData(
     matches: mappedMatches,
     opponentOptions,
     venueOptions,
-    coachTeamOptions: mappedTeams.map((team) => ({
-      slug: team.slug,
-      name: team.name,
-    })),
   };
 }

@@ -1,5 +1,5 @@
-import type { MatchManagementMatch } from "@/lib/admin/match-management-mocks";
-import type { AdminPlayer } from "@/lib/admin/mock-data";
+import type { MatchManagementMatch } from "@/lib/admin/match-management";
+import type { AdminPlayer } from "@/lib/admin/player-management";
 import type { PlayerStatIcon as PlayerStatIconType } from "@/lib/public/player-detail-helpers";
 
 export type AdminStatFieldKey =

@@ -5,7 +5,7 @@ import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { SquadPageTitle } from "@/components/public/squad-page-title";
 import { SquadSection } from "@/components/public/squad-section";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
-import { getFirstTeamPlayerHref } from "@/lib/public/first-team-squad-content";
+import { getGlobalPlayerHref } from "@/lib/public/player-routes";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
 
@@ -84,7 +84,7 @@ export default async function FirstTeamSquadPage() {
                     playerType={player.playerType}
                     stats={player.stats}
                     teamType="first-team"
-                    href={getFirstTeamPlayerHref(player.slug)}
+                    href={getGlobalPlayerHref(player.slug)}
                     className="h-full"
                   />
                 ))}
@@ -116,7 +116,7 @@ export default async function FirstTeamSquadPage() {
                             playerType={player.playerType}
                             stats={player.stats}
                             teamType="first-team"
-                            href={getFirstTeamPlayerHref(player.slug)}
+                            href={getGlobalPlayerHref(player.slug)}
                             className="h-full"
                           />
                         ))}

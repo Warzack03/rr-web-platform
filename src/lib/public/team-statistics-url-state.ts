@@ -1,4 +1,4 @@
-import type { PublicPlayerType, PublicTeamType } from "@/lib/public/player-profile-content";
+import type { PublicPlayerType, PublicTeamType } from "@/lib/public/player-profile-types";
 import {
   getStatsColumns,
   type SortDirection,

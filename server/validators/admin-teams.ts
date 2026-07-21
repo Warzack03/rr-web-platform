@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { teamCoachRoleOptions } from "@/lib/admin/team-management-mocks";
+import { teamCoachRoleOptions } from "@/lib/admin/team-management";
 
 const mediaReferenceSchema = z
   .string()

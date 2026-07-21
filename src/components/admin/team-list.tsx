@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Eye,
   EyeOff,
@@ -13,12 +12,10 @@ import { AdminListCard } from "@/components/admin/admin-list-card";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { AdminTable } from "@/components/admin/admin-table";
 import { TeamVisibilityBadge } from "@/components/admin/team-visibility-badge";
-import type { AdminRole } from "@/lib/admin/roles";
-import type { TeamManagementTeam } from "@/lib/admin/team-management-mocks";
+import type { TeamManagementTeam } from "@/lib/admin/team-management";
 import { cn } from "@/lib/utils";
 
 type TeamListProps = {
-  role: AdminRole;
   teams: TeamManagementTeam[];
   disabled?: boolean;
   onEdit: (team: TeamManagementTeam) => void;
@@ -28,7 +25,6 @@ type TeamListProps = {
 };
 
 function TeamActions({
-  role,
   team,
   disabled,
   onEdit,
@@ -36,7 +32,6 @@ function TeamActions({
   onToggleActive,
   onToggleVisibility,
 }: {
-  role: AdminRole;
   team: TeamManagementTeam;
   disabled?: boolean;
   onEdit: (team: TeamManagementTeam) => void;
@@ -46,37 +41,6 @@ function TeamActions({
 }) {
   const iconButtonClassName =
     "inline-flex h-9 w-9 items-center justify-center rounded-[14px] border border-white/10 bg-white/5 text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.26)] hover:text-white";
-
-  if (role === "COACH") {
-    return (
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href={`/admin/partidos?team=${team.slug}`}
-            className="rr-button rr-button-primary min-h-9 px-3 text-[0.78rem]"
-          >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Abrir partidos del equipo
-          </Link>
-        </div>
-
-        <div className="flex flex-wrap gap-x-4 gap-y-2 text-[0.82rem] text-[color:var(--rr-muted)]">
-          <Link
-            href={`/admin/clasificaciones?team=${team.slug}`}
-            className="inline-flex items-center gap-2 transition hover:text-white"
-          >
-            Consultar clasificacion
-          </Link>
-          <Link
-            href={`/admin/estadisticas?team=${team.slug}`}
-            className="inline-flex items-center gap-2 transition hover:text-white"
-          >
-            Consultar estadisticas
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-w-fit flex-nowrap items-center gap-2">
@@ -163,7 +127,6 @@ function TeamCoachSummary({
 }
 
 export function TeamList({
-  role,
   teams,
   disabled,
   onEdit,
@@ -196,7 +159,6 @@ export function TeamList({
     coaches: <TeamCoachSummary team={team} />,
     actions: (
       <TeamActions
-        role={role}
         team={team}
         disabled={disabled}
         onEdit={onEdit}
@@ -227,9 +189,6 @@ export function TeamList({
                   label={team.isFirstTeam ? "Primer Equipo" : "Cantera"}
                   tone={team.isFirstTeam ? "blue" : "slate"}
                 />
-                {role === "COACH" ? (
-                  <AdminStatusBadge label="Consulta" tone="slate" />
-                ) : null}
               </>
             }
             footer={
@@ -240,14 +199,8 @@ export function TeamList({
                   {team.visibleCoaches.length > 0 ? (
                     <p className="mt-2">{team.visibleCoaches.join(" - ")}</p>
                   ) : null}
-                  {role === "COACH" ? (
-                    <p className="mt-2">
-                      Solo consultas contexto. Para actuar, salta a partidos, clasificacion o estadisticas.
-                    </p>
-                  ) : null}
                 </div>
                 <TeamActions
-                  role={role}
                   team={team}
                   disabled={disabled}
                   onEdit={onEdit}

@@ -4,7 +4,7 @@ import { Plus, Trash2 } from "lucide-react";
 import type {
   TeamCoachRoleLabel,
   TeamManagementCoach,
-} from "@/lib/admin/team-management-mocks";
+} from "@/lib/admin/team-management";
 
 type TeamCoachEditorProps = {
   coaches: TeamManagementCoach[];

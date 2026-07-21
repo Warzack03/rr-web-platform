@@ -1,5 +1,4 @@
 import { AdminTeamsWorkspace } from "@/components/admin/admin-teams-workspace";
-import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminMediaPickerOptions } from "@/server/services/admin-media";
 import { getAdminTeamsScreenData } from "@/server/services/admin-teams";
@@ -28,7 +27,6 @@ export default async function AdminTeamsPage({
   return (
     <AdminTeamsWorkspace
       key={`${user.idString}-${initialUiState}`}
-      role={toAdminRole(user.role)}
       initialTeams={data.teams}
       seasonOptions={data.seasonOptions}
       categoryOptions={data.categoryOptions}

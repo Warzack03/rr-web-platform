@@ -5,7 +5,6 @@ import { X } from "lucide-react";
 import { z } from "zod";
 import { MatchStatusSelector } from "@/components/admin/match-status-selector";
 import {
-  getCoachMatchVisualStatus,
   getNextMatchdaySuggestion,
   getStoredMatchStatus,
   getVisualMatchStatus,
@@ -14,13 +13,11 @@ import {
   type MatchManagementTeam,
   type MatchManagementVenue,
   type MatchVisualStatus,
-} from "@/lib/admin/match-management-mocks";
-import type { AdminRole } from "@/lib/admin/roles";
+} from "@/lib/admin/match-management";
 
 type MatchFormDialogProps = {
   open: boolean;
   mode: "create" | "edit";
-  role: AdminRole;
   match?: MatchManagementMatch;
   availableTeams: MatchManagementTeam[];
   existingMatches: MatchManagementMatch[];
@@ -93,10 +90,7 @@ function createDefaultState(
   };
 }
 
-function createStateFromMatch(
-  match: MatchManagementMatch,
-  role: AdminRole,
-): MatchFormState {
+function createStateFromMatch(match: MatchManagementMatch): MatchFormState {
   return {
     teamSlug: match.teamSlug,
     season: match.season,
@@ -108,9 +102,7 @@ function createStateFromMatch(
     time: match.time,
     venue: match.venue,
     status:
-      role === "COACH"
-        ? getCoachMatchVisualStatus(match)
-        : getVisualMatchStatus(match.status),
+      getVisualMatchStatus(match.status),
     ownScore: match.ownScore === null ? "" : String(match.ownScore),
     opponentScore: match.opponentScore === null ? "" : String(match.opponentScore),
     highlightsUrl: match.highlightsUrl ?? "",
@@ -132,7 +124,6 @@ function parseScore(value: string) {
 export function MatchFormDialog({
   open,
   mode,
-  role,
   match,
   availableTeams,
   existingMatches,
@@ -145,7 +136,7 @@ export function MatchFormDialog({
 }: MatchFormDialogProps) {
   const [formState, setFormState] = useState<MatchFormState>(() =>
     match
-      ? createStateFromMatch(match, role)
+      ? createStateFromMatch(match)
       : createDefaultState(availableTeams, existingMatches, venueOptions),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -156,10 +147,9 @@ export function MatchFormDialog({
 
   const selectedTeam =
     availableTeams.find((team) => team.slug === formState.teamSlug) ?? availableTeams[0];
-  const canManageHighlights = role !== "COACH" && selectedTeam?.isFirstTeam;
-  const allowLiveStatus = role !== "COACH" && Boolean(selectedTeam?.isFirstTeam);
-  const lockTeam = role === "COACH" || availableTeams.length <= 1;
-  const isCoach = role === "COACH";
+  const canManageHighlights = selectedTeam?.isFirstTeam;
+  const allowLiveStatus = Boolean(selectedTeam?.isFirstTeam);
+  const lockTeam = availableTeams.length <= 1;
   const filteredOpponentOptions = opponentOptions.filter(
     (opponent) => opponent.competition === selectedTeam?.competition,
   );
@@ -325,17 +315,11 @@ export function MatchFormDialog({
             <div>
               <h2 className="rr-display text-[2.1rem] leading-[1] text-white sm:text-[2.35rem]">
                 {mode === "create"
-                  ? isCoach
-                    ? "Proximo partido"
-                    : "Crear partido"
-                  : isCoach
-                    ? `Previa de ${selectedTeam?.name ?? "tu equipo"}`
-                    : `${selectedTeam?.name ?? "Partido"} vs ${match?.opponentName ?? ""}`}
+                  ? "Crear partido"
+                  : `${selectedTeam?.name ?? "Partido"} vs ${match?.opponentName ?? ""}`}
               </h2>
               <p className="mt-2 max-w-xl text-[0.94rem] leading-5 text-[color:var(--rr-muted)]">
-                {isCoach
-                  ? "Completa rival, fecha, campo y estado sin salir del flujo movil."
-                  : "Ajusta calendario, previa y resultado desde el mismo flujo operativo."}
+                Ajusta calendario, previa y resultado desde el mismo flujo operativo.
               </p>
             </div>
           </div>
@@ -352,12 +336,6 @@ export function MatchFormDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 px-5 py-5 sm:px-6 sm:py-6">
-          {isCoach ? (
-            <div className="rounded-[16px] border border-[rgba(243,203,69,0.24)] bg-[rgba(243,203,69,0.08)] px-4 py-3 text-[0.9rem] text-[color:var(--rr-muted)]">
-              Equipo activo: <span className="font-semibold text-white">{selectedTeam?.name ?? "Equipo asignado"}</span>
-            </div>
-          ) : null}
-
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {lockTeam ? (
               <div className="grid gap-2 md:col-span-2">
@@ -386,37 +364,33 @@ export function MatchFormDialog({
               </label>
             )}
 
-            {!isCoach ? (
-              <label className="grid gap-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Temporada</span>
-                <select
-                  value={formState.season}
-                  onChange={(event) => updateField("season", event.target.value)}
-                  className={fieldClassName}
-                >
-                  {seasons.map((season) => (
-                    <option key={season} value={season}>
-                      {season}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
+            <label className="grid gap-2">
+              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Temporada</span>
+              <select
+                value={formState.season}
+                onChange={(event) => updateField("season", event.target.value)}
+                className={fieldClassName}
+              >
+                {seasons.map((season) => (
+                  <option key={season} value={season}>
+                    {season}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-            {!isCoach ? (
-              <div className="grid gap-2">
-                <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Competicion</span>
-                <div
-                  className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.04] px-3 text-[color:var(--rr-muted)] opacity-80"
-                  aria-label="Competicion asignada automaticamente"
-                >
-                  {formState.competition}
-                </div>
-                {errors.competition ? (
-                  <span className="text-[0.82rem] text-[#ff8d8d]">{errors.competition}</span>
-                ) : null}
+            <div className="grid gap-2">
+              <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Competicion</span>
+              <div
+                className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.04] px-3 text-[color:var(--rr-muted)] opacity-80"
+                aria-label="Competicion asignada automaticamente"
+              >
+                {formState.competition}
               </div>
-            ) : null}
+              {errors.competition ? (
+                <span className="text-[0.82rem] text-[#ff8d8d]">{errors.competition}</span>
+              ) : null}
+            </div>
 
             <label className="grid gap-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Jornada</span>
@@ -593,9 +567,7 @@ export function MatchFormDialog({
 
           <div className="flex flex-col gap-3 border-t border-[rgba(255,255,255,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[0.88rem] text-[color:var(--rr-muted)]">
-              {isCoach
-                ? "Guarda la previa o el cambio de estado y vuelve a la jornada."
-                : "Los cambios se guardan sobre el calendario real del backoffice."}
+              Los cambios se guardan sobre el calendario real del backoffice.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -614,12 +586,8 @@ export function MatchFormDialog({
               >
                 {mode === "create"
                   ? isSaving
-                    ? isCoach
-                      ? "Guardando..."
-                      : "Creando..."
-                    : isCoach
-                      ? "Guardar partido"
-                      : "Crear partido"
+                    ? "Creando..."
+                    : "Crear partido"
                   : isSaving
                     ? "Guardando..."
                     : "Guardar cambios"}

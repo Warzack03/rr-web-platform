@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { DominantFoot } from "@/lib/public/player-profile-content";
+import type { DominantFoot } from "@/lib/public/player-profile-types";
 
 type DominantFootIndicatorProps = {
   foot: DominantFoot;

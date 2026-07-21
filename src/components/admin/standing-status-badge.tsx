@@ -1,5 +1,5 @@
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
-import type { StandingPublicationStatus } from "@/lib/admin/standings-management-mocks";
+import type { StandingPublicationStatus } from "@/lib/admin/standings-management";
 
 type StandingStatusBadgeProps = {
   status: StandingPublicationStatus;

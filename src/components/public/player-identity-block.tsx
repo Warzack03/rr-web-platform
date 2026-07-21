@@ -1,4 +1,4 @@
-import type { PublicPlayerProfile } from "@/lib/public/player-profile-content";
+import type { PublicPlayerProfile } from "@/lib/public/player-profile-types";
 import { getCountryFlagEmoji } from "@/lib/public/country-flags";
 
 type PlayerIdentityBlockProps = {

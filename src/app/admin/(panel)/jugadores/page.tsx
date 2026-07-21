@@ -1,5 +1,4 @@
 import { AdminPlayersWorkspace } from "@/components/admin/admin-players-workspace";
-import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminMediaPickerOptions } from "@/server/services/admin-media";
 import { getAdminPlayersScreenData } from "@/server/services/admin-players";
@@ -29,7 +28,6 @@ export default async function AdminPlayersPage({
 
   return (
     <AdminPlayersWorkspace
-      role={toAdminRole(user.role)}
       initialPlayers={data.players}
       initialTeams={data.teams}
       countryOptions={data.countryOptions}

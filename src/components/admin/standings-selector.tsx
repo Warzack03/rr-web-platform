@@ -5,7 +5,7 @@ import { StandingStatusBadge } from "@/components/admin/standing-status-badge";
 import {
   formatStandingUpdatedLabel,
   type StandingManagementTable,
-} from "@/lib/admin/standings-management-mocks";
+} from "@/lib/admin/standings-management";
 import { cn } from "@/lib/utils";
 
 type StandingsSelectorProps = {

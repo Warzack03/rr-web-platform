@@ -3,7 +3,7 @@ import type {
   PublicPlayerGroup,
   PublicPlayerStats,
   PublicPlayerType,
-} from "@/lib/public/player-profile-content";
+} from "@/lib/public/player-profile-types";
 
 export const COUNTRY_LABELS: Record<string, string> = {
   ES: "Espana",

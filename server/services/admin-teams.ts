@@ -1,6 +1,6 @@
 import { MatchStatus } from "@prisma/client";
-import type { TeamManagementTeam } from "@/lib/admin/team-management-mocks";
-import { normalizeTeamManagementTeam } from "@/lib/admin/team-management-mocks";
+import type { TeamManagementTeam } from "@/lib/admin/team-management";
+import { normalizeTeamManagementTeam } from "@/lib/admin/team-management";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 

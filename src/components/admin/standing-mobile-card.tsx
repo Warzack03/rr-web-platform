@@ -2,7 +2,7 @@
 
 import { Minus, Plus, Star } from "lucide-react";
 import { AdminPanel } from "@/components/admin/admin-panel";
-import type { StandingManagementRow } from "@/lib/admin/standings-management-mocks";
+import type { StandingManagementRow } from "@/lib/admin/standings-management";
 import { cn } from "@/lib/utils";
 
 type StandingMobileCardProps = {

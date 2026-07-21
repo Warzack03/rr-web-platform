@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { MatchVisualStatus } from "@/lib/admin/match-management-mocks";
+import type { MatchVisualStatus } from "@/lib/admin/match-management";
 
 type MatchStatusSelectorProps = {
   value: MatchVisualStatus;

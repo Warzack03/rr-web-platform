@@ -2,7 +2,7 @@ import type {
   StandingManagementRow,
   StandingManagementTable,
   StandingManagementTeam,
-} from "@/lib/admin/standings-management-mocks";
+} from "@/lib/admin/standings-management";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 import {
@@ -14,7 +14,6 @@ export type AdminStandingsScreenData = {
   activeSeasonName: string | null;
   teams: StandingManagementTeam[];
   tables: StandingManagementTable[];
-  coachTeamOptions: Array<{ slug: string; name: string }>;
 };
 
 export type AdminScopedStandingTeam = StandingScopeTeamRef & {
@@ -149,7 +148,6 @@ export async function getAdminStandingsScreenData(
       activeSeasonName: null,
       teams: [],
       tables: [],
-      coachTeamOptions: [],
     };
   }
 
@@ -317,9 +315,5 @@ export async function getAdminStandingsScreenData(
     activeSeasonName: activeSeason.name,
     teams: mappedTeams,
     tables: mappedTables,
-    coachTeamOptions: mappedTeams.map((team) => ({
-      slug: team.slug,
-      name: team.name,
-    })),
   };
 }

@@ -4,7 +4,7 @@ import { Minus, Plus, Star } from "lucide-react";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { StandingMobileCard } from "@/components/admin/standing-mobile-card";
 import { StandingStatusBadge } from "@/components/admin/standing-status-badge";
-import type { StandingManagementTable } from "@/lib/admin/standings-management-mocks";
+import type { StandingManagementTable } from "@/lib/admin/standings-management";
 import { cn } from "@/lib/utils";
 
 type EditableStandingTableProps = {

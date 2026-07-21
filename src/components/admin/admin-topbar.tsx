@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { AdminNavItem } from "@/server/auth/permissions";
 
@@ -64,6 +65,15 @@ export function AdminTopbar({ navItems }: AdminTopbarProps) {
               <span className="hidden sm:inline">Ver publico</span>
               <ArrowUpRight className="h-4 w-4 text-[color:var(--rr-gold)]" />
             </Link>
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/admin/login" })}
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[color:var(--rr-muted)] transition hover:border-[rgba(243,203,69,0.28)] hover:bg-[rgba(243,203,69,0.08)] hover:text-white sm:w-auto sm:gap-2 sm:px-4"
+              aria-label="Cerrar sesion"
+            >
+              <span className="hidden sm:inline">Cerrar sesion</span>
+              <LogOut className="h-4 w-4 text-[color:var(--rr-gold)]" />
+            </button>
           </div>
         </div>
       </div>

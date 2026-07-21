@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
 import {
   AlertTriangle,
@@ -9,15 +8,12 @@ import {
   Layers3,
   Plus,
   ShieldCheck,
-  Users,
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
-import { AdminScopePanel } from "@/components/admin/admin-scope-panel";
-import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import {
   saveTeamAction,
   toggleTeamActiveAction,
@@ -30,11 +26,9 @@ import {
 import { TeamFormDialog } from "@/components/admin/team-form-dialog";
 import { TeamList } from "@/components/admin/team-list";
 import type { AdminMediaPickerItem } from "@/lib/admin/media-management";
-import type { AdminRole } from "@/lib/admin/roles";
-import type { TeamManagementTeam } from "@/lib/admin/team-management-mocks";
+import type { TeamManagementTeam } from "@/lib/admin/team-management";
 
 type AdminTeamsWorkspaceProps = {
-  role: AdminRole;
   initialTeams: TeamManagementTeam[];
   seasonOptions: string[];
   categoryOptions: string[];
@@ -66,7 +60,6 @@ function sortTeams(teams: TeamManagementTeam[]) {
 }
 
 export function AdminTeamsWorkspace({
-  role,
   initialTeams,
   seasonOptions,
   categoryOptions,
@@ -157,13 +150,10 @@ export function AdminTeamsWorkspace({
   const visibleTeams = teams.filter((team) => team.publicVisible).length;
   const activeTeams = teams.filter((team) => team.active).length;
   const academyTeams = teams.filter((team) => !team.isFirstTeam).length;
-  const selectedCoachTeam = teams[0];
   const selectedTeam =
     dialogState && "teamId" in dialogState
       ? teams.find((team) => team.id === dialogState.teamId)
       : undefined;
-
-  const canManageTeams = role !== "COACH";
 
   function pushBanner(message: string) {
     startTransition(() => setBannerMessage(message));
@@ -258,15 +248,11 @@ export function AdminTeamsWorkspace({
   return (
     <div className="space-y-6 lg:space-y-8">
       <AdminPageHeader
-        eyebrow={role === "COACH" ? "Solo consulta" : "Estructura deportiva"}
-        title={role === "COACH" ? "Mi equipo" : "Equipos"}
-        description={
-          role === "COACH"
-            ? "Consulta el contexto publico y deportivo de tu equipo. Desde aqui no editas estructura global: solo revisas contexto y saltas al modulo que toca."
-            : "Controla visibilidad, entrenadores y contexto deportivo sin salir del patron operativo del backoffice."
-        }
+        eyebrow="Estructura deportiva"
+        title="Equipos"
+        description="Controla visibilidad, entrenadores y contexto deportivo."
         actions={
-          canManageTeams ? (
+          (
             <button
               type="button"
               onClick={openCreateDialog}
@@ -276,76 +262,13 @@ export function AdminTeamsWorkspace({
               <Plus className="h-4 w-4" />
               Crear equipo
             </button>
-          ) : undefined
+          )
         }
       />
 
       {bannerMessage ? <AdminFeedbackBanner message={bannerMessage} /> : null}
 
-      {role === "COACH" ? (
-        <AdminScopePanel
-          eyebrow="Consulta de entrenador"
-          title="Solo contexto de tu equipo"
-          description="Revisa identidad publica, entrenadores visibles y estado general del equipo. Para actuar, salta a partidos, clasificacion o estadisticas."
-          actions={
-            <>
-              <Link
-                href="/admin/partidos"
-                className="rr-button rr-button-secondary text-[0.8rem]"
-              >
-                Abrir partidos del equipo
-              </Link>
-              <Link
-                href="/admin/clasificaciones"
-                className="rr-button rr-button-secondary text-[0.8rem]"
-              >
-                Consultar clasificacion
-              </Link>
-              <Link
-                href="/admin/estadisticas"
-                className="rr-button rr-button-secondary text-[0.8rem]"
-              >
-                Consultar estadisticas
-              </Link>
-            </>
-          }
-          aside={
-            <div className="rounded-[16px] border border-white/10 bg-white/5 px-4 py-3">
-              <AdminStatusBadge label="Solo consulta" tone="slate" />
-              <p className="mt-2 text-[0.84rem] leading-5 text-[color:var(--rr-muted)]">
-                Sin cambios de estructura, visibilidad o entrenadores desde esta vista.
-              </p>
-            </div>
-          }
-        />
-      ) : null}
-
-      {role === "COACH" ? (
-        <div className="grid gap-4 md:grid-cols-3">
-          <AdminMetricCard
-            label="Estado web"
-            value={selectedCoachTeam?.publicVisible ? "Visible" : "Oculto"}
-            detail="Como aparece ahora mismo en la web"
-            tone={selectedCoachTeam?.publicVisible ? "gold" : "danger"}
-            icon={<Eye className="h-5 w-5" />}
-          />
-          <AdminMetricCard
-            label="Estado interno"
-            value={selectedCoachTeam?.active ? "Activo" : "Inactivo"}
-            detail="Disponibilidad deportiva del equipo"
-            tone={selectedCoachTeam?.active ? "blue" : "danger"}
-            icon={<ShieldCheck className="h-5 w-5" />}
-          />
-          <AdminMetricCard
-            label="Entrenadores visibles"
-            value={selectedCoachTeam?.visibleCoaches.length.toString() ?? "0"}
-            detail={selectedCoachTeam?.primaryCoach ?? "Sin entrenador visible"}
-            tone="blue"
-            icon={<Users className="h-5 w-5" />}
-          />
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminMetricCard
             label="Total equipos"
             value={totalTeams.toString()}
@@ -373,11 +296,9 @@ export function AdminTeamsWorkspace({
             tone="gold"
             icon={<FolderKanban className="h-5 w-5" />}
           />
-        </div>
-      )}
+      </div>
 
-      {role !== "COACH" ? (
-        <TeamFilters
+      <TeamFilters
           value={filters}
           seasons={seasons}
           branches={branches}
@@ -385,13 +306,11 @@ export function AdminTeamsWorkspace({
           filteredTeams={filteredTeams.length}
           onChange={setFilters}
           onReset={() => setFilters(initialFilters)}
-        />
-      ) : null}
+      />
 
       {screenState === "loading" ? (
         <div className="space-y-4">
-          {role !== "COACH" ? (
-            <AdminPanel className="p-5">
+          <AdminPanel className="p-5">
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div
@@ -400,10 +319,9 @@ export function AdminTeamsWorkspace({
                   />
                 ))}
               </div>
-            </AdminPanel>
-          ) : null}
+          </AdminPanel>
           <div className="grid gap-3">
-            {Array.from({ length: role === "COACH" ? 1 : 3 }).map((_, index) => (
+            {Array.from({ length: 3 }).map((_, index) => (
               <AdminPanel key={index} className="p-5">
                 <div className="space-y-3">
                   <div className="h-5 w-32 animate-pulse rounded bg-white/8" />
@@ -446,7 +364,7 @@ export function AdminTeamsWorkspace({
           title="No hay equipos cargados"
           description="Cuando conectemos la fuente real o anadamos datos de prueba, esta pantalla mostrara la estructura deportiva del club."
           action={
-            canManageTeams ? (
+            (
               <button
                 type="button"
                 onClick={openCreateDialog}
@@ -455,7 +373,7 @@ export function AdminTeamsWorkspace({
               >
                 Crear primer equipo
               </button>
-            ) : undefined
+            )
           }
         />
       ) : null}
@@ -478,7 +396,6 @@ export function AdminTeamsWorkspace({
 
       {screenState === "ready" && filteredTeams.length > 0 ? (
         <TeamList
-          role={role}
           teams={filteredTeams}
           disabled={isPersisting}
           onEdit={openEditDialog}

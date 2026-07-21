@@ -10,7 +10,7 @@ import type {
   PublicPlayerStats,
   PublicPlayerType,
   PublicTeamType,
-} from "@/lib/public/player-profile-content";
+} from "@/lib/public/player-profile-types";
 
 type PremiumPlayerCardProps = {
   name: string;

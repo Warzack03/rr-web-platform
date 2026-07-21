@@ -1,5 +1,4 @@
 import { AdminMatchesWorkspace } from "@/components/admin/admin-matches-workspace";
-import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminMatchesScreenData } from "@/server/services/admin-matches";
 
@@ -25,7 +24,6 @@ export default async function AdminMatchesPage({
   return (
     <AdminMatchesWorkspace
       key={`${user.idString}-${initialUiState}-${getSingleValue(resolvedSearchParams.team) ?? "all"}`}
-      role={toAdminRole(user.role)}
       initialMatches={data.matches}
       initialTeams={data.teams}
       initialOpponentOptions={data.opponentOptions}

@@ -5,7 +5,7 @@ import type {
   PublicPlayerStatsLevel,
   PublicPlayerType,
   PublicTeamType,
-} from "@/lib/public/player-profile-content";
+} from "@/lib/public/player-profile-types";
 
 type PlayerDerivedMetricsProps = {
   playerType: PublicPlayerType;

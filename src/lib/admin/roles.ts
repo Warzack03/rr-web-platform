@@ -1,22 +1,12 @@
 import { UserRole } from "@prisma/client";
 
-export type AdminRole = "SUPERADMIN" | "MANAGER" | "COACH";
+export type AdminRole = "ADMIN";
 
-export const adminRoleLabels: Record<AdminRole, string> = {
-  SUPERADMIN: "Administrador",
-  MANAGER: "Administrador",
-  COACH: "Administrador",
+export const adminRoleLabels: Record<string, string> = {
+  ADMIN: "Administrador",
 };
 
-export const OWNER_ADMIN_ROLE: AdminRole = "SUPERADMIN";
-
-export function isAdminRole(value: string | undefined): value is AdminRole {
-  return value === "SUPERADMIN" || value === "MANAGER" || value === "COACH";
-}
-
-export function getPreviewRole(value: string | undefined, fallbackRole: AdminRole): AdminRole {
-  return isAdminRole(value) ? value : fallbackRole;
-}
+export const OWNER_ADMIN_ROLE: AdminRole = "ADMIN";
 
 export function toAdminRole(_role: UserRole): AdminRole {
   void _role;

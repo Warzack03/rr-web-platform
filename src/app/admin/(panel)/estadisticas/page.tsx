@@ -1,5 +1,4 @@
 import { AdminStatsWorkspace } from "@/components/admin/admin-stats-workspace";
-import { toAdminRole } from "@/lib/admin/roles";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminStatsScreenData } from "@/server/services/admin-stats";
 
@@ -45,7 +44,6 @@ export default async function AdminStatsPage({
   return (
     <AdminStatsWorkspace
       key={`${user.idString}-${initialUiState}-${initialSelectedTeamSlug ?? "all"}-${initialSelectedMatchId ?? "all"}`}
-      role={toAdminRole(user.role)}
       initialUiState={initialUiState}
       initialSelectedTeamSlug={initialSelectedTeamSlug}
       initialSelectedMatchId={initialSelectedMatchId}
@@ -55,7 +53,6 @@ export default async function AdminStatsPage({
       initialPlayers={data.players}
       initialPlayerCatalog={data.playerCatalog}
       initialStatsState={data.statsState}
-      coachTeamOptions={data.coachTeamOptions}
     />
   );
 }

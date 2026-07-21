@@ -1,6 +1,6 @@
 import { PlayerIdentityBlock } from "@/components/public/player-identity-block";
 import { PlayerImagePanel } from "@/components/public/player-image-panel";
-import type { PublicPlayerProfile } from "@/lib/public/player-profile-content";
+import type { PublicPlayerProfile } from "@/lib/public/player-profile-types";
 
 type PlayerHeroProps = {
   player: PublicPlayerProfile;

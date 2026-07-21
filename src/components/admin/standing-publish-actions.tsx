@@ -6,11 +6,9 @@ import { StandingStatusBadge } from "@/components/admin/standing-status-badge";
 import {
   formatStandingUpdatedLabel,
   type StandingManagementTable,
-} from "@/lib/admin/standings-management-mocks";
-import type { AdminRole } from "@/lib/admin/roles";
+} from "@/lib/admin/standings-management";
 
 type StandingPublishActionsProps = {
-  role: AdminRole;
   standing: StandingManagementTable;
   validationErrors: string[];
   hasUnsavedChanges: boolean;
@@ -21,7 +19,6 @@ type StandingPublishActionsProps = {
 };
 
 export function StandingPublishActions({
-  role,
   standing,
   validationErrors,
   hasUnsavedChanges,
@@ -30,7 +27,7 @@ export function StandingPublishActions({
   onDuplicate,
   onReset,
 }: StandingPublishActionsProps) {
-  const canCreateGlobal = role !== "COACH";
+  const canCreateGlobal = true;
 
   return (
     <AdminPanel className="p-5 sm:p-6">

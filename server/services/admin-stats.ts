@@ -1,7 +1,7 @@
 import { MatchStatus } from "@prisma/client";
 import type { AdminStatsState, AdminMatchPlayerEntry } from "@/lib/admin/admin-stats";
-import type { MatchManagementMatch, MatchManagementTeam } from "@/lib/admin/match-management-mocks";
-import type { AdminPlayer } from "@/lib/admin/mock-data";
+import type { MatchManagementMatch, MatchManagementTeam } from "@/lib/admin/match-management";
+import type { AdminPlayer } from "@/lib/admin/player-management";
 import {
   buildStatsContextPlayerId,
   type AdminStatsCatalogPlayer,
@@ -195,7 +195,6 @@ export async function getAdminStatsScreenData(
         carryOverByPlayerId: {},
         matchEntriesByMatchId: {},
       },
-      coachTeamOptions: [],
     };
   }
 
@@ -547,9 +546,5 @@ export async function getAdminStatsScreenData(
     players,
     playerCatalog,
     statsState,
-    coachTeamOptions: mappedTeams.map((team) => ({
-      slug: team.slug,
-      name: team.name,
-    })),
   };
 }

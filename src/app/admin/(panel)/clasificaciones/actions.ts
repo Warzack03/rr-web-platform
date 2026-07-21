@@ -108,22 +108,7 @@ function buildStandingRowsSeed(clubTeams: AdminScopedStandingTeam[]) {
     isOwnTeam: true,
   }));
 
-  const placeholderRows = Array.from({
-    length: Math.max(0, 3 - ownRows.length),
-  }).map((_, index) => ({
-    id: `rival-${index + 1}`,
-    teamName: `Nuevo rival ${index + 1}`,
-    played: 0,
-    won: 0,
-    drawn: 0,
-    lost: 0,
-    sanctionPoints: 0,
-    goalsFor: 0,
-    goalsAgainst: 0,
-    isOwnTeam: false,
-  }));
-
-  return [...ownRows, ...placeholderRows];
+  return ownRows;
 }
 
 function revalidateStandingPaths(teamSlugs: string[]) {

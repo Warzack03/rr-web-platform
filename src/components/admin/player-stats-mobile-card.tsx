@@ -12,7 +12,7 @@ import {
 import type {
   PublicPlayerStatsLevel,
   PublicPlayerType,
-} from "@/lib/public/player-profile-content";
+} from "@/lib/public/player-profile-types";
 import {
   isGoalkeeperPlayer,
   isMobileStepperField,
@@ -20,7 +20,7 @@ import {
   type AdminMatchPlayerEntry,
   type AdminStatField,
 } from "@/lib/admin/admin-stats";
-import type { AdminPlayer } from "@/lib/admin/mock-data";
+import type { AdminPlayer } from "@/lib/admin/player-management";
 import { cn } from "@/lib/utils";
 
 type PlayerStatsMobileCardProps = {

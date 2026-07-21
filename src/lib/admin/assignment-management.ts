@@ -1,4 +1,4 @@
-import type { AdminPlayerPosition } from "@/lib/admin/mock-data";
+import type { AdminPlayerPosition } from "@/lib/admin/player-management";
 
 export type AssignmentSource = "imported" | "manual";
 

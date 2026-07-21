@@ -12,7 +12,7 @@ import {
   teamCoachRoleOptions,
   type TeamManagementCoach,
   type TeamManagementTeam,
-} from "@/lib/admin/team-management-mocks";
+} from "@/lib/admin/team-management";
 
 type TeamFormDialogMode = "create" | "edit" | "coaches";
 

@@ -1,4 +1,4 @@
-import type { PublicPlayerProfile } from "@/lib/public/player-profile-content";
+import type { PublicPlayerProfile } from "@/lib/public/player-profile-types";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 import {
