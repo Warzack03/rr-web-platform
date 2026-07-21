@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { PublicSiteLayout } from "@/components/layout/public-site-layout";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
+import { permanentRedirect } from "next/navigation";
 import {
-  getAcademyPlayerDetailFromDb,
   getAcademyPlayerStaticParamsFromDb,
 } from "@/server/services/public/player-detail";
+import { getGlobalPlayerHref } from "@/lib/public/player-routes";
 
 type AcademyPlayerDetailRouteProps = {
   params: Promise<{
@@ -23,39 +21,20 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: AcademyPlayerDetailRouteProps): Promise<Metadata> {
-  const { teamSlug, playerSlug } = await params;
-  const player = await getAcademyPlayerDetailFromDb(teamSlug, playerSlug);
-
-  if (!player) {
-    return {
-      title: "Jugador no encontrado | Equipos",
-    };
-  }
+  const { playerSlug } = await params;
 
   return {
-    title: `${player.name} | ${player.teamLabel}`,
-    description: `Ficha publica de ${player.name}, ${player.position.toLowerCase()} de ${player.teamLabel}.`,
+    title: "Ficha global de jugador | Rising Raimon",
+    alternates: {
+      canonical: getGlobalPlayerHref(playerSlug),
+    },
   };
 }
 
 export default async function AcademyPlayerDetailRoute({
   params,
 }: AcademyPlayerDetailRouteProps) {
-  const { teamSlug, playerSlug } = await params;
-  const dbPlayer = await getAcademyPlayerDetailFromDb(teamSlug, playerSlug);
+  const { playerSlug } = await params;
 
-  if (dbPlayer && dbPlayer.teamSlug === teamSlug) {
-    redirect(`/jugadores/${playerSlug}`);
-  }
-
-  if (!dbPlayer || dbPlayer.teamSlug !== teamSlug) {
-    return (
-      <PublicSiteLayout activeNav="equipos">
-        <PublicEmptyState
-          title="No hay datos del jugador"
-          description="Cuando este jugador tenga una ficha visible en la DB, se mostrara aqui."
-        />
-      </PublicSiteLayout>
-    );
-  }
+  permanentRedirect(getGlobalPlayerHref(playerSlug));
 }

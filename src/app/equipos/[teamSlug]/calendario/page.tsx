@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { CalendarPageTitle } from "@/components/public/calendar-page-title";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { TeamCalendar } from "@/components/public/team-calendar";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
@@ -50,28 +50,13 @@ export default async function AcademyTeamCalendarPage({
   const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
 
   if (!teamSummary) {
-    return (
-      <PublicSiteLayout activeNav="equipos">
-        <PublicEmptyState
-          title="No hay datos del equipo"
-          description="Cuando este equipo exista en la DB y este visible, su calendario aparecera aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   const dbCalendar = await getPublicTeamCalendarContentFromDb(teamSlug);
 
   if (!dbCalendar) {
-    return (
-      <PublicSiteLayout activeNav="equipos">
-        <PublicEmptyState
-          eyebrow={teamSummary.name}
-          title="No hay calendario publicado"
-          description="Cuando haya partidos visibles en la DB, el calendario de este equipo aparecera aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   const calendar = dbCalendar;

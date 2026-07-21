@@ -164,6 +164,11 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
                   where: {
                     active: true,
                     deletedAt: null,
+                    player: {
+                      active: true,
+                      publicVisible: true,
+                      deletedAt: null,
+                    },
                   },
                   select: {
                     id: true,
@@ -203,6 +208,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         where: {
           seasonTeamId: firstTeam.id,
           deletedAt: null,
+          publicVisible: true,
           status: {
             in: [MatchStatus.SCHEDULED, MatchStatus.LIVE, MatchStatus.POSTPONED],
           },
@@ -231,6 +237,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         where: {
           seasonTeamId: firstTeam.id,
           deletedAt: null,
+          publicVisible: true,
           status: MatchStatus.PLAYED,
         },
         orderBy: [{ dateTime: "desc" }, { id: "desc" }],

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsCard } from "@/components/public/news-card";
 import { PageHero, PageHeroIcons } from "@/components/public/page-hero";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   MatchPreviewPanel,
   MetricTile,
@@ -22,14 +22,7 @@ export default async function FirstTeamPage() {
   const teamSummary = await getPublicTeamPageContent("primer-equipo");
 
   if (!teamSummary) {
-    return (
-      <PublicSiteLayout activeNav="primer-equipo">
-        <PublicEmptyState
-          title="No hay datos del Primer Equipo"
-          description="Cuando el Primer Equipo este publicado en la temporada activa, se mostrara su resumen aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   return (

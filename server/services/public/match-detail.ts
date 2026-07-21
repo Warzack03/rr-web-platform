@@ -77,7 +77,7 @@ function mapPublicMatchStatus(status: MatchStatus, isFirstTeam: boolean) {
   }
 
   if (status === MatchStatus.POSTPONED) {
-    return "postponed" as const;
+    return isFirstTeam ? ("postponed" as const) : ("pending" as const);
   }
 
   if (status === MatchStatus.LIVE) {
@@ -217,34 +217,43 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
     return null;
   }
 
-  const statRows = await prisma.playerMatchStats.findMany({
-    where: {
-      matchId: match.id,
-      seasonId: match.seasonId,
-      seasonTeamId: match.seasonTeamId,
-    },
-    orderBy: [{ playerId: "asc" }],
-    select: {
-      playerId: true,
-      played: true,
-      goals: true,
-      assists: true,
-      mvp: true,
-      yellowCards: true,
-      redCards: true,
-      ownGoals: true,
-      cleanSheets: true,
-      player: {
-        select: {
-          id: true,
-          slug: true,
-          firstName: true,
-          lastName: true,
-          publicName: true,
-        },
-      },
-    },
-  });
+  const statRows =
+    match.status === MatchStatus.PLAYED
+      ? await prisma.playerMatchStats.findMany({
+          where: {
+            matchId: match.id,
+            seasonId: match.seasonId,
+            seasonTeamId: match.seasonTeamId,
+            played: true,
+            player: {
+              active: true,
+              publicVisible: true,
+              deletedAt: null,
+            },
+          },
+          orderBy: [{ playerId: "asc" }],
+          select: {
+            playerId: true,
+            played: true,
+            goals: true,
+            assists: true,
+            mvp: true,
+            yellowCards: true,
+            redCards: true,
+            ownGoals: true,
+            cleanSheets: true,
+            player: {
+              select: {
+                id: true,
+                slug: true,
+                firstName: true,
+                lastName: true,
+                publicName: true,
+              },
+            },
+          },
+        })
+      : [];
 
   const playerIds = statRows.map((row) => row.playerId);
 
@@ -398,8 +407,10 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
       match.competition?.name ?? match.seasonTeam.competitionName ?? null,
       match.matchday,
     ),
-    highlightsUrl: isFirstTeam ? match.videoUrl ?? undefined : undefined,
-    showHighlights: isFirstTeam ? Boolean(match.videoUrl) : false,
+    highlightsUrl:
+      isFirstTeam && match.status === MatchStatus.PLAYED ? match.videoUrl ?? undefined : undefined,
+    showHighlights:
+      isFirstTeam && match.status === MatchStatus.PLAYED ? Boolean(match.videoUrl) : false,
     showLiveFeatures: isFirstTeam,
     homeScorers: scorers.homeScorers,
     awayScorers: scorers.awayScorers,

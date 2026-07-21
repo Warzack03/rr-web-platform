@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsCard } from "@/components/public/news-card";
 import { PageHero, PageHeroIcons } from "@/components/public/page-hero";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   MatchPreviewPanel,
   MetricTile,
@@ -53,14 +53,7 @@ export default async function AcademyTeamDetailPage({
   const teamSummary = await getPublicAcademyTeamPageContent(teamSlug);
 
   if (!teamSummary) {
-    return (
-      <PublicSiteLayout activeNav="equipos">
-        <PublicEmptyState
-          title="No hay datos del equipo"
-          description="Cuando este equipo tenga datos publicados en la DB, se mostrara su resumen aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   return (

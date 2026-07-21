@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
 Última revisión: 21 de julio de 2026  
-Estado general: Fase A.0, A.1 y A.2 completadas; continuar por A.3  
-Siguiente bloque: Fase A.3
+Estado general: Fase A.0, A.1, A.2, A.3 y A.4 completadas; continuar por A.5  
+Siguiente bloque: Fase A.5
 
 ## Cómo usar este documento
 
@@ -48,7 +48,7 @@ La propuesta de eliminar este dato no se debía a un error matemático ni a un p
 La métrica es útil si `goalsAgainst` se registra de forma consistente: contextualiza mejor el rendimiento que mostrar solo porterías a cero. Por tanto, no se eliminará automáticamente.
 
 - [x] Confirmar si la tabla de porteros de cantera conserva `goalsAgainstPerMatch` como `Goles encajados/partido` o `E/P`.
-- [ ] Si se conserva, comprobar que solo se calcula con partidos jugados y estadísticas publicadas.
+- [x] Si se conserva, comprobar que solo se calcula con partidos jugados y estadísticas publicadas.
 - [ ] Si no existe una captura fiable de goles encajados, ocultar la columna en lugar de mostrar ceros engañosos.
 - [ ] Alinear la decisión final en `PUBLIC_APP_SPEC.md`, `PUBLIC_PAGE_SPECS.md`, `SPORTS_RULES.md` y el componente correspondiente.
 
@@ -105,15 +105,15 @@ Dejar el producto alineado con las decisiones cerradas, eliminar rutas y ramas f
 
 ## A.3 — Identidad pública y ficha global de jugador
 
-- [ ] Mantener `/jugadores/[playerSlug]` como única URL canónica de detalle.
-- [ ] Actualizar todos los enlaces de plantillas, tarjetas, estadísticas y partidos para apuntar a la ficha global.
-- [ ] Hacer que la ruta contextual antigua de jugador redirija permanentemente a la ficha global o retirarla si no tiene consumidores ni necesidad de compatibilidad.
-- [ ] Eliminar cualquier lógica que intente escoger un jugador distinto en función de `teamSlug` dentro del detalle global.
-- [ ] Definir en el servicio de jugador global cómo se agregan las estadísticas de la temporada activa.
-- [ ] Mantener internamente los datos separados por asignación, equipo, temporada y partido antes de agregarlos para presentación.
-- [ ] Mostrar los equipos o contextos relevantes de forma breve cuando un jugador tenga más de una asignación pública.
-- [ ] Evitar que la variante visual de Primer Equipo se aplique a datos de cantera por una agregación accidental.
-- [ ] Añadir `canonical` a la URL global y evitar contenido duplicado en rutas heredadas.
+- [x] Mantener `/jugadores/[playerSlug]` como única URL canónica de detalle.
+- [x] Actualizar todos los enlaces de plantillas, tarjetas, estadísticas y partidos para apuntar a la ficha global.
+- [x] Hacer que la ruta contextual antigua de jugador redirija permanentemente a la ficha global o retirarla si no tiene consumidores ni necesidad de compatibilidad.
+- [x] Eliminar cualquier lógica que intente escoger un jugador distinto en función de `teamSlug` dentro del detalle global.
+- [x] Definir en el servicio de jugador global cómo se agregan las estadísticas de la temporada activa.
+- [x] Mantener internamente los datos separados por asignación, equipo, temporada y partido antes de agregarlos para presentación.
+- [x] Mostrar los equipos o contextos relevantes de forma breve cuando un jugador tenga más de una asignación pública.
+- [x] Evitar que la variante visual de Primer Equipo se aplique a datos de cantera por una agregación accidental.
+- [x] Añadir `canonical` a la URL global y evitar contenido duplicado en rutas heredadas.
 
 Regla propuesta para la agregación global:
 
@@ -124,16 +124,27 @@ Regla propuesta para la agregación global:
 
 ## A.4 — Consultas públicas, estados y `404`
 
-- [ ] Auditar todas las consultas públicas de equipos, jugadores, partidos y noticias.
-- [ ] Aplicar consistentemente `publicVisible`, `active`, `publishedAt`, `deletedAt` y estados equivalentes cuando correspondan.
-- [ ] Filtrar estadísticas públicas por publicación y por partido jugado cuando la regla deportiva lo exija.
-- [ ] Sustituir fallbacks al primer equipo, jugador, partido o noticia por `notFound()`.
-- [ ] Confirmar `404` para slugs e identificadores inexistentes.
-- [ ] Confirmar `404` para entidades existentes pero no publicables.
-- [ ] Evitar que un ID inválido revele si existe una entidad privada.
-- [ ] Verificar que los partidos aplazados de cantera se presentan como pendientes.
-- [ ] Verificar que cantera no muestra estado `En vivo` ni highlights.
-- [ ] Verificar que los highlights externos solo aparecen en partidos jugados del Primer Equipo.
+- [x] Auditar todas las consultas públicas de equipos, jugadores, partidos y noticias.
+- [x] Aplicar consistentemente `publicVisible`, `active`, `publishedAt`, `deletedAt` y estados equivalentes cuando correspondan.
+- [x] Filtrar estadísticas públicas por publicación y por partido jugado cuando la regla deportiva lo exija.
+- [x] Sustituir fallbacks al primer equipo, jugador, partido o noticia por `notFound()`.
+- [x] Confirmar `404` para slugs e identificadores inexistentes.
+- [x] Confirmar `404` para entidades existentes pero no publicables.
+- [x] Evitar que un ID inválido revele si existe una entidad privada.
+- [x] Verificar que los partidos aplazados de cantera se presentan como pendientes.
+- [x] Verificar que cantera no muestra estado `En vivo` ni highlights.
+- [x] Verificar que los highlights externos solo aparecen en partidos jugados del Primer Equipo.
+
+Comprobación A.4:
+
+- Las rutas públicas de entidad concreta usan `notFound()` cuando el servicio no devuelve una entidad publicable.
+- Los listados/índices públicos (`/`, `/equipos`, `/noticias`) conservan estados vacíos solo cuando no hay contenido publicado.
+- Las estadísticas públicas de jugador/plantilla se agregan desde partidos `PLAYED`, visibles y no eliminados, con filas `played: true`.
+- Los partidos aplazados o en vivo de cantera se presentan públicamente como pendientes.
+- Los highlights solo se exponen cuando el partido es del Primer Equipo, está jugado y tiene URL externa visible.
+- `npm run lint` termina sin errores; mantiene 9 warnings preexistentes de fuentes/`img`.
+- `npx prisma validate` termina correctamente.
+- `npx tsc --noEmit --pretty false` sigue bloqueado por el tipo generado stale `.next/dev/types/validator.ts` que referencia `src/app/admin/(panel)/usuarios/page.js`.
 
 ## A.5 — Estadísticas y reglas deportivas
 
@@ -474,3 +485,4 @@ Añadir una entrada al cerrar cada bloque de trabajo.
 | 2026-07-21 | A.0 | Línea base completada y alcance protegido | `npm run lint` inicial correcto con advertencias, `npm run build` inicial correcto, `npx prisma validate` correcto, solo `src/app` activo | `git status` queda limitado por `safe.directory` del entorno |
 | 2026-07-21 | A.1 | Backoffice simplificado a administrador único; rutas descartadas sin `page.tsx`; logout visible verificado; dashboard sin widgets de importación | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, búsqueda de rutas descartadas sin ficheros activos | `npm run build` compila pero el typecheck falla por caché generada `.next/dev/types/validator.ts` apuntando a `/admin/usuarios`; continuar por A.2 |
 | 2026-07-21 | A.2 | Mocks admin y fixtures públicos antiguos retirados; contratos movidos a módulos neutrales; creación de clasificaciones sin rivales ficticios | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, búsqueda sin imports a mocks eliminados | `npx tsc --noEmit` sigue bloqueado por caché generada `.next/dev/types/validator.ts`; la búsqueda restante de `placeholder` corresponde a atributos de formulario, CSS y texto de ayuda, no a datos de ejecución |
+| 2026-07-21 | A.3 | Ficha global de jugador consolidada; ruta contextual redirige permanentemente; canonical añadido; contexto multi-equipo visible; variante premium limitada a asignaciones solo de Primer Equipo | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, búsqueda sin imports a módulos públicos estáticos retirados ni enlaces visibles a fichas contextuales | Quedan revalidaciones de rutas heredadas `/equipos/[teamSlug]/jugadores/[playerSlug]` porque la ruta existe como redirección |

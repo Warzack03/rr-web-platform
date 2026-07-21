@@ -80,10 +80,10 @@ function formatMatchDateLabel(date: Date | null) {
   return `${dateLabel} - ${timeLabel}`;
 }
 
-function formatMatchStatus(status: MatchStatus) {
+function formatMatchStatus(status: MatchStatus, isFirstTeam: boolean) {
   switch (status) {
     case MatchStatus.LIVE:
-      return "En vivo";
+      return isFirstTeam ? "En vivo" : "Pendiente";
     case MatchStatus.PLAYED:
       return "Jugado";
     case MatchStatus.POSTPONED:
@@ -270,6 +270,11 @@ async function getActiveVisibleSeasonTeams() {
                 where: {
                   active: true,
                   deletedAt: null,
+                  player: {
+                    active: true,
+                    publicVisible: true,
+                    deletedAt: null,
+                  },
                 },
                 orderBy: [{ displayOrder: "asc" }, { shirtNumber: "asc" }, { id: "asc" }],
                 select: {
@@ -375,6 +380,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       where: {
         seasonTeamId: team.id,
         deletedAt: null,
+        publicVisible: true,
         status: {
           in: [MatchStatus.SCHEDULED, MatchStatus.LIVE, MatchStatus.POSTPONED],
         },
@@ -403,6 +409,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       where: {
         seasonTeamId: team.id,
         deletedAt: null,
+        publicVisible: true,
         status: MatchStatus.PLAYED,
       },
       orderBy: [{ dateTime: "desc" }, { id: "desc" }],
@@ -448,6 +455,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       where: {
         seasonTeamId: team.id,
         deletedAt: null,
+        publicVisible: true,
         status: MatchStatus.PLAYED,
       },
       select: {
@@ -459,6 +467,18 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     prisma.playerMatchStats.findMany({
       where: {
         seasonTeamId: team.id,
+        seasonId: team.season.id,
+        played: true,
+        match: {
+          status: MatchStatus.PLAYED,
+          publicVisible: true,
+          deletedAt: null,
+        },
+        player: {
+          active: true,
+          publicVisible: true,
+          deletedAt: null,
+        },
       },
       select: {
         goals: true,
@@ -546,7 +566,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
           ),
           dateLabel: formatMatchDateLabel(nextMatch.dateTime),
           venue: nextMatch.venue ?? "Campo pendiente",
-          status: formatMatchStatus(nextMatch.status),
+          status: formatMatchStatus(nextMatch.status, team.team.isFirstTeam),
           href: buildPublicMatchDetailHref({
             teamSlug: team.publicSlug,
             isFirstTeam: team.team.isFirstTeam,

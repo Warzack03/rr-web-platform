@@ -3,6 +3,7 @@ import type {
   PublicPlayerType,
   PublicTeamType,
 } from "@/lib/public/player-profile-types";
+import { getGlobalPlayerHref } from "@/lib/public/player-routes";
 import type { TeamSectionNavLink } from "@/lib/public/team-section-links";
 
 export type StatSortKey =
@@ -188,7 +189,7 @@ export function sortPlayers(
 }
 
 export function getPlayerDetailHref(player: PublicPlayerProfile): string {
-  return `/jugadores/${player.slug}`;
+  return getGlobalPlayerHref(player.slug);
 }
 
 export function getPlayerLabel(player: PublicPlayerProfile): string {

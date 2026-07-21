@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { CalendarPageTitle } from "@/components/public/calendar-page-title";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { TeamCalendar } from "@/components/public/team-calendar";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
@@ -18,14 +18,7 @@ export default async function FirstTeamCalendarPage() {
   const dbCalendar = await getPublicTeamCalendarContentFromDb("primer-equipo");
 
   if (!dbCalendar) {
-    return (
-      <PublicSiteLayout activeNav="primer-equipo">
-        <PublicEmptyState
-          title="No hay calendario publicado"
-          description="Cuando haya partidos visibles en la DB, el calendario del Primer Equipo aparecera aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   const calendar = dbCalendar;

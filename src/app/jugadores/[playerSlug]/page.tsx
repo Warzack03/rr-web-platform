@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PlayerDetailPage } from "@/components/public/player-detail-page";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
-  findPublicAcademyPlayersBySlugFromDb,
   getAcademyPlayerStaticParamsFromDb,
   getFirstTeamPlayerSlugsFromDb,
   getPublicPlayerDetailFromDb,
 } from "@/server/services/public/player-detail";
+import { getGlobalPlayerHref } from "@/lib/public/player-routes";
 
 type PlayerDetailRouteProps = {
   params: Promise<{
@@ -39,25 +38,8 @@ export async function generateMetadata({
 }: PlayerDetailRouteProps): Promise<Metadata> {
   const { playerSlug } = await params;
   const dbPlayer = await getPublicPlayerDetailFromDb(playerSlug);
-  const academyMatches = dbPlayer ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
 
   if (!dbPlayer) {
-    if (academyMatches.length === 1) {
-      const academyPlayer = academyMatches[0];
-
-      return {
-        title: `${academyPlayer.name} | ${academyPlayer.teamLabel}`,
-        description: `Ficha publica de ${academyPlayer.name}, ${academyPlayer.position.toLowerCase()} de ${academyPlayer.teamLabel}.`,
-      };
-    }
-
-    if (academyMatches.length > 1) {
-      return {
-        title: "Selecciona equipo | Rising Raimon",
-        description: `El jugador ${academyMatches[0].name} tiene mas de una ruta disponible en la cantera.`,
-      };
-    }
-
     return {
       title: "Jugador no encontrado | Rising Raimon",
     };
@@ -66,6 +48,9 @@ export async function generateMetadata({
   return {
     title: `${dbPlayer.name} | ${dbPlayer.teamLabel}`,
     description: `Ficha publica de ${dbPlayer.name}, ${dbPlayer.position.toLowerCase()} en la temporada ${dbPlayer.seasonLabel}.`,
+    alternates: {
+      canonical: getGlobalPlayerHref(playerSlug),
+    },
   };
 }
 
@@ -74,7 +59,6 @@ export default async function PlayerDetailRoute({
 }: PlayerDetailRouteProps) {
   const { playerSlug } = await params;
   const dbPlayer = await getPublicPlayerDetailFromDb(playerSlug);
-  const academyMatches = dbPlayer ? [] : await findPublicAcademyPlayersBySlugFromDb(playerSlug);
 
   if (dbPlayer) {
     return (
@@ -84,62 +68,5 @@ export default async function PlayerDetailRoute({
     );
   }
 
-  if (academyMatches.length === 1) {
-    const academyPlayer = academyMatches[0];
-
-    return (
-      <PublicSiteLayout activeNav="equipos">
-        <PlayerDetailPage player={academyPlayer} />
-      </PublicSiteLayout>
-    );
-  }
-
-  if (academyMatches.length > 1) {
-    const playerName = academyMatches[0].name;
-
-    return (
-      <PublicSiteLayout activeNav="equipos">
-        <section className="mx-auto w-full max-w-[1120px] px-5 py-14 md:px-8 md:py-18 xl:px-16">
-          <div className="rr-panel max-w-2xl px-8 py-8">
-            <p className="rr-kicker text-[color:var(--rr-gold)]">Ruta global</p>
-            <h1 className="rr-display mt-4 text-[3.4rem] leading-[0.92] text-white md:text-[4.4rem]">
-              {playerName}
-            </h1>
-            <p className="mt-4 text-[1.05rem] text-[color:var(--rr-muted)]">
-              Este jugador aparece en mas de un equipo. Elige la ficha publica correcta.
-            </p>
-          </div>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {academyMatches.map((academyPlayer) => (
-              <Link
-                key={`${academyPlayer.teamSlug}-${academyPlayer.slug}`}
-                href={`/jugadores/${academyPlayer.slug}`}
-                className="rr-panel-dark border border-[color:var(--rr-border)] px-5 py-5 transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]"
-              >
-                <p className="rr-kicker text-[0.78rem] text-[color:var(--rr-gold)]">
-                  {academyPlayer.teamLabel}
-                </p>
-                <h2 className="rr-display mt-3 text-[2.2rem] leading-[0.92] text-white">
-                  {academyPlayer.name}
-                </h2>
-                <p className="mt-2 text-[1rem] text-[color:var(--rr-muted)]">
-                  {academyPlayer.position} | {academyPlayer.seasonLabel}
-                </p>
-              </Link>
-            ))}
-          </div>
-        </section>
-      </PublicSiteLayout>
-    );
-  }
-
-  return (
-    <PublicSiteLayout activeNav="equipos">
-      <PublicEmptyState
-        title="No hay datos del jugador"
-        description="Cuando este jugador tenga una ficha visible en la DB, se mostrara aqui."
-      />
-    </PublicSiteLayout>
-  );
+  notFound();
 }

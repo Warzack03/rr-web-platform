@@ -1,3 +1,4 @@
+import { MatchStatus } from "@prisma/client";
 import type {
   DominantFoot,
   PublicPlayerProfile,
@@ -70,6 +71,11 @@ export async function getPublicRosterContentFromDb(
                   where: {
                     active: true,
                     deletedAt: null,
+                    player: {
+                      active: true,
+                      publicVisible: true,
+                      deletedAt: null,
+                    },
                   },
                   orderBy: [{ displayOrder: "asc" }, { shirtNumber: "asc" }, { id: "asc" }],
                   select: {
@@ -119,8 +125,14 @@ export async function getPublicRosterContentFromDb(
             where: {
               seasonTeamId: seasonTeam.id,
               seasonId: seasonTeam.season.id,
+              played: true,
               playerId: {
                 in: playerIds,
+              },
+              match: {
+                status: MatchStatus.PLAYED,
+                publicVisible: true,
+                deletedAt: null,
               },
             },
             select: {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { MatchDetailPage } from "@/components/public/match-detail-page";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   getAcademyMatchDetailFromDb,
   getAcademyMatchDetailStaticParamsFromDb,
@@ -45,14 +45,7 @@ export default async function AcademyMatchDetailPage({
   const detail = await getAcademyMatchDetailFromDb(teamSlug, matchId);
 
   if (!detail) {
-    return (
-      <PublicSiteLayout activeNav="equipos">
-        <PublicEmptyState
-          title="No hay datos del partido"
-          description="Cuando este partido tenga datos visibles en la DB, se mostrara aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   return (

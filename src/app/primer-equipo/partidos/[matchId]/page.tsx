@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { MatchDetailPage } from "@/components/public/match-detail-page";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import {
   getFirstTeamMatchDetailFromDb,
   getFirstTeamMatchDetailIdsFromDb,
@@ -48,14 +48,7 @@ export default async function FirstTeamMatchDetailRoute({
   const detail = await getFirstTeamMatchDetailFromDb(matchId);
 
   if (!detail) {
-    return (
-      <PublicSiteLayout activeNav="primer-equipo">
-        <PublicEmptyState
-          title="No hay datos del partido"
-          description="Cuando este partido tenga datos visibles en la DB, se mostrara aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   return (

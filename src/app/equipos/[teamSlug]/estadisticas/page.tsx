@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { TeamStatisticsPage } from "@/components/public/team-statistics-page";
 import { getAcademyTeamStatisticsPageContent } from "@/lib/public/team-statistics-content";
 import { parseTeamStatisticsInitialState } from "@/lib/public/team-statistics-url-state";
@@ -50,14 +50,7 @@ export default async function AcademyTeamStatisticsRoute({
   const content = await getAcademyTeamStatisticsPageContent(teamSlug);
 
   if (!content) {
-    return (
-      <PublicSiteLayout activeNav="equipos">
-        <PublicEmptyState
-          title="No hay estadisticas publicadas"
-          description="Cuando haya estadisticas visibles en la DB, el resumen de este equipo aparecera aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   return (

@@ -75,7 +75,7 @@ function mapCalendarMatchStatus(status: MatchStatus, isFirstTeam: boolean): Cale
   }
 
   if (status === MatchStatus.POSTPONED) {
-    return "postponed";
+    return isFirstTeam ? "postponed" : "pending";
   }
 
   if (status === MatchStatus.LIVE) {

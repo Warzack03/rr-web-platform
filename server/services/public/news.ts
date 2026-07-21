@@ -81,10 +81,14 @@ function buildContentBlocks(bodyMarkdown: string, externalVideoUrl: string | nul
 
 export async function getPublishedPublicNewsArticlesFromDb(): Promise<PublicNewsArticle[] | null> {
   try {
+    const now = new Date();
     const posts = await prisma.newsPost.findMany({
       where: {
         deletedAt: null,
         status: "PUBLISHED",
+        publishedAt: {
+          lte: now,
+        },
       },
       orderBy: [{ featured: "desc" }, { publishedAt: "desc" }, { createdAt: "desc" }],
       select: {
@@ -106,6 +110,13 @@ export async function getPublishedPublicNewsArticlesFromDb(): Promise<PublicNews
           },
         },
         teams: {
+          where: {
+            seasonTeam: {
+              active: true,
+              publicVisible: true,
+              deletedAt: null,
+            },
+          },
           orderBy: [{ seasonTeam: { publicName: "asc" } }],
           select: {
             seasonTeam: {

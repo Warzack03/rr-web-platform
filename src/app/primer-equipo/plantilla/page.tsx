@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { PremiumPlayerCard } from "@/components/public/premium-player-card";
-import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { SquadPageTitle } from "@/components/public/squad-page-title";
 import { SquadSection } from "@/components/public/squad-section";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
@@ -20,14 +20,7 @@ export default async function FirstTeamSquadPage() {
   const dbSquad = await getPublicRosterContentFromDb("primer-equipo");
 
   if (!dbSquad) {
-    return (
-      <PublicSiteLayout activeNav="primer-equipo">
-        <PublicEmptyState
-          title="No hay plantilla publicada"
-          description="Cuando haya jugadores visibles en la DB, la plantilla del Primer Equipo aparecera aqui."
-        />
-      </PublicSiteLayout>
-    );
+    notFound();
   }
 
   const squad = dbSquad;
