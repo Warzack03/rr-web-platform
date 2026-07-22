@@ -1,5 +1,6 @@
 import type {
   PublicPlayerProfile,
+  PublicPlayerStats,
   PublicPlayerType,
   PublicTeamType,
 } from "@/lib/public/player-profile-types";
@@ -35,6 +36,17 @@ export type StatsColumn = {
   mobileLabel?: string;
 };
 
+export type PlayerStatSummaryItem = {
+  key: StatSortKey;
+  label: string;
+  value: string;
+};
+
+export type PlayerCardStatItem = {
+  label: string;
+  value: number | string;
+};
+
 export type DerivedPlayerStats = {
   goalContributions: number;
   goalsPerMatch?: number;
@@ -59,6 +71,28 @@ export type TeamStatisticsPageContent = {
   fieldPlayers: PublicPlayerProfile[];
   goalkeepers: PublicPlayerProfile[];
 };
+
+export const STAT_SORT_KEYS: StatSortKey[] = [
+  "player",
+  "mvps",
+  "matchesPlayed",
+  "goals",
+  "assists",
+  "goalContributions",
+  "goalsPerMatch",
+  "recoveries",
+  "shots",
+  "shotsOnTarget",
+  "shotAccuracy",
+  "cleanSheets",
+  "cleanSheetRate",
+  "goalsAgainstPerMatch",
+  "saves",
+  "savesPerMatch",
+  "yellowCards",
+  "redCards",
+  "ownGoals",
+];
 
 const FIRST_TEAM_FIELD_COLUMNS: StatsColumn[] = [
   { key: "player", label: "Jugador" },
@@ -86,7 +120,7 @@ const FIRST_TEAM_GOALKEEPER_COLUMNS: StatsColumn[] = [
   { key: "goalContributions", label: "G+A", mobileLabel: "G+A" },
   { key: "cleanSheets", label: "Imbatidos", mobileLabel: "Imbat." },
   { key: "cleanSheetRate", label: "Ratio imbatidos", mobileLabel: "Ratio" },
-  { key: "goalsAgainstPerMatch", label: "E/P", mobileLabel: "E/P" },
+  { key: "goalsAgainstPerMatch", label: "Encajados/PJ", mobileLabel: "Enc./PJ" },
   { key: "saves", label: "Paradas", mobileLabel: "Paradas" },
   { key: "savesPerMatch", label: "P/P", mobileLabel: "P/P" },
   { key: "yellowCards", label: "T. Amarillas", mobileLabel: "T. Amar." },
@@ -116,7 +150,7 @@ const ACADEMY_GOALKEEPER_COLUMNS: StatsColumn[] = [
   { key: "goalContributions", label: "G+A", mobileLabel: "G+A" },
   { key: "cleanSheets", label: "Imbatidos", mobileLabel: "Imbat." },
   { key: "cleanSheetRate", label: "Ratio imbatidos", mobileLabel: "Ratio" },
-  { key: "goalsAgainstPerMatch", label: "E/P", mobileLabel: "E/P" },
+  { key: "goalsAgainstPerMatch", label: "Encajados/PJ", mobileLabel: "Enc./PJ" },
   { key: "yellowCards", label: "T. Amarillas", mobileLabel: "T. Amar." },
   { key: "redCards", label: "T. Rojas", mobileLabel: "T. Rojas" },
   { key: "ownGoals", label: "Goles en propia", mobileLabel: "P.P." },
@@ -131,16 +165,125 @@ export function getStatsColumns(teamType: PublicTeamType, playerType: PublicPlay
 }
 
 export function calculateDerivedStats(player: PublicPlayerProfile): DerivedPlayerStats {
-  const { stats } = player;
+  return calculateDerivedStatsFromValues(player.stats);
+}
 
+export function calculateDerivedStatsFromValues(stats: PublicPlayerStats): DerivedPlayerStats {
   return {
-    goalContributions: stats.goals + stats.assists,
+    goalContributions: getGoalContributions(stats),
     goalsPerMatch: safeDivide(stats.goals, stats.matchesPlayed),
     shotAccuracy: safeDivide(stats.shotsOnTarget, stats.shots),
     cleanSheetRate: safeDivide(stats.cleanSheets, stats.matchesPlayed),
     goalsAgainstPerMatch: safeDivide(stats.goalsAgainst, stats.matchesPlayed),
     savesPerMatch: safeDivide(stats.saves, stats.matchesPlayed),
   };
+}
+
+export function getGoalContributions(stats: PublicPlayerStats): number {
+  return stats.goals + stats.assists;
+}
+
+export function getQuickSortOptions(
+  teamType: PublicTeamType,
+  playerType: PublicPlayerType,
+): Array<{ key: StatSortKey; label: string }> {
+  if (playerType === "goalkeeper") {
+    return teamType === "first-team"
+      ? [
+          { key: "cleanSheets", label: "Imbatidos" },
+          { key: "goalsAgainstPerMatch", label: "Enc./PJ" },
+          { key: "saves", label: "Paradas" },
+          { key: "mvps", label: "MVP's" },
+        ]
+      : [
+          { key: "cleanSheets", label: "Imbatidos" },
+          { key: "goalsAgainstPerMatch", label: "Enc./PJ" },
+          { key: "cleanSheetRate", label: "Ratio" },
+          { key: "mvps", label: "MVP's" },
+        ];
+  }
+
+  return [
+    { key: "goals", label: "Goles" },
+    { key: "goalContributions", label: "G+A" },
+    { key: "goalsPerMatch", label: "G/P" },
+    { key: "mvps", label: "MVP's" },
+  ];
+}
+
+export function getMobileSummaryStats(
+  player: PublicPlayerProfile,
+  teamType: PublicTeamType,
+  playerType: PublicPlayerType,
+): PlayerStatSummaryItem[] {
+  if (playerType === "goalkeeper") {
+    const baseItems: PlayerStatSummaryItem[] = [
+      { key: "cleanSheets", label: "Imbatidos", value: formatStatValue(player, "cleanSheets") },
+      {
+        key: "goalsAgainstPerMatch",
+        label: "Enc./PJ",
+        value: formatStatValue(player, "goalsAgainstPerMatch"),
+      },
+      {
+        key: "goalContributions",
+        label: "G+A",
+        value: formatStatValue(player, "goalContributions"),
+      },
+    ];
+
+    if (teamType === "first-team") {
+      baseItems.splice(2, 0, {
+        key: "saves",
+        label: "Paradas",
+        value: formatStatValue(player, "saves"),
+      });
+    } else {
+      baseItems.splice(2, 0, {
+        key: "mvps",
+        label: "MVP's",
+        value: formatStatValue(player, "mvps"),
+      });
+    }
+
+    return baseItems;
+  }
+
+  return [
+    { key: "goals", label: "Goles", value: formatStatValue(player, "goals") },
+    { key: "assists", label: "Asistencias", value: formatStatValue(player, "assists") },
+    { key: "mvps", label: "MVP's", value: formatStatValue(player, "mvps") },
+    {
+      key: "goalContributions",
+      label: "G+A",
+      value: formatStatValue(player, "goalContributions"),
+    },
+  ];
+}
+
+export function getPlayerCardStats(
+  playerType: PublicPlayerType,
+  stats: PublicPlayerStats,
+  teamType: PublicTeamType,
+): PlayerCardStatItem[] {
+  if (playerType === "goalkeeper") {
+    return teamType === "first-team"
+      ? [
+          { label: "PJ", value: stats.matchesPlayed },
+          { label: "Imbat.", value: formatStatValueFromStats(stats, "cleanSheets") },
+          { label: "Paradas", value: formatStatValueFromStats(stats, "saves") },
+        ]
+      : [
+          { label: "PJ", value: stats.matchesPlayed },
+          { label: "Enc./PJ", value: formatStatValueFromStats(stats, "goalsAgainstPerMatch") },
+          { label: "Imbat.", value: formatStatValueFromStats(stats, "cleanSheets") },
+        ];
+  }
+
+  return [
+    { label: "PJ", value: stats.matchesPlayed },
+    { label: "Goles", value: formatStatValueFromStats(stats, "goals") },
+    { label: "Asist.", value: formatStatValueFromStats(stats, "assists") },
+  ];
 }
 
 export function sortPlayers(
@@ -201,7 +344,11 @@ export function formatStatValue(player: PublicPlayerProfile, key: StatSortKey): 
     return getPlayerLabel(player);
   }
 
-  const value = getSortValue(player, key);
+  return formatStatValueFromStats(player.stats, key);
+}
+
+export function formatStatValueFromStats(stats: PublicPlayerStats, key: Exclude<StatSortKey, "player">): string {
+  const value = getStatValueFromStats(stats, key);
 
   if (typeof value !== "number") {
     return "-";
@@ -225,18 +372,22 @@ export function formatStatValue(player: PublicPlayerProfile, key: StatSortKey): 
 }
 
 export function getStatMetricValue(player: PublicPlayerProfile, key: StatSortKey): number | undefined {
-  const value = getSortValue(player, key);
+  const value = key === "player" ? undefined : getStatValueFromStats(player.stats, key);
 
   return typeof value === "number" ? value : undefined;
 }
 
 function getSortValue(player: PublicPlayerProfile, key: StatSortKey): number | string | undefined {
-  const { stats } = player;
-  const derivedStats = calculateDerivedStats(player);
+  return key === "player" ? getPlayerLabel(player) : getStatValueFromStats(player.stats, key);
+}
+
+function getStatValueFromStats(
+  stats: PublicPlayerStats,
+  key: Exclude<StatSortKey, "player">,
+): number | undefined {
+  const derivedStats = calculateDerivedStatsFromValues(stats);
 
   switch (key) {
-    case "player":
-      return getPlayerLabel(player);
     case "mvps":
       return stats.mvps;
     case "matchesPlayed":

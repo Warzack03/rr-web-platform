@@ -296,7 +296,7 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/png,image/jpeg,image/webp,image/avif,image/svg+xml"
+        accept="image/png,image/jpeg,image/webp,image/avif"
         onChange={handleFileSelection}
         className="hidden"
       />

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { externalHttpUrlSchema } from "@/server/validators/public-url";
 
 export const saveMatchInputSchema = z.object({
   matchId: z.string().trim().optional(),
@@ -14,7 +15,7 @@ export const saveMatchInputSchema = z.object({
   status: z.enum(["pending", "live", "played"]),
   ownScore: z.number().int().min(0).nullable(),
   opponentScore: z.number().int().min(0).nullable(),
-  highlightsUrl: z.string().trim().url("Introduce una URL valida.").or(z.literal("")),
+  highlightsUrl: externalHttpUrlSchema("Introduce una URL http o https valida.").or(z.literal("")),
 });
 
 export const saveQuickResultInputSchema = z.object({

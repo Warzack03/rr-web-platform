@@ -1,13 +1,8 @@
 import { z } from "zod";
 import { teamCoachRoleOptions } from "@/lib/admin/team-management";
+import { publicImageReferenceSchema } from "@/server/validators/public-url";
 
-const mediaReferenceSchema = z
-  .string()
-  .trim()
-  .refine(
-    (value) => value === "" || value.startsWith("/") || /^https?:\/\//.test(value),
-    "Introduce una ruta publica valida.",
-  );
+const mediaReferenceSchema = publicImageReferenceSchema("Introduce una ruta publica valida.");
 
 const coachInputSchema = z.object({
   id: z.string().trim().min(1),

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { DominantFootIndicator } from "@/components/public/dominant-foot-indicator";
 import { PlayerStatMiniBox } from "@/components/public/player-stat-mini-box";
 import { getCountryFlagEmoji } from "@/lib/public/country-flags";
+import { getPlayerCardStats } from "@/lib/public/team-statistics-utils";
 import type {
   DominantFoot,
   PublicPlayerStats,
@@ -42,7 +43,7 @@ export function PremiumPlayerCard({
   className,
 }: PremiumPlayerCardProps) {
   const isAcademy = teamType === "academy";
-  const statItems = buildStatItems(playerType, stats, teamType);
+  const statItems = getPlayerCardStats(playerType, stats, teamType);
   const countryMarker = getCountryFlagEmoji(countryFlag) ?? countryFlag?.trim().toUpperCase() ?? null;
 
   const content = (
@@ -173,22 +174,3 @@ export function PremiumPlayerCard({
   );
 }
 
-function buildStatItems(
-  playerType: PublicPlayerType,
-  stats: PublicPlayerStats,
-  teamType: PublicTeamType,
-) {
-  if (playerType === "goalkeeper") {
-    return [
-      { label: "PJ", value: stats.matchesPlayed },
-      { label: "Imbat.", value: stats.cleanSheets ?? "-" },
-      { label: teamType === "academy" ? "MVP" : "Paradas", value: teamType === "academy" ? stats.mvps : (stats.saves ?? "-") },
-    ];
-  }
-
-  return [
-    { label: "PJ", value: stats.matchesPlayed },
-    { label: "Goles", value: stats.goals ?? "-" },
-    { label: "Asist.", value: stats.assists ?? "-" },
-  ];
-}

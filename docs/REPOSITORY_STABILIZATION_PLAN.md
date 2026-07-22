@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
-Última revisión: 21 de julio de 2026  
-Estado general: Fase A.0, A.1, A.2, A.3 y A.4 completadas; continuar por A.5  
-Siguiente bloque: Fase A.5
+Última revisión: 22 de julio de 2026  
+Estado general: Fase A.0, A.1, A.2, A.3, A.4, A.5 y A.6 completadas; continuar por A.7  
+Siguiente bloque: Fase A.7
 
 ## Cómo usar este documento
 
@@ -148,24 +148,52 @@ Comprobación A.4:
 
 ## A.5 — Estadísticas y reglas deportivas
 
-- [ ] Centralizar la selección de columnas por variante: Primer Equipo, cantera, jugador de campo y portero.
-- [ ] Eliminar configuraciones duplicadas o divergentes entre tablas y tarjetas.
-- [ ] Validar divisiones por cero y ausencia de minutos/partidos.
-- [ ] Confirmar que participación de gol se calcula como goles más asistencias.
-- [ ] Confirmar que el histórico no cambia de equipo al modificar una asignación actual.
-- [ ] Validar la decisión cerrada de `goalsAgainstPerMatch` antes de modificar la tabla de porteros de cantera.
-- [ ] Revisar nombres y abreviaturas para que sean comprensibles sin añadir texto explicativo largo a la interfaz.
+- [x] Centralizar la selección de columnas por variante: Primer Equipo, cantera, jugador de campo y portero.
+- [x] Eliminar configuraciones duplicadas o divergentes entre tablas y tarjetas.
+- [x] Validar divisiones por cero y ausencia de minutos/partidos.
+- [x] Confirmar que participación de gol se calcula como goles más asistencias.
+- [x] Confirmar que el histórico no cambia de equipo al modificar una asignación actual.
+- [x] Validar la decisión cerrada de `goalsAgainstPerMatch` antes de modificar la tabla de porteros de cantera.
+- [x] Revisar nombres y abreviaturas para que sean comprensibles sin añadir texto explicativo largo a la interfaz.
+
+Comprobación A.5:
+
+- `src/lib/public/team-statistics-utils.ts` concentra las claves de orden, columnas de tabla, opciones rápidas, resúmenes móviles, stats de tarjeta y cálculos derivados.
+- `team-statistics-url-state.ts`, `team-statistics-page.tsx` y `premium-player-card.tsx` consumen esa fuente común en lugar de declarar configuraciones locales.
+- La participación de gol se calcula mediante `getGoalContributions(stats)`, equivalente a `goals + assists`, y la ficha pública la reutiliza.
+- Las divisiones por partido, precisión y porcentajes usan división segura y devuelven `-` cuando no hay denominador válido.
+- `goalsAgainstPerMatch` se mantiene para porteros de cantera y se etiqueta como `Encajados/PJ` / `Enc./PJ`.
+- El histórico queda ligado a `PlayerMatchStats.seasonTeamId` y las escrituras de estadísticas crean filas con `seasonTeamId: match.seasonTeamId`.
+- `npm run lint` termina sin errores; mantiene 9 warnings preexistentes de fuentes/`img`.
+- `npx prisma validate` termina correctamente.
+- `npx tsc --noEmit --pretty false` sigue bloqueado por el tipo generado stale `.next/dev/types/validator.ts` que referencia `src/app/admin/(panel)/usuarios/page.js`.
 
 ## A.6 — URLs, medios y seguridad inmediata
 
-- [ ] Validar URLs externas con esquema `http` o `https` en escrituras de noticias, vídeos y highlights.
-- [ ] Rechazar esquemas ejecutables o inesperados como `javascript:` y `data:` en campos de URL externa.
-- [ ] Auditar la subida actual por extensión, MIME real, tamaño, nombre de archivo y ubicación pública.
-- [ ] Impedir que un SVG original no tratado se sirva desde el mismo origen público.
-- [ ] Probar la viabilidad de rasterizar SVG a WebP o PNG con el runtime y límites de Hostinger.
-- [ ] Definir un fallo seguro: si la conversión no es posible, el archivo no se publica y el administrador recibe un error claro.
-- [ ] No añadir una dependencia de procesado de imágenes sin medir tamaño de instalación, soporte de binarios, memoria y CPU.
-- [ ] Mantener fotos y medios como archivos/URLs; no introducir BLOBs en MySQL.
+- [x] Validar URLs externas con esquema `http` o `https` en escrituras de noticias, vídeos y highlights.
+- [x] Rechazar esquemas ejecutables o inesperados como `javascript:` y `data:` en campos de URL externa.
+- [x] Auditar la subida actual por extensión, MIME real, tamaño, nombre de archivo y ubicación pública.
+- [x] Impedir que un SVG original no tratado se sirva desde el mismo origen público.
+- [x] Probar la viabilidad de rasterizar SVG a WebP o PNG con el runtime y límites de Hostinger.
+- [x] Definir un fallo seguro: si la conversión no es posible, el archivo no se publica y el administrador recibe un error claro.
+- [x] No añadir una dependencia de procesado de imágenes sin medir tamaño de instalación, soporte de binarios, memoria y CPU.
+- [x] Mantener fotos y medios como archivos/URLs; no introducir BLOBs en MySQL.
+
+Comprobación A.6:
+
+- `src/lib/url-safety.ts` centraliza la validación de URLs externas `http/https`, rutas públicas locales y rechazo de `.svg`/`.svgz`.
+- `server/validators/public-url.ts` reutiliza esa política para noticias, partidos, equipos y jugadores.
+- Las URLs externas de noticias y highlights rechazan esquemas no `http/https`, incluyendo `javascript:` y `data:`.
+- Las referencias de imagen por URL/ruta rechazan SVG y rutas locales inseguras como `//`, `..` o barras invertidas.
+- La subida de media acepta solo PNG, JPEG, WEBP y AVIF; ya no acepta SVG en UI ni servidor.
+- La subida valida tamaño máximo, extensión coherente con MIME, firma básica del archivo y ubicación bajo `public/media`.
+- El selector/resolve de media no permite reutilizar SVG originales como recurso público nuevo.
+- Prueba local de rasterizado SVG con `sharp`: `svg-rasterize:ok`; no se activó en producción porque `sharp` no está declarado como dependencia directa ni se han medido binarios, memoria y CPU en Hostinger.
+- Fallo seguro actual: SVG no se publica ni se convierte automáticamente; el administrador recibe un error claro.
+- No se añadieron dependencias ni BLOBs en MySQL.
+- `npm run lint` termina sin errores; mantiene 9 warnings preexistentes de fuentes/`img`.
+- `npx prisma validate` termina correctamente.
+- `npx tsc --noEmit --pretty false` sigue bloqueado por el tipo generado stale `.next/dev/types/validator.ts` que referencia `src/app/admin/(panel)/usuarios/page.js`.
 
 ## A.7 — Calidad básica de administración y producción
 

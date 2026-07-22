@@ -33,8 +33,10 @@ import {
 } from "@/lib/public/team-statistics-url-state";
 import {
   formatStatValue,
+  getMobileSummaryStats,
   getPlayerDetailHref,
   getPlayerLabel,
+  getQuickSortOptions,
   getStatMetricValue,
   getStatsColumns,
   sortPlayers,
@@ -1049,45 +1051,6 @@ function StatisticsEmptyState({
   );
 }
 
-function getMobileSummaryStats(
-  player: PublicPlayerProfile,
-  teamType: TeamStatisticsPageContent["teamType"],
-  playerType: PublicPlayerType,
-): Array<{ key: StatSortKey; label: string; value: string }> {
-  if (playerType === "goalkeeper") {
-    const baseItems: Array<{ key: StatSortKey; label: string; value: string }> = [
-      { key: "cleanSheets", label: "Imbatidos", value: formatStatValue(player, "cleanSheets") },
-      { key: "mvps", label: "MVP's", value: formatStatValue(player, "mvps") },
-      {
-        key: "goalContributions",
-        label: "G+A",
-        value: formatStatValue(player, "goalContributions"),
-      },
-    ];
-
-    if (teamType === "first-team") {
-      baseItems.splice(1, 0, {
-        key: "saves",
-        label: "Paradas",
-        value: formatStatValue(player, "saves"),
-      });
-    }
-
-    return baseItems;
-  }
-
-  return [
-    { key: "goals", label: "Goles", value: formatStatValue(player, "goals") },
-    { key: "assists", label: "Asistencias", value: formatStatValue(player, "assists") },
-    { key: "mvps", label: "MVP's", value: formatStatValue(player, "mvps") },
-    {
-      key: "goalContributions",
-      label: "G+A",
-      value: formatStatValue(player, "goalContributions"),
-    },
-  ];
-}
-
 function getExpandedStats(
   player: PublicPlayerProfile,
   columns: StatsColumn[],
@@ -1105,34 +1068,6 @@ function getExpandedStats(
       label: column.label,
       value: formatStatValue(player, column.key),
     }));
-}
-
-function getQuickSortOptions(
-  teamType: TeamStatisticsPageContent["teamType"],
-  playerType: PublicPlayerType,
-) {
-  if (playerType === "goalkeeper") {
-    return teamType === "first-team"
-      ? [
-          { key: "cleanSheets" as const, label: "Imbatidos" },
-          { key: "goalsAgainstPerMatch" as const, label: "E/P" },
-          { key: "saves" as const, label: "Paradas" },
-          { key: "mvps" as const, label: "MVP's" },
-        ]
-      : [
-          { key: "cleanSheets" as const, label: "Imbatidos" },
-          { key: "goalsAgainstPerMatch" as const, label: "E/P" },
-          { key: "cleanSheetRate" as const, label: "Ratio" },
-          { key: "mvps" as const, label: "MVP's" },
-        ];
-  }
-
-  return [
-    { key: "goals" as const, label: "Goles" },
-    { key: "goalContributions" as const, label: "G+A" },
-    { key: "goalsPerMatch" as const, label: "G/P" },
-    { key: "mvps" as const, label: "MVP's" },
-  ];
 }
 
 function formDataToSearchParams(formData: FormData) {

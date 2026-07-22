@@ -1,6 +1,7 @@
 import type { PublicPlayerType, PublicTeamType } from "@/lib/public/player-profile-types";
 import {
   getStatsColumns,
+  STAT_SORT_KEYS,
   type SortDirection,
   type StatSortKey,
 } from "@/lib/public/team-statistics-utils";
@@ -14,28 +15,6 @@ export type TeamStatisticsInitialState = {
 };
 
 type SearchParamsRecord = Record<string, string | string[] | undefined>;
-
-const STAT_SORT_KEYS: StatSortKey[] = [
-  "player",
-  "mvps",
-  "matchesPlayed",
-  "goals",
-  "assists",
-  "goalContributions",
-  "goalsPerMatch",
-  "recoveries",
-  "shots",
-  "shotsOnTarget",
-  "shotAccuracy",
-  "cleanSheets",
-  "cleanSheetRate",
-  "goalsAgainstPerMatch",
-  "saves",
-  "savesPerMatch",
-  "yellowCards",
-  "redCards",
-  "ownGoals",
-];
 
 const DEFAULT_TEAM_STATISTICS_STATE: TeamStatisticsInitialState = {
   searchValue: "",

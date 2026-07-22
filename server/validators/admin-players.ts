@@ -1,12 +1,7 @@
 import { z } from "zod";
+import { publicImageReferenceSchema } from "@/server/validators/public-url";
 
-const mediaReferenceSchema = z
-  .string()
-  .trim()
-  .refine(
-    (value) => value === "" || value.startsWith("/") || /^https?:\/\//.test(value),
-    "Introduce una ruta publica valida.",
-  );
+const mediaReferenceSchema = publicImageReferenceSchema("Introduce una ruta publica valida.");
 
 export const savePlayerProfileInputSchema = z.object({
   playerId: z.string().trim().min(1),

@@ -14,6 +14,7 @@ import {
   type MatchManagementVenue,
   type MatchVisualStatus,
 } from "@/lib/admin/match-management";
+import { isSafeExternalHttpUrl } from "@/lib/url-safety";
 
 type MatchFormDialogProps = {
   open: boolean;
@@ -264,10 +265,8 @@ export function MatchFormDialog({
     }
 
     if (parsedValue.data.highlightsUrl) {
-      const urlResult = z.string().url().safeParse(parsedValue.data.highlightsUrl);
-
-      if (!urlResult.success) {
-        nextErrors.highlightsUrl = "Introduce una URL valida.";
+      if (!isSafeExternalHttpUrl(parsedValue.data.highlightsUrl)) {
+        nextErrors.highlightsUrl = "Introduce una URL http o https valida.";
       }
     }
 

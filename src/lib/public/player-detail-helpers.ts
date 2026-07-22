@@ -3,6 +3,7 @@ import type {
   PublicPlayerStatsLevel,
   PublicPlayerType,
 } from "@/lib/public/player-profile-types";
+import { getGoalContributions } from "@/lib/public/team-statistics-utils";
 
 export type PlayerStatTone = "default" | "warning" | "danger";
 export type PlayerStatIcon =
@@ -148,7 +149,7 @@ export function getPlayerDerivedMetrics(
   stats: PublicPlayerStats,
   statsLevel: PublicPlayerStatsLevel = "advanced",
 ): PlayerStatItem[] {
-  const goalContributions = stats.goals + stats.assists;
+  const goalContributions = getGoalContributions(stats);
 
   if (playerType === "goalkeeper") {
     if (statsLevel === "basic") {
@@ -157,6 +158,11 @@ export function getPlayerDerivedMetrics(
           label: "Participaciones de gol",
           value: formatInteger(goalContributions),
           icon: "goalContributions",
+        },
+        {
+          label: "Encajados por partido",
+          value: formatRatio(stats.goalsAgainst, stats.matchesPlayed),
+          icon: "goalsAgainstPerMatch",
         },
         {
           label: "Ratio de imbatidos",

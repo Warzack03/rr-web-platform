@@ -3,14 +3,14 @@ import {
   adminNewsStatusValues,
   slugifyNewsTitle,
 } from "@/lib/admin/news-management";
+import {
+  externalHttpUrlSchema,
+  publicImageReferenceSchema,
+} from "@/server/validators/public-url";
 
-const mediaReferenceSchema = z
-  .string()
-  .trim()
-  .refine(
-    (value) => value === "" || value.startsWith("/") || /^https?:\/\//.test(value),
-    "Introduce una ruta publica valida para la portada.",
-  );
+const mediaReferenceSchema = publicImageReferenceSchema(
+  "Introduce una ruta publica valida para la portada.",
+);
 
 export const saveNewsPostInputSchema = z
   .object({
@@ -19,7 +19,7 @@ export const saveNewsPostInputSchema = z
     slug: z.string().trim().max(190).optional().or(z.literal("")),
     excerpt: z.string().trim().min(1, "Introduce un extracto.").max(300),
     bodyMarkdown: z.string().trim().max(20000, "El contenido es demasiado largo."),
-    externalVideoUrl: z.string().trim().url("Introduce una URL valida.").optional().or(z.literal("")),
+    externalVideoUrl: externalHttpUrlSchema("Introduce una URL http o https valida.").optional().or(z.literal("")),
     coverMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
     coverUrl: mediaReferenceSchema.or(z.literal("")),
     status: z.enum(adminNewsStatusValues),

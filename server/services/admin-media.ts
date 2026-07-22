@@ -11,6 +11,10 @@ import {
   getAdminMediaUsageLabel,
   isAdminMediaUsage,
 } from "@/lib/admin/media-management";
+import {
+  hasSvgExtension,
+  isSafePublicImageReference,
+} from "@/lib/url-safety";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 
@@ -20,8 +24,14 @@ const allowedImageMimeTypes = new Set([
   "image/jpeg",
   "image/webp",
   "image/avif",
-  "image/svg+xml",
 ]);
+
+const allowedExtensionsByMimeType = {
+  "image/png": new Set(["png"]),
+  "image/jpeg": new Set(["jpeg", "jpg"]),
+  "image/webp": new Set(["webp"]),
+  "image/avif": new Set(["avif"]),
+} satisfies Record<string, Set<string>>;
 
 type MediaAssetWithRelations = Prisma.MediaAssetGetPayload<{
   select: {
@@ -179,27 +189,81 @@ function sanitizeBaseName(value: string) {
   return normalized || "media";
 }
 
+function getAllowedExtensionsForMimeType(mimeType: string) {
+  return allowedExtensionsByMimeType[mimeType as keyof typeof allowedExtensionsByMimeType];
+}
+
 function resolveExtension(fileName: string, mimeType: string) {
   const explicitExtension = path.extname(fileName).replace(".", "").toLowerCase();
+  const allowedExtensions = getAllowedExtensionsForMimeType(mimeType);
+
+  if (!allowedExtensions) {
+    throw new Error("Tipo de imagen no admitido.");
+  }
 
   if (explicitExtension) {
+    if (!allowedExtensions.has(explicitExtension)) {
+      throw new Error("La extension del archivo no coincide con el tipo de imagen.");
+    }
+
     return explicitExtension === "jpg" ? "jpeg" : explicitExtension;
   }
 
-  switch (mimeType) {
-    case "image/png":
-      return "png";
-    case "image/jpeg":
-      return "jpeg";
-    case "image/webp":
-      return "webp";
-    case "image/avif":
-      return "avif";
-    case "image/svg+xml":
-      return "svg";
-    default:
-      return "bin";
+  const [firstAllowedExtension] = Array.from(allowedExtensions);
+
+  if (!firstAllowedExtension) {
+    throw new Error("Tipo de imagen no admitido.");
   }
+
+  return firstAllowedExtension === "jpg" ? "jpeg" : firstAllowedExtension;
+}
+
+function bufferStartsWith(buffer: Buffer, signature: number[]) {
+  return signature.every((byte, index) => buffer[index] === byte);
+}
+
+function bufferAscii(buffer: Buffer, start: number, end: number) {
+  return buffer.subarray(start, end).toString("ascii");
+}
+
+function hasExpectedFileSignature(mimeType: string, buffer: Buffer) {
+  if (mimeType === "image/png") {
+    return bufferStartsWith(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  }
+
+  if (mimeType === "image/jpeg") {
+    return bufferStartsWith(buffer, [0xff, 0xd8, 0xff]);
+  }
+
+  if (mimeType === "image/webp") {
+    return (
+      buffer.length >= 12 &&
+      bufferAscii(buffer, 0, 4) === "RIFF" &&
+      bufferAscii(buffer, 8, 12) === "WEBP"
+    );
+  }
+
+  if (mimeType === "image/avif") {
+    return (
+      buffer.length >= 16 &&
+      bufferAscii(buffer, 4, 8) === "ftyp" &&
+      buffer.subarray(8, Math.min(buffer.length, 40)).toString("ascii").includes("avif")
+    );
+  }
+
+  return false;
+}
+
+function isUnsafeSvgMediaReference(input: {
+  publicUrl: string;
+  storagePath?: string | null;
+  mimeType?: string | null;
+}) {
+  return (
+    input.mimeType?.toLowerCase() === "image/svg+xml" ||
+    hasSvgExtension(input.publicUrl) ||
+    Boolean(input.storagePath && hasSvgExtension(input.storagePath))
+  );
 }
 
 function parseOptionalDimension(value: FormDataEntryValue | null) {
@@ -368,7 +432,7 @@ export async function getAdminMediaPickerOptions(
     },
   });
 
-  return assets.map((asset) => {
+  return assets.filter((asset) => !isUnsafeSvgMediaReference(asset)).map((asset) => {
     const usage = asset.usage as AdminMediaUsage;
     const label = deriveMediaLabelFromPath(asset.storagePath ?? asset.publicUrl);
 
@@ -411,11 +475,18 @@ export async function resolveMediaAssetId(
       },
       select: {
         id: true,
+        publicUrl: true,
+        storagePath: true,
+        mimeType: true,
       },
     });
 
     if (!media) {
       throw new Error("El recurso seleccionado ya no esta disponible.");
+    }
+
+    if (isUnsafeSvgMediaReference(media)) {
+      throw new Error("Los SVG originales no se pueden usar como recurso publico.");
     }
 
     return media.id;
@@ -427,6 +498,10 @@ export async function resolveMediaAssetId(
     return null;
   }
 
+  if (!isSafePublicImageReference(normalizedUrl)) {
+    throw new Error("Introduce una URL o ruta publica de imagen valida. No se admiten SVG.");
+  }
+
   const existing = await tx.mediaAsset.findFirst({
     where: {
       deletedAt: null,
@@ -435,11 +510,18 @@ export async function resolveMediaAssetId(
     },
     select: {
       id: true,
+      publicUrl: true,
+      storagePath: true,
+      mimeType: true,
     },
     orderBy: { id: "desc" },
   });
 
   if (existing) {
+    if (isUnsafeSvgMediaReference(existing)) {
+      throw new Error("Los SVG originales no se pueden usar como recurso publico.");
+    }
+
     return existing.id;
   }
 
@@ -475,7 +557,7 @@ export async function storeUploadedMediaAsset(
   }
 
   if (!allowedImageMimeTypes.has(file.type)) {
-    throw new Error("Solo admitimos PNG, JPEG, WEBP, AVIF o SVG.");
+    throw new Error("Solo admitimos PNG, JPEG, WEBP o AVIF.");
   }
 
   if (file.size <= 0) {
@@ -486,6 +568,12 @@ export async function storeUploadedMediaAsset(
     throw new Error("La imagen supera el limite de 8 MB.");
   }
 
+  const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+  if (!hasExpectedFileSignature(file.type, fileBuffer)) {
+    throw new Error("El contenido del archivo no coincide con el tipo de imagen indicado.");
+  }
+
   const extension = resolveExtension(file.name, file.type);
   const safeBaseName = sanitizeBaseName(file.name.replace(/\.[^/.]+$/, ""));
   const fileName = `${safeBaseName}-${randomUUID()}.${extension}`;
@@ -493,7 +581,7 @@ export async function storeUploadedMediaAsset(
   const absoluteStoragePath = resolveStorageAbsolutePath(relativeStoragePath);
 
   await mkdir(path.dirname(absoluteStoragePath), { recursive: true });
-  await writeFile(absoluteStoragePath, Buffer.from(await file.arrayBuffer()));
+  await writeFile(absoluteStoragePath, fileBuffer);
 
   const fallbackLabel = deriveMediaLabelFromPath(file.name);
   const created = await prisma.mediaAsset.create({
