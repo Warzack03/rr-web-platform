@@ -130,10 +130,10 @@ export function AdminMobileNav({
                 <div className="space-y-2 border-t border-white/10 pt-4">
                   <div className="space-y-1 px-4">
                     <p className="text-[0.76rem] font-semibold text-[color:var(--rr-muted)] opacity-90">
-                      Vista previa
+                      Otros accesos
                     </p>
                     <p className="text-[0.78rem] leading-5 text-[color:var(--rr-muted)] opacity-72">
-                      Rutas de alcance, aun sin flujo completo.
+                      Herramientas disponibles para el panel.
                     </p>
                   </div>
                   <div className="space-y-0.5">

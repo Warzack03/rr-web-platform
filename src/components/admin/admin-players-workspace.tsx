@@ -698,7 +698,7 @@ export function AdminPlayersWorkspace({
                         </p>
                       </div>
                       <p className="mt-2 text-[0.84rem] leading-5 text-[color:var(--rr-muted)]">
-                        El cromo funciona con placeholder, pero la foto es lo que mas sube el nivel visual.
+                        Puedes guardar la ficha sin foto, pero una imagen cuidada mejora mucho la presentacion.
                       </p>
                     </div>
                   ) : null}

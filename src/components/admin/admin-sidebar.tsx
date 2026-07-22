@@ -79,10 +79,10 @@ export function AdminSidebar({ navItems }: AdminSidebarProps) {
           <div className="space-y-3 border-t border-[rgba(255,255,255,0.1)] pt-5">
             <div className="space-y-1 px-4">
               <p className="text-[0.76rem] font-semibold text-[color:var(--rr-muted)] opacity-90">
-                Vista previa
+                Otros accesos
               </p>
               <p className="text-[0.8rem] leading-5 text-[color:var(--rr-muted)] opacity-75">
-                Modulos pendientes de flujo final.
+                Herramientas disponibles para el panel.
               </p>
             </div>
             <div className="space-y-0.5">

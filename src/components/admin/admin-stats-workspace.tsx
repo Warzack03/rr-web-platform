@@ -622,14 +622,13 @@ export function AdminStatsWorkspace({
           <div className="max-w-2xl space-y-3">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-[color:var(--rr-gold)]" />
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Vista previa</p>
+              <p className="rr-kicker text-[color:var(--rr-gold)]">Error</p>
             </div>
             <h2 className="rr-display text-[2rem] leading-[0.95] text-white">
               No hemos podido cargar la carga de estadisticas
             </h2>
             <p className="text-[0.96rem] leading-6 text-[color:var(--rr-muted)]">
-              La pantalla contempla un error operativo para validar estados y
-              jerarquia antes de conectar datos reales.
+              Revisa la conexion o vuelve a intentarlo en unos segundos.
             </p>
             <button
               type="button"
@@ -645,7 +644,7 @@ export function AdminStatsWorkspace({
       {screenState === "ready" && players.length === 0 ? (
         <AdminEmptyState
           title="Sin jugadores para editar"
-          description="Amplia los datos de prueba o cambia de equipo para revisar la carga de partido."
+          description="Cambia de equipo o revisa la plantilla de la temporada activa."
         />
       ) : null}
 

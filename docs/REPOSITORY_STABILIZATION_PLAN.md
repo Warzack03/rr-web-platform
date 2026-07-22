@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
 Última revisión: 22 de julio de 2026  
-Estado general: Fase A.0, A.1, A.2, A.3, A.4, A.5 y A.6 completadas; continuar por A.7  
-Siguiente bloque: Fase A.7
+Estado general: Fase A completada; continuar por Fase B.1  
+Siguiente bloque: Fase B.1 — Contratos de dominio neutrales
 
 ## Cómo usar este documento
 
@@ -197,22 +197,46 @@ Comprobación A.6:
 
 ## A.7 — Calidad básica de administración y producción
 
-- [ ] Añadir `noindex, nofollow` a todo `/admin`.
-- [ ] Eliminar mensajes técnicos o textos largos innecesarios de las pantallas tocadas.
-- [ ] Corregir imports muertos y componentes huérfanos producidos por la limpieza.
-- [ ] No introducir rutas, permisos o funcionalidades nuevas fuera del MVP.
+- [x] Añadir `noindex, nofollow` a todo `/admin`.
+- [x] Eliminar mensajes técnicos o textos largos innecesarios de las pantallas tocadas.
+- [x] Corregir imports muertos y componentes huérfanos producidos por la limpieza.
+- [x] No introducir rutas, permisos o funcionalidades nuevas fuera del MVP.
+
+Comprobación A.7:
+
+- `src/app/admin/layout.tsx` aplica `robots: { index: false, follow: false, nocache: true }` a todo `/admin`, incluido login y panel.
+- Se sustituyeron mensajes de prototipo en estados de error por textos breves de recuperación.
+- Se retiraron referencias de interfaz a `datos de prueba`, `placeholder`, `jerarquia`, `layout` y rutas pendientes en las pantallas admin tocadas.
+- Se eliminaron las carpetas vacías huérfanas de `/admin/(panel)/usuarios`, `/admin/(panel)/temporadas` y `/admin/(panel)/importaciones`.
+- No se introdujeron rutas, permisos ni funcionalidades nuevas fuera del MVP.
+- `npm run lint` termina sin errores; mantiene 9 warnings preexistentes de fuentes/`img`.
+- `npx prisma validate` termina correctamente.
+- `npx tsc --noEmit --pretty false` sigue bloqueado por el tipo generado stale `.next/dev/types/validator.ts` que referencia `src/app/admin/(panel)/usuarios/page.js`.
 
 ## A.8 — Cierre de la Fase A
 
-- [ ] `npm run lint` termina correctamente.
-- [ ] `npm run build` termina correctamente.
-- [ ] `npx prisma validate` termina correctamente.
-- [ ] No hay rutas activas `/admin/temporadas`, `/admin/importaciones` ni `/admin/usuarios`.
-- [ ] No quedan fallbacks públicos que conviertan un recurso desconocido en otro recurso válido.
-- [ ] No quedan datos ficticios accesibles desde rutas de producción intervenidas en la fase.
-- [ ] Se documenta cualquier mock restante para resolverlo en la Fase B.
-- [ ] Revisar manualmente login, logout, dashboard, equipos, jugadores, partidos y noticias.
-- [ ] Marcar Fase A como completada solo después de resumir archivos cambiados, pruebas y riesgos pendientes.
+- [x] `npm run lint` termina correctamente.
+- [x] `npm run build` termina correctamente.
+- [x] `npx prisma validate` termina correctamente.
+- [x] No hay rutas activas `/admin/temporadas`, `/admin/importaciones` ni `/admin/usuarios`.
+- [x] No quedan fallbacks públicos que conviertan un recurso desconocido en otro recurso válido.
+- [x] No quedan datos ficticios accesibles desde rutas de producción intervenidas en la fase.
+- [x] Se documenta cualquier mock restante para resolverlo en la Fase B.
+- [x] Revisar manualmente login, logout, dashboard, equipos, jugadores, partidos y noticias.
+- [x] Marcar Fase A como completada solo después de resumir archivos cambiados, pruebas y riesgos pendientes.
+
+Comprobación A.8:
+
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npm run build` termina con código 0 tras aislar de TypeScript los tipos generados de desarrollo `.next/dev/types/**/*.ts` mediante `exclude` en `tsconfig.json`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npx next typegen` termina con código 0.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- La búsqueda de rutas activas no encuentra `/admin/usuarios`, `/admin/temporadas` ni `/admin/importaciones` bajo `src` o `server`; `src/app/admin/(panel)` solo conserva las rutas reales del MVP.
+- Las rutas públicas de entidad concreta revisadas siguen delegando en servicios DB y responden con `notFound()` cuando no reciben contenido publicable.
+- Los datos estáticos heredados restantes quedan documentados para Fase B: `PUBLIC_TEAM_PAGE_MOCKS` en `src/lib/public/team-page-content.ts`, calendarios estáticos/fallbacks en `src/lib/public/team-calendar-content.ts` y tablas estáticas/fallbacks en `src/lib/public/team-standings-content.ts`. En la búsqueda actual no hay rutas de producción que los usen como fuente de datos; los getters activos de equipo y clasificación devuelven DB o `null`.
+- Revisión manual por código completada para login, logout, dashboard, equipos, jugadores, partidos y noticias. Queda pendiente un smoke test en navegador/servidor arrancado para la Fase E.
+- Riesgos pendientes: Git continúa bloqueado por `safe.directory` en este entorno; los mocks heredados deben eliminarse o renombrarse en B.1/B.3; las advertencias de lint por `<img>`/fuente quedan fuera del cierre funcional de Fase A.
 
 ---
 
@@ -514,3 +538,8 @@ Añadir una entrada al cerrar cada bloque de trabajo.
 | 2026-07-21 | A.1 | Backoffice simplificado a administrador único; rutas descartadas sin `page.tsx`; logout visible verificado; dashboard sin widgets de importación | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, búsqueda de rutas descartadas sin ficheros activos | `npm run build` compila pero el typecheck falla por caché generada `.next/dev/types/validator.ts` apuntando a `/admin/usuarios`; continuar por A.2 |
 | 2026-07-21 | A.2 | Mocks admin y fixtures públicos antiguos retirados; contratos movidos a módulos neutrales; creación de clasificaciones sin rivales ficticios | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, búsqueda sin imports a mocks eliminados | `npx tsc --noEmit` sigue bloqueado por caché generada `.next/dev/types/validator.ts`; la búsqueda restante de `placeholder` corresponde a atributos de formulario, CSS y texto de ayuda, no a datos de ejecución |
 | 2026-07-21 | A.3 | Ficha global de jugador consolidada; ruta contextual redirige permanentemente; canonical añadido; contexto multi-equipo visible; variante premium limitada a asignaciones solo de Primer Equipo | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, búsqueda sin imports a módulos públicos estáticos retirados ni enlaces visibles a fichas contextuales | Quedan revalidaciones de rutas heredadas `/equipos/[teamSlug]/jugadores/[playerSlug]` porque la ruta existe como redirección |
+| 2026-07-22 | A.4 | Consultas públicas endurecidas; recursos desconocidos/no publicables devuelven `404`; cantera no expone `live` ni highlights; highlights limitados a partidos jugados del Primer Equipo | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, revisión de rutas con `notFound()` y filtros públicos | El typecheck seguía bloqueado por tipo dev stale hasta A.8 |
+| 2026-07-22 | A.5 | Estadísticas públicas centralizadas; participación de gol unificada; divisiones seguras; histórico ligado a jugador/equipo/temporada/partido; `goalsAgainstPerMatch` conservado para porteros de cantera | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, revisión de utilidades compartidas | Alinear la decisión de `goalsAgainstPerMatch` en documentos deportivos en una fase posterior |
+| 2026-07-22 | A.6 | Validación de URLs y media endurecida; SVG no se publica directamente; subida limitada a PNG/JPEG/WEBP/AVIF con comprobaciones de MIME, extensión, firma y ubicación | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, prueba local `svg-rasterize:ok` sin activar dependencia nueva | Decidir persistencia/conversión definitiva de medios en Fase E |
+| 2026-07-22 | A.7 | `/admin` marcado `noindex,nofollow`; copy técnico/prototipo retirado en pantallas tocadas; carpetas huérfanas de rutas descartadas eliminadas | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, revisión de navegación/admin | Smoke test visual pendiente para Fase E |
+| 2026-07-22 | A.8 | Fase A cerrada; build desbloqueado excluyendo tipos generados de desarrollo stale; rutas descartadas, fallbacks públicos y mocks restantes auditados | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npm run build` correcto, `cmd /c npx prisma validate` correcto, `cmd /c npx next typegen` correcto, `cmd /c npx tsc --noEmit --pretty false` correcto | Git sigue bloqueado por `safe.directory`; quedan datos estáticos heredados no usados como runtime público para resolver en B.1/B.3 |

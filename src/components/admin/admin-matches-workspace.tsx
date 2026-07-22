@@ -407,14 +407,13 @@ export function AdminMatchesWorkspace({
           <div className="max-w-2xl space-y-3">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-[color:var(--rr-gold)]" />
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Vista previa</p>
+              <p className="rr-kicker text-[color:var(--rr-gold)]">Error</p>
             </div>
             <h2 className="rr-display text-[2rem] leading-[0.95] text-white">
               No hemos podido cargar la gestion de partidos
             </h2>
             <p className="text-[0.96rem] leading-6 text-[color:var(--rr-muted)]">
-              La pantalla contempla un error operativo para revisar jerarquia,
-              recuperacion y uso sin datos listos.
+              Revisa la conexion o vuelve a intentarlo en unos segundos.
             </p>
             <button
               type="button"
