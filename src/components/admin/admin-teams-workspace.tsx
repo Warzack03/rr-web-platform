@@ -42,6 +42,11 @@ type DialogState =
   | { mode: "edit" | "coaches"; teamId: string }
   | null;
 
+type AdminTeamsFeedback = {
+  message: string;
+  tone: "success" | "danger" | "info";
+};
+
 const initialFilters: TeamFiltersValue = {
   season: "all",
   branch: "all",
@@ -70,7 +75,7 @@ export function AdminTeamsWorkspace({
   const [teams, setTeams] = useState(() => sortTeams(initialTeams));
   const [filters, setFilters] = useState<TeamFiltersValue>(initialFilters);
   const [dialogState, setDialogState] = useState<DialogState>(null);
-  const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminTeamsFeedback | null>(null);
   const [isPersisting, setIsPersisting] = useState(false);
   const [screenState, setScreenState] = useState<"loading" | "ready" | "error">(
     "loading",
@@ -86,13 +91,13 @@ export function AdminTeamsWorkspace({
   }, [initialUiState]);
 
   useEffect(() => {
-    if (!bannerMessage) {
+    if (!feedback) {
       return;
     }
 
-    const timer = window.setTimeout(() => setBannerMessage(null), 2400);
+    const timer = window.setTimeout(() => setFeedback(null), 2400);
     return () => window.clearTimeout(timer);
-  }, [bannerMessage]);
+  }, [feedback]);
 
   const filteredTeams = sortTeams(
     teams.filter((team) => {
@@ -155,13 +160,13 @@ export function AdminTeamsWorkspace({
       ? teams.find((team) => team.id === dialogState.teamId)
       : undefined;
 
-  function pushBanner(message: string) {
-    startTransition(() => setBannerMessage(message));
+  function pushBanner(message: string, tone: AdminTeamsFeedback["tone"] = "success") {
+    startTransition(() => setFeedback({ message, tone }));
   }
 
   function openCreateDialog() {
     if (seasons.length === 0) {
-      pushBanner("Necesitas crear una temporada antes de dar de alta equipos.");
+      pushBanner("Necesitas crear una temporada antes de dar de alta equipos.", "info");
       return;
     }
 
@@ -208,7 +213,7 @@ export function AdminTeamsWorkspace({
     setIsPersisting(false);
 
     if (!result.ok) {
-      pushBanner(result.message);
+      pushBanner(result.message, "danger");
       return;
     }
 
@@ -223,7 +228,7 @@ export function AdminTeamsWorkspace({
     setIsPersisting(false);
 
     if (!result.ok) {
-      pushBanner(result.message);
+      pushBanner(result.message, "danger");
       return;
     }
 
@@ -237,7 +242,7 @@ export function AdminTeamsWorkspace({
     setIsPersisting(false);
 
     if (!result.ok) {
-      pushBanner(result.message);
+      pushBanner(result.message, "danger");
       return;
     }
 
@@ -266,7 +271,7 @@ export function AdminTeamsWorkspace({
         }
       />
 
-      {bannerMessage ? <AdminFeedbackBanner message={bannerMessage} /> : null}
+      {feedback ? <AdminFeedbackBanner message={feedback.message} tone={feedback.tone} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminMetricCard

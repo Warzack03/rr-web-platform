@@ -1,6 +1,10 @@
 "use server";
 
 import { requireAdminSectionAccess } from "@/server/auth/session";
+import {
+  getSafeServerErrorMessage,
+  logServerError,
+} from "@/server/logging/safe-server-log";
 import { deleteMediaAsset, updateMediaAssetMetadata } from "@/server/services/admin-media";
 import {
   deleteMediaAssetInputSchema,
@@ -43,10 +47,14 @@ export async function updateMediaAssetAction(
       message: "Media actualizada.",
     };
   } catch (error) {
+    logServerError("admin.media.update", error, {
+      userId: user.id,
+      mediaId: parsed.data.mediaId,
+    });
+
     return {
       ok: false,
-      message:
-        error instanceof Error ? error.message : "No hemos podido actualizar la media.",
+      message: getSafeServerErrorMessage(error, "No hemos podido actualizar la media."),
     };
   }
 }
@@ -73,10 +81,14 @@ export async function deleteMediaAssetAction(
       message: "Media eliminada.",
     };
   } catch (error) {
+    logServerError("admin.media.delete", error, {
+      userId: user.id,
+      mediaId: parsed.data.mediaId,
+    });
+
     return {
       ok: false,
-      message:
-        error instanceof Error ? error.message : "No hemos podido eliminar la media.",
+      message: getSafeServerErrorMessage(error, "No hemos podido eliminar la media."),
     };
   }
 }

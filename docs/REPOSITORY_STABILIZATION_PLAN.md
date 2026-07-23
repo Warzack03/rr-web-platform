@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
 Última revisión: 23 de julio de 2026  
-Estado general: Fase A, B.1, B.2, B.3 y B.4 completadas; continuar por Fase B.5  
-Siguiente bloque: Fase B.5 — Estados de carga, vacío y error
+Estado general: Fase A y Fase B completadas; continuar por Fase C.1  
+Siguiente bloque: Fase C.1 — Acceso a datos y rendimiento
 
 ## Cómo usar este documento
 
@@ -353,28 +353,76 @@ Comprobación B.4:
 
 ## B.5 — Estados de carga, vacío y error
 
-- [ ] Añadir estados de carga donde una navegación pueda quedar aparentemente bloqueada.
-- [ ] Añadir límites de error útiles sin exponer trazas o detalles internos.
-- [ ] Diferenciar claramente lista vacía de error de consulta.
-- [ ] Evitar mensajes de éxito si una mutación ha fallado.
-- [ ] Unificar feedback de guardar, publicar, archivar y eliminar lógicamente.
-- [ ] Registrar errores de servidor con suficiente contexto y sin secretos.
+- [x] Añadir estados de carga donde una navegación pueda quedar aparentemente bloqueada.
+- [x] Añadir límites de error útiles sin exponer trazas o detalles internos.
+- [x] Diferenciar claramente lista vacía de error de consulta.
+- [x] Evitar mensajes de éxito si una mutación ha fallado.
+- [x] Unificar feedback de guardar, publicar, archivar y eliminar lógicamente.
+- [x] Registrar errores de servidor con suficiente contexto y sin secretos.
+
+Comprobación B.5:
+
+- Se añadieron estados compartidos de carga y error para público y administración: `PublicLoadingState`, `PublicErrorState`, `AdminLoadingState` y `AdminErrorState`.
+- Se añadieron límites App Router `loading.tsx` y `error.tsx` en raíz pública, `/admin` y `/admin/(panel)` sin mostrar trazas, digest ni detalles internos.
+- Se añadieron `not-found.tsx` público y administrativo para diferenciar `404` de estados vacíos reales.
+- `AdminEmptyState` distingue estados vacíos honestos con `Sin datos` por defecto en lugar de textos de prototipo.
+- Los banners administrativos usan tonos explícitos `success`, `danger` o `info`; las mutaciones fallidas ya no se presentan visualmente como éxito en equipos, partidos, asignaciones, jugadores y estadísticas.
+- El feedback existente de noticias, media y clasificaciones queda alineado con el mismo componente de banner y tonos.
+- `server/logging/safe-server-log.ts` registra errores de servidor con `scope`, resumen de error y contexto saneado, filtrando claves sensibles y serializando `bigint` sin exponer secretos.
+- Se instrumentaron servicios públicos críticos y acciones/API admin de noticias, media y asignaciones con logging seguro y mensajes de error aptos para interfaz.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
 
 ## B.6 — Estrategia mínima de pruebas
 
-- [ ] Probar servicios públicos críticos: visibilidad, `404`, agregación global y estados de partido.
-- [ ] Probar validadores de URLs y medios.
-- [ ] Probar acciones administrativas críticas y su autorización.
-- [ ] Probar componentes con variantes deportivas donde el riesgo de regresión sea alto.
-- [ ] Evitar añadir una infraestructura de pruebas desproporcionada; justificar cualquier dependencia nueva.
+- [x] Probar servicios públicos críticos: visibilidad, `404`, agregación global y estados de partido.
+- [x] Probar validadores de URLs y medios.
+- [x] Probar acciones administrativas críticas y su autorización.
+- [x] Probar componentes con variantes deportivas donde el riesgo de regresión sea alto.
+- [x] Evitar añadir una infraestructura de pruebas desproporcionada; justificar cualquier dependencia nueva.
+
+Comprobación B.6:
+
+- Se añadió `npm run test` con el runner nativo de Node (`node --test`) y TypeScript mediante `tsx`; no se añadieron dependencias nuevas.
+- `tests/public-url.test.ts` cubre URLs externas `http/https`, rutas públicas locales, rechazo de rutas con `//`, `\`, segmentos `.`/`..`, control chars y SVG/SVGZ en referencias de imagen.
+- El test de URLs detectó y corrigió un fallo real: `isSafeLocalPublicPath()` revisa ahora segmentos crudos antes de que `URL` normalice rutas como `/media/../secret.png`.
+- `tests/public-sports-rules.test.ts` cubre agregación global de estadísticas públicas, participación de gol, divisiones seguras, conservación de `goalsAgainstPerMatch` en porteros de cantera, variantes de cromo Primer Equipo/cantera y estados visuales de partido.
+- La prueba de agregación se mantiene unitaria; las consultas DB del servicio global ya filtran `played: true`, partido `PLAYED`, visibilidad pública y equipos/asignaciones publicables antes de pasar filas al agregador.
+- `tests/admin-permissions.test.ts` cubre la navegación MVP activa, acceso de administrador único a secciones reales y denegación de secciones legacy descartadas (`seasons`, `imports`, `users`, `settings`).
+- `server/auth/permissions.ts` mantiene los tipos legacy por compatibilidad, pero `canAccessAdminSection()` solo autoriza secciones activas de navegación.
+- `cmd /c npm run test` termina con 11 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
 
 ## B.7 — Cierre de la Fase B
 
-- [ ] No quedan módulos de mocks importados por código de producción.
-- [ ] No quedan datos de demostración en rutas públicas ni administrativas.
-- [ ] Los archivos monolíticos prioritarios están divididos por responsabilidad.
-- [ ] Lint, build, validación de Prisma y pruebas seleccionadas terminan correctamente.
-- [ ] La navegación pública y administrativa principal se revisa manualmente.
+- [x] No quedan módulos de mocks importados por código de producción.
+- [x] No quedan datos de demostración en rutas públicas ni administrativas.
+- [x] Los archivos monolíticos prioritarios están divididos por responsabilidad.
+- [x] Lint, build, validación de Prisma y pruebas seleccionadas terminan correctamente.
+- [x] La navegación pública y administrativa principal se revisa manualmente.
+
+Comprobación B.7:
+
+- Búsqueda final en `src`, `server` y `package.json` de `mock`, `mocks`, `fixture`, `fixtures`, `sample`, `demo`, `example.com`, `PUBLIC_.*MOCK` y `stub` sin resultados en runtime de producción.
+- Las coincidencias restantes de `placeholder` bajo `src` corresponden a atributos de formulario o CSS `::placeholder`, no a datos ficticios.
+- Las coincidencias restantes de `example.com`/`demo` están en `tests/public-url.test.ts` como entradas de validación negativa/positiva, no en runtime.
+- Búsqueda de `/admin/usuarios`, `/admin/temporadas` y `/admin/importaciones` sin rutas activas en `src` ni `server`; las coincidencias restantes están en este documento como historial de cierre.
+- `src/app` mantiene únicamente las rutas públicas canónicas, `/admin/login`, las pantallas admin MVP activas y las rutas técnicas de auth/media.
+- `adminNavigation` mantiene solo secciones MVP activas: panel, jornada, clasificaciones, estadísticas, equipos, plantilla, fichas/cromos, media y noticias.
+- `canAccessAdminSection()` autoriza solo las secciones activas de navegación aunque el tipo conserve claves legacy por compatibilidad.
+- Los workspaces y componentes prioritarios tratados en B.2/B.3 tienen módulos de apoyo separados; quedan archivos compuestos grandes como candidatos secundarios para fases futuras si aparece dolor real, pero no bloquean el cierre arquitectónico de Fase B.
+- Revisión manual por código completada de la navegación pública principal y navegación administrativa MVP.
+- `cmd /c npm run test` termina con 11 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
+- `cmd /c git status --short` sigue bloqueado por `safe.directory` del entorno.
 
 ---
 
@@ -612,3 +660,6 @@ Añadir una entrada al cerrar cada bloque de trabajo.
 | 2026-07-23 | B.2 | Workspaces admin prioritarios divididos mediante módulos de soporte para estadísticas, asignaciones, partidos y clasificaciones; dashboard admin desacoplado de Prisma | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.3 debe continuar con la familia de componentes públicos; quedan monolitos secundarios para fases posteriores si se requiere más granularidad |
 | 2026-07-23 | B.3 | Familia pública consolidada con vistas compartidas para resumen de equipo, plantilla y cromos por capas; variantes premium/estándar explícitas y documentación visual alineada | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.4 debe eliminar los mocks/datos estáticos heredados que aún no son fuente runtime real |
 | 2026-07-23 | B.4 | Mocks de ejecución eliminados; calendarios, clasificaciones, noticias, equipo/directorio y jugadores quedan en DB o estado vacío/404 honesto; archivos estáticos heredados retirados | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.5 debe reforzar estados de carga, vacío y error; quedan referencias históricas a mocks solo en docs de contexto/seed no runtime |
+| 2026-07-23 | B.5 | Estados de carga/error/404 añadidos para público y admin; vacíos diferenciados; feedback admin con tonos coherentes; logging seguro de servidor instrumentado | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.6 debe añadir la estrategia mínima de pruebas sin sobredimensionar infraestructura |
+| 2026-07-23 | B.6 | Estrategia mínima de pruebas añadida con Node test + `tsx`; URLs/media, reglas deportivas públicas, variantes de cromos y permisos admin quedan cubiertos; corregida validación de rutas locales con `..` | `cmd /c npm run test` correcto con 11 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.7 debe cerrar Fase B con búsqueda final, validaciones y revisión de navegación |
+| 2026-07-23 | B.7 | Fase B cerrada; producción queda sin mocks/demos runtime, navegación pública/admin revisada, rutas descartadas ausentes y validaciones completas correctas | `cmd /c npm run test` correcto con 11 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | Continuar por C.1; `git status` sigue bloqueado por `safe.directory` del entorno |

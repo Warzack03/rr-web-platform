@@ -54,6 +54,11 @@ type AdminMatchesWorkspaceProps = {
   initialSelectedTeamSlug?: string;
 };
 
+type AdminMatchesFeedback = {
+  message: string;
+  tone: "success" | "danger" | "info";
+};
+
 export function AdminMatchesWorkspace({
   initialMatches,
   initialTeams,
@@ -71,7 +76,7 @@ export function AdminMatchesWorkspace({
   );
   const [dialogState, setDialogState] = useState<MatchDialogState>(null);
   const [quickResultMatchId, setQuickResultMatchId] = useState<string | null>(null);
-  const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminMatchesFeedback | null>(null);
   const [screenState, setScreenState] = useState<AdminMatchesScreenState>("loading");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<AdminMatchPageSize>(10);
@@ -87,13 +92,13 @@ export function AdminMatchesWorkspace({
   }, [initialUiState]);
 
   useEffect(() => {
-    if (!bannerMessage) {
+    if (!feedback) {
       return;
     }
 
-    const timer = window.setTimeout(() => setBannerMessage(null), 2400);
+    const timer = window.setTimeout(() => setFeedback(null), 2400);
     return () => window.clearTimeout(timer);
-  }, [bannerMessage]);
+  }, [feedback]);
 
   const allowedTeams = teams;
   const allowedTeamSlugs = new Set(allowedTeams.map((team) => team.slug));
@@ -140,8 +145,8 @@ export function AdminMatchesWorkspace({
     ? allMatches.find((match) => match.id === quickResultMatchId)
     : undefined;
 
-  function pushBanner(message: string) {
-    startTransition(() => setBannerMessage(message));
+  function pushBanner(message: string, tone: AdminMatchesFeedback["tone"] = "success") {
+    startTransition(() => setFeedback({ message, tone }));
   }
 
   function applyServerData(nextData: {
@@ -187,7 +192,7 @@ export function AdminMatchesWorkspace({
     setIsPersisting(false);
 
     if (!result.ok) {
-      pushBanner(result.message);
+      pushBanner(result.message, "danger");
       return;
     }
 
@@ -207,7 +212,7 @@ export function AdminMatchesWorkspace({
     setIsPersisting(false);
 
     if (!result.ok) {
-      pushBanner(result.message);
+      pushBanner(result.message, "danger");
       return;
     }
 
@@ -235,7 +240,7 @@ export function AdminMatchesWorkspace({
         }
       />
 
-      {bannerMessage ? <AdminFeedbackBanner message={bannerMessage} /> : null}
+      {feedback ? <AdminFeedbackBanner message={feedback.message} tone={feedback.tone} /> : null}
 
       <div
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-5"

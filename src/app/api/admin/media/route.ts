@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { canAccessAdminSection } from "@/server/auth/permissions";
 import { getAuthenticatedAdmin } from "@/server/auth/session";
+import {
+  getSafeServerErrorMessage,
+  logServerError,
+} from "@/server/logging/safe-server-log";
 import { storeUploadedMediaAsset } from "@/server/services/admin-media";
 
 export async function POST(request: Request) {
@@ -24,10 +28,12 @@ export async function POST(request: Request) {
       message: "Media subida y guardada.",
     });
   } catch (error) {
+    logServerError("admin.media.upload", error, { userId: user.id });
+
     return NextResponse.json(
       {
         ok: false,
-        message: error instanceof Error ? error.message : "No hemos podido subir la media.",
+        message: getSafeServerErrorMessage(error, "No hemos podido subir la media."),
       },
       { status: 400 },
     );

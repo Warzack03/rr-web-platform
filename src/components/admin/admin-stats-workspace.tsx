@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { startTransition, useEffect, useState } from "react";
-import { AlertTriangle, ShieldCheck, Target, Trophy, Users } from "lucide-react";
+import { ShieldCheck, Target, Trophy, Users } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
+import { AdminErrorState } from "@/components/admin/admin-error-state";
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
@@ -61,6 +62,11 @@ type AdminStatsWorkspaceProps = {
   initialStatsState: AdminStatsState;
 };
 
+type AdminStatsFeedback = {
+  message: string;
+  tone: "success" | "danger" | "info";
+};
+
 export function AdminStatsWorkspace({
   initialUiState = "ready",
   initialSelectedTeamSlug,
@@ -73,7 +79,7 @@ export function AdminStatsWorkspace({
   initialStatsState,
 }: AdminStatsWorkspaceProps) {
   const [screenState, setScreenState] = useState<AdminStatsScreenState>("loading");
-  const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminStatsFeedback | null>(null);
   const [teams, setTeams] = useState(initialTeams);
   const [allMatches, setAllMatches] = useState(initialMatches);
   const [allPlayers, setAllPlayers] = useState(initialPlayers);
@@ -105,13 +111,13 @@ export function AdminStatsWorkspace({
   }, [initialUiState]);
 
   useEffect(() => {
-    if (!bannerMessage) {
+    if (!feedback) {
       return;
     }
 
-    const timer = window.setTimeout(() => setBannerMessage(null), 2400);
+    const timer = window.setTimeout(() => setFeedback(null), 2400);
     return () => window.clearTimeout(timer);
-  }, [bannerMessage]);
+  }, [feedback]);
 
   const teamNameBySlug = new Map(teams.map((team) => [team.slug, team.name]));
   const allowedTeams = teams;
@@ -232,8 +238,8 @@ export function AdminStatsWorkspace({
       }, 0)
     : 0;
 
-  function pushBanner(message: string) {
-    startTransition(() => setBannerMessage(message));
+  function pushBanner(message: string, tone: AdminStatsFeedback["tone"] = "success") {
+    startTransition(() => setFeedback({ message, tone }));
   }
 
   function applyServerData(nextData: {
@@ -284,7 +290,7 @@ export function AdminStatsWorkspace({
     });
 
     if (!result.ok) {
-      pushBanner(result.message);
+      pushBanner(result.message, "danger");
       return;
     }
 
@@ -391,7 +397,7 @@ export function AdminStatsWorkspace({
     );
     setPendingGuestPlayerId("");
     setMobileSection(isGoalkeeperPlayer(guestContext) ? "goalkeepers" : "outfield");
-    pushBanner(`Jugador puntual anadido: ${guestPlayer.name}.`);
+    pushBanner(`Jugador puntual anadido: ${guestPlayer.name}.`, "info");
   }
 
   function markPlayerReviewed(playerId: string) {
@@ -471,7 +477,9 @@ export function AdminStatsWorkspace({
         }
       />
 
-      {bannerMessage ? <AdminFeedbackBanner message={bannerMessage} /> : null}
+      {feedback ? (
+        <AdminFeedbackBanner message={feedback.message} tone={feedback.tone} />
+      ) : null}
 
       <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         <AdminMetricCard
@@ -547,27 +555,11 @@ export function AdminStatsWorkspace({
       ) : null}
 
       {screenState === "error" ? (
-        <AdminPanel className="border-[rgba(214,64,69,0.34)] p-6">
-          <div className="max-w-2xl space-y-3">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-[color:var(--rr-gold)]" />
-              <p className="rr-kicker text-[color:var(--rr-gold)]">Error</p>
-            </div>
-            <h2 className="rr-display text-[2rem] leading-[0.95] text-white">
-              No hemos podido cargar la carga de estadisticas
-            </h2>
-            <p className="text-[0.96rem] leading-6 text-[color:var(--rr-muted)]">
-              Revisa la conexion o vuelve a intentarlo en unos segundos.
-            </p>
-            <button
-              type="button"
-              onClick={() => setScreenState("ready")}
-              className="rr-button rr-button-primary text-[0.82rem]"
-            >
-              Reintentar
-            </button>
-          </div>
-        </AdminPanel>
+        <AdminErrorState
+          title="No hemos podido cargar las estadisticas"
+          description="Revisa la conexion o vuelve a intentarlo en unos segundos."
+          onRetry={() => setScreenState("ready")}
+        />
       ) : null}
 
       {screenState === "ready" && players.length === 0 ? (

@@ -18,6 +18,7 @@ import {
 import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import { getPublishedPublicNewsArticlesFromDb } from "@/server/services/public/news";
 import { prisma } from "@/server/db/prisma";
+import { logServerError } from "@/server/logging/safe-server-log";
 import {
   buildStandingTableScopeWhere,
   findOwnStandingRowForTeam,
@@ -648,7 +649,8 @@ export async function getPublicTeamPageContentFromDb(
     }
 
     return buildPublicTeamPageContent(team);
-  } catch {
+  } catch (error) {
+    logServerError("public.teams.teamPage", error, { teamSlug });
     return null;
   }
 }
@@ -660,7 +662,8 @@ export async function getPublicNonFirstTeamSlugsFromDb(): Promise<string[]> {
     return teams
       .filter((team) => !team.team.isFirstTeam)
       .map((team) => team.publicSlug);
-  } catch {
+  } catch (error) {
+    logServerError("public.teams.nonFirstTeamSlugs", error);
     return [];
   }
 }
@@ -727,7 +730,8 @@ export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirec
             }
           : undefined,
     };
-  } catch {
+  } catch (error) {
+    logServerError("public.teams.directory", error);
     return null;
   }
 }

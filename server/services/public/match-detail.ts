@@ -12,6 +12,7 @@ import {
 } from "@/server/services/public/player-mappers";
 
 import { prisma } from "@/server/db/prisma";
+import { logServerError } from "@/server/logging/safe-server-log";
 
 function isNumericId(value: string) {
   return /^\d+$/.test(value);
@@ -444,7 +445,8 @@ export async function getFirstTeamMatchDetailFromDb(
     }
 
     return detail;
-  } catch {
+  } catch (error) {
+    logServerError("public.matchDetail.firstTeam", error, { matchId });
     return null;
   }
 }
@@ -461,7 +463,8 @@ export async function getAcademyMatchDetailFromDb(
     }
 
     return detail;
-  } catch {
+  } catch (error) {
+    logServerError("public.matchDetail.academyTeam", error, { teamSlug, matchId });
     return null;
   }
 }
@@ -488,7 +491,8 @@ export async function getFirstTeamMatchDetailIdsFromDb(): Promise<string[]> {
     });
 
     return matches.map((match) => match.id.toString());
-  } catch {
+  } catch (error) {
+    logServerError("public.matchDetail.firstTeamIds", error);
     return [];
   }
 }
@@ -528,7 +532,8 @@ export async function getAcademyMatchDetailStaticParamsFromDb(): Promise<
       teamSlug: match.seasonTeam.publicSlug,
       matchId: match.id.toString(),
     }));
-  } catch {
+  } catch (error) {
+    logServerError("public.matchDetail.academyStaticParams", error);
     return [];
   }
 }

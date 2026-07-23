@@ -32,24 +32,12 @@ export const adminNavigation: AdminNavItem[] = [
   { href: "/admin/noticias", label: "Noticias", section: "news", status: "active" },
 ];
 
-const adminSectionKeys: ReadonlySet<AdminSectionKey> = new Set([
-  "dashboard",
-  "seasons",
-  "teams",
-  "players",
-  "assignments",
-  "matches",
-  "standings",
-  "stats",
-  "news",
-  "media",
-  "imports",
-  "users",
-  "settings",
-]);
+const activeAdminSectionKeys: ReadonlySet<AdminSectionKey> = new Set(
+  adminNavigation.map((item) => item.section),
+);
 
 export function canAccessAdminSection(_sectionRole: unknown, section: AdminSectionKey) {
-  return adminSectionKeys.has(section);
+  return activeAdminSectionKeys.has(section);
 }
 
 export function getAdminNavigation() {

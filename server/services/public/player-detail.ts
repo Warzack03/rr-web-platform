@@ -2,6 +2,7 @@ import { MatchStatus } from "@prisma/client";
 import type { PublicPlayerProfile } from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
+import { logServerError } from "@/server/logging/safe-server-log";
 import {
   aggregatePublicPlayerStats,
   buildPlayerName,
@@ -296,7 +297,8 @@ export async function getPublicPlayerDetailFromDb(
     });
 
     return mapCandidatesToGlobalProfile(candidates, shopUrl, statRows);
-  } catch {
+  } catch (error) {
+    logServerError("public.player.detail", error, { playerSlug });
     return null;
   }
 }
@@ -345,7 +347,8 @@ async function getPublicPlayerRouteIndexFromDb() {
       },
       orderBy: [{ publicName: "asc" }, { id: "asc" }],
     });
-  } catch {
+  } catch (error) {
+    logServerError("public.player.routeIndex", error);
     return [];
   }
 }

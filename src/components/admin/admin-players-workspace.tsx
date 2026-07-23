@@ -34,6 +34,10 @@ import { cn } from "@/lib/utils";
 
 type PlayerVisibilityFilter = "all" | "visible" | "hidden";
 type PlayerPositionFilter = "all" | AdminPlayer["position"];
+type AdminPlayersFeedback = {
+  message: string;
+  tone: "success" | "danger";
+};
 
 type AdminPlayersWorkspaceProps = {
   initialPlayers: AdminManagedPlayer[];
@@ -115,7 +119,7 @@ export function AdminPlayersWorkspace({
   const [teamFilter, setTeamFilter] = useState(initialTeamFilter);
   const [positionFilter, setPositionFilter] = useState<PlayerPositionFilter>("all");
   const [visibilityFilter, setVisibilityFilter] = useState<PlayerVisibilityFilter>("all");
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminPlayersFeedback | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [photoPickerOpen, setPhotoPickerOpen] = useState(false);
 
@@ -189,14 +193,14 @@ export function AdminPlayersWorkspace({
     setIsSaving(false);
 
     if (!result.ok) {
-      setFeedback(result.message);
+      setFeedback({ message: result.message, tone: "danger" });
       return;
     }
 
     setPlayers(result.data.players);
     setSavedPlayers(result.data.players);
     setSelectedPlayerId(result.selectedPlayerId ?? selectedPlayer.id);
-    setFeedback(result.message);
+    setFeedback({ message: result.message, tone: "success" });
   }
 
   if (!selectedPlayer) {
@@ -245,7 +249,9 @@ export function AdminPlayersWorkspace({
         }
       />
 
-      {feedback ? <AdminFeedbackBanner message={feedback} /> : null}
+      {feedback ? (
+        <AdminFeedbackBanner message={feedback.message} tone={feedback.tone} />
+      ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[25rem_minmax(0,1fr)]">
         <AdminPanel className="p-4 sm:p-5">

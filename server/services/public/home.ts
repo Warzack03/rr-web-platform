@@ -4,6 +4,7 @@ import type { StandingRowData } from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import { prisma } from "@/server/db/prisma";
+import { logServerError } from "@/server/logging/safe-server-log";
 import {
   buildStandingTableScopeWhere,
   pickBestStandingTableForTeam,
@@ -396,7 +397,8 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         })),
       },
     };
-  } catch {
+  } catch (error) {
+    logServerError("public.home.sections", error);
     return null;
   }
 }

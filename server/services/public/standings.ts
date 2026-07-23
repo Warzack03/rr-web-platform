@@ -5,6 +5,7 @@ import type {
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
+import { logServerError } from "@/server/logging/safe-server-log";
 import {
   buildStandingTableScopeWhere,
   pickBestStandingTableForTeam,
@@ -261,7 +262,8 @@ export async function getFirstTeamStandingsContentFromDb(): Promise<TeamStanding
     }
 
     return content;
-  } catch {
+  } catch (error) {
+    logServerError("public.standings.firstTeam", error);
     return null;
   }
 }
@@ -277,7 +279,8 @@ export async function getAcademyTeamStandingsContentFromDb(
     }
 
     return content;
-  } catch {
+  } catch (error) {
+    logServerError("public.standings.academyTeam", error, { teamSlug });
     return null;
   }
 }

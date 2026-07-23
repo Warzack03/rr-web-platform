@@ -4,6 +4,10 @@ import { NewsStatus } from "@prisma/client";
 import { slugifyNewsTitle } from "@/lib/admin/news-management";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import {
+  getSafeServerErrorMessage,
+  logServerError,
+} from "@/server/logging/safe-server-log";
+import {
   deleteNewsPost,
   getAdminNewsScreenData,
   saveNewsPost,
@@ -70,10 +74,15 @@ export async function saveNewsPostAction(
             : "Borrador guardado.",
     };
   } catch (error) {
+    logServerError("admin.news.save", error, {
+      userId: user.id,
+      newsPostId: parsed.data.newsPostId,
+      status: parsed.data.status,
+    });
+
     return {
       ok: false,
-      message:
-        error instanceof Error ? error.message : "No hemos podido guardar la noticia.",
+      message: getSafeServerErrorMessage(error, "No hemos podido guardar la noticia."),
     };
   }
 }
@@ -102,10 +111,14 @@ export async function deleteNewsPostAction(
       message: "Noticia eliminada.",
     };
   } catch (error) {
+    logServerError("admin.news.delete", error, {
+      userId: user.id,
+      newsPostId: parsed.data.newsPostId,
+    });
+
     return {
       ok: false,
-      message:
-        error instanceof Error ? error.message : "No hemos podido eliminar la noticia.",
+      message: getSafeServerErrorMessage(error, "No hemos podido eliminar la noticia."),
     };
   }
 }

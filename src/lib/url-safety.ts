@@ -23,11 +23,13 @@ export function isSafeExternalHttpUrl(value: string) {
 
 export function isSafeLocalPublicPath(value: string) {
   const normalizedValue = value.trim();
+  const rawPathSegments = (normalizedValue.split(/[?#]/, 1)[0] ?? "").split("/");
 
   if (
     !normalizedValue.startsWith("/") ||
     normalizedValue.startsWith("//") ||
     normalizedValue.includes("\\") ||
+    rawPathSegments.some((segment) => segment === "." || segment === "..") ||
     CONTROL_CHARS_PATTERN.test(normalizedValue)
   ) {
     return false;

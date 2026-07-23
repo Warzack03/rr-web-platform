@@ -47,6 +47,11 @@ type AdminAssignmentsWorkspaceProps = {
   initialSelectedAssignmentId?: string;
 };
 
+type AdminAssignmentsFeedback = {
+  message: string;
+  tone: "success" | "danger" | "info";
+};
+
 function inputClassName(className?: string) {
   return cn(
     "min-h-11 rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]",
@@ -76,7 +81,7 @@ export function AdminAssignmentsWorkspace({
     initialSelectedAssignmentId ?? "",
   );
   const [search, setSearch] = useState("");
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminAssignmentsFeedback | null>(null);
   const [isPersisting, setIsPersisting] = useState(false);
   const [isCreating, setIsCreating] = useState(
     initialAssignments.filter(
@@ -206,7 +211,7 @@ export function AdminAssignmentsWorkspace({
     setIsPersisting(false);
 
     if (!result.ok) {
-      setFeedback(result.message);
+      setFeedback({ message: result.message, tone: "danger" });
       return;
     }
 
@@ -214,7 +219,7 @@ export function AdminAssignmentsWorkspace({
     setSelectedTeamSlug(result.selectedTeamSlug ?? selectedAssignment.teamSlug);
     setSelectedAssignmentId(result.selectedAssignmentId ?? selectedAssignment.id);
     setIsCreating(false);
-    setFeedback(result.message);
+    setFeedback({ message: result.message, tone: "success" });
   }
 
   async function handleCreateAssignment() {
@@ -237,7 +242,7 @@ export function AdminAssignmentsWorkspace({
     setIsPersisting(false);
 
     if (!result.ok) {
-      setFeedback(result.message);
+      setFeedback({ message: result.message, tone: "danger" });
       return;
     }
 
@@ -249,7 +254,7 @@ export function AdminAssignmentsWorkspace({
     setSelectedAssignmentId(result.selectedAssignmentId ?? nextAssignments[0]?.id ?? "");
     setIsCreating(false);
     setCreateDraft(buildCreateAssignmentDraft(nextAssignments));
-    setFeedback(result.message);
+    setFeedback({ message: result.message, tone: "success" });
   }
 
   if (!currentTeam) {
@@ -292,7 +297,7 @@ export function AdminAssignmentsWorkspace({
         }
       />
 
-      {feedback ? <AdminFeedbackBanner message={feedback} /> : null}
+      {feedback ? <AdminFeedbackBanner message={feedback.message} tone={feedback.tone} /> : null}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="space-y-4">

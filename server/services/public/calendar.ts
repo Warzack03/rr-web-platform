@@ -7,6 +7,7 @@ import type {
 } from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
+import { logServerError } from "@/server/logging/safe-server-log";
 
 type DbCalendarTeam = {
   id: bigint;
@@ -289,7 +290,8 @@ export async function getPublicTeamCalendarContentFromDb(
     }
 
     return buildCalendarContent(team, Array.from(grouped.values()));
-  } catch {
+  } catch (error) {
+    logServerError("public.calendar.team", error, { teamSlug });
     return null;
   }
 }

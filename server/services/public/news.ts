@@ -5,6 +5,7 @@ import type {
 } from "@/lib/contracts/public";
 import { getTeamsDirectoryTeamName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
+import { logServerError } from "@/server/logging/safe-server-log";
 
 function formatNewsDateLabel(date: Date | null) {
   if (!date) {
@@ -169,7 +170,8 @@ export async function getPublishedPublicNewsArticlesFromDb(): Promise<PublicNews
         content: buildContentBlocks(post.bodyMarkdown, post.externalVideoUrl),
       } satisfies PublicNewsArticle;
     });
-  } catch {
+  } catch (error) {
+    logServerError("public.news.published", error);
     return null;
   }
 }

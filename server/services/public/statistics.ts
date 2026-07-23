@@ -2,6 +2,7 @@ import type { TeamStatisticsPageContent } from "@/lib/contracts/public";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
 import { getPublicTeamPageContentFromDb } from "@/server/services/public/teams";
+import { logServerError } from "@/server/logging/safe-server-log";
 
 function buildStatisticsSubtitle(teamType: "first-team" | "academy") {
   return teamType === "first-team"
@@ -63,7 +64,8 @@ export async function getFirstTeamStatisticsPageContentFromDb(): Promise<TeamSta
       fieldPlayers: roster.fieldPlayers,
       goalkeepers: roster.goalkeepers,
     });
-  } catch {
+  } catch (error) {
+    logServerError("public.statistics.firstTeam", error);
     return null;
   }
 }
@@ -91,7 +93,8 @@ export async function getAcademyTeamStatisticsPageContentFromDb(
       fieldPlayers: roster.fieldPlayers,
       goalkeepers: roster.goalkeepers,
     });
-  } catch {
+  } catch (error) {
+    logServerError("public.statistics.academyTeam", error, { teamSlug });
     return null;
   }
 }

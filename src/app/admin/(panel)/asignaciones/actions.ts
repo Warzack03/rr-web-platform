@@ -10,6 +10,10 @@ import {
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 import {
+  getSafeServerErrorMessage,
+  logServerError,
+} from "@/server/logging/safe-server-log";
+import {
   createAssignmentInputSchema,
   saveAssignmentInputSchema,
   type CreateAssignmentInput,
@@ -493,12 +497,19 @@ export async function createAssignmentAction(
       selectedAssignmentId = created.id.toString();
     });
   } catch (error) {
+    logServerError("admin.assignments.create", error, {
+      userId: user.id,
+      teamSlug: payload.teamSlug,
+      mode: payload.mode,
+      playerId: payload.playerId,
+    });
+
     return {
       ok: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "No hemos podido completar el alta de plantilla.",
+      message: getSafeServerErrorMessage(
+        error,
+        "No hemos podido completar el alta de plantilla.",
+      ),
     };
   }
 

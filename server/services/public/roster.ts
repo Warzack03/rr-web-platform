@@ -9,6 +9,7 @@ import type {
 } from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
+import { logServerError } from "@/server/logging/safe-server-log";
 import {
   aggregatePublicPlayerStats,
   buildPlayerName,
@@ -194,7 +195,8 @@ export async function getPublicRosterContentFromDb(
       goalkeepers: allPlayers.filter((player) => player.playerType === "goalkeeper"),
       fieldPlayers: allPlayers.filter((player) => player.playerType === "field"),
     };
-  } catch {
+  } catch (error) {
+    logServerError("public.roster.team", error, { teamSlug });
     return null;
   }
 }
