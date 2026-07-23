@@ -11,8 +11,10 @@ type DashboardMatch = {
   teamName: string;
   opponentName: string;
   dateTime: Date | null;
-  status: MatchStatus;
+  status: AdminDashboardMatchStatus;
 };
+
+export type AdminDashboardMatchStatus = "scheduled" | "live" | "played" | "postponed";
 
 type DashboardResult = {
   id: string;
@@ -36,6 +38,20 @@ export type AdminDashboardData = {
   upcomingMatches: DashboardMatch[];
   recentResults: DashboardResult[];
 };
+
+function mapDashboardMatchStatus(status: MatchStatus): AdminDashboardMatchStatus {
+  switch (status) {
+    case MatchStatus.LIVE:
+      return "live";
+    case MatchStatus.POSTPONED:
+      return "postponed";
+    case MatchStatus.PLAYED:
+      return "played";
+    case MatchStatus.SCHEDULED:
+    default:
+      return "scheduled";
+  }
+}
 
 export async function getAdminDashboardData(
   _user: AuthenticatedAdmin,
@@ -201,7 +217,7 @@ export async function getAdminDashboardData(
       teamName: match.seasonTeam.publicName,
       opponentName: match.opponentName,
       dateTime: match.dateTime,
-      status: match.status,
+      status: mapDashboardMatchStatus(match.status),
     })),
     recentResults: recentResults.map((match) => ({
       id: match.id.toString(),

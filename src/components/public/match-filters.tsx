@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { MatchFilter, MatchFilterOption } from "@/lib/public/team-calendar-content";
+import type { MatchFilter, MatchFilterOption } from "@/lib/contracts/public";
 
 type MatchFiltersProps = {
   options: MatchFilterOption[];

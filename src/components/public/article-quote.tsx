@@ -1,4 +1,4 @@
-import type { PublicNewsQuoteBlock } from "@/lib/public/news-content";
+import type { PublicNewsQuoteBlock } from "@/lib/contracts/public";
 
 type ArticleQuoteProps = {
   block: PublicNewsQuoteBlock;

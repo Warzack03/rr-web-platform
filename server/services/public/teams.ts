@@ -6,11 +6,11 @@ import type {
   TeamsDirectoryContent,
 } from "@/lib/public/teams-directory-content";
 import type {
-  MatchResult,
   PublicTeamPageContent,
-  TeamNewsItem,
-  TeamQuickInfoItem,
-} from "@/lib/public/team-page-content";
+  PublicTeamNewsItem,
+  PublicTeamQuickInfoItem,
+  PublicTeamRecentResult,
+} from "@/lib/contracts/public";
 import {
   getPublicTeamDisplayName,
   getTeamsDirectoryTeamName,
@@ -110,7 +110,10 @@ function buildMatchCompetitionLabel(competitionName: string | null, matchday: nu
   return "Partido oficial";
 }
 
-function getResultCode(goalsFor: number | null, goalsAgainst: number | null): MatchResult["result"] {
+function getResultCode(
+  goalsFor: number | null,
+  goalsAgainst: number | null,
+): PublicTeamRecentResult["result"] {
   if ((goalsFor ?? 0) > (goalsAgainst ?? 0)) {
     return "V";
   }
@@ -298,7 +301,7 @@ async function getActiveVisibleSeasonTeams() {
   return siteSettings?.activeSeason?.seasonTeams ?? [];
 }
 
-async function getTeamNewsItems(teamName: string, isFirstTeam: boolean): Promise<TeamNewsItem[]> {
+async function getTeamNewsItems(teamName: string, isFirstTeam: boolean): Promise<PublicTeamNewsItem[]> {
   const articles = await getPublishedPublicNewsArticlesFromDb();
 
   if (!articles || articles.length === 0) {
@@ -328,7 +331,7 @@ async function getTeamNewsItems(teamName: string, isFirstTeam: boolean): Promise
   }));
 }
 
-function buildQuickInfo(team: DbSeasonTeam, coachNames: string[]): TeamQuickInfoItem[] {
+function buildQuickInfo(team: DbSeasonTeam, coachNames: string[]): PublicTeamQuickInfoItem[] {
   return [
     {
       label: "Categoria",

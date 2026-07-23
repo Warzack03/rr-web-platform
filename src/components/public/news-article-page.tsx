@@ -5,7 +5,7 @@ import { NewsArticleHeader } from "@/components/public/news-article-header";
 import { NewsArticleHeroImage } from "@/components/public/news-article-hero-image";
 import { RelatedNewsAside } from "@/components/public/related-news-aside";
 import { ShareArticleActions } from "@/components/public/share-article-actions";
-import type { PublicNewsArticle } from "@/lib/public/news-content";
+import type { PublicNewsArticle } from "@/lib/contracts/public";
 
 type NewsArticlePageProps = {
   article: PublicNewsArticle;

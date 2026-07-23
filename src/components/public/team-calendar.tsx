@@ -7,7 +7,7 @@ import type {
   MatchFilter,
   MatchFilterOption,
   MatchTeamType,
-} from "@/lib/public/team-calendar-content";
+} from "@/lib/contracts/public";
 import { MatchdaySection } from "@/components/public/matchday-section";
 import { MatchFilters } from "@/components/public/match-filters";
 

@@ -29,7 +29,7 @@ import { slugifyPlayerName } from "@/lib/admin/player-management";
 import type {
   DominantFoot,
   PublicPlayerType,
-} from "@/lib/public/player-profile-types";
+} from "@/lib/contracts/public";
 import { cn } from "@/lib/utils";
 
 type PlayerVisibilityFilter = "all" | "visible" | "hidden";

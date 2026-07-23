@@ -1,95 +1,14 @@
-import { getAcademyTeamCalendarContent } from "@/lib/public/team-calendar-content";
 import { getGlobalPlayerHref } from "@/lib/public/player-routes";
 import { getPublicTeamPageContentFromDb } from "@/server/services/public/teams";
-
-export type TeamStub = {
-  name: string;
-  highlight?: boolean;
-  logoUrl?: string;
-  logoAlt?: string;
-};
-
-export type MatchResult = {
-  opponent: string;
-  score: string;
-  result: "V" | "E" | "D";
-  label?: string;
-  href?: string;
-};
-
-export type TeamNewsItem = {
-  href: string;
-  category: string;
-  title: string;
-  tone: "ball" | "tactics";
-};
-
-export type TeamQuickInfoItem = {
-  label: string;
-  value: string;
-};
-
-export type SquadHighlight = {
-  name: string;
-  position: string;
-  number: number;
-  href?: string;
-};
-
-export type PublicTeamPageContent = {
-  slug: string;
-  variant: "first-team" | "academy";
-  name: string;
-  category: string;
-  competition: string;
-  season: string;
-  coaches: string[];
-  heroImageUrl?: string;
-  heroImagePosition?: string;
-  links: {
-    squad: string;
-    calendar: string;
-    standing: string;
-    statistics: string;
-  };
-  nextMatch: {
-    home: TeamStub;
-    away: TeamStub;
-    competition: string;
-    dateLabel: string;
-    venue: string;
-    status: string;
-    href?: string;
-  };
-  recentResults: MatchResult[];
-  standing: {
-    competition: string;
-    position: string;
-    points: number;
-    played: number;
-    won: number;
-    href: string;
-  };
-  metrics: {
-    goalsFor: number;
-    goalsAgainst: number;
-    matchesPlayed: number;
-    squadSize: number;
-  };
-  topScorer?: {
-    name: string;
-    goals: number;
-    href?: string;
-  };
-  squadPreview?: {
-    totalPlayers: number;
-    goalkeepers?: number;
-    highlights: SquadHighlight[];
-    href: string;
-  };
-  quickInfo?: TeamQuickInfoItem[];
-  news: TeamNewsItem[];
-};
+import type { PublicTeamPageContent } from "@/lib/contracts/public";
+export type {
+  PublicSquadHighlight,
+  PublicTeamNewsItem,
+  PublicTeamPageContent,
+  PublicTeamQuickInfoItem,
+  PublicTeamRecentResult,
+  PublicTeamReference,
+} from "@/lib/contracts/public";
 
 export const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
   "primer-equipo": {
@@ -518,79 +437,6 @@ export const PUBLIC_TEAM_PAGE_MOCKS: Record<string, PublicTeamPageContent> = {
     news: [],
   },
 };
-
-export function getNextAcademyMatchFromCalendar(team: PublicTeamPageContent) {
-  const calendar = getAcademyTeamCalendarContent({
-    slug: team.slug,
-    name: team.name,
-    competition: team.competition,
-    season: team.season,
-  });
-
-  for (const matchday of calendar.matchdays) {
-    const nextMatch = matchday.matches.find(
-      (match) => match.status === "pending" || match.status === "postponed",
-    );
-
-    if (nextMatch) {
-      return {
-        home: {
-          name: nextMatch.homeTeam.name,
-          highlight: nextMatch.homeTeam.isClub,
-        },
-        away: {
-          name: nextMatch.awayTeam.name,
-          highlight: nextMatch.awayTeam.isClub,
-        },
-        competition: `${nextMatch.competition} - ${matchday.title}`,
-        dateLabel: `${nextMatch.dateLabel} - ${nextMatch.kickoffLabel}`,
-        venue: nextMatch.venue,
-        status: "Pendiente",
-        href: nextMatch.detailHref,
-      };
-    }
-  }
-
-  return team.nextMatch;
-}
-
-export function getAcademyRecentResultsFromCalendar(team: PublicTeamPageContent) {
-  const calendar = getAcademyTeamCalendarContent({
-    slug: team.slug,
-    name: team.name,
-    competition: team.competition,
-    season: team.season,
-  });
-
-  return calendar.matchdays
-    .flatMap((matchday) =>
-      matchday.matches
-        .filter((match) => match.status === "played")
-        .map((match) => {
-          const clubIsHome = Boolean(match.homeTeam.isClub);
-          const goalsFor = clubIsHome ? match.homeScore : match.awayScore;
-          const goalsAgainst = clubIsHome ? match.awayScore : match.homeScore;
-          const opponent = clubIsHome ? match.awayTeam.name : match.homeTeam.name;
-
-          let result: MatchResult["result"] = "E";
-
-          if ((goalsFor ?? 0) > (goalsAgainst ?? 0)) {
-            result = "V";
-          } else if ((goalsFor ?? 0) < (goalsAgainst ?? 0)) {
-            result = "D";
-          }
-
-          return {
-            opponent,
-            score: `${goalsFor ?? "-"} - ${goalsAgainst ?? "-"}`,
-            result,
-            label: matchday.title.replace("Jornada ", "J"),
-            href: match.detailHref,
-          };
-        }),
-    )
-    .slice(0, 3);
-}
 
 export async function getPublicTeamPageContent(
   teamSlug: string,

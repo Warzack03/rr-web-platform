@@ -2,7 +2,7 @@ import type {
   AdminAssignmentPlayerOption,
   AdminAssignmentTeam,
   AdminManagedAssignment,
-} from "@/lib/admin/assignment-management";
+} from "@/lib/contracts/admin";
 import {
   formatAdminDateLabel,
   toDateInputValue,

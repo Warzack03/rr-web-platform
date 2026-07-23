@@ -11,7 +11,7 @@ import type {
   PublicPlayerStats,
   PublicPlayerType,
   PublicTeamType,
-} from "@/lib/public/player-profile-types";
+} from "@/lib/contracts/public";
 
 type PremiumPlayerCardProps = {
   name: string;

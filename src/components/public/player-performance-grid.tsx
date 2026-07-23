@@ -1,5 +1,5 @@
 import { PlayerPerformanceCard } from "@/components/public/player-performance-card";
-import type { MatchTeamType } from "@/lib/public/team-calendar-content";
+import type { MatchTeamType } from "@/lib/contracts/public";
 import type { PlayerPerformance } from "@/lib/public/match-detail-content";
 
 type PlayerPerformanceGridProps = {

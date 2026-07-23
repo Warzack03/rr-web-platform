@@ -2,7 +2,7 @@ import type {
   PublicPlayerStats,
   PublicPlayerStatsLevel,
   PublicPlayerType,
-} from "@/lib/public/player-profile-types";
+} from "@/lib/contracts/public";
 import { getGoalContributions } from "@/lib/public/team-statistics-utils";
 
 export type PlayerStatTone = "default" | "warning" | "danger";

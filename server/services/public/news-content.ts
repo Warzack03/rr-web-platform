@@ -1,4 +1,4 @@
-import type { PublicNewsArticle } from "@/lib/public/news-content";
+import type { PublicNewsArticle } from "@/lib/contracts/public";
 import { getPublishedPublicNewsArticlesFromDb } from "@/server/services/public/news";
 
 export async function getPublicNewsArticles() {

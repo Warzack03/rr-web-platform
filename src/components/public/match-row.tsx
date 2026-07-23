@@ -4,7 +4,7 @@ import { MatchScore } from "@/components/public/match-score";
 import { MatchStatusBadge } from "@/components/public/match-status-badge";
 import { TeamBadge } from "@/components/public/team-badge";
 import { cn } from "@/lib/utils";
-import type { CalendarMatch, MatchTeamType } from "@/lib/public/team-calendar-content";
+import type { CalendarMatch, MatchTeamType } from "@/lib/contracts/public";
 
 type MatchRowProps = {
   match: CalendarMatch;

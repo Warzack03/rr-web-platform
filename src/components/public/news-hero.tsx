@@ -1,6 +1,6 @@
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
-import type { PublicNewsArticle } from "@/lib/public/news-content";
+import type { PublicNewsArticle } from "@/lib/contracts/public";
 
 type NewsHeroProps = {
   article: PublicNewsArticle;

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { NewsArtwork } from "@/components/public/news-artwork";
-import type { PublicNewsArticle } from "@/lib/public/news-content";
+import type { PublicNewsArticle } from "@/lib/contracts/public";
 
 type RelatedNewsAsideProps = {
   articles: PublicNewsArticle[];

@@ -3,7 +3,7 @@ import { PlayerContextLinks } from "@/components/public/player-context-links";
 import { PlayerHero } from "@/components/public/player-hero";
 import { PlayerShopCTA } from "@/components/public/player-shop-cta";
 import { PlayerStatsGrid } from "@/components/public/player-stats-grid";
-import type { PublicPlayerProfile } from "@/lib/public/player-profile-types";
+import type { PublicPlayerProfile } from "@/lib/contracts/public";
 
 type PlayerDetailPageProps = {
   player: PublicPlayerProfile;

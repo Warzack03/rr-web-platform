@@ -3,7 +3,7 @@ import { mkdir, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { MediaType, MediaUsage, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import type { AdminMediaItem, AdminMediaPickerItem, AdminMediaUsage } from "@/lib/admin/media-management";
+import type { AdminMediaItem, AdminMediaPickerItem, AdminMediaUsage } from "@/lib/contracts/admin";
 import {
   adminMediaUsageValues,
   deriveMediaLabelFromPath,

@@ -1,86 +1,31 @@
-export const NEWS_CATEGORY_LABELS = [
-  "Todas",
-  "Cronica",
-  "Club",
-  "Cantera",
-  "Entrevista",
-] as const;
+import type {
+  PublicNewsArticle,
+  PublicNewsArticleImage,
+  PublicNewsHeadingBlock,
+  PublicNewsImageBlock,
+  PublicNewsImageGridBlock,
+  PublicNewsImageTone,
+  PublicNewsLinkBlock,
+  PublicNewsParagraphBlock,
+  PublicNewsQuoteBlock,
+} from "@/lib/contracts/public";
+import { publicNewsCategoryLabels } from "@/lib/contracts/public";
 
-export type PublicNewsCategory = Exclude<(typeof NEWS_CATEGORY_LABELS)[number], "Todas">;
+export const NEWS_CATEGORY_LABELS = publicNewsCategoryLabels;
 
-export type PublicNewsImageTone =
-  | "stadium-night"
-  | "locker-room"
-  | "academy-surge"
-  | "press-room"
-  | "training-ground"
-  | "crowd-lights";
-
-export type PublicNewsArticleImage = {
-  tone: PublicNewsImageTone;
-  alt: string;
-  caption?: string;
-};
-
-export type PublicNewsParagraphBlock = {
-  type: "paragraph";
-  text: string;
-};
-
-export type PublicNewsHeadingBlock = {
-  type: "heading";
-  text: string;
-};
-
-export type PublicNewsQuoteBlock = {
-  type: "quote";
-  text: string;
-  attribution?: string;
-};
-
-export type PublicNewsImageBlock = {
-  type: "image";
-  image: PublicNewsArticleImage;
-};
-
-export type PublicNewsImageGridBlock = {
-  type: "imageGrid";
-  images: PublicNewsArticleImage[];
-};
-
-export type PublicNewsLinkBlock = {
-  type: "link";
-  label: string;
-  href: string;
-  description?: string;
-  external?: boolean;
-};
-
-export type PublicNewsContentBlock =
-  | PublicNewsParagraphBlock
-  | PublicNewsHeadingBlock
-  | PublicNewsQuoteBlock
-  | PublicNewsImageBlock
-  | PublicNewsImageGridBlock
-  | PublicNewsLinkBlock;
-
-export type PublicNewsArticle = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  category: PublicNewsCategory;
-  date: string;
-  dateLabel: string;
-  author: string;
-  imageTone: PublicNewsImageTone;
-  coverImageAlt: string;
-  featured: boolean;
-  relatedTeam?: string;
-  relatedTeams?: string[];
-  badge?: string;
-  relatedSlugs?: string[];
-  content: PublicNewsContentBlock[];
-};
+export type {
+  PublicNewsArticle,
+  PublicNewsArticleImage,
+  PublicNewsCategory,
+  PublicNewsContentBlock,
+  PublicNewsHeadingBlock,
+  PublicNewsImageBlock,
+  PublicNewsImageGridBlock,
+  PublicNewsImageTone,
+  PublicNewsLinkBlock,
+  PublicNewsParagraphBlock,
+  PublicNewsQuoteBlock,
+} from "@/lib/contracts/public";
 
 const paragraph = (text: string): PublicNewsParagraphBlock => ({
   type: "paragraph",

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import type { PublicNewsImageTone } from "@/lib/public/news-content";
+import type { PublicNewsImageTone } from "@/lib/contracts/public";
 
 type NewsArtworkProps = {
   imageTone: PublicNewsImageTone;

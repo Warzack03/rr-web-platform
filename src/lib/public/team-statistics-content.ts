@@ -1,4 +1,4 @@
-import type { TeamStatisticsPageContent } from "@/lib/public/team-statistics-utils";
+import type { TeamStatisticsPageContent } from "@/lib/contracts/public";
 import {
   getAcademyTeamStatisticsPageContentFromDb,
   getFirstTeamStatisticsPageContentFromDb,

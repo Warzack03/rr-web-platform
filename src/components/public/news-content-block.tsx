@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { ArticleImageGrid } from "@/components/public/article-image-grid";
 import { ArticleQuote } from "@/components/public/article-quote";
-import type { PublicNewsContentBlock } from "@/lib/public/news-content";
+import type { PublicNewsContentBlock } from "@/lib/contracts/public";
 
 type NewsContentBlockProps = {
   block: PublicNewsContentBlock;

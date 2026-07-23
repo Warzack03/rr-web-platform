@@ -9,14 +9,16 @@ import {
   Trophy,
   UsersRound,
 } from "lucide-react";
-import { MatchStatus } from "@prisma/client";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminQuickAction } from "@/components/admin/admin-quick-action";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
-import type { AdminDashboardData } from "@/server/services/admin-dashboard";
+import type {
+  AdminDashboardData,
+  AdminDashboardMatchStatus,
+} from "@/server/services/admin-dashboard";
 
 type ControlArea = {
   title: string;
@@ -111,29 +113,29 @@ function formatMatchDateTime(date: Date | null) {
     .replace(".", "");
 }
 
-function formatMatchStatus(status: MatchStatus) {
+function formatMatchStatus(status: AdminDashboardMatchStatus) {
   switch (status) {
-    case MatchStatus.LIVE:
+    case "live":
       return "En juego";
-    case MatchStatus.POSTPONED:
+    case "postponed":
       return "Aplazado";
-    case MatchStatus.PLAYED:
+    case "played":
       return "Jugado";
-    case MatchStatus.SCHEDULED:
+    case "scheduled":
     default:
       return "Pendiente";
   }
 }
 
-function getMatchTone(status: MatchStatus) {
+function getMatchTone(status: AdminDashboardMatchStatus) {
   switch (status) {
-    case MatchStatus.LIVE:
+    case "live":
       return "danger" as const;
-    case MatchStatus.POSTPONED:
+    case "postponed":
       return "slate" as const;
-    case MatchStatus.PLAYED:
+    case "played":
       return "success" as const;
-    case MatchStatus.SCHEDULED:
+    case "scheduled":
     default:
       return "gold" as const;
   }
@@ -359,7 +361,7 @@ export function AdminDashboard({
                         <AdminStatusBadge
                           label={formatMatchStatus(match.status)}
                           tone={getMatchTone(match.status)}
-                          pulse={match.status === MatchStatus.LIVE}
+                          pulse={match.status === "live"}
                         />
                       </div>
                     </div>

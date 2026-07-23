@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft, Clock3, Trophy } from "lucide-react";
-import type { StandingRowData, TeamStandingsPageContent } from "@/lib/public/team-standings-content";
+import type { StandingRowData, TeamStandingsPageContent } from "@/lib/contracts/public";
 import { StandingTeamCrest } from "@/components/public/standing-team-crest";
 import { getPublicTeamHref } from "@/lib/public/team-section-links";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";

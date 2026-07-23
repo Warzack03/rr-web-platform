@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
-Última revisión: 22 de julio de 2026  
-Estado general: Fase A completada; continuar por Fase B.1  
-Siguiente bloque: Fase B.1 — Contratos de dominio neutrales
+Última revisión: 23 de julio de 2026  
+Estado general: Fase A, B.1 y B.2 completadas; continuar por Fase B.3  
+Siguiente bloque: Fase B.3 — Familia de componentes públicos
 
 ## Cómo usar este documento
 
@@ -248,22 +248,53 @@ Separar dominio, acceso a datos y presentación; reducir archivos monolíticos; 
 
 ## B.1 — Contratos de dominio neutrales
 
-- [ ] Definir contratos para equipos, asignaciones, jugadores, partidos, clasificación, estadísticas, noticias y medios sin depender de componentes.
-- [ ] Colocar los contratos de lectura pública y administración en módulos diferenciados cuando expongan datos distintos.
-- [ ] Eliminar nombres heredados de mock en tipos ya reales.
-- [ ] Evitar duplicar formas de datos entre servicios y componentes.
-- [ ] Validar escrituras con esquemas Zod próximos al límite servidor.
-- [ ] Confirmar que ningún contrato público incluye campos privados o internos.
+- [x] Definir contratos para equipos, asignaciones, jugadores, partidos, clasificación, estadísticas, noticias y medios sin depender de componentes.
+- [x] Colocar los contratos de lectura pública y administración en módulos diferenciados cuando expongan datos distintos.
+- [x] Eliminar nombres heredados de mock en tipos ya reales.
+- [x] Evitar duplicar formas de datos entre servicios y componentes.
+- [x] Validar escrituras con esquemas Zod próximos al límite servidor.
+- [x] Confirmar que ningún contrato público incluye campos privados o internos.
+
+Comprobación B.1:
+
+- `src/lib/contracts/public.ts` concentra los contratos públicos de jugadores, equipos, partidos/calendario, clasificación, estadísticas, noticias y referencias de media.
+- `src/lib/contracts/admin.ts` concentra los contratos de lectura/edición administrativa para asignaciones, equipos, jugadores, partidos, clasificaciones, estadísticas, noticias y media.
+- Componentes y servicios públicos consumen tipos desde `@/lib/contracts/public` en lugar de leer contratos desde módulos de contenido con datos estáticos heredados.
+- `src/lib/public/player-profile-types.ts`, `team-calendar-content.ts`, `team-page-content.ts`, `team-standings-content.ts`, `team-statistics-utils.ts` y `news-content.ts` quedan como wrappers/reexports o módulos de lógica/datos hasta su limpieza posterior.
+- Se eliminó el tipo `StandingsMock` y los aliases de prototipo `TeamStub`, `MatchResult`, `TeamNewsItem`, `TeamQuickInfoItem` y `SquadHighlight` del código activo, sustituyéndolos por contratos `Public*`.
+- Se retiraron helpers no consumidos de `team-page-content.ts` que dependían de calendarios estáticos de cantera.
+- La única coincidencia restante de `Mock/MOCK` en `src` es `PUBLIC_TEAM_PAGE_MOCKS`, dato estático heredado ya documentado para B.4; no es un contrato usado por componentes como fuente de tipos.
+- Las escrituras admin revisadas validan con Zod en `server/validators/*` y se consumen con `safeParse(input)` en acciones de servidor próximas al límite mutable.
+- Los contratos públicos no incluyen campos privados, de rol, credenciales, importación, NIF/DNI, contacto, finanzas, stock ni notas internas.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
 
 ## B.2 — División de áreas administrativas grandes
 
-- [ ] Dividir el workspace de estadísticas por filtros, tabla, edición y acciones de servidor.
-- [ ] Dividir la administración de asignaciones por consulta, formulario, validación y presentación.
-- [ ] Dividir la gestión de partidos por datos, estado, estadísticas y publicación.
-- [ ] Dividir la clasificación por edición, orden, validación y publicación.
-- [ ] Extraer lógica de negocio de componentes cliente.
-- [ ] Evitar componentes que conozcan directamente detalles de Prisma.
-- [ ] Mantener acciones mutables en servidor con validación y autorización comunes.
+- [x] Dividir el workspace de estadísticas por filtros, tabla, edición y acciones de servidor.
+- [x] Dividir la administración de asignaciones por consulta, formulario, validación y presentación.
+- [x] Dividir la gestión de partidos por datos, estado, estadísticas y publicación.
+- [x] Dividir la clasificación por edición, orden, validación y publicación.
+- [x] Extraer lógica de negocio de componentes cliente.
+- [x] Evitar componentes que conozcan directamente detalles de Prisma.
+- [x] Mantener acciones mutables en servidor con validación y autorización comunes.
+
+Comprobación B.2:
+
+- `src/lib/admin/stats-workspace.ts` extrae estado auxiliar de estadísticas: badge de estado, hora de guardado, comparación de entradas, tipos móviles y creación de jugador invitado.
+- `src/lib/admin/assignment-workspace.ts` extrae draft de alta, issues de plantilla, sugerencia de dorsal, etiquetas de posición y etiquetas de opciones de jugador.
+- `src/lib/admin/match-workspace.ts` extrae filtros iniciales, filtro efectivo de estado, disponibilidad de `live`, filtros por fecha, paginación y métricas de partidos.
+- `src/lib/admin/standing-workspace.ts` extrae filtros iniciales, orden/merge de tablas, banners y validación de filas/clasificación.
+- Los workspaces `admin-stats-workspace.tsx`, `admin-assignments-workspace.tsx`, `admin-matches-workspace.tsx` y `admin-standings-workspace.tsx` consumen esos módulos y quedan centrados en estado UI, render y llamadas a acciones.
+- `src/components/admin/admin-dashboard.tsx` ya no importa `@prisma/client`; `server/services/admin-dashboard.ts` mapea `MatchStatus` a un contrato plano antes de llegar al componente.
+- Búsqueda de `Prisma`, `prisma.` y `@prisma/client` en `src/components/admin` sin resultados.
+- Las acciones administrativas mantienen validación Zod con `safeParse(input)` y autorización por `requireAdminSectionAccess(...)` antes de mutar.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
 
 ## B.3 — Familia de componentes públicos
 
@@ -543,3 +574,5 @@ Añadir una entrada al cerrar cada bloque de trabajo.
 | 2026-07-22 | A.6 | Validación de URLs y media endurecida; SVG no se publica directamente; subida limitada a PNG/JPEG/WEBP/AVIF con comprobaciones de MIME, extensión, firma y ubicación | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, prueba local `svg-rasterize:ok` sin activar dependencia nueva | Decidir persistencia/conversión definitiva de medios en Fase E |
 | 2026-07-22 | A.7 | `/admin` marcado `noindex,nofollow`; copy técnico/prototipo retirado en pantallas tocadas; carpetas huérfanas de rutas descartadas eliminadas | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, revisión de navegación/admin | Smoke test visual pendiente para Fase E |
 | 2026-07-22 | A.8 | Fase A cerrada; build desbloqueado excluyendo tipos generados de desarrollo stale; rutas descartadas, fallbacks públicos y mocks restantes auditados | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npm run build` correcto, `cmd /c npx prisma validate` correcto, `cmd /c npx next typegen` correcto, `cmd /c npx tsc --noEmit --pretty false` correcto | Git sigue bloqueado por `safe.directory`; quedan datos estáticos heredados no usados como runtime público para resolver en B.1/B.3 |
+| 2026-07-22 | B.1 | Contratos públicos y admin centralizados en módulos neutrales; imports de tipos migrados desde módulos de contenido; nombres de prototipo retirados de contratos activos | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | `PUBLIC_TEAM_PAGE_MOCKS` sigue como dato estático heredado para B.4; B.2 debe dividir workspaces admin grandes |
+| 2026-07-23 | B.2 | Workspaces admin prioritarios divididos mediante módulos de soporte para estadísticas, asignaciones, partidos y clasificaciones; dashboard admin desacoplado de Prisma | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.3 debe continuar con la familia de componentes públicos; quedan monolitos secundarios para fases posteriores si se requiere más granularidad |

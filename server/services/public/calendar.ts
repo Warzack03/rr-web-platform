@@ -4,7 +4,7 @@ import type {
   CalendarMatchStatus,
   CalendarMatchday,
   TeamCalendarContent,
-} from "@/lib/public/team-calendar-content";
+} from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 

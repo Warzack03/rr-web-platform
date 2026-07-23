@@ -26,13 +26,22 @@ import {
   saveStandingAction,
 } from "@/app/admin/(panel)/clasificaciones/actions";
 import type {
-  StandingManagementRow,
   StandingManagementTeam,
   StandingManagementTable,
 } from "@/lib/admin/standings-management";
 import {
   normalizeStandingTable,
 } from "@/lib/admin/standings-management";
+import {
+  createStandingBanner,
+  getStandingRowErrorMap,
+  getStandingValidationErrors,
+  initialStandingsFilters,
+  mergeStandingTables,
+  sortStandingsManagementTables,
+  type AdminStandingsBannerTone,
+  type AdminStandingsScreenState,
+} from "@/lib/admin/standing-workspace";
 
 type AdminStandingsWorkspaceProps = {
   initialUiState?: "ready" | "error";
@@ -41,93 +50,6 @@ type AdminStandingsWorkspaceProps = {
   initialTeams: StandingManagementTeam[];
   activeSeasonLabel?: string;
 };
-
-type ScreenState = "loading" | "ready" | "error";
-type BannerTone = "success" | "danger";
-
-const initialFilters: StandingsFiltersValue = {
-  selectionMode: "team",
-  team: "",
-  competition: "",
-};
-
-function sortStandingsManagementTables(tables: StandingManagementTable[]) {
-  return [...tables].sort((left, right) => {
-    if (left.season !== right.season) {
-      return right.season.localeCompare(left.season);
-    }
-
-    if (left.teamName !== right.teamName) {
-      return left.teamName.localeCompare(right.teamName, "es");
-    }
-
-    return left.competition.localeCompare(right.competition, "es");
-  });
-}
-
-function mergeTables(
-  savedTables: StandingManagementTable[],
-  draftTables: Record<string, StandingManagementTable>,
-) {
-  return sortStandingsManagementTables(
-    savedTables.map((table) => draftTables[table.id] ?? table),
-  );
-}
-
-function createBanner(message: string, tone: BannerTone) {
-  return { message, tone };
-}
-
-function getRowValidationErrors(row: StandingManagementRow, index: number) {
-  const errors: string[] = [];
-  const numericFields = [
-    ["PJ", row.played],
-    ["G", row.won],
-    ["E", row.drawn],
-    ["P", row.lost],
-    ["PTS SA", row.sanctionPoints],
-    ["GF", row.goalsFor],
-    ["GC", row.goalsAgainst],
-  ] as const;
-
-  numericFields.forEach(([label, value]) => {
-    if (!Number.isFinite(value) || value < 0) {
-      errors.push(`La fila ${index + 1} tiene un valor invalido en ${label}.`);
-    }
-  });
-
-  return errors;
-}
-
-function getStandingValidationErrors(standing: StandingManagementTable) {
-  const rowErrors = standing.rows.flatMap((row, index) =>
-    getRowValidationErrors(row, index),
-  );
-
-  if (standing.rows.length === 0) {
-    rowErrors.push("La clasificacion necesita al menos una fila.");
-  }
-
-  if (!standing.rows.some((row) => row.isOwnTeam)) {
-    rowErrors.push(
-      "Marca al menos un equipo del club para la vista publica y el resumen.",
-    );
-  }
-
-  return rowErrors;
-}
-
-function getStandingRowErrorMap(standing: StandingManagementTable) {
-  return standing.rows.reduce<Record<string, string[]>>((errorsByRow, row, index) => {
-    const rowErrors = getRowValidationErrors(row, index);
-
-    if (rowErrors.length > 0) {
-      errorsByRow[row.id] = rowErrors;
-    }
-
-    return errorsByRow;
-  }, {});
-}
 
 export function AdminStandingsWorkspace({
   initialUiState = "ready",
@@ -142,15 +64,15 @@ export function AdminStandingsWorkspace({
   const [draftTables, setDraftTables] = useState<
     Record<string, StandingManagementTable>
   >({});
-  const [screenState, setScreenState] = useState<ScreenState>("loading");
+  const [screenState, setScreenState] = useState<AdminStandingsScreenState>("loading");
   const [banner, setBanner] = useState<{
     message: string;
-    tone: BannerTone;
+    tone: AdminStandingsBannerTone;
   } | null>(null);
   const [isPersisting, setIsPersisting] = useState(false);
-  const [filters, setFilters] = useState<StandingsFiltersValue>(initialFilters);
+  const [filters, setFilters] = useState<StandingsFiltersValue>(initialStandingsFilters);
 
-  const mergedTables = mergeTables(savedTables, draftTables);
+  const mergedTables = mergeStandingTables(savedTables, draftTables);
   const allowedTeams = initialTeams;
   const allowedTeamSlugs = new Set(allowedTeams.map((team) => team.slug));
   const scopedTables = mergedTables.filter((table) =>
@@ -233,8 +155,8 @@ export function AdminStandingsWorkspace({
     scopedTables.map((standing) => standing.teamSlug),
   ).size;
 
-  function pushBanner(message: string, tone: BannerTone = "success") {
-    startTransition(() => setBanner(createBanner(message, tone)));
+  function pushBanner(message: string, tone: AdminStandingsBannerTone = "success") {
+    startTransition(() => setBanner(createStandingBanner(message, tone)));
   }
 
   function resetFilters() {

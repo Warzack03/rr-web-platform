@@ -4,7 +4,7 @@ import { useState } from "react";
 import { NewsCard } from "@/components/public/news-card";
 import { LoadMoreNewsButton } from "@/components/public/load-more-news-button";
 import { NewsCategoryTabs } from "@/components/public/news-category-tabs";
-import { NEWS_CATEGORY_LABELS, type PublicNewsArticle } from "@/lib/public/news-content";
+import { publicNewsCategoryLabels, type PublicNewsArticle } from "@/lib/contracts/public";
 
 const INITIAL_VISIBLE_ITEMS = 6;
 const LOAD_MORE_STEP = 3;
@@ -14,7 +14,7 @@ type NewsGridProps = {
 };
 
 export function NewsGrid({ articles }: NewsGridProps) {
-  const [activeCategory, setActiveCategory] = useState<(typeof NEWS_CATEGORY_LABELS)[number]>("Todas");
+  const [activeCategory, setActiveCategory] = useState<(typeof publicNewsCategoryLabels)[number]>("Todas");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_ITEMS);
 
   const filteredArticles =
@@ -25,7 +25,7 @@ export function NewsGrid({ articles }: NewsGridProps) {
   const canLoadMore = visibleArticles.length < filteredArticles.length;
 
   function handleCategoryChange(category: string) {
-    setActiveCategory(category as (typeof NEWS_CATEGORY_LABELS)[number]);
+    setActiveCategory(category as (typeof publicNewsCategoryLabels)[number]);
     setVisibleCount(INITIAL_VISIBLE_ITEMS);
   }
 
@@ -37,7 +37,7 @@ export function NewsGrid({ articles }: NewsGridProps) {
     <section className="border-t border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.015),rgba(255,255,255,0))]">
       <div className="mx-auto w-full max-w-[1280px] px-5 py-8 md:px-8 md:py-10 xl:px-16">
         <NewsCategoryTabs
-          categories={NEWS_CATEGORY_LABELS}
+          categories={publicNewsCategoryLabels}
           activeCategory={activeCategory}
           onChange={handleCategoryChange}
         />

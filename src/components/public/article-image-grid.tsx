@@ -1,6 +1,6 @@
 import { NewsArtwork } from "@/components/public/news-artwork";
 import { cn } from "@/lib/utils";
-import type { PublicNewsArticleImage } from "@/lib/public/news-content";
+import type { PublicNewsArticleImage } from "@/lib/contracts/public";
 
 type ArticleImageGridProps = {
   images: PublicNewsArticleImage[];

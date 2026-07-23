@@ -1,5 +1,5 @@
 import { NewsContentBlock } from "@/components/public/news-content-block";
-import type { PublicNewsContentBlock } from "@/lib/public/news-content";
+import type { PublicNewsContentBlock } from "@/lib/contracts/public";
 
 type NewsArticleContentProps = {
   blocks: PublicNewsContentBlock[];

@@ -1,76 +1,32 @@
 import type {
+  DerivedPlayerStats,
+  PlayerCardStatItem,
+  PlayerStatSummaryItem,
   PublicPlayerProfile,
   PublicPlayerStats,
   PublicPlayerType,
   PublicTeamType,
-} from "@/lib/public/player-profile-types";
+  SortDirection,
+  StatSortKey,
+  StatsColumn,
+} from "@/lib/contracts/public";
 import { getGlobalPlayerHref } from "@/lib/public/player-routes";
-import type { TeamSectionNavLink } from "@/lib/public/team-section-links";
-
-export type StatSortKey =
-  | "player"
-  | "mvps"
-  | "matchesPlayed"
-  | "goals"
-  | "assists"
-  | "goalContributions"
-  | "goalsPerMatch"
-  | "recoveries"
-  | "shots"
-  | "shotsOnTarget"
-  | "shotAccuracy"
-  | "cleanSheets"
-  | "cleanSheetRate"
-  | "goalsAgainstPerMatch"
-  | "saves"
-  | "savesPerMatch"
-  | "yellowCards"
-  | "redCards"
-  | "ownGoals";
-
-export type SortDirection = "asc" | "desc";
-
-export type StatsColumn = {
-  key: StatSortKey;
-  label: string;
-  mobileLabel?: string;
-};
-
-export type PlayerStatSummaryItem = {
-  key: StatSortKey;
-  label: string;
-  value: string;
-};
-
-export type PlayerCardStatItem = {
-  label: string;
-  value: number | string;
-};
-
-export type DerivedPlayerStats = {
-  goalContributions: number;
-  goalsPerMatch?: number;
-  shotAccuracy?: number;
-  cleanSheetRate?: number;
-  goalsAgainstPerMatch?: number;
-  savesPerMatch?: number;
-};
-
-export type TeamStatisticsPageContent = {
-  teamType: PublicTeamType;
-  teamSlug: string;
-  teamName: string;
-  season: string;
-  competition: string;
-  category?: string;
-  title: string;
-  subtitle: string;
-  backHref: string;
-  backLabel: string;
-  navLinks: TeamSectionNavLink[];
-  fieldPlayers: PublicPlayerProfile[];
-  goalkeepers: PublicPlayerProfile[];
-};
+export type {
+  DerivedPlayerStats,
+  PlayerCardStatItem,
+  PlayerStatSummaryItem,
+  PublicDerivedPlayerStats,
+  PublicPlayerCardStatItem,
+  PublicPlayerStatSummaryItem,
+  PublicSortDirection,
+  PublicStatSortKey,
+  PublicStatsColumn,
+  PublicTeamStatisticsPageContent,
+  SortDirection,
+  StatSortKey,
+  StatsColumn,
+  TeamStatisticsPageContent,
+} from "@/lib/contracts/public";
 
 export const STAT_SORT_KEYS: StatSortKey[] = [
   "player",

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { StandingRowData } from "@/lib/public/team-standings-content";
+import type { StandingRowData } from "@/lib/contracts/public";
 import { StandingTeamCrest } from "@/components/public/standing-team-crest";
 import { getPublicTeamHref } from "@/lib/public/team-section-links";
 import { cn } from "@/lib/utils";

@@ -2,7 +2,7 @@ import type {
   PublicNewsArticle,
   PublicNewsCategory,
   PublicNewsImageTone,
-} from "@/lib/public/news-content";
+} from "@/lib/contracts/public";
 import { getTeamsDirectoryTeamName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 

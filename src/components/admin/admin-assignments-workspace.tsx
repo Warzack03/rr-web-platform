@@ -26,29 +26,17 @@ import type {
   AdminAssignmentPlayerOption,
   AdminAssignmentTeam,
   AdminManagedAssignment,
-} from "@/lib/admin/assignment-management";
+} from "@/lib/contracts/admin";
 import { adminPlayerPositionOptions } from "@/lib/admin/player-management";
+import {
+  buildAssignmentPlayerOptionLabel,
+  buildCreateAssignmentDraft,
+  formatAssignmentDateLabel,
+  getAssignmentIssues,
+  getAssignmentPositionLabel,
+  type CreateAssignmentDraft,
+} from "@/lib/admin/assignment-workspace";
 import { cn } from "@/lib/utils";
-
-type AssignmentIssue = {
-  id: string;
-  title: string;
-  detail: string;
-  tone: "gold" | "danger" | "slate";
-};
-
-type CreateMode = "existing" | "new";
-
-type CreateDraft = {
-  mode: CreateMode;
-  playerId: string;
-  publicName: string;
-  keepCurrentTeamsActive: boolean;
-  shirtNumber: number;
-  publicPosition: (typeof adminPlayerPositionOptions)[number]["value"];
-  captain: boolean;
-  joinedAt: string;
-};
 
 type AdminAssignmentsWorkspaceProps = {
   activeSeasonLabel?: string;
@@ -59,13 +47,6 @@ type AdminAssignmentsWorkspaceProps = {
   initialSelectedAssignmentId?: string;
 };
 
-function getPositionLabel(position: AdminManagedAssignment["publicPosition"]) {
-  return (
-    adminPlayerPositionOptions.find((option) => option.value === position)?.label ??
-    position
-  );
-}
-
 function inputClassName(className?: string) {
   return cn(
     "min-h-11 rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 text-[0.94rem] text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]",
@@ -75,95 +56,6 @@ function inputClassName(className?: string) {
 
 function labelClassName() {
   return "rr-kicker text-[0.7rem] text-[color:var(--rr-muted)]";
-}
-
-function formatDateLabel(date: string) {
-  if (!date) {
-    return "Sin fecha";
-  }
-
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(`${date}T00:00:00.000Z`));
-}
-
-function getSuggestedShirtNumber(assignments: AdminManagedAssignment[]) {
-  const highestNumber = assignments.reduce(
-    (currentHighest, assignment) => Math.max(currentHighest, assignment.shirtNumber),
-    0,
-  );
-
-  return highestNumber + 1;
-}
-
-function buildCreateDraft(assignments: AdminManagedAssignment[]): CreateDraft {
-  return {
-    mode: "existing",
-    playerId: "",
-    publicName: "",
-    keepCurrentTeamsActive: false,
-    shirtNumber: getSuggestedShirtNumber(assignments),
-    publicPosition: "BAN",
-    captain: false,
-    joinedAt: "",
-  };
-}
-
-function getAssignmentIssues(assignments: AdminManagedAssignment[]): AssignmentIssue[] {
-  const issues: AssignmentIssue[] = [];
-  const activeAssignments = assignments.filter((assignment) => assignment.active);
-  const numberCounts = new Map<number, AdminManagedAssignment[]>();
-
-  activeAssignments.forEach((assignment) => {
-    const current = numberCounts.get(assignment.shirtNumber) ?? [];
-    numberCounts.set(assignment.shirtNumber, [...current, assignment]);
-  });
-
-  numberCounts.forEach((items, number) => {
-    if (items.length > 1) {
-      issues.push({
-        id: `duplicate-${number}`,
-        title: `Dorsal ${number} duplicado`,
-        detail: items.map((item) => item.publicName).join(", "),
-        tone: "danger",
-      });
-    }
-  });
-
-  activeAssignments
-    .filter((assignment) => !assignment.hasPhoto)
-    .slice(0, 3)
-    .forEach((assignment) => {
-      issues.push({
-        id: `photo-${assignment.id}`,
-        title: "Foto pendiente",
-        detail: assignment.publicName,
-        tone: "gold",
-      });
-    });
-
-  activeAssignments
-    .filter((assignment) => !assignment.visible)
-    .forEach((assignment) => {
-      issues.push({
-        id: `hidden-${assignment.id}`,
-        title: "Jugador oculto",
-        detail: `${assignment.publicName} no saldra en la plantilla publica.`,
-        tone: "slate",
-      });
-    });
-
-  return issues;
-}
-
-function buildPlayerOptionLabel(player: AdminAssignmentPlayerOption) {
-  const suffix = player.currentTeamName
-    ? ` - ${player.currentTeamName}`
-    : " - Sin equipo activo";
-  return `${player.publicName}${suffix}`;
 }
 
 export function AdminAssignmentsWorkspace({
@@ -191,8 +83,8 @@ export function AdminAssignmentsWorkspace({
       (assignment) => assignment.teamSlug === (initialSelectedTeamSlug ?? initialTeams[0]?.slug),
     ).length === 0,
   );
-  const [createDraft, setCreateDraft] = useState<CreateDraft>(() =>
-    buildCreateDraft(
+  const [createDraft, setCreateDraft] = useState<CreateAssignmentDraft>(() =>
+    buildCreateAssignmentDraft(
       initialAssignments.filter(
         (assignment) => assignment.teamSlug === (initialSelectedTeamSlug ?? initialTeams[0]?.slug),
       ),
@@ -281,7 +173,7 @@ export function AdminAssignmentsWorkspace({
   }
 
   function resetCreateDraft(nextAssignments = teamAssignments) {
-    setCreateDraft(buildCreateDraft(nextAssignments));
+    setCreateDraft(buildCreateAssignmentDraft(nextAssignments));
   }
 
   function handleTeamChange(nextTeamSlug: string) {
@@ -293,7 +185,7 @@ export function AdminAssignmentsWorkspace({
     setSelectedAssignmentId(nextAssignments[0]?.id ?? "");
     setIsCreating(nextAssignments.length === 0);
     setSearch("");
-    setCreateDraft(buildCreateDraft(nextAssignments));
+    setCreateDraft(buildCreateAssignmentDraft(nextAssignments));
   }
 
   async function handleSaveAssignment() {
@@ -356,7 +248,7 @@ export function AdminAssignmentsWorkspace({
     setSelectedTeamSlug(result.selectedTeamSlug ?? currentTeam.slug);
     setSelectedAssignmentId(result.selectedAssignmentId ?? nextAssignments[0]?.id ?? "");
     setIsCreating(false);
-    setCreateDraft(buildCreateDraft(nextAssignments));
+    setCreateDraft(buildCreateAssignmentDraft(nextAssignments));
     setFeedback(result.message);
   }
 
@@ -498,7 +390,7 @@ export function AdminAssignmentsWorkspace({
                           ) : null}
                         </div>
                         <p className="mt-1 text-[0.86rem] text-[color:var(--rr-muted)]">
-                          {getPositionLabel(assignment.publicPosition)} -{" "}
+                          {getAssignmentPositionLabel(assignment.publicPosition)} -{" "}
                           {assignment.active
                             ? assignment.joinedLabel
                             : assignment.leftLabel ?? "Etapa cerrada"}
@@ -586,7 +478,7 @@ export function AdminAssignmentsWorkspace({
                         <option value="">Selecciona un jugador</option>
                         {creationCandidates.map((player) => (
                           <option key={player.id} value={player.id}>
-                            {buildPlayerOptionLabel(player)}
+                            {buildAssignmentPlayerOptionLabel(player)}
                           </option>
                         ))}
                       </select>
@@ -665,7 +557,7 @@ export function AdminAssignmentsWorkspace({
                         onChange={(event) =>
                           setCreateDraft((currentDraft) => ({
                             ...currentDraft,
-                            publicPosition: event.target.value as CreateDraft["publicPosition"],
+                            publicPosition: event.target.value as CreateAssignmentDraft["publicPosition"],
                           }))
                         }
                         className={inputClassName()}
@@ -818,7 +710,7 @@ export function AdminAssignmentsWorkspace({
                             ...assignment,
                             joinedAt: event.target.value,
                             joinedLabel: event.target.value
-                              ? formatDateLabel(event.target.value)
+                              ? formatAssignmentDateLabel(event.target.value)
                               : "Alta pendiente",
                           }))
                         }
@@ -836,7 +728,7 @@ export function AdminAssignmentsWorkspace({
                             ...assignment,
                             leftAt: event.target.value,
                             leftLabel: event.target.value
-                              ? formatDateLabel(event.target.value)
+                              ? formatAssignmentDateLabel(event.target.value)
                               : undefined,
                           }))
                         }

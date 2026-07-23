@@ -1,5 +1,5 @@
 import { NewsArtwork } from "@/components/public/news-artwork";
-import type { PublicNewsCategory, PublicNewsImageTone } from "@/lib/public/news-content";
+import type { PublicNewsCategory, PublicNewsImageTone } from "@/lib/contracts/public";
 
 type NewsArticleHeroImageProps = {
   category: PublicNewsCategory;

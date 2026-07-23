@@ -5,7 +5,7 @@ import type {
   PublicPlayerStatsLevel,
   PublicPlayerType,
   PublicTeamType,
-} from "@/lib/public/player-profile-types";
+} from "@/lib/contracts/public";
 
 type PlayerStatsGridProps = {
   playerType: PublicPlayerType;

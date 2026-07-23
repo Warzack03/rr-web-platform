@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { CalendarMatchStatus, MatchTeamType } from "@/lib/public/team-calendar-content";
+import type { CalendarMatchStatus, MatchTeamType } from "@/lib/contracts/public";
 
 type MatchStatusBadgeProps = {
   status: CalendarMatchStatus;

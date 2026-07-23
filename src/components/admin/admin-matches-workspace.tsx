@@ -27,14 +27,23 @@ import {
 import {
   formatMatchDateLabel,
   getVisualMatchStatus,
-  hasMatchResult,
-  isPendingMatchStatus,
   sortMatchManagementMatches,
   type MatchManagementMatch,
   type MatchManagementOpponent,
   type MatchManagementTeam,
   type MatchManagementVenue,
 } from "@/lib/admin/match-management";
+import {
+  adminMatchPageSizeOptions,
+  buildInitialMatchFilters,
+  canUseLiveMatchFilter,
+  filterAdminMatches,
+  getAdminMatchMetrics,
+  getEffectiveMatchStatusFilter,
+  type AdminMatchPageSize,
+  type AdminMatchesScreenState,
+  type MatchDialogState,
+} from "@/lib/admin/match-workspace";
 
 type AdminMatchesWorkspaceProps = {
   initialMatches: MatchManagementMatch[];
@@ -44,50 +53,6 @@ type AdminMatchesWorkspaceProps = {
   initialUiState?: "ready" | "error";
   initialSelectedTeamSlug?: string;
 };
-
-type ScreenState = "loading" | "ready" | "error";
-type MatchDialogState =
-  | { mode: "create" }
-  | { mode: "edit"; matchId: string }
-  | null;
-
-const pageSizeOptions = [10, 20, 50] as const;
-
-function buildInitialFilters(selectedTeamSlug?: string): MatchFiltersValue {
-  return {
-    season: "all",
-    team: selectedTeamSlug ?? "all",
-    status: "all",
-    competition: "all",
-    date: "all",
-    search: "",
-  };
-}
-
-function isThisMonth(dateValue: string) {
-  if (!dateValue) {
-    return false;
-  }
-
-  const now = new Date();
-  const date = new Date(`${dateValue}T12:00:00`);
-
-  return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
-}
-
-function isWithinNextSevenDays(dateValue: string) {
-  if (!dateValue) {
-    return false;
-  }
-
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const end = new Date(start);
-  end.setDate(end.getDate() + 7);
-
-  const date = new Date(`${dateValue}T12:00:00`);
-  return date >= start && date <= end;
-}
 
 export function AdminMatchesWorkspace({
   initialMatches,
@@ -102,14 +67,14 @@ export function AdminMatchesWorkspace({
   const [opponentOptions, setOpponentOptions] = useState(initialOpponentOptions);
   const [venueOptions, setVenueOptions] = useState(initialVenueOptions);
   const [filters, setFilters] = useState<MatchFiltersValue>(() =>
-    buildInitialFilters(initialSelectedTeamSlug),
+    buildInitialMatchFilters(initialSelectedTeamSlug),
   );
   const [dialogState, setDialogState] = useState<MatchDialogState>(null);
   const [quickResultMatchId, setQuickResultMatchId] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
-  const [screenState, setScreenState] = useState<ScreenState>("loading");
+  const [screenState, setScreenState] = useState<AdminMatchesScreenState>("loading");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<(typeof pageSizeOptions)[number]>(10);
+  const [pageSize, setPageSize] = useState<AdminMatchPageSize>(10);
   const [isPersisting, setIsPersisting] = useState(false);
   const deferredSearch = useDeferredValue(filters.search.trim().toLowerCase());
 
@@ -144,55 +109,19 @@ export function AdminMatchesWorkspace({
       ...scopedMatches.map((match) => match.competition),
     ]),
   );
-  const filteredTeamContext =
-    filters.team !== "all" ? allowedTeams.find((team) => team.slug === filters.team) : undefined;
-  const allowLiveFilter = filteredTeamContext
-      ? filteredTeamContext.isFirstTeam
-      : allowedTeams.some((team) => team.isFirstTeam);
-  const effectiveStatusFilter =
-    filters.status === "live" && !allowLiveFilter ? "all" : filters.status;
+  const allowLiveFilter = canUseLiveMatchFilter(filters.team, allowedTeams);
+  const effectiveStatusFilter = getEffectiveMatchStatusFilter({
+    status: filters.status,
+    teamSlug: filters.team,
+    teams: allowedTeams,
+  });
 
-  const filteredMatches = sortMatchManagementMatches(
-    scopedMatches.filter((match) => {
-      if (filters.season !== "all" && match.season !== filters.season) {
-        return false;
-      }
-
-      if (filters.team !== "all" && match.teamSlug !== filters.team) {
-        return false;
-      }
-
-      if (filters.competition !== "all" && match.competition !== filters.competition) {
-        return false;
-      }
-
-      if (effectiveStatusFilter !== "all") {
-        const matchStatus = getVisualMatchStatus(match.status);
-
-        if (matchStatus !== effectiveStatusFilter) {
-          return false;
-        }
-      }
-
-      if (filters.date === "next-7" && !isWithinNextSevenDays(match.date)) {
-        return false;
-      }
-
-      if (filters.date === "this-month" && !isThisMonth(match.date)) {
-        return false;
-      }
-
-      if (filters.date === "undated" && match.date) {
-        return false;
-      }
-
-      if (!deferredSearch) {
-        return true;
-      }
-
-      return match.opponentName.toLowerCase().includes(deferredSearch);
-    }),
-  );
+  const filteredMatches = filterAdminMatches({
+    matches: scopedMatches,
+    filters,
+    effectiveStatusFilter,
+    deferredSearch,
+  });
 
   const totalPages = Math.max(1, Math.ceil(filteredMatches.length / pageSize));
   const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -202,17 +131,7 @@ export function AdminMatchesWorkspace({
   const nextMatch = scopedMatches.find(
     (match) => getVisualMatchStatus(match.status) !== "played",
   );
-  const upcomingMatchesCount = filteredMatches.filter((match) =>
-    getVisualMatchStatus(match.status) !== "played",
-  ).length;
-  const pendingMatchesCount = filteredMatches.filter((match) =>
-    isPendingMatchStatus(match.status),
-  ).length;
-  const playedMatchesCount = filteredMatches.filter((match) =>
-    match.status === "played",
-  ).length;
-  const missingResultCount = filteredMatches.filter((match) => !hasMatchResult(match)).length;
-  const liveMatchesCount = filteredMatches.filter((match) => match.status === "live").length;
+  const matchMetrics = getAdminMatchMetrics(filteredMatches);
   const selectedDialogMatch =
     dialogState && "matchId" in dialogState
       ? allMatches.find((match) => match.id === dialogState.matchId)
@@ -323,33 +242,33 @@ export function AdminMatchesWorkspace({
       >
         <AdminMetricCard
           label="Proximos partidos"
-          value={upcomingMatchesCount.toString()}
+          value={matchMetrics.upcoming.toString()}
           detail={nextMatch ? formatMatchDateLabel(nextMatch) : "Sin calendario inmediato"}
           tone="gold"
           icon={<CalendarClock className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="Jugados"
-          value={playedMatchesCount.toString()}
+          value={matchMetrics.played.toString()}
           tone="blue"
           icon={<Trophy className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="Pendientes"
-          value={pendingMatchesCount.toString()}
+          value={matchMetrics.pending.toString()}
           tone="slate"
           icon={<CircleDotDashed className="h-5 w-5" />}
         />
         <AdminMetricCard
           label="Sin resultado"
-          value={missingResultCount.toString()}
+          value={matchMetrics.missingResult.toString()}
           tone="gold"
           icon={<AlertTriangle className="h-5 w-5" />}
         />
         {true ? (
           <AdminMetricCard
             label="En vivo"
-            value={liveMatchesCount.toString()}
+            value={matchMetrics.live.toString()}
             detail={allowLiveFilter ? "Primer Equipo" : ""}
             tone="danger"
             icon={<Eye className="h-5 w-5" />}
@@ -370,7 +289,7 @@ export function AdminMatchesWorkspace({
         showTeamFilter={allowedTeams.length > 1}
         allowLiveFilter={allowLiveFilter}
         onChange={updateFilters}
-        onReset={() => updateFilters(buildInitialFilters(initialSelectedTeamSlug))}
+        onReset={() => updateFilters(buildInitialMatchFilters(initialSelectedTeamSlug))}
       />
 
       {screenState === "loading" ? (
@@ -451,7 +370,7 @@ export function AdminMatchesWorkspace({
             <button
               type="button"
               onClick={() =>
-                updateFilters(buildInitialFilters(initialSelectedTeamSlug))
+                updateFilters(buildInitialMatchFilters(initialSelectedTeamSlug))
               }
               className="rr-button rr-button-secondary text-[0.82rem]"
             >
@@ -483,12 +402,12 @@ export function AdminMatchesWorkspace({
                   <select
                     value={pageSize}
                     onChange={(event) => {
-                      setPageSize(Number(event.target.value) as (typeof pageSizeOptions)[number]);
+                      setPageSize(Number(event.target.value) as AdminMatchPageSize);
                       setCurrentPage(1);
                     }}
                     className="min-h-10 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                   >
-                    {pageSizeOptions.map((option) => (
+                    {adminMatchPageSizeOptions.map((option) => (
                       <option key={option} value={option}>
                         {option}
                       </option>

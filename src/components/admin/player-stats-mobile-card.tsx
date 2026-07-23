@@ -12,7 +12,7 @@ import {
 import type {
   PublicPlayerStatsLevel,
   PublicPlayerType,
-} from "@/lib/public/player-profile-types";
+} from "@/lib/contracts/public";
 import {
   isGoalkeeperPlayer,
   isMobileStepperField,

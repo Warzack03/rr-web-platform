@@ -1,4 +1,4 @@
-import type { CalendarMatch, MatchTeamType } from "@/lib/public/team-calendar-content";
+import type { CalendarMatch, MatchTeamType } from "@/lib/contracts/public";
 import { MatchRow } from "@/components/public/match-row";
 
 type MatchdaySectionProps = {

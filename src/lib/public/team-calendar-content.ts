@@ -1,48 +1,22 @@
-export type CalendarMatchStatus = "played" | "live" | "pending" | "postponed";
-export type MatchFilter = "all" | "live" | "played" | "pending";
-export type MatchTeamType = "first-team" | "academy";
-
-export type MatchFilterOption = {
-  value: MatchFilter;
-  label: string;
-};
-
-export type CalendarMatchTeam = {
-  name: string;
-  crestLabel: string;
-  isClub?: boolean;
-  muted?: boolean;
-};
-
-export type CalendarMatch = {
-  id: string;
-  status: CalendarMatchStatus;
-  competition: string;
-  dateLabel: string;
-  kickoffLabel: string;
-  liveMinute?: string;
-  venue: string;
-  homeTeam: CalendarMatchTeam;
-  awayTeam: CalendarMatchTeam;
-  homeScore?: number;
-  awayScore?: number;
-  actionLabel: string;
-  actionHint?: string;
-  postponementReason?: string;
-  detailHref?: string;
-};
-
-export type CalendarMatchday = {
-  id: string;
-  title: string;
-  matches: CalendarMatch[];
-};
-
-export type TeamCalendarContent = {
-  pageTitle: string;
-  subtitle: string;
-  matchdays: CalendarMatchday[];
-};
+import type { CalendarMatch, TeamCalendarContent } from "@/lib/contracts/public";
+export type {
+  CalendarMatch,
+  CalendarMatchStatus,
+  CalendarMatchTeam,
+  CalendarMatchday,
+  MatchFilter,
+  MatchFilterOption,
+  MatchTeamType,
+  PublicCalendarMatch,
+  PublicCalendarMatchStatus,
+  PublicCalendarMatchday,
+  PublicCalendarTeam,
+  PublicMatchFilter,
+  PublicMatchFilterOption,
+  PublicMatchTeamType,
+  PublicTeamCalendarContent,
+  TeamCalendarContent,
+} from "@/lib/contracts/public";
 
 function buildAcademyMatchDetailHref(teamSlug: string, matchId: string) {
   return `/equipos/${teamSlug}/partidos/${matchId}`;

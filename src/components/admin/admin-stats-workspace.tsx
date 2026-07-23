@@ -25,7 +25,6 @@ import {
   type AdminMatchPlayerEntry,
 } from "@/lib/admin/admin-stats";
 import {
-  buildStatsContextPlayerId,
   type AdminStatsCatalogPlayer,
   type AdminStatsPlayerContext,
 } from "@/lib/admin/stats-management";
@@ -38,6 +37,17 @@ import {
   sortMatchManagementMatches,
 } from "@/lib/admin/match-management";
 import type { AdminStatsState } from "@/lib/admin/admin-stats";
+import {
+  areAdminMatchEntriesEqual,
+  createGuestStatsPlayerContext,
+  formatStatsSavedTime,
+  getStatsStatusBadge,
+  type AdminStatsScreenState,
+  type MobilePlayerReviewState,
+  type MobileStatsSection,
+  type MobileStatsViewMode,
+  type VisibleStatsPlayer,
+} from "@/lib/admin/stats-workspace";
 
 type AdminStatsWorkspaceProps = {
   initialUiState?: "ready" | "error";
@@ -51,87 +61,6 @@ type AdminStatsWorkspaceProps = {
   initialStatsState: AdminStatsState;
 };
 
-type ScreenState = "loading" | "ready" | "error";
-type MobileStatsSection = "outfield" | "goalkeepers";
-type MobileStatsViewMode = "list" | "focused";
-type MobilePlayerReviewState = "pending" | "reviewed" | "edited";
-type VisibleStatsPlayer = AdminStatsPlayerContext;
-
-function getStatusBadge(status: "pending" | "live" | "played") {
-  if (status === "live") {
-    return { label: "En vivo", tone: "danger" as const, pulse: true };
-  }
-
-  if (status === "played") {
-    return { label: "Jugado", tone: "success" as const, pulse: false };
-  }
-
-  return { label: "Pendiente", tone: "gold" as const, pulse: false };
-}
-
-function formatSavedTime(value: Date | null) {
-  if (!value) {
-    return "Aun sin guardar";
-  }
-
-  return value.toLocaleTimeString("es-ES", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function areMatchEntriesEqual(
-  left: AdminMatchPlayerEntry,
-  right: AdminMatchPlayerEntry,
-) {
-  return (
-    left.played === right.played &&
-    left.goals === right.goals &&
-    left.assists === right.assists &&
-    left.mvp === right.mvp &&
-    left.yellowCards === right.yellowCards &&
-    left.redCards === right.redCards &&
-    left.recoveries === right.recoveries &&
-    left.shots === right.shots &&
-    left.shotsOnTarget === right.shotsOnTarget &&
-    left.ownGoals === right.ownGoals &&
-    left.goalsConceded === right.goalsConceded &&
-    left.saves === right.saves &&
-    left.cleanSheets === right.cleanSheets
-  );
-}
-
-function createGuestPlayerContext(
-  player: AdminStatsCatalogPlayer,
-  targetTeamSlug: string,
-  targetTeamName: string,
-): VisibleStatsPlayer {
-  return {
-    ...player,
-    id: buildStatsContextPlayerId(targetTeamSlug, player.sourcePlayerId),
-    teamSlug: targetTeamSlug,
-    minutes: 0,
-    matchesPlayed: 0,
-    goals: 0,
-    assists: 0,
-    yellowCards: 0,
-    redCards: 0,
-    mvp: 0,
-    goalsConceded: 0,
-    saves: 0,
-    cleanSheets: 0,
-    recoveries: 0,
-    shots: 0,
-    shotsOnTarget: 0,
-    ownGoals: 0,
-    advancedLabel: undefined,
-    sourcePlayerId: player.sourcePlayerId,
-    contextType: "guest",
-    originTeamSlug: player.teamSlug,
-    originTeamName: player.teamName || targetTeamName,
-  };
-}
-
 export function AdminStatsWorkspace({
   initialUiState = "ready",
   initialSelectedTeamSlug,
@@ -143,7 +72,7 @@ export function AdminStatsWorkspace({
   initialPlayerCatalog,
   initialStatsState,
 }: AdminStatsWorkspaceProps) {
-  const [screenState, setScreenState] = useState<ScreenState>("loading");
+  const [screenState, setScreenState] = useState<AdminStatsScreenState>("loading");
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
   const [teams, setTeams] = useState(initialTeams);
   const [allMatches, setAllMatches] = useState(initialMatches);
@@ -224,7 +153,7 @@ export function AdminStatsWorkspace({
   const selectedMatchStatus = selectedMatch
     ? getVisualMatchStatus(selectedMatch.status)
     : null;
-  const statusBadge = getStatusBadge(selectedMatchStatus ?? "pending");
+  const statusBadge = getStatsStatusBadge(selectedMatchStatus ?? "pending");
   const goalkeepers = players.filter((player) => isGoalkeeperPlayer(player));
   const outfieldPlayers = players.filter((player) => !isGoalkeeperPlayer(player));
   const outfieldFields = getAdminStatFields({
@@ -289,7 +218,7 @@ export function AdminStatsWorkspace({
       return (
         currentEntry !== undefined &&
         savedEntry !== undefined &&
-        !areMatchEntriesEqual(currentEntry, savedEntry)
+        !areAdminMatchEntriesEqual(currentEntry, savedEntry)
       );
     });
 
@@ -443,7 +372,7 @@ export function AdminStatsWorkspace({
       return;
     }
 
-    const guestContext = createGuestPlayerContext(
+    const guestContext = createGuestStatsPlayerContext(
       guestPlayer,
       resolvedTeamSlug,
       selectedTeam.name,
@@ -481,7 +410,7 @@ export function AdminStatsWorkspace({
     const hasChanges =
       currentEntry !== undefined &&
       savedEntry !== undefined &&
-      !areMatchEntriesEqual(currentEntry, savedEntry);
+      !areAdminMatchEntriesEqual(currentEntry, savedEntry);
 
     if (hasChanges) {
       return "edited";
@@ -681,7 +610,7 @@ export function AdminStatsWorkspace({
                         : "text-[color:var(--rr-muted)]"
                     }
                   >
-                    {formatSavedTime(lastSavedAt)}
+                    {formatStatsSavedTime(lastSavedAt)}
                   </span>
                 </div>
               </div>

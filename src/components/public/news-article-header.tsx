@@ -1,5 +1,5 @@
 import { CalendarDays, Shield, UserRound } from "lucide-react";
-import type { PublicNewsArticle } from "@/lib/public/news-content";
+import type { PublicNewsArticle } from "@/lib/contracts/public";
 
 type NewsArticleHeaderProps = {
   article: PublicNewsArticle;

@@ -1,42 +1,17 @@
-import type { TeamSectionNavLink } from "@/lib/public/team-section-links";
+import type { StandingRowData, TeamStandingsPageContent } from "@/lib/contracts/public";
 import {
   getAcademyTeamStandingsContentFromDb,
   getFirstTeamStandingsContentFromDb,
 } from "@/server/services/public/standings";
 
-export type StandingRowData = {
-  position: number;
-  team: string;
-  teamSlug?: string;
-  logoUrl?: string;
-  logoAlt?: string;
-  played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  goalDifference: number;
-  points: number;
-  isClub?: boolean;
-};
+export type {
+  PublicStandingRow,
+  PublicTeamStandingsPageContent,
+  StandingRowData,
+  TeamStandingsPageContent,
+} from "@/lib/contracts/public";
 
-export type TeamStandingsPageContent = {
-  slug: string;
-  variant: "first-team" | "academy";
-  title: string;
-  subtitle: string;
-  season: string;
-  teamName: string;
-  competition?: string;
-  updatedAt?: string;
-  backHref: string;
-  backLabel: string;
-  navLinks: TeamSectionNavLink[];
-  rows: StandingRowData[];
-};
-
-type StandingsMock = {
+type StaticStandingsContent = {
   season?: string;
   competition?: string;
   updatedAt?: string;
@@ -70,7 +45,7 @@ function createStandingRow(
   };
 }
 
-export const FIRST_TEAM_STANDINGS: StandingsMock = {
+export const FIRST_TEAM_STANDINGS: StaticStandingsContent = {
   season: "Temporada 2024/2025",
   competition: "Primera Division",
   updatedAt: "18 Oct 2024",
@@ -88,7 +63,7 @@ export const FIRST_TEAM_STANDINGS: StandingsMock = {
   ],
 };
 
-export const ACADEMY_STANDINGS: Record<string, StandingsMock> = {
+export const ACADEMY_STANDINGS: Record<string, StaticStandingsContent> = {
   "raimon-b": {
     updatedAt: "13 Oct 2024",
     rows: [

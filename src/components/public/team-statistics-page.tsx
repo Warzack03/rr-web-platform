@@ -22,7 +22,7 @@ import {
   TableProperties,
 } from "lucide-react";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
-import type { PublicPlayerProfile, PublicPlayerType } from "@/lib/public/player-profile-types";
+import type { PublicPlayerProfile, PublicPlayerType } from "@/lib/contracts/public";
 import {
   buildTeamStatisticsUrl,
   normalizeTeamStatisticsState,

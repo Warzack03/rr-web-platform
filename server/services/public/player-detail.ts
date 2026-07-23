@@ -1,5 +1,5 @@
 import { MatchStatus } from "@prisma/client";
-import type { PublicPlayerProfile } from "@/lib/public/player-profile-types";
+import type { PublicPlayerProfile } from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
 import {

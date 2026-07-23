@@ -1,6 +1,9 @@
-import type { PublicNewsArticle } from "@/lib/public/news-content";
-import type { MatchResult, TeamStub } from "@/lib/public/team-page-content";
-import type { StandingRowData } from "@/lib/public/team-standings-content";
+import type {
+  PublicNewsArticle,
+  PublicStandingRow,
+  PublicTeamRecentResult,
+  PublicTeamReference,
+} from "@/lib/contracts/public";
 import { getPublicHomeDbSections } from "@/server/services/public/home";
 import {
   getFeaturedPublicNewsArticle,
@@ -21,8 +24,8 @@ export type HomeHeroContent = {
 };
 
 export type HomeMatchPreview = {
-  home: TeamStub;
-  away: TeamStub;
+  home: PublicTeamReference;
+  away: PublicTeamReference;
   competition: string;
   dateLabel: string;
   venue: string;
@@ -56,8 +59,8 @@ export type PublicHomePageContent = {
     calendarHref: string;
     standingHref: string;
     nextMatch: HomeMatchPreview;
-    recentResults: MatchResult[];
-    standingsRows: StandingRowData[];
+    recentResults: PublicTeamRecentResult[];
+    standingsRows: PublicStandingRow[];
   };
   news: {
     title: string;

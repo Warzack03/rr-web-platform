@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarDays, Shield, Trophy, Users } from "lucide-react";
-import type { PublicPlayerProfile } from "@/lib/public/player-profile-types";
+import type { PublicPlayerProfile } from "@/lib/contracts/public";
 
 type PlayerContextLinksProps = {
   player: PublicPlayerProfile;

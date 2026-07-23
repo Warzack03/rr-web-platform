@@ -1,4 +1,4 @@
-import type { CalendarMatch, MatchTeamType } from "@/lib/public/team-calendar-content";
+import type { CalendarMatch, MatchTeamType } from "@/lib/contracts/public";
 
 export type MatchDetailScorer = {
   playerName: string;

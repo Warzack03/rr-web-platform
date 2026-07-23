@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { NewsArtwork } from "@/components/public/news-artwork";
 import { cn } from "@/lib/utils";
-import type { PublicNewsImageTone } from "@/lib/public/news-content";
+import type { PublicNewsImageTone } from "@/lib/contracts/public";
 
 type LegacyNewsCardProps = {
   href: string;

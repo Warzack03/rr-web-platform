@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { CalendarMatch, MatchTeamType } from "@/lib/public/team-calendar-content";
+import type { CalendarMatch, MatchTeamType } from "@/lib/contracts/public";
 
 type MatchScoreProps = {
   match: CalendarMatch;

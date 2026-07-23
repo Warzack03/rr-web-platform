@@ -1,4 +1,4 @@
-import type { PublicPlayerType, PublicTeamType } from "@/lib/public/player-profile-types";
+import type { PublicPlayerType, PublicTeamType } from "@/lib/contracts/public";
 import {
   getStatsColumns,
   STAT_SORT_KEYS,

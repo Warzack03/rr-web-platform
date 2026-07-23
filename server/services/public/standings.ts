@@ -1,7 +1,7 @@
 import type {
   StandingRowData,
   TeamStandingsPageContent,
-} from "@/lib/public/team-standings-content";
+} from "@/lib/contracts/public";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";

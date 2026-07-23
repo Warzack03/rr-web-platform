@@ -1,6 +1,6 @@
 import { MatchStatus } from "@prisma/client";
 import type { PublicHomePageContent } from "@/lib/public/home-content";
-import type { StandingRowData } from "@/lib/public/team-standings-content";
+import type { StandingRowData } from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { buildPublicMatchDetailHref } from "@/server/services/public/calendar";
 import { prisma } from "@/server/db/prisma";

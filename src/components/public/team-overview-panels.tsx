@@ -5,16 +5,16 @@ import { CalendarDays, ChartNoAxesColumn, Clock3, MapPin, Shield, Users } from "
 import { CTAButton } from "@/components/public/cta-button";
 import { SectionLabel } from "@/components/public/section-label";
 import type {
-  MatchResult,
-  SquadHighlight,
-  TeamQuickInfoItem,
-  TeamStub,
-} from "@/lib/public/team-page-content";
+  PublicSquadHighlight,
+  PublicTeamQuickInfoItem,
+  PublicTeamRecentResult,
+  PublicTeamReference,
+} from "@/lib/contracts/public";
 import { cn } from "@/lib/utils";
 
 type MatchPreview = {
-  home: TeamStub;
-  away: TeamStub;
+  home: PublicTeamReference;
+  away: PublicTeamReference;
   competition: string;
   dateLabel: string;
   venue: string;
@@ -128,7 +128,7 @@ export function MatchPreviewPanel({ match, compact = false }: MatchPreviewPanelP
   );
 }
 
-function MatchTeamBadge({ team }: { team: TeamStub }) {
+function MatchTeamBadge({ team }: { team: PublicTeamReference }) {
   const hasLogo = Boolean(team.logoUrl?.startsWith("/"));
 
   return (
@@ -160,7 +160,7 @@ function MatchTeamBadge({ team }: { team: TeamStub }) {
 }
 
 type RecentResultsStripProps = {
-  results: MatchResult[];
+  results: PublicTeamRecentResult[];
   title?: string;
   ctaHref?: string;
   ctaLabel?: string;
@@ -364,7 +364,7 @@ export function TeamNewsPreview({
 type SquadPreviewPanelProps = {
   totalPlayers: number;
   goalkeepers?: number;
-  highlights: SquadHighlight[];
+  highlights: PublicSquadHighlight[];
   href: string;
 };
 
@@ -418,7 +418,7 @@ export function SquadPreviewPanel({
   );
 }
 
-function SquadHighlightItem({ player }: { player: SquadHighlight }) {
+function SquadHighlightItem({ player }: { player: PublicSquadHighlight }) {
   const className =
     "group flex items-center gap-3 border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-3 transition hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]";
   const content = (
@@ -449,7 +449,7 @@ function SquadHighlightItem({ player }: { player: SquadHighlight }) {
 }
 
 type TeamInfoPanelProps = {
-  items: TeamQuickInfoItem[];
+  items: PublicTeamQuickInfoItem[];
 };
 
 export function TeamInfoPanel({ items }: TeamInfoPanelProps) {
