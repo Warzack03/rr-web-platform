@@ -92,7 +92,7 @@ It must include:
 - Latest results.
 - Manual standings.
 - Squad.
-- Uploaded premium card images.
+- Premium cards built by web layers/components.
 - Advanced statistics.
 - Played match video links when available.
 - Related news.

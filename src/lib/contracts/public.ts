@@ -284,6 +284,17 @@ export type PublicTeamStatisticsPageContent = {
   goalkeepers: PublicPlayerProfile[];
 };
 
+export type PublicRosterPlayerCard = PublicPlayerProfile;
+
+export type PublicTeamRosterContent = {
+  pageTitle: string;
+  teamSlug: string;
+  teamLabel: string;
+  seasonLabel: string;
+  goalkeepers: PublicRosterPlayerCard[];
+  fieldPlayers: PublicRosterPlayerCard[];
+};
+
 export const publicNewsCategoryLabels = [
   "Todas",
   "Cronica",

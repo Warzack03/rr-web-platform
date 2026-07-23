@@ -531,11 +531,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
           goals: 0,
           slug: team.assignments[0].player.slug,
         }
-      : {
-          name: "Plantilla pendiente",
-          goals: 0,
-          slug: "",
-        });
+      : null);
 
   const ownStandingRow = standingTable
     ? findOwnStandingRowForTeam(standingTable.rows, team.publicName)
@@ -627,11 +623,13 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       matchesPlayed: playedMatches.length,
       squadSize: team.assignments.length,
     },
-    topScorer: {
-      name: topScorer.name,
-      goals: topScorer.goals,
-      href: topScorer.slug ? `/jugadores/${topScorer.slug}` : undefined,
-    },
+    topScorer: topScorer
+      ? {
+          name: topScorer.name,
+          goals: topScorer.goals,
+          href: `/jugadores/${topScorer.slug}`,
+        }
+      : undefined,
     squadPreview: buildSquadPreview(team, links),
     quickInfo: buildQuickInfo(team, coachNames),
     news,

@@ -58,6 +58,6 @@ Light mode is not the first implementation target. However, components must use 
 - Standings tables.
 - Player cards.
 - Generated card/cromo.
-- Premium uploaded card image container.
+- Premium generated card layers.
 - Admin dashboard cards.
 - Empty/loading/error states.

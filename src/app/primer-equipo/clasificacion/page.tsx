@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamStandingsPage } from "@/components/public/team-standings-page";
-import { getFirstTeamStandingsContent } from "@/lib/public/team-standings-content";
+import { getFirstTeamStandingsContentFromDb } from "@/server/services/public/standings";
 
 export const metadata: Metadata = {
   title: "Clasificacion | Primer Equipo",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function FirstTeamStandingPage() {
-  const content = await getFirstTeamStandingsContent();
+  const content = await getFirstTeamStandingsContentFromDb();
 
   if (!content) {
     notFound();

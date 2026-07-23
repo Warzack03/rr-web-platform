@@ -24,7 +24,7 @@ export default async function NewsPage() {
       <PublicSiteLayout activeNav="noticias">
         <PublicEmptyState
           title="No hay noticias publicadas"
-          description="Cuando haya noticias visibles en la DB, apareceran en esta seccion."
+          description="Cuando haya noticias visibles, apareceran en esta seccion."
         />
       </PublicSiteLayout>
     );

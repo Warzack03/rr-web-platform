@@ -15,8 +15,8 @@
 - Create public layout and navigation.
 - Create admin layout and navigation.
 - Create base components: cards, stat chips, match cards, section headers, empty states.
-- Public home with mocks.
-- Admin dashboard with mocks.
+- Public home with DB-backed content.
+- Admin dashboard with DB-backed content.
 
 ## Epic 2 - Public home
 
@@ -35,7 +35,7 @@
 - Next match/latest results.
 - Manual standings.
 - Squad.
-- Uploaded premium card images.
+- Premium card layers/components.
 - Advanced stats.
 - Played match videos.
 - Related news.
@@ -119,10 +119,10 @@
 The public website specification is now considered defined. Public implementation can proceed page-by-page using `docs/PUBLIC_APP_SPEC.md` as source of truth. Remaining public work is mainly:
 
 - connect real DB/services;
-- replace mocks with data queries;
+- replace remaining static scaffolds with data queries;
 - add SEO metadata;
 - harden loading/error/empty states;
 - final real copy/images/assets;
 - responsive QA.
 
-Next recommended phase: backoffice mocks and role UX.
+Next recommended phase: real backoffice workflows and admin-only UX.

@@ -5,6 +5,7 @@ import type {
   PublicPlayerGroup,
   PublicPlayerStats,
   PublicPlayerType,
+  PublicTeamRosterContent,
 } from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
 import { prisma } from "@/server/db/prisma";
@@ -25,18 +26,9 @@ export type PublicRosterPlayerCard = PublicPlayerProfile & {
   stats: PublicPlayerStats;
 };
 
-export type PublicRosterContent = {
-  pageTitle: string;
-  teamSlug: string;
-  teamLabel: string;
-  seasonLabel: string;
-  goalkeepers: PublicRosterPlayerCard[];
-  fieldPlayers: PublicRosterPlayerCard[];
-};
-
 export async function getPublicRosterContentFromDb(
   teamSlug: string,
-): Promise<PublicRosterContent | null> {
+): Promise<PublicTeamRosterContent | null> {
   try {
     const siteSettings = await prisma.siteSettings.findFirst({
       orderBy: { updatedAt: "desc" },

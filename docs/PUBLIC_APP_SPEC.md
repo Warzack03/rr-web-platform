@@ -169,7 +169,7 @@ Para partido pendiente debe mostrar:
 Reglas:
 
 - Highlights son exclusivos del Primer Equipo.
-- Los eventos del mock/datos deben cuadrar con el marcador.
+- Los eventos publicados deben cuadrar con el marcador.
 - Si el portero encaja gol, no mostrar porteria a cero.
 
 ## Clasificacion Primer Equipo `/primer-equipo/clasificacion`
@@ -233,7 +233,7 @@ Debe mostrar:
 - CTAs a plantilla y calendario del Primer Equipo.
 - Seccion `CANTERA`.
 - Grid de equipos de cantera.
-- Tarjetas para Raimon B, Juvenil A, Juvenil B, Cadete A, Infantil A u otros mocks.
+- Tarjetas para equipos de cantera publicados.
 - Bloque final tipo `Futuro Raimon` si encaja.
 
 No debe mostrar calendarios, clasificaciones ni plantillas completas.
@@ -509,7 +509,7 @@ Links y referencias:
 
 - Deben verse bien.
 - No deben romper layout.
-- Preferir contenido como bloques estructurados mock: paragraph, heading, quote, image, link.
+- Preferir contenido como bloques estructurados: paragraph, heading, quote, image, link.
 - Evitar `dangerouslySetInnerHTML` salvo sanitizacion.
 
 No implementar newsletter, comentarios ni integraciones externas.

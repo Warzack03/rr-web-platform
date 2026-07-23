@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
 Última revisión: 23 de julio de 2026  
-Estado general: Fase A, B.1 y B.2 completadas; continuar por Fase B.3  
-Siguiente bloque: Fase B.3 — Familia de componentes públicos
+Estado general: Fase A, B.1, B.2, B.3 y B.4 completadas; continuar por Fase B.5  
+Siguiente bloque: Fase B.5 — Estados de carga, vacío y error
 
 ## Cómo usar este documento
 
@@ -159,7 +159,7 @@ Comprobación A.4:
 Comprobación A.5:
 
 - `src/lib/public/team-statistics-utils.ts` concentra las claves de orden, columnas de tabla, opciones rápidas, resúmenes móviles, stats de tarjeta y cálculos derivados.
-- `team-statistics-url-state.ts`, `team-statistics-page.tsx` y `premium-player-card.tsx` consumen esa fuente común en lugar de declarar configuraciones locales.
+- `team-statistics-url-state.ts`, `team-statistics-page.tsx` y `player-card.tsx` consumen esa fuente común en lugar de declarar configuraciones locales.
 - La participación de gol se calcula mediante `getGoalContributions(stats)`, equivalente a `goals + assists`, y la ficha pública la reutiliza.
 - Las divisiones por partido, precisión y porcentajes usan división segura y devuelven `-` cuando no hay denominador válido.
 - `goalsAgainstPerMatch` se mantiene para porteros de cantera y se etiqueta como `Encajados/PJ` / `Enc./PJ`.
@@ -298,24 +298,58 @@ Comprobación B.2:
 
 ## B.3 — Familia de componentes públicos
 
-- [ ] Consolidar variantes premium y estándar sin duplicar páginas completas.
-- [ ] Separar datos de equipo, plantilla, calendario, clasificación y estadísticas de sus vistas.
-- [ ] Mantener las páginas resumen separadas de sus páginas completas.
-- [ ] Mantener la ficha global de jugador como una composición independiente del equipo de origen.
-- [ ] Asegurar que las tarjetas premium se construyen por capas reutilizables.
-- [ ] Asegurar que las tarjetas estándar usan únicamente los campos permitidos.
-- [ ] Retirar conceptos visuales heredados que dependan de una imagen final de tarjeta.
+- [x] Consolidar variantes premium y estándar sin duplicar páginas completas.
+- [x] Separar datos de equipo, plantilla, calendario, clasificación y estadísticas de sus vistas.
+- [x] Mantener las páginas resumen separadas de sus páginas completas.
+- [x] Mantener la ficha global de jugador como una composición independiente del equipo de origen.
+- [x] Asegurar que las tarjetas premium se construyen por capas reutilizables.
+- [x] Asegurar que las tarjetas estándar usan únicamente los campos permitidos.
+- [x] Retirar conceptos visuales heredados que dependan de una imagen final de tarjeta.
+
+Comprobación B.3:
+
+- `src/components/public/team-overview-page.tsx` consolida el resumen de Primer Equipo y equipos de cantera usando `PublicTeamPageContent`; las rutas quedan como carga de datos + composición.
+- `src/components/public/team-squad-page.tsx` consolida la plantilla premium y estándar usando `PublicTeamRosterContent`, navegación de sección común y agrupación de jugadores reutilizable.
+- `src/lib/public/team-roster.ts` concentra grupos de jugadores de campo y navegación de plantilla; las páginas ya no declaran grupos locales duplicados.
+- `src/components/public/player-card.tsx` sustituye el cromo antiguo por capas reutilizables: frame, fondo, media/foto, dorsal, identidad, estadísticas y pie dominante.
+- Las tarjetas estándar de cantera usan solo campos permitidos de cromo: foto/placeholder, nombre público, dorsal, país/bandera, posición, pie dominante, goles y asistencias.
+- La ficha global de jugador sigue en `src/components/public/player-detail-page.tsx` como composición independiente; las plantillas enlazan con `getGlobalPlayerHref(player.slug)`.
+- Las páginas resumen (`/primer-equipo`, `/equipos/[teamSlug]`) siguen separadas de plantilla, calendario, clasificación y estadísticas completas.
+- Documentación visual alineada para retirar referencias heredadas a imágenes finales/subidas de cromo premium.
+- Búsqueda de `premium-player-card`, `PremiumPlayerCard`, `Uploaded premium card images`, `Premium uploaded card image container` y `First Team premium card images` sin resultados en `src` ni docs activos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
 
 ## B.4 — Eliminación total de mocks
 
-- [ ] Sustituir el contenido estático de perfiles de jugador por servicios reales o estados vacíos honestos.
-- [ ] Sustituir calendarios públicos ficticios por consultas reales.
-- [ ] Sustituir noticias de ejemplo por contenido real o estado vacío.
-- [ ] Sustituir configuraciones de páginas de equipo que contengan datos de ejemplo por metadatos derivados del equipo real.
-- [ ] Eliminar todos los fixtures de administración que sigan accesibles.
-- [ ] Eliminar archivos de mocks ya sin consumidores.
-- [ ] Ejecutar una búsqueda final en código de producción.
-- [ ] Documentar excepciones legítimas de tests, storybook o seeds si existen; no contarlas como datos de ejecución.
+- [x] Sustituir el contenido estático de perfiles de jugador por servicios reales o estados vacíos honestos.
+- [x] Sustituir calendarios públicos ficticios por consultas reales.
+- [x] Sustituir noticias de ejemplo por contenido real o estado vacío.
+- [x] Sustituir configuraciones de páginas de equipo que contengan datos de ejemplo por metadatos derivados del equipo real.
+- [x] Eliminar todos los fixtures de administración que sigan accesibles.
+- [x] Eliminar archivos de mocks ya sin consumidores.
+- [x] Ejecutar una búsqueda final en código de producción.
+- [x] Documentar excepciones legítimas de tests, storybook o seeds si existen; no contarlas como datos de ejecución.
+
+Comprobación B.4:
+
+- El contenido de perfiles públicos de jugador se resuelve desde `server/services/public/player-detail.ts`; si no hay jugador publicable, la ruta devuelve `notFound()`.
+- Los calendarios públicos de Primer Equipo y cantera se resuelven desde `server/services/public/calendar.ts`; las rutas ya no tienen fallback a calendarios ficticios.
+- Las noticias públicas se resuelven desde `server/services/public/news-content.ts` + `server/services/public/news.ts`; si no hay publicaciones visibles, `/noticias` muestra un estado vacío honesto y `/noticias/[slug]` responde `404`.
+- `src/lib/public/team-page-content.ts` queda reducido a wrapper DB/contratos; se eliminó `PUBLIC_TEAM_PAGE_MOCKS`.
+- `src/lib/public/teams-directory-content.ts` queda reducido a tipos; el directorio se construye desde equipos visibles de la temporada activa.
+- Las rutas de clasificación (`/primer-equipo/clasificacion` y `/equipos/[teamSlug]/clasificacion`) consumen directamente `server/services/public/standings.ts`.
+- Se eliminaron los archivos estáticos heredados `src/lib/public/team-calendar-content.ts`, `src/lib/public/team-standings-content.ts` y `src/lib/public/news-content.ts`.
+- En administración no quedan fixtures/mocks accesibles ni archivos con nombres `mock`, `fixture`, `sample`, `stub` o `demo` bajo `src` o `server`.
+- Búsqueda final en `src` y `server` de `\bmock\b`, `\bfixture\b`, `\bsample\b`, `\bdemo\b`, `example.com`, `PUBLIC_.*MOCK` y `\bstub\b` sin resultados.
+- Búsqueda final sin imports/referencias a `team-standings-content`, `team-calendar-content`, `news-content`, `PUBLIC_TEAM_PAGE_MOCKS`, `PUBLIC_NEWS_ARTICLES`, `FIRST_TEAM_STANDINGS`, `ACADEMY_STANDINGS`, `FIRST_TEAM_CALENDAR` ni `ACADEMY_TEAM_CALENDARS`.
+- Excepciones documentadas: `prisma/seed.ts`, `docs/SEED_DATA.md` y `docs/RESET_AND_INITIAL_LOAD_PLAN.md` describen seed/demo local; `docs/design/**`, `docs/PROMPTS.md`, `docs/IMPLEMENTATION_EXECUTION_PLAN.md` y guías históricas de backoffice conservan referencias retrospectivas a mocks, pero no son código de ejecución.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
 
 ## B.5 — Estados de carga, vacío y error
 
@@ -576,3 +610,5 @@ Añadir una entrada al cerrar cada bloque de trabajo.
 | 2026-07-22 | A.8 | Fase A cerrada; build desbloqueado excluyendo tipos generados de desarrollo stale; rutas descartadas, fallbacks públicos y mocks restantes auditados | `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npm run build` correcto, `cmd /c npx prisma validate` correcto, `cmd /c npx next typegen` correcto, `cmd /c npx tsc --noEmit --pretty false` correcto | Git sigue bloqueado por `safe.directory`; quedan datos estáticos heredados no usados como runtime público para resolver en B.1/B.3 |
 | 2026-07-22 | B.1 | Contratos públicos y admin centralizados en módulos neutrales; imports de tipos migrados desde módulos de contenido; nombres de prototipo retirados de contratos activos | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | `PUBLIC_TEAM_PAGE_MOCKS` sigue como dato estático heredado para B.4; B.2 debe dividir workspaces admin grandes |
 | 2026-07-23 | B.2 | Workspaces admin prioritarios divididos mediante módulos de soporte para estadísticas, asignaciones, partidos y clasificaciones; dashboard admin desacoplado de Prisma | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.3 debe continuar con la familia de componentes públicos; quedan monolitos secundarios para fases posteriores si se requiere más granularidad |
+| 2026-07-23 | B.3 | Familia pública consolidada con vistas compartidas para resumen de equipo, plantilla y cromos por capas; variantes premium/estándar explícitas y documentación visual alineada | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.4 debe eliminar los mocks/datos estáticos heredados que aún no son fuente runtime real |
+| 2026-07-23 | B.4 | Mocks de ejecución eliminados; calendarios, clasificaciones, noticias, equipo/directorio y jugadores quedan en DB o estado vacío/404 honesto; archivos estáticos heredados retirados | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.5 debe reforzar estados de carga, vacío y error; quedan referencias históricas a mocks solo en docs de contexto/seed no runtime |

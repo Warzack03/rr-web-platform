@@ -221,18 +221,19 @@ export function getPlayerCardStats(
   stats: PublicPlayerStats,
   teamType: PublicTeamType,
 ): PlayerCardStatItem[] {
+  if (teamType === "academy") {
+    return [
+      { label: "Goles", value: formatStatValueFromStats(stats, "goals") },
+      { label: "Asist.", value: formatStatValueFromStats(stats, "assists") },
+    ];
+  }
+
   if (playerType === "goalkeeper") {
-    return teamType === "first-team"
-      ? [
-          { label: "PJ", value: stats.matchesPlayed },
-          { label: "Imbat.", value: formatStatValueFromStats(stats, "cleanSheets") },
-          { label: "Paradas", value: formatStatValueFromStats(stats, "saves") },
-        ]
-      : [
-          { label: "PJ", value: stats.matchesPlayed },
-          { label: "Enc./PJ", value: formatStatValueFromStats(stats, "goalsAgainstPerMatch") },
-          { label: "Imbat.", value: formatStatValueFromStats(stats, "cleanSheets") },
-        ];
+    return [
+      { label: "PJ", value: stats.matchesPlayed },
+      { label: "Imbat.", value: formatStatValueFromStats(stats, "cleanSheets") },
+      { label: "Paradas", value: formatStatValueFromStats(stats, "saves") },
+    ];
   }
 
   return [

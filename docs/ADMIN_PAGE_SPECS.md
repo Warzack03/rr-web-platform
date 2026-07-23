@@ -278,7 +278,7 @@ Current UX/product rules:
 - The club-team marker must be multi-select inside the table, not exclusive.
 - If a competition has no standings table yet, creation should scaffold the
   table from the teams already registered in that competition.
-- Do not show mock/support actions like duplicate, restore or save-without-changes
+- Do not show support actions like duplicate, restore or save-without-changes unless they are real MVP behavior.
   as part of the normal header flow.
 
 ## Statistics `/admin/estadisticas`
@@ -343,7 +343,7 @@ Manage image metadata and uploads for:
 - Team banners.
 - Opponent logos.
 - Player photos.
-- First Team premium card images.
+- First Team player/base card images.
 - News covers.
 - General public images.
 
@@ -353,8 +353,8 @@ Current UX/product rules:
 
 - Do not show secondary summary boxes like `Conecta con` if they do not unlock
   a real workflow.
-- The upload CTA should do something useful even in mock mode.
-- Until real persistence exists, local mock uploads may be used to validate the
+- The upload CTA should do something useful with real persistence.
+- Until final media storage is decided, local development uploads may be used to validate the
   selection and preview flow, but they should communicate clearly that they are
   not yet saved in the database.
 

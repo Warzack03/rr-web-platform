@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamStandingsPage } from "@/components/public/team-standings-page";
-import { getAcademyTeamStandingsContent } from "@/lib/public/team-standings-content";
+import { getAcademyTeamStandingsContentFromDb } from "@/server/services/public/standings";
 import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamStandingsPageProps = {
@@ -25,7 +25,7 @@ export async function generateMetadata({
   params,
 }: TeamStandingsPageProps): Promise<Metadata> {
   const { teamSlug } = await params;
-  const content = await getAcademyTeamStandingsContent(teamSlug);
+  const content = await getAcademyTeamStandingsContentFromDb(teamSlug);
 
   if (!content) {
     return {
@@ -43,7 +43,7 @@ export default async function TeamStandingPage({
   params,
 }: TeamStandingsPageProps) {
   const { teamSlug } = await params;
-  const content = await getAcademyTeamStandingsContent(teamSlug);
+  const content = await getAcademyTeamStandingsContentFromDb(teamSlug);
 
   if (!content) {
     notFound();

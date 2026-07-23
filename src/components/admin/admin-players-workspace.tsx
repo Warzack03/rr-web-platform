@@ -18,7 +18,7 @@ import { AdminPanel } from "@/components/admin/admin-panel";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { savePlayerProfileAction } from "@/app/admin/(panel)/jugadores/actions";
 import { MediaPickerDialog } from "@/components/admin/media-picker-dialog";
-import { PremiumPlayerCard } from "@/components/public/premium-player-card";
+import { PlayerCard } from "@/components/public/player-card";
 import type { AdminMediaPickerItem } from "@/lib/admin/media-management";
 import {
   adminPlayerPositionOptions,
@@ -628,7 +628,7 @@ export function AdminPlayersWorkspace({
 
               <div className="space-y-5 p-5">
                 <div className="rounded-[14px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(243,203,69,0.12),transparent_38%),rgba(255,255,255,0.04)] px-3 py-5">
-                  <PremiumPlayerCard
+                  <PlayerCard
                     name={selectedPlayer.publicName}
                     number={selectedPlayer.number}
                     country={selectedCountryLabel}

@@ -1,0 +1,300 @@
+import Image from "next/image";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { Shield } from "lucide-react";
+import { DominantFootIndicator } from "@/components/public/dominant-foot-indicator";
+import { PlayerStatMiniBox } from "@/components/public/player-stat-mini-box";
+import type {
+  DominantFoot,
+  PublicPlayerStats,
+  PublicPlayerType,
+  PublicTeamType,
+} from "@/lib/contracts/public";
+import { getCountryFlagEmoji } from "@/lib/public/country-flags";
+import { getPlayerCardStats } from "@/lib/public/team-statistics-utils";
+import { cn } from "@/lib/utils";
+
+export type PlayerCardVariant = "premium" | "standard";
+
+type PlayerCardProps = {
+  name: string;
+  number: number;
+  country?: string;
+  countryFlag?: string;
+  position: string;
+  dominantFoot?: DominantFoot;
+  imageUrl?: string;
+  playerType: PublicPlayerType;
+  stats: PublicPlayerStats;
+  teamType?: PublicTeamType;
+  href?: string;
+  className?: string;
+};
+
+export function PlayerCard({
+  name,
+  number,
+  country,
+  countryFlag,
+  position,
+  dominantFoot,
+  imageUrl,
+  playerType,
+  stats,
+  teamType = "first-team",
+  href,
+  className,
+}: PlayerCardProps) {
+  const variant = getPlayerCardVariant(teamType);
+  const statItems = getPlayerCardStats(playerType, stats, teamType);
+  const countryMarker = getCountryFlagEmoji(countryFlag) ?? countryFlag?.trim().toUpperCase() ?? null;
+
+  const content = (
+    <PlayerCardFrame variant={variant} className={className}>
+      <PlayerCardBackground variant={variant} />
+      <PlayerCardMediaLayer
+        name={name}
+        number={number}
+        position={position}
+        imageUrl={imageUrl}
+        variant={variant}
+      />
+      <PlayerCardBody
+        name={name}
+        country={country}
+        countryMarker={countryMarker}
+        position={position}
+        dominantFoot={dominantFoot}
+        playerType={playerType}
+        statItems={statItems}
+        variant={variant}
+      />
+    </PlayerCardFrame>
+  );
+
+  if (!href) {
+    return content;
+  }
+
+  return (
+    <Link href={href} className="block focus:outline-none">
+      {content}
+    </Link>
+  );
+}
+
+export function getPlayerCardVariant(teamType: PublicTeamType): PlayerCardVariant {
+  return teamType === "first-team" ? "premium" : "standard";
+}
+
+type PlayerCardFrameProps = {
+  variant: PlayerCardVariant;
+  className?: string;
+  children: ReactNode;
+};
+
+function PlayerCardFrame({ variant, className, children }: PlayerCardFrameProps) {
+  return (
+    <article
+      className={cn(
+        "group relative isolate overflow-hidden transition duration-300",
+        variant === "standard"
+          ? "border border-white/10 bg-[linear-gradient(180deg,rgba(17,29,46,0.98),rgba(12,22,36,0.98))] shadow-[0_18px_44px_rgba(0,0,0,0.24)] hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]"
+          : "rounded-lg border border-white/12 bg-[linear-gradient(180deg,rgba(23,39,60,0.98),rgba(14,26,44,0.98))] shadow-[0_28px_60px_rgba(0,0,0,0.35)] hover:-translate-y-1 hover:border-[color:var(--rr-border-strong)] hover:shadow-[0_32px_70px_rgba(0,0,0,0.42)]",
+        className,
+      )}
+    >
+      {children}
+    </article>
+  );
+}
+
+function PlayerCardBackground({ variant }: { variant: PlayerCardVariant }) {
+  return (
+    <div
+      className={
+        variant === "standard"
+          ? "absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_26%),radial-gradient(circle_at_top_right,rgba(253,203,88,0.1),transparent_18%),linear-gradient(180deg,transparent_0%,rgba(8,16,28,0.18)_55%,rgba(8,16,28,0.64)_100%)]"
+          : "absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_26%),radial-gradient(circle_at_top_right,rgba(253,203,88,0.14),transparent_18%),linear-gradient(180deg,transparent_0%,rgba(8,16,28,0.22)_55%,rgba(8,16,28,0.72)_100%)]"
+      }
+    />
+  );
+}
+
+type PlayerCardMediaLayerProps = {
+  name: string;
+  number: number;
+  position: string;
+  imageUrl?: string;
+  variant: PlayerCardVariant;
+};
+
+function PlayerCardMediaLayer({
+  name,
+  number,
+  position,
+  imageUrl,
+  variant,
+}: PlayerCardMediaLayerProps) {
+  return (
+    <div className="absolute inset-x-0 top-0 h-[62%] overflow-hidden">
+      {variant === "premium" ? (
+        <>
+          <div className="absolute left-[-24%] top-[-22%] h-52 w-52 rounded-full border border-white/10 opacity-50" />
+          <div className="absolute right-[-18%] top-[-24%] h-60 w-60 rounded-full border border-white/10 opacity-50" />
+        </>
+      ) : null}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,8,13,0.18),rgba(6,10,16,0.56))]" />
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={`${name} - ${position}`}
+          fill
+          sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 25vw"
+          className="object-cover object-top grayscale contrast-125 brightness-95 saturate-0 transition duration-500 group-hover:scale-[1.02] group-hover:grayscale-0 group-hover:brightness-100"
+        />
+      ) : (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[linear-gradient(180deg,rgba(20,31,48,0.4),rgba(10,18,30,0.88))]">
+          <div className="flex h-16 w-16 items-center justify-center border border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)]">
+            <Shield className="h-7 w-7 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
+          </div>
+          <span className="rr-kicker text-[0.72rem] text-[color:var(--rr-muted)]">
+            Imagen pendiente
+          </span>
+        </div>
+      )}
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent_0%,rgba(12,24,40,0.35)_28%,rgba(14,26,44,1)_100%)]" />
+      <div className="absolute left-0 right-0 top-0 flex justify-end p-6">
+        <span
+          className={
+            variant === "standard"
+              ? "rr-display text-[3.8rem] leading-none text-[color:var(--rr-gold)]/22 sm:text-[4.6rem]"
+              : "rr-display text-[4.8rem] leading-none text-[color:var(--rr-gold)]/28 sm:text-[5.6rem]"
+          }
+        >
+          {String(number).padStart(2, "0")}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+type PlayerCardBodyProps = {
+  name: string;
+  country?: string;
+  countryMarker: string | null;
+  position: string;
+  dominantFoot?: DominantFoot;
+  playerType: PublicPlayerType;
+  statItems: Array<{ label: string; value: number | string }>;
+  variant: PlayerCardVariant;
+};
+
+function PlayerCardBody({
+  name,
+  country,
+  countryMarker,
+  position,
+  dominantFoot,
+  playerType,
+  statItems,
+  variant,
+}: PlayerCardBodyProps) {
+  return (
+    <div
+      className={
+        variant === "standard"
+          ? "relative flex min-h-[29rem] flex-col justify-end p-6 pt-[15rem]"
+          : "relative flex min-h-[32rem] flex-col justify-end p-6 pt-[16.5rem]"
+      }
+    >
+      <PlayerCardIdentityLayer
+        name={name}
+        country={country}
+        countryMarker={countryMarker}
+        position={position}
+        playerType={playerType}
+        variant={variant}
+      />
+      <PlayerCardStatsLayer statItems={statItems} />
+      {dominantFoot ? <DominantFootIndicator foot={dominantFoot} className="mt-5" /> : null}
+    </div>
+  );
+}
+
+type PlayerCardIdentityLayerProps = {
+  name: string;
+  country?: string;
+  countryMarker: string | null;
+  position: string;
+  playerType: PublicPlayerType;
+  variant: PlayerCardVariant;
+};
+
+function PlayerCardIdentityLayer({
+  name,
+  country,
+  countryMarker,
+  position,
+  playerType,
+  variant,
+}: PlayerCardIdentityLayerProps) {
+  return (
+    <div className="flex flex-col items-start gap-4">
+      <div className="min-w-0">
+        {countryMarker && country ? (
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex h-7 min-w-9 items-center justify-center border border-[color:var(--rr-gold)]/55 bg-[rgba(253,203,88,0.08)] px-2 text-[0.92rem] leading-none text-[color:var(--rr-gold)]">
+              <span aria-hidden="true">{countryMarker}</span>
+              <span className="sr-only">{country}</span>
+            </span>
+            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">{country}</span>
+          </div>
+        ) : null}
+        <h3
+          className={
+            variant === "standard"
+              ? "rr-display mt-2 min-h-[3.68rem] text-[2rem] leading-[0.92] text-white sm:min-h-[4.32rem] sm:text-[2.35rem]"
+              : "rr-display mt-2 min-h-[4.23rem] text-[2.35rem] leading-[0.9] text-white sm:min-h-[4.86rem] sm:text-[2.7rem]"
+          }
+        >
+          {name}
+        </h3>
+      </div>
+
+      <span
+        className={
+          variant === "standard"
+            ? "rr-kicker inline-flex max-w-full items-center border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-2.5 py-1 text-center text-[0.58rem] leading-[1.1] text-[color:var(--rr-muted)]"
+            : "rr-kicker inline-flex max-w-full items-center border border-[color:var(--rr-gold)] bg-[rgba(253,203,88,0.08)] px-2.5 py-1 text-center text-[0.58rem] leading-[1.1] text-[color:var(--rr-gold)]"
+        }
+      >
+        {playerType === "goalkeeper" ? "Portero" : position}
+      </span>
+    </div>
+  );
+}
+
+function PlayerCardStatsLayer({
+  statItems,
+}: {
+  statItems: Array<{ label: string; value: number | string }>;
+}) {
+  return (
+    <div
+      className={cn(
+        "mt-6 grid gap-4",
+        statItems.length >= 3 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2",
+      )}
+    >
+      {statItems.map((item, index) => (
+        <PlayerStatMiniBox
+          key={item.label}
+          label={item.label}
+          value={item.value}
+          className={cn(statItems.length === 3 && index === 2 && "col-span-2 sm:col-span-1")}
+        />
+      ))}
+    </div>
+  );
+}
