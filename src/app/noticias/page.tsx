@@ -3,10 +3,7 @@ import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsGrid } from "@/components/public/news-grid";
 import { NewsHero } from "@/components/public/news-hero";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
-import {
-  getFeaturedPublicNewsArticle,
-  getPublicNewsArticles,
-} from "@/server/services/public/news-content";
+import { getPublicNewsArticles } from "@/server/services/public/news-content";
 
 export const metadata: Metadata = {
   title: "Noticias",
@@ -17,7 +14,7 @@ export const revalidate = 300;
 
 export default async function NewsPage() {
   const articles = await getPublicNewsArticles();
-  const featuredArticle = (await getFeaturedPublicNewsArticle()) ?? articles[0];
+  const featuredArticle = articles.find((article) => article.featured) ?? articles[0];
 
   if (!featuredArticle) {
     return (

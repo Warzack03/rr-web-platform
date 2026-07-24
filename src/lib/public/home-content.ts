@@ -5,10 +5,7 @@ import type {
   PublicTeamReference,
 } from "@/lib/contracts/public";
 import { getPublicHomeDbSections } from "@/server/services/public/home";
-import {
-  getFeaturedPublicNewsArticle,
-  getLatestPublicNewsArticles,
-} from "@/server/services/public/news-content";
+import { getPublicNewsHighlights } from "@/server/services/public/news-content";
 
 export type HomeHeroContent = {
   eyebrow: string;
@@ -79,11 +76,11 @@ export type PublicHomePageContent = {
 };
 
 export async function getPublicHomePageContent(): Promise<PublicHomePageContent | null> {
-  const [dbSections, featuredNews, latestNews] = await Promise.all([
+  const [dbSections, newsHighlights] = await Promise.all([
     getPublicHomeDbSections(),
-    getFeaturedPublicNewsArticle(),
-    getLatestPublicNewsArticles(2),
+    getPublicNewsHighlights(2),
   ]);
+  const { featuredArticle: featuredNews, latestArticles: latestNews } = newsHighlights;
 
   if (!dbSections?.firstTeam || !dbSections.academy) {
     return null;

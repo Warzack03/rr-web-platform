@@ -4,8 +4,65 @@ import type {
   PublicNewsImageTone,
 } from "@/lib/contracts/public";
 import { getTeamsDirectoryTeamName } from "@/lib/public/team-display-name";
+import { NewsStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/server/db/prisma";
 import { logServerError } from "@/server/logging/safe-server-log";
+
+const PUBLIC_NEWS_LIST_LIMIT = 60;
+
+const publicNewsSummarySelect = {
+  slug: true,
+  title: true,
+  excerpt: true,
+  featured: true,
+  publishedAt: true,
+  coverMedia: {
+    select: {
+      altText: true,
+    },
+  },
+  author: {
+    select: {
+      displayName: true,
+    },
+  },
+  teams: {
+    where: {
+      seasonTeam: {
+        active: true,
+        publicVisible: true,
+        deletedAt: null,
+      },
+    },
+    orderBy: [{ seasonTeam: { publicName: "asc" } }],
+    select: {
+      seasonTeam: {
+        select: {
+          publicName: true,
+          team: {
+            select: {
+              isFirstTeam: true,
+            },
+          },
+        },
+      },
+    },
+  },
+} satisfies Prisma.NewsPostSelect;
+
+const publicNewsDetailSelect = {
+  ...publicNewsSummarySelect,
+  bodyMarkdown: true,
+  externalVideoUrl: true,
+} satisfies Prisma.NewsPostSelect;
+
+type PublicNewsSummaryRow = Prisma.NewsPostGetPayload<{
+  select: typeof publicNewsSummarySelect;
+}>;
+
+type PublicNewsDetailRow = Prisma.NewsPostGetPayload<{
+  select: typeof publicNewsDetailSelect;
+}>;
 
 function formatNewsDateLabel(date: Date | null) {
   if (!date) {
@@ -80,98 +137,88 @@ function buildContentBlocks(bodyMarkdown: string, externalVideoUrl: string | nul
       ];
 }
 
+function getPublishedNewsWhere(now = new Date()) {
+  return {
+    deletedAt: null,
+    status: NewsStatus.PUBLISHED,
+    publishedAt: {
+      lte: now,
+    },
+  } satisfies Prisma.NewsPostWhereInput;
+}
+
+function mapPublicNewsRowToArticle(
+  post: PublicNewsSummaryRow | PublicNewsDetailRow,
+): PublicNewsArticle {
+  const relatedTeams = post.teams.map((item) =>
+    getTeamsDirectoryTeamName(
+      item.seasonTeam.publicName,
+      item.seasonTeam.team.isFirstTeam,
+    ),
+  );
+  const relatedTeam = relatedTeams[0];
+  const isFirstTeam = post.teams.some((item) => item.seasonTeam.team.isFirstTeam);
+  const category = inferCategory({
+    relatedTeamName: relatedTeam,
+    isFirstTeam,
+  });
+  const hasDetailContent = "bodyMarkdown" in post;
+
+  return {
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt ?? "Actualidad de Rising Raimon.",
+    category,
+    date: post.publishedAt?.toISOString().slice(0, 10) ?? "",
+    dateLabel: formatNewsDateLabel(post.publishedAt),
+    author: post.author?.displayName ?? "Media Team",
+    imageTone: inferImageTone({
+      featured: post.featured,
+      relatedTeamName: relatedTeam,
+      isFirstTeam,
+    }),
+    coverImageAlt: post.coverMedia?.altText?.trim() || `Imagen de portada para ${post.title}.`,
+    featured: post.featured,
+    relatedTeam,
+    relatedTeams,
+    badge: post.featured ? "Destacada" : undefined,
+    content: hasDetailContent
+      ? buildContentBlocks(post.bodyMarkdown, post.externalVideoUrl)
+      : [],
+  } satisfies PublicNewsArticle;
+}
+
 export async function getPublishedPublicNewsArticlesFromDb(): Promise<PublicNewsArticle[] | null> {
   try {
-    const now = new Date();
     const posts = await prisma.newsPost.findMany({
-      where: {
-        deletedAt: null,
-        status: "PUBLISHED",
-        publishedAt: {
-          lte: now,
-        },
-      },
+      where: getPublishedNewsWhere(),
       orderBy: [{ featured: "desc" }, { publishedAt: "desc" }, { createdAt: "desc" }],
-      select: {
-        slug: true,
-        title: true,
-        excerpt: true,
-        bodyMarkdown: true,
-        externalVideoUrl: true,
-        featured: true,
-        publishedAt: true,
-        coverMedia: {
-          select: {
-            altText: true,
-          },
-        },
-        author: {
-          select: {
-            displayName: true,
-          },
-        },
-        teams: {
-          where: {
-            seasonTeam: {
-              active: true,
-              publicVisible: true,
-              deletedAt: null,
-            },
-          },
-          orderBy: [{ seasonTeam: { publicName: "asc" } }],
-          select: {
-            seasonTeam: {
-              select: {
-                publicName: true,
-                team: {
-                  select: {
-                    isFirstTeam: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      take: PUBLIC_NEWS_LIST_LIMIT,
+      select: publicNewsSummarySelect,
     });
 
-    return posts.map((post) => {
-      const relatedTeams = post.teams.map((item) =>
-        getTeamsDirectoryTeamName(
-          item.seasonTeam.publicName,
-          item.seasonTeam.team.isFirstTeam,
-        ),
-      );
-      const relatedTeam = relatedTeams[0];
-      const isFirstTeam = post.teams.some((item) => item.seasonTeam.team.isFirstTeam);
-      const category = inferCategory({
-        relatedTeamName: relatedTeam,
-        isFirstTeam,
-      });
-
-      return {
-        slug: post.slug,
-        title: post.title,
-        excerpt: post.excerpt ?? "Actualidad de Rising Raimon.",
-        category,
-        date: post.publishedAt?.toISOString().slice(0, 10) ?? "",
-        dateLabel: formatNewsDateLabel(post.publishedAt),
-        author: post.author?.displayName ?? "Media Team",
-        imageTone: inferImageTone({
-          featured: post.featured,
-          relatedTeamName: relatedTeam,
-          isFirstTeam,
-        }),
-        coverImageAlt: post.coverMedia?.altText?.trim() || `Imagen de portada para ${post.title}.`,
-        featured: post.featured,
-        relatedTeam,
-        relatedTeams,
-        badge: post.featured ? "Destacada" : undefined,
-        content: buildContentBlocks(post.bodyMarkdown, post.externalVideoUrl),
-      } satisfies PublicNewsArticle;
-    });
+    return posts.map(mapPublicNewsRowToArticle);
   } catch (error) {
     logServerError("public.news.published", error);
+    return null;
+  }
+}
+
+export async function getPublishedPublicNewsArticleBySlugFromDb(
+  slug: string,
+): Promise<PublicNewsArticle | null> {
+  try {
+    const post = await prisma.newsPost.findFirst({
+      where: {
+        ...getPublishedNewsWhere(),
+        slug,
+      },
+      select: publicNewsDetailSelect,
+    });
+
+    return post ? mapPublicNewsRowToArticle(post) : null;
+  } catch (error) {
+    logServerError("public.news.detail", error, { slug });
     return null;
   }
 }

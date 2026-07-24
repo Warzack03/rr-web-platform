@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
-Última revisión: 23 de julio de 2026  
-Estado general: Fase A y Fase B completadas; continuar por Fase C.1  
-Siguiente bloque: Fase C.1 — Acceso a datos y rendimiento
+Última revisión: 24 de julio de 2026  
+Estado general: Fase A, Fase B y Fase C completadas; continuar por Fase D.1  
+Siguiente bloque: Fase D.1 — Decisión sobre el contenido de noticias
 
 ## Cómo usar este documento
 
@@ -434,57 +434,159 @@ Reforzar el acceso real a MySQL, la consistencia de mutaciones, el rendimiento b
 
 ## C.1 — Acceso a datos y rendimiento
 
-- [ ] Revisar consultas N+1 y selecciones excesivas en páginas públicas y administrativas.
-- [ ] Seleccionar únicamente campos necesarios, especialmente en endpoints públicos.
-- [ ] Verificar paginación en listas administrativas con crecimiento esperado.
-- [ ] Revisar índices existentes para slugs, estados, temporada, equipo, partido y publicación.
-- [ ] Proponer migraciones solo si una medición o consulta concreta lo justifica.
-- [ ] Mantener el pool de MySQL pequeño, normalmente entre 5 y 10 conexiones.
-- [ ] Confirmar la configuración correcta del adaptador MariaDB si Prisma 7+ lo requiere.
+- [x] Revisar consultas N+1 y selecciones excesivas en páginas públicas y administrativas.
+- [x] Seleccionar únicamente campos necesarios, especialmente en endpoints públicos.
+- [x] Verificar paginación en listas administrativas con crecimiento esperado.
+- [x] Revisar índices existentes para slugs, estados, temporada, equipo, partido y publicación.
+- [x] Proponer migraciones solo si una medición o consulta concreta lo justifica.
+- [x] Mantener el pool de MySQL pequeño, normalmente entre 5 y 10 conexiones.
+- [x] Confirmar la configuración correcta del adaptador MariaDB si Prisma 7+ lo requiere.
+
+Comprobación C.1:
+
+- Se revisaron servicios públicos y administrativos con acceso Prisma; no quedan `include` amplios en `server`, `src/app/admin` ni `src/app/api`.
+- `server/services/admin-dashboard.ts` usa `select` para `SiteSettings.activeSeason` en lugar de traer el registro completo.
+- Noticias públicas separan consulta de resumen y detalle: los listados/home/relacionadas ya no traen `bodyMarkdown` ni `externalVideoUrl` de todas las noticias.
+- `/noticias` calcula la noticia destacada desde la consulta ya cargada y evita una segunda lectura de noticias.
+- La home usa `getPublicNewsHighlights(2)` para obtener destacada y últimas en una única lectura de resumen.
+- `server/services/public/news.ts` limita el listado público de noticias a `PUBLIC_NEWS_LIST_LIMIT = 60`.
+- Admin media limita listados y selector con `ADMIN_MEDIA_LIST_LIMIT = 240` y `ADMIN_MEDIA_PICKER_LIMIT = 180`.
+- Admin noticias limita la lista inicial con `ADMIN_NEWS_POST_LIST_LIMIT = 120`.
+- Partidos admin ya tenían paginación de interfaz (`pageSize` 10/20/50); asignaciones, estadísticas y partidos siguen cargando la temporada activa completa porque el volumen esperado de MVP es acotado por temporada/equipos y no se introdujo paginación compleja sin necesidad medible.
+- Índices revisados: slugs principales son `@unique`; `SeasonTeam` cubre `(seasonId, publicSlug)` y visibilidad; `Match` cubre equipo/estado/fecha y temporada/fecha; `StandingTable` cubre equipo/visibilidad; `PlayerMatchStats` cubre jugador/temporada y equipo/temporada; `NewsPost` cubre estado/publicación; `MediaAsset` cubre uso.
+- No se añadió migración de índices en C.1 porque no hay medición/`EXPLAIN` que justifique alterar esquema ahora; candidato futuro si aparece volumen real: índice compuesto para media por `type`, `usage`, `deletedAt`, `createdAt`.
+- `server/db/prisma.ts` instancia Prisma 7+ con `@prisma/adapter-mariadb` y configuración separada, manteniendo singleton en desarrollo.
+- `server/db/runtime-config.ts` mantiene `DATABASE_URL` como fallback de CLI/config, usa `DB_*` para runtime y limita `connectionLimit` a máximo 10, con default 5.
+- `cmd /c npm run test` termina con 11 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
 
 ## C.2 — Mutaciones y consistencia
 
-- [ ] Agrupar en transacciones las operaciones que deban ser atómicas.
-- [ ] Asegurar que cada escritura valida autorización en servidor.
-- [ ] Revalidar solo las rutas afectadas tras una mutación.
-- [ ] Evitar borrados físicos de entidades con historial.
-- [ ] Verificar que archivar una asignación no mueve ni elimina estadísticas históricas.
-- [ ] Proteger acciones repetidas contra estados imposibles o duplicados evidentes.
-- [ ] Normalizar mensajes de error de conflictos de base de datos.
+- [x] Agrupar en transacciones las operaciones que deban ser atómicas.
+- [x] Asegurar que cada escritura valida autorización en servidor.
+- [x] Revalidar solo las rutas afectadas tras una mutación.
+- [x] Evitar borrados físicos de entidades con historial.
+- [x] Verificar que archivar una asignación no mueve ni elimina estadísticas históricas.
+- [x] Proteger acciones repetidas contra estados imposibles o duplicados evidentes.
+- [x] Normalizar mensajes de error de conflictos de base de datos.
+
+Comprobación C.2:
+
+- Todas las escrituras y páginas/API de administración revisadas validan autorización en servidor mediante la capa existente de sesión/acceso admin.
+- Las operaciones multi-paso críticas mantienen transacciones: asignaciones, estadísticas, noticias, clasificaciones y guardado de equipos. Las escrituras de una sola fila se mantienen simples cuando no necesitan atomicidad adicional.
+- La subida de media limpia el archivo escrito si falla la creación del registro en base de datos, evitando archivos huérfanos por fallo parcial.
+- Las estadísticas ya no borran físicamente una fila `PlayerMatchStats` al dejarla sin impacto; si existía, se neutraliza con `played: false` y métricas a cero.
+- Archivar o inactivar una asignación no mueve ni elimina estadísticas históricas: las estadísticas siguen escribiéndose y leyéndose ligadas a `match.seasonTeamId`.
+- La revalidación se refinó para rutas afectadas: mover un partido revalida el equipo anterior y el nuevo; editar una ficha de jugador revalida todos sus contextos activos y la ficha global anterior/nueva.
+- Las acciones repetidas o estados imposibles quedan protegidos con validaciones existentes: máximo de dos asignaciones activas por jugador, bloqueo de duplicados activos por equipo, directos/highlights solo cuando aplica, noticias publicables con contenido mínimo, media en uso protegida y clasificaciones acotadas al equipo propio.
+- Los errores conocidos de Prisma `P2002` y `P2025` se normalizan con mensajes seguros; los mensajes internos de base de datos quedan ocultos por defecto.
+- Los borrados físicos restantes se limitan a filas hijas o relaciones sin historial deportivo propio: `StandingRow`, `NewsPostTeam` y `TeamCoach`.
+- No se añadió migración de Prisma en C.2.
+- `cmd /c npm run test` termina con 14 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0.
 
 ## C.3 — Publicación y caché
 
-- [ ] Definir por ruta qué contenido es estático, cacheado o dinámico.
-- [ ] Cachear páginas públicas y datos estables siempre que la publicación manual lo permita.
-- [ ] Mantener el backoffice en lectura/escritura real sin servir datos obsoletos tras guardar.
-- [ ] Revalidar páginas de equipo, jugador, partido, clasificación y noticia afectadas.
-- [ ] No depender de `rr-management` en tiempo de ejecución.
+- [x] Definir por ruta qué contenido es estático, cacheado o dinámico.
+- [x] Cachear páginas públicas y datos estables siempre que la publicación manual lo permita.
+- [x] Mantener el backoffice en lectura/escritura real sin servir datos obsoletos tras guardar.
+- [x] Revalidar páginas de equipo, jugador, partido, clasificación y noticia afectadas.
+- [x] No depender de `rr-management` en tiempo de ejecución.
+
+Comprobación C.3:
+
+- `docs/PUBLIC_CACHE_STRATEGY.md` define el mapa de rutas públicas, diferenciando ISR, páginas dinámicas de backoffice y páginas legales estáticas.
+- Las rutas públicas con datos reales usan `export const revalidate = 300`, declarado como literal por requisito de análisis estático de Next.js.
+- Se añadió ISR explícito a rutas públicas que leían base de datos y aún no lo declaraban: `/primer-equipo`, `/equipos/[teamSlug]`, `/equipos/[teamSlug]/plantilla` y `/noticias/[slug]`.
+- El backoffice del panel mantiene `dynamic = "force-dynamic"` y las acciones revalidan rutas públicas después de guardar.
+- La revalidación de noticias se ajustó para no invalidar `/equipos` ni `/primer-equipo` de forma global cuando no corresponde; revalida home, listado/detalle de noticia y solo equipos relacionados.
+- Las acciones de equipos, asignaciones, jugadores, partidos, clasificaciones y estadísticas mantienen revalidaciones acotadas a las familias de rutas afectadas.
+- La búsqueda de runtime no encuentra consumo de `rr-management`; solo quedan enlaces externos estáticos a tienda/redes y validadores de URL.
+- `cmd /c npm run test` termina con 14 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0. En esta ejecución local `MYSQL80` estaba parado y no se pudo iniciar desde el entorno, por lo que Next registró timeouts de pool y prerenderizó menos rutas con datos reales; no es un fallo de compilación, pero producción debe compilar con base de datos disponible o revalidar manualmente tras publicar contenido.
 
 ## C.4 — Pipeline de archivos
 
-- [ ] Definir directorio, nombres únicos y metadatos persistidos para cada tipo de archivo.
-- [ ] Convertir imágenes compatibles a WebP cuando no perjudique transparencia o calidad necesaria.
-- [ ] Convertir SVG aceptado a WebP o PNG antes de publicación.
-- [ ] Eliminar de forma recuperable archivos huérfanos solo después de verificar referencias.
-- [ ] Establecer límites de resolución, tamaño y formatos por tipo de medio.
-- [ ] Verificar orientación, transparencia y proporciones de fotos y escudos.
-- [ ] No procesar vídeos: guardar únicamente URLs externas validadas.
+- [x] Definir directorio, nombres únicos y metadatos persistidos para cada tipo de archivo.
+- [x] Convertir imágenes compatibles a WebP cuando no perjudique transparencia o calidad necesaria.
+- [x] Convertir SVG aceptado a WebP o PNG antes de publicación.
+- [x] Eliminar de forma recuperable archivos huérfanos solo después de verificar referencias.
+- [x] Establecer límites de resolución, tamaño y formatos por tipo de medio.
+- [x] Verificar orientación, transparencia y proporciones de fotos y escudos.
+- [x] No procesar vídeos: guardar únicamente URLs externas validadas.
+
+Comprobación C.4:
+
+- `docs/MEDIA_PIPELINE.md` define rutas, nombres, usos, metadata persistida, límites por uso, optimización y papelera recuperable.
+- Las subidas locales se guardan en `public/media/uploads/{uso}/{yyyy}/{mm}/{nombre-normalizado}-{uuid}.{extension}` y la URL pública se deriva quitando `public/`.
+- `server/services/media-file-policy.ts` centraliza política de archivo: tamaño máximo 8 MB, MIME permitidos, extensión coherente, firmas reales, lectura de dimensiones desde buffer, límites por uso y conversión opcional.
+- PNG/JPEG se convierten a WebP cuando `sharp` está disponible y el resultado reduce tamaño; WebP/AVIF ya optimizados se conservan. No se añadió dependencia nueva.
+- Los SVG originales siguen sin aceptarse para publicación; por tanto no hay SVG aceptado que servir sin rasterizar. Si se habilita en el futuro, deberá entrar por conversión previa medida en Hostinger.
+- La metadata `mimeType`, `sizeBytes`, `width` y `height` se toma del archivo preparado por servidor, no de valores enviados por el navegador.
+- Se validan mínimos, máximos y proporciones amplias por uso: fotos, cromos, logos, banners, portadas y media general.
+- El borrado de media comprueba primero que no existan referencias; si está libre, mueve el archivo a `storage/media-trash/...` y marca `deletedAt`. Si falla la actualización DB tras mover, intenta restaurar el archivo.
+- Los vídeos no pasan por el pipeline de archivos; continúan como URLs externas validadas en noticias/partidos.
+- `tests/media-file-policy.test.ts` cubre firmas/extensiones, dimensiones de servidor y límites por uso.
+- `cmd /c npm run test` termina con 18 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0. Igual que en C.3, el entorno local no permite iniciar `MYSQL80`, por lo que el build registra timeouts de pool durante prerender; queda pendiente repetirlo con MySQL disponible antes de la validación final.
 
 ## C.5 — Compatibilidad y deuda de esquema
 
-- [ ] Inventariar campos de roles, tarjeta o importación que el runtime ya no utilice.
-- [ ] Clasificar cada campo como compatible, obsoleto seguro o candidato a migración futura.
-- [ ] No eliminar campos ni enums con datos existentes sin backup, migración y plan de rollback.
-- [ ] Mantener fuera de interfaz las capacidades de temporadas, importaciones y usuarios descartadas.
-- [ ] Registrar en un documento separado cualquier limpieza de Prisma propuesta; no mezclarla silenciosamente con refactors de UI.
+- [x] Inventariar campos de roles, tarjeta o importación que el runtime ya no utilice.
+- [x] Clasificar cada campo como compatible, obsoleto seguro o candidato a migración futura.
+- [x] No eliminar campos ni enums con datos existentes sin backup, migración y plan de rollback.
+- [x] Mantener fuera de interfaz las capacidades de temporadas, importaciones y usuarios descartadas.
+- [x] Registrar en un documento separado cualquier limpieza de Prisma propuesta; no mezclarla silenciosamente con refactors de UI.
+
+Comprobación C.5:
+
+- `docs/PRISMA_SCHEMA_COMPATIBILITY_DEBT.md` inventaría deuda de esquema y compatibilidad sin aplicar migraciones.
+- Roles: `User.role`, `UserRole`, `CoachTeamPermission` y `TeamCoach.userId` se clasifican como compatibilidad técnica/obsoleto funcional MVP; se mantienen fuera de comportamiento diferenciado de producto.
+- Importación: `sourceSystem`, `sourceExternalId`, `lastImportBatchId`, `ImportBatch`, `ImportBatchItem`, `ImportStatus` e `ImportAction` se mantienen como compatibilidad necesaria para el futuro flujo CSV/ZIP con diff preview.
+- Tarjetas/media: `premiumCardMediaId` y `PLAYER_CARD` se mantienen como soporte de recursos premium/base visual, sin convertir el cromo en PNG final obligatorio.
+- Media no imagen: `MediaType.VIDEO_LINK`, `MediaType.DOCUMENT` y `MediaAsset.externalUrl` quedan como candidatos futuros; el runtime MVP solo sube imágenes y guarda vídeos en campos URL externos validados.
+- Campos deportivos futuros como `Match.liveUrl`, `PlayerMatchStats.shotsOnTargetAgainst` y `PlayerSeasonProfile.level` quedan clasificados para mantener mientras se cierran estadísticas/importación real.
+- No hay rutas activas `/admin/usuarios`, `/admin/temporadas` ni `/admin/importaciones` en `src` o `server`; las claves históricas de `AdminSectionKey` no aparecen en navegación activa.
+- No se modificó `prisma/schema.prisma` ni se generó migración.
+- `cmd /c npm run test` termina con 18 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
 
 ## C.6 — Cierre de la Fase C
 
-- [ ] Consultas críticas revisadas y sin N+1 conocidos.
-- [ ] Mutaciones críticas validadas, autorizadas y revalidadas correctamente.
-- [ ] Pipeline de imagen probado con PNG, JPEG, WebP y SVG.
-- [ ] Lint, build, Prisma y pruebas de servicios terminan correctamente.
-- [ ] No se han introducido dependencias runtime de `rr-management`, WordPress o servicios de pago.
+- [x] Consultas críticas revisadas y sin N+1 conocidos.
+- [x] Mutaciones críticas validadas, autorizadas y revalidadas correctamente.
+- [x] Pipeline de imagen probado con PNG, JPEG, WebP y SVG.
+- [x] Lint, build, Prisma y pruebas de servicios terminan correctamente.
+- [x] No se han introducido dependencias runtime de `rr-management`, WordPress o servicios de pago.
+
+Comprobación C.6:
+
+- Fase C.1 dejó revisado el acceso a datos: servicios sin `include` amplios conocidos, listados pesados con límites defensivos, consultas públicas de noticias separadas entre resumen/detalle y pool MariaDB limitado a 5-10.
+- Fase C.2 dejó revisadas mutaciones críticas: autorización server-side, transacciones multi-paso, revalidación de rutas afectadas, protección de histórico de estadísticas y mensajes seguros de conflictos Prisma.
+- Fase C.3 dejó definida la estrategia de publicación/caché: rutas públicas con ISR 300s, backoffice dinámico y revalidaciones por familia de contenido.
+- Fase C.4 dejó cerrado el pipeline de archivos MVP: validación centralizada, metadata real de servidor, conversión opcional PNG/JPEG a WebP, rechazo seguro de SVG original y borrado recuperable en papelera.
+- Fase C.5 dejó inventariada la deuda de esquema sin migraciones: roles, coach scope, importación, media no imagen, cromos y campos deportivos futuros clasificados.
+- `tests/media-file-policy.test.ts` prueba PNG, JPEG, WebP y rechazo SVG en la política de imagen.
+- `cmd /c npm run test` termina con 20 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0. Igual que en C.3-C.4, el entorno local no permite iniciar `MYSQL80`; durante prerender aparecen timeouts de pool y se debe repetir el build con MySQL disponible antes de validación final/despliegue.
+- La búsqueda de runtime no detecta consumo de `rr-management`, WordPress/WooCommerce ni servicios de pago; solo existen enlaces externos estáticos a tienda/redes y documentación histórica.
 
 ---
 
@@ -663,3 +765,9 @@ Añadir una entrada al cerrar cada bloque de trabajo.
 | 2026-07-23 | B.5 | Estados de carga/error/404 añadidos para público y admin; vacíos diferenciados; feedback admin con tonos coherentes; logging seguro de servidor instrumentado | `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.6 debe añadir la estrategia mínima de pruebas sin sobredimensionar infraestructura |
 | 2026-07-23 | B.6 | Estrategia mínima de pruebas añadida con Node test + `tsx`; URLs/media, reglas deportivas públicas, variantes de cromos y permisos admin quedan cubiertos; corregida validación de rutas locales con `..` | `cmd /c npm run test` correcto con 11 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | B.7 debe cerrar Fase B con búsqueda final, validaciones y revisión de navegación |
 | 2026-07-23 | B.7 | Fase B cerrada; producción queda sin mocks/demos runtime, navegación pública/admin revisada, rutas descartadas ausentes y validaciones completas correctas | `cmd /c npm run test` correcto con 11 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | Continuar por C.1; `git status` sigue bloqueado por `safe.directory` del entorno |
+| 2026-07-23 | C.1 | Acceso a datos revisado; noticias públicas separan resumen/detalle; listados pesados tienen límites defensivos; Prisma MariaDB queda con pool máximo 10; no se añaden migraciones sin medición | `cmd /c npm run test` correcto con 11 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | C.2 debe revisar transacciones, autorización, revalidación y consistencia de mutaciones |
+| 2026-07-24 | C.2 | Mutaciones revisadas; estadísticas históricas protegidas frente a borrados físicos; media upload limpia fallos parciales; revalidaciones de partido/jugador ajustadas; errores Prisma conocidos normalizados | `cmd /c npm run test` correcto con 14 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto | C.3 debe definir publicación, caché y revalidación por ruta |
+| 2026-07-24 | C.3 | Estrategia de publicación/caché definida por ruta; ISR público de 300s alineado; rutas públicas sin ISR explícito corregidas; revalidación de noticias acotada a contenido afectado | `cmd /c npm run test` correcto con 14 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | C.4 debe cerrar pipeline de archivos; antes de una validación final real conviene arrancar MySQL y repetir build con datos disponibles |
+| 2026-07-24 | C.4 | Pipeline de media definido; validación de archivos centralizada; dimensiones reales leídas en servidor; PNG/JPEG se optimizan a WebP si es seguro; borrado de media pasa a papelera recuperable | `cmd /c npm run test` correcto con 18 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | C.5 debe inventariar deuda de esquema/compatibilidad sin mezclar migraciones; repetir build con MySQL disponible antes del cierre C.6 |
+| 2026-07-24 | C.5 | Deuda de esquema inventariada sin migraciones; roles/coach scope, importación, cromos/media y campos deportivos futuros clasificados como compatibilidad, obsoleto funcional o candidato futuro | `cmd /c npm run test` correcto con 18 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto | C.6 debe cerrar la Fase C; repetir build con MySQL disponible si es posible |
+| 2026-07-24 | C.6 | Fase C cerrada; consultas, mutaciones, caché/publicación, pipeline de media y deuda de esquema quedan revisados y documentados | `cmd /c npm run test` correcto con 20 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | Continuar por D.1; repetir build con MySQL disponible antes de despliegue o cierre final |

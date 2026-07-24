@@ -11,6 +11,8 @@ type TeamDetailPageProps = {
   }>;
 };
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   const teamSlugs = await getPublicNonFirstTeamSlugsFromDb();
 

@@ -59,7 +59,7 @@ export async function getAdminDashboardData(
   void _user;
 
   const siteSettings = await prisma.siteSettings.findFirst({
-    include: {
+    select: {
       activeSeason: {
         select: {
           id: true,

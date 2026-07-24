@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Resumen publico del Primer Equipo de Rising Raimon.",
 };
 
+export const revalidate = 300;
+
 export default async function FirstTeamPage() {
   const teamSummary = await getPublicTeamPageContent("primer-equipo");
 

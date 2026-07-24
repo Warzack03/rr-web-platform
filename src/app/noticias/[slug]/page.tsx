@@ -14,6 +14,8 @@ type NewsDetailPageProps = {
   }>;
 };
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   const articles = await getPublicNewsArticles();
 

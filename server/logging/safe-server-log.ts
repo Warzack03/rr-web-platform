@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 type SafeLogContextValue = string | number | bigint | boolean | null | undefined;
 
 type SafeLogContext = Record<string, SafeLogContextValue>;
@@ -29,6 +31,21 @@ function getErrorSummary(error: unknown) {
   };
 }
 
+function getKnownDatabaseErrorMessage(error: Error) {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+    return null;
+  }
+
+  switch (error.code) {
+    case "P2002":
+      return "Ya existe un registro con esos datos.";
+    case "P2025":
+      return "El registro ya no esta disponible.";
+    default:
+      return null;
+  }
+}
+
 export function logServerError(
   scope: string,
   error: unknown,
@@ -50,6 +67,12 @@ export function getSafeServerErrorMessage(error: unknown, fallback: string) {
 
   if (!message) {
     return fallback;
+  }
+
+  const knownDatabaseMessage = getKnownDatabaseErrorMessage(error);
+
+  if (knownDatabaseMessage) {
+    return knownDatabaseMessage;
   }
 
   if (/prisma|sql|database|connection|enoent|eacces|stack| at |\\|\/var\/|node_modules/i.test(message)) {

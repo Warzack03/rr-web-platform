@@ -1,5 +1,8 @@
 import type { PublicNewsArticle } from "@/lib/contracts/public";
-import { getPublishedPublicNewsArticlesFromDb } from "@/server/services/public/news";
+import {
+  getPublishedPublicNewsArticleBySlugFromDb,
+  getPublishedPublicNewsArticlesFromDb,
+} from "@/server/services/public/news";
 
 export async function getPublicNewsArticles() {
   const dbArticles = await getPublishedPublicNewsArticlesFromDb();
@@ -30,15 +33,36 @@ export async function getLatestPublicNewsArticles(limit?: number) {
   return typeof limit === "number" ? latestArticles.slice(0, limit) : latestArticles;
 }
 
-export async function getResolvedPublicNewsArticleBySlug(slug: string) {
+export async function getPublicNewsHighlights(latestLimit = 2) {
   const articles = await getPublicNewsArticles();
 
-  return articles.find((article) => article.slug === slug) ?? null;
+  if (articles.length === 0) {
+    return {
+      featuredArticle: undefined,
+      latestArticles: [],
+    };
+  }
+
+  const featuredArticle = articles.find((article) => article.featured) ?? articles[0];
+  const latestArticles = articles
+    .filter((article) => article.slug !== featuredArticle.slug)
+    .slice(0, latestLimit);
+
+  return {
+    featuredArticle,
+    latestArticles,
+  };
+}
+
+export async function getResolvedPublicNewsArticleBySlug(slug: string) {
+  return getPublishedPublicNewsArticleBySlugFromDb(slug);
 }
 
 export async function getResolvedRelatedPublicNewsArticles(slug: string, limit = 2) {
   const articles = await getPublicNewsArticles();
-  const article = articles.find((candidate) => candidate.slug === slug);
+  const article =
+    articles.find((candidate) => candidate.slug === slug) ??
+    (await getResolvedPublicNewsArticleBySlug(slug));
 
   if (!article) {
     return [];

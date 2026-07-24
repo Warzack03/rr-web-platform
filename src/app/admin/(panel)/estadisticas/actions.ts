@@ -141,10 +141,27 @@ export async function saveAdminStatsAction(
       const shouldPersist = hasStatImpact(row);
 
       if (!shouldPersist) {
-        await tx.playerMatchStats.deleteMany({
+        await tx.playerMatchStats.updateMany({
           where: {
             matchId: match.id,
             playerId,
+          },
+          data: {
+            statRole: row.isGoalkeeper ? PlayerStatRole.GOALKEEPER : PlayerStatRole.FIELD_PLAYER,
+            played: false,
+            goals: 0,
+            assists: 0,
+            mvp: 0,
+            yellowCards: 0,
+            redCards: 0,
+            recoveries: 0,
+            shots: 0,
+            shotsOnTarget: 0,
+            ownGoals: 0,
+            saves: 0,
+            goalsAgainst: 0,
+            cleanSheets: 0,
+            updatedById: user.id,
           },
         });
         continue;

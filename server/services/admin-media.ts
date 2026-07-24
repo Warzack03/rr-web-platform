@@ -17,21 +17,14 @@ import {
 } from "@/lib/url-safety";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
+import {
+  allowedImageMimeTypes,
+  MAX_MEDIA_UPLOAD_BYTES,
+  prepareImageUpload,
+} from "@/server/services/media-file-policy";
 
-const MAX_MEDIA_UPLOAD_BYTES = 8 * 1024 * 1024;
-const allowedImageMimeTypes = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "image/avif",
-]);
-
-const allowedExtensionsByMimeType = {
-  "image/png": new Set(["png"]),
-  "image/jpeg": new Set(["jpeg", "jpg"]),
-  "image/webp": new Set(["webp"]),
-  "image/avif": new Set(["avif"]),
-} satisfies Record<string, Set<string>>;
+const ADMIN_MEDIA_LIST_LIMIT = 240;
+const ADMIN_MEDIA_PICKER_LIMIT = 180;
 
 type MediaAssetWithRelations = Prisma.MediaAssetGetPayload<{
   select: {
@@ -189,71 +182,6 @@ function sanitizeBaseName(value: string) {
   return normalized || "media";
 }
 
-function getAllowedExtensionsForMimeType(mimeType: string) {
-  return allowedExtensionsByMimeType[mimeType as keyof typeof allowedExtensionsByMimeType];
-}
-
-function resolveExtension(fileName: string, mimeType: string) {
-  const explicitExtension = path.extname(fileName).replace(".", "").toLowerCase();
-  const allowedExtensions = getAllowedExtensionsForMimeType(mimeType);
-
-  if (!allowedExtensions) {
-    throw new Error("Tipo de imagen no admitido.");
-  }
-
-  if (explicitExtension) {
-    if (!allowedExtensions.has(explicitExtension)) {
-      throw new Error("La extension del archivo no coincide con el tipo de imagen.");
-    }
-
-    return explicitExtension === "jpg" ? "jpeg" : explicitExtension;
-  }
-
-  const [firstAllowedExtension] = Array.from(allowedExtensions);
-
-  if (!firstAllowedExtension) {
-    throw new Error("Tipo de imagen no admitido.");
-  }
-
-  return firstAllowedExtension === "jpg" ? "jpeg" : firstAllowedExtension;
-}
-
-function bufferStartsWith(buffer: Buffer, signature: number[]) {
-  return signature.every((byte, index) => buffer[index] === byte);
-}
-
-function bufferAscii(buffer: Buffer, start: number, end: number) {
-  return buffer.subarray(start, end).toString("ascii");
-}
-
-function hasExpectedFileSignature(mimeType: string, buffer: Buffer) {
-  if (mimeType === "image/png") {
-    return bufferStartsWith(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  }
-
-  if (mimeType === "image/jpeg") {
-    return bufferStartsWith(buffer, [0xff, 0xd8, 0xff]);
-  }
-
-  if (mimeType === "image/webp") {
-    return (
-      buffer.length >= 12 &&
-      bufferAscii(buffer, 0, 4) === "RIFF" &&
-      bufferAscii(buffer, 8, 12) === "WEBP"
-    );
-  }
-
-  if (mimeType === "image/avif") {
-    return (
-      buffer.length >= 16 &&
-      bufferAscii(buffer, 4, 8) === "ftyp" &&
-      buffer.subarray(8, Math.min(buffer.length, 40)).toString("ascii").includes("avif")
-    );
-  }
-
-  return false;
-}
-
 function isUnsafeSvgMediaReference(input: {
   publicUrl: string;
   storagePath?: string | null;
@@ -264,15 +192,6 @@ function isUnsafeSvgMediaReference(input: {
     hasSvgExtension(input.publicUrl) ||
     Boolean(input.storagePath && hasSvgExtension(input.storagePath))
   );
-}
-
-function parseOptionalDimension(value: FormDataEntryValue | null) {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 function normalizeAltText(value: string | null | undefined, fallbackLabel: string) {
@@ -290,6 +209,27 @@ function resolveStorageAbsolutePath(storagePath: string) {
 
   if (!absolutePath.startsWith(mediaRoot)) {
     throw new Error("Ruta de media fuera del directorio permitido.");
+  }
+
+  return absolutePath;
+}
+
+function resolveTrashAbsolutePath(storagePath: string) {
+  const normalizedStoragePath = storagePath.replace(/^public\/media\//, "");
+  const absolutePath = path.resolve(
+    /* turbopackIgnore: true */ process.cwd(),
+    "storage",
+    "media-trash",
+    normalizedStoragePath,
+  );
+  const trashRoot = path.resolve(
+    /* turbopackIgnore: true */ process.cwd(),
+    "storage",
+    "media-trash",
+  );
+
+  if (!absolutePath.startsWith(trashRoot)) {
+    throw new Error("Ruta de papelera fuera del directorio permitido.");
   }
 
   return absolutePath;
@@ -368,6 +308,7 @@ export async function getAdminMediaScreenData(user: AuthenticatedAdmin) {
       },
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: ADMIN_MEDIA_LIST_LIMIT,
     select: {
       id: true,
       usage: true,
@@ -419,6 +360,7 @@ export async function getAdminMediaPickerOptions(
         : {}),
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: ADMIN_MEDIA_PICKER_LIMIT,
     select: {
       id: true,
       usage: true,
@@ -569,68 +511,75 @@ export async function storeUploadedMediaAsset(
   }
 
   const fileBuffer = Buffer.from(await file.arrayBuffer());
-
-  if (!hasExpectedFileSignature(file.type, fileBuffer)) {
-    throw new Error("El contenido del archivo no coincide con el tipo de imagen indicado.");
-  }
-
-  const extension = resolveExtension(file.name, file.type);
+  const preparedImage = await prepareImageUpload({
+    buffer: fileBuffer,
+    fileName: file.name,
+    mimeType: file.type,
+    usage: usageValue,
+  });
   const safeBaseName = sanitizeBaseName(file.name.replace(/\.[^/.]+$/, ""));
-  const fileName = `${safeBaseName}-${randomUUID()}.${extension}`;
+  const fileName = `${safeBaseName}-${randomUUID()}.${preparedImage.extension}`;
   const relativeStoragePath = buildRelativeStoragePath(usageValue, fileName);
   const absoluteStoragePath = resolveStorageAbsolutePath(relativeStoragePath);
 
   await mkdir(path.dirname(absoluteStoragePath), { recursive: true });
-  await writeFile(absoluteStoragePath, fileBuffer);
+  await writeFile(absoluteStoragePath, preparedImage.buffer);
 
   const fallbackLabel = deriveMediaLabelFromPath(file.name);
-  const created = await prisma.mediaAsset.create({
-    data: {
-      type: MediaType.IMAGE,
-      usage: toPrismaMediaUsage(usageValue),
-      storagePath: relativeStoragePath,
-      publicUrl: `/${relativeStoragePath.replace(/^public\//, "")}`,
-      altText: normalizeAltText(
-        typeof formData.get("altText") === "string"
-          ? (formData.get("altText") as string)
-          : null,
-        fallbackLabel,
-      ),
-      mimeType: file.type,
-      sizeBytes: file.size,
-      width: parseOptionalDimension(formData.get("width")) ?? null,
-      height: parseOptionalDimension(formData.get("height")) ?? null,
-      uploadedById: user.id,
-    },
-    select: {
-      id: true,
-      usage: true,
-      storagePath: true,
-      publicUrl: true,
-      altText: true,
-      mimeType: true,
-      sizeBytes: true,
-      width: true,
-      height: true,
-      createdAt: true,
-      uploadedBy: {
-        select: {
-          displayName: true,
+  let created: MediaAssetWithRelations;
+
+  try {
+    created = await prisma.mediaAsset.create({
+      data: {
+        type: MediaType.IMAGE,
+        usage: toPrismaMediaUsage(usageValue),
+        storagePath: relativeStoragePath,
+        publicUrl: `/${relativeStoragePath.replace(/^public\//, "")}`,
+        altText: normalizeAltText(
+          typeof formData.get("altText") === "string"
+            ? (formData.get("altText") as string)
+            : null,
+          fallbackLabel,
+        ),
+        mimeType: preparedImage.mimeType,
+        sizeBytes: preparedImage.sizeBytes,
+        width: preparedImage.width,
+        height: preparedImage.height,
+        uploadedById: user.id,
+      },
+      select: {
+        id: true,
+        usage: true,
+        storagePath: true,
+        publicUrl: true,
+        altText: true,
+        mimeType: true,
+        sizeBytes: true,
+        width: true,
+        height: true,
+        createdAt: true,
+        uploadedBy: {
+          select: {
+            displayName: true,
+          },
+        },
+        _count: {
+          select: {
+            playerPhotos: true,
+            playerPremiumCards: true,
+            seasonTeamLogos: true,
+            seasonTeamBanners: true,
+            teamCoachPhotos: true,
+            opponentLogos: true,
+            newsCovers: true,
+          },
         },
       },
-      _count: {
-        select: {
-          playerPhotos: true,
-          playerPremiumCards: true,
-          seasonTeamLogos: true,
-          seasonTeamBanners: true,
-          teamCoachPhotos: true,
-          opponentLogos: true,
-          newsCovers: true,
-        },
-      },
-    },
-  });
+    });
+  } catch (error) {
+    await unlink(absoluteStoragePath).catch(() => undefined);
+    throw error;
+  }
 
   revalidatePath("/admin/media");
 
@@ -755,19 +704,24 @@ export async function deleteMediaAsset(user: AuthenticatedAdmin, mediaId: string
     throw new Error("Este recurso sigue en uso y no se puede eliminar todavia.");
   }
 
-  await prisma.mediaAsset.update({
-    where: {
-      id: existing.id,
-    },
-    data: {
-      deletedAt: new Date(),
-      uploadedById: user.id,
-    },
-  });
+  let movedFile:
+    | {
+        currentAbsolutePath: string;
+        trashAbsolutePath: string;
+      }
+    | null = null;
 
   if (existing.storagePath) {
     try {
-      await unlink(resolveStorageAbsolutePath(existing.storagePath));
+      const currentAbsolutePath = resolveStorageAbsolutePath(existing.storagePath);
+      const trashAbsolutePath = resolveTrashAbsolutePath(existing.storagePath);
+
+      await mkdir(path.dirname(trashAbsolutePath), { recursive: true });
+      await rename(currentAbsolutePath, trashAbsolutePath);
+      movedFile = {
+        currentAbsolutePath,
+        trashAbsolutePath,
+      };
     } catch (error) {
       const ioError = error as NodeJS.ErrnoException;
 
@@ -775,6 +729,27 @@ export async function deleteMediaAsset(user: AuthenticatedAdmin, mediaId: string
         throw error;
       }
     }
+  }
+
+  try {
+    await prisma.mediaAsset.update({
+      where: {
+        id: existing.id,
+      },
+      data: {
+        deletedAt: new Date(),
+        uploadedById: user.id,
+      },
+    });
+  } catch (error) {
+    if (movedFile) {
+      await mkdir(path.dirname(movedFile.currentAbsolutePath), { recursive: true });
+      await rename(movedFile.trashAbsolutePath, movedFile.currentAbsolutePath).catch(
+        () => undefined,
+      );
+    }
+
+    throw error;
   }
 
   revalidatePath("/admin/media");

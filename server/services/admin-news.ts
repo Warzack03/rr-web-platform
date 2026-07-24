@@ -19,6 +19,8 @@ export type AdminNewsScreenData = {
   activeSeasonName: string | null;
 };
 
+const ADMIN_NEWS_POST_LIST_LIMIT = 120;
+
 function formatDateTimeLabel(date: Date | null) {
   if (!date) {
     return "Sin fecha";
@@ -71,9 +73,6 @@ function revalidateNewsPaths(
   const teamSlugs = Array.from(
     new Set([...input.previousRelatedTeamSlugs, ...input.nextRelatedTeamSlugs]),
   );
-
-  revalidatePath("/equipos");
-  revalidatePath("/primer-equipo");
 
   for (const slug of teamSlugs) {
     if (slug === "primer-equipo") {
@@ -131,6 +130,7 @@ export async function getAdminNewsScreenData(
         deletedAt: null,
       },
       orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+      take: ADMIN_NEWS_POST_LIST_LIMIT,
       select: {
         id: true,
         title: true,

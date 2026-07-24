@@ -8,6 +8,10 @@ import { getAdminPlayersScreenData } from "@/server/services/admin-players";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 import {
+  getSafeServerErrorMessage,
+  logServerError,
+} from "@/server/logging/safe-server-log";
+import {
   savePlayerProfileInputSchema,
   type SavePlayerProfileInput,
 } from "@/server/validators/admin-players";
@@ -24,25 +28,31 @@ type AdminPlayersActionResult =
       message: string;
     };
 
-function revalidatePlayerPaths(teamSlug: string, previousSlug: string, nextSlug: string) {
+function revalidatePlayerPaths(teamSlugs: string[], previousSlug: string, nextSlug: string) {
   const slugs = Array.from(new Set([previousSlug, nextSlug].filter(Boolean)));
+  const uniqueTeamSlugs = Array.from(new Set(teamSlugs.filter(Boolean)));
 
   revalidatePath("/admin/jugadores");
   revalidatePath("/equipos");
 
-  if (teamSlug === "primer-equipo") {
-    revalidatePath("/primer-equipo");
-    revalidatePath("/primer-equipo/plantilla");
-  } else {
-    revalidatePath(`/equipos/${teamSlug}`);
-    revalidatePath(`/equipos/${teamSlug}/plantilla`);
+  for (const teamSlug of uniqueTeamSlugs) {
+    if (teamSlug === "primer-equipo") {
+      revalidatePath("/primer-equipo");
+      revalidatePath("/primer-equipo/plantilla");
+    } else {
+      revalidatePath(`/equipos/${teamSlug}`);
+      revalidatePath(`/equipos/${teamSlug}/plantilla`);
+    }
+
+    for (const slug of slugs) {
+      if (teamSlug !== "primer-equipo") {
+        revalidatePath(`/equipos/${teamSlug}/jugadores/${slug}`);
+      }
+    }
   }
 
   for (const slug of slugs) {
     revalidatePath(`/jugadores/${slug}`);
-    if (teamSlug !== "primer-equipo") {
-      revalidatePath(`/equipos/${teamSlug}/jugadores/${slug}`);
-    }
   }
 }
 
@@ -97,7 +107,6 @@ export async function savePlayerProfileAction(
             },
           },
         },
-        take: 1,
       },
     },
   });
@@ -128,36 +137,51 @@ export async function savePlayerProfileAction(
     };
   }
 
-  await prisma.$transaction(async (tx) => {
-    const photoMediaId = await resolveMediaAssetId(
-      {
-        mediaId: payload.photoMediaId,
-        publicUrl: payload.photoUrl,
-        usage: MediaUsage.PLAYER_PHOTO,
-        uploadedById: user.id,
-      },
-      tx,
-    );
+  try {
+    await prisma.$transaction(async (tx) => {
+      const photoMediaId = await resolveMediaAssetId(
+        {
+          mediaId: payload.photoMediaId,
+          publicUrl: payload.photoUrl,
+          usage: MediaUsage.PLAYER_PHOTO,
+          uploadedById: user.id,
+        },
+        tx,
+      );
 
-    await tx.player.update({
-      where: {
-        id: existing.id,
-      },
-      data: {
-        publicName: payload.publicName,
-        slug: payload.slug,
-        countryCode: payload.country,
-        preferredFoot: payload.foot,
-        publicVisible: payload.visible,
-        active: payload.active,
-        photoMediaId,
-        updatedById: user.id,
-      },
+      await tx.player.update({
+        where: {
+          id: existing.id,
+        },
+        data: {
+          publicName: payload.publicName,
+          slug: payload.slug,
+          countryCode: payload.country,
+          preferredFoot: payload.foot,
+          publicVisible: payload.visible,
+          active: payload.active,
+          photoMediaId,
+          updatedById: user.id,
+        },
+      });
     });
-  });
+  } catch (error) {
+    logServerError("admin.players.saveProfile", error, {
+      userId: user.id,
+      playerId: existing.id,
+      slug: payload.slug,
+    });
 
-  const teamSlug = existing.assignments[0]?.seasonTeam.publicSlug ?? "primer-equipo";
-  revalidatePlayerPaths(teamSlug, existing.slug, payload.slug);
+    return {
+      ok: false,
+      message: getSafeServerErrorMessage(error, "No hemos podido guardar la ficha."),
+    };
+  }
+
+  const teamSlugs = existing.assignments.map(
+    (assignment) => assignment.seasonTeam.publicSlug,
+  );
+  revalidatePlayerPaths(teamSlugs.length > 0 ? teamSlugs : ["primer-equipo"], existing.slug, payload.slug);
 
   return {
     ok: true,

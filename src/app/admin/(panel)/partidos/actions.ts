@@ -247,7 +247,11 @@ export async function saveMatchAction(
       },
     });
 
-    revalidateMatchPaths(targetTeam.publicSlug, existing.id.toString());
+    revalidateMatchPaths(existing.seasonTeam.publicSlug, existing.id.toString());
+
+    if (existing.seasonTeam.publicSlug !== targetTeam.publicSlug) {
+      revalidateMatchPaths(targetTeam.publicSlug, existing.id.toString());
+    }
 
     return {
       ok: true,

@@ -17,7 +17,11 @@ const runtimeDatabaseConfigSchema = z.object({
   user: z.string().min(1, "DB_USER es obligatorio."),
   password: z.string(),
   database: z.string().min(1, "DB_NAME es obligatorio."),
-  connectionLimit: z.number().int().positive("DB_CONNECTION_LIMIT debe ser positivo."),
+  connectionLimit: z
+    .number()
+    .int()
+    .positive("DB_CONNECTION_LIMIT debe ser positivo.")
+    .max(10, "DB_CONNECTION_LIMIT no debe superar 10 en Hostinger."),
 });
 
 export type RuntimeDatabaseConfig = z.infer<typeof runtimeDatabaseConfigSchema>;
@@ -30,6 +34,10 @@ function parsePositiveInteger(value: string | undefined, fallback: number) {
   const parsedValue = Number.parseInt(value, 10);
 
   return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : fallback;
+}
+
+function parseConnectionLimit(value: string | undefined, fallback = 5) {
+  return Math.min(parsePositiveInteger(value, fallback), 10);
 }
 
 function getDatabaseUrlFallback() {
@@ -47,7 +55,10 @@ function getDatabaseUrlFallback() {
     user: decodeURIComponent(parsedUrl.username),
     password: decodeURIComponent(parsedUrl.password),
     database: parsedUrl.pathname.replace(/^\//, ""),
-    connectionLimit: parsePositiveInteger(parsedUrl.searchParams.get("connection_limit") ?? undefined, 5),
+    connectionLimit: parseConnectionLimit(
+      parsedUrl.searchParams.get("connection_limit") ?? undefined,
+      5,
+    ),
   });
 }
 
@@ -60,7 +71,7 @@ export function getRuntimeDatabaseConfig(): RuntimeDatabaseConfig {
     user: process.env.DB_USER ?? fallback?.user,
     password: process.env.DB_PASSWORD ?? fallback?.password ?? "",
     database: process.env.DB_NAME ?? fallback?.database,
-    connectionLimit: parsePositiveInteger(
+    connectionLimit: parseConnectionLimit(
       process.env.DB_CONNECTION_LIMIT,
       fallback?.connectionLimit ?? 5,
     ),
