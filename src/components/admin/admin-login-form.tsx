@@ -22,6 +22,8 @@ export function AdminLoginForm({
     error ? "Credenciales invalidas o sesion no disponible." : null,
   );
   const [isPending, startTransition] = useTransition();
+  const feedbackId = "admin-login-feedback";
+  const hasFeedback = Boolean(feedback);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,6 +51,7 @@ export function AdminLoginForm({
     <div className="mx-auto w-full max-w-[680px]">
       <form
         onSubmit={handleSubmit}
+        aria-describedby={hasFeedback ? feedbackId : undefined}
         className="rounded-[22px] border border-[color:var(--rr-border)] bg-[linear-gradient(160deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-6 shadow-[var(--rr-shadow)] backdrop-blur-md sm:p-8"
       >
         <div className="space-y-6">
@@ -73,6 +76,9 @@ export function AdminLoginForm({
                 className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                 placeholder="Introduce tu email o usuario"
                 autoComplete="username"
+                required
+                aria-invalid={hasFeedback}
+                aria-describedby={hasFeedback ? feedbackId : undefined}
               />
             </label>
 
@@ -85,12 +91,19 @@ export function AdminLoginForm({
                 className="min-h-12 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-4 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
                 placeholder="Introduce tu contrasena"
                 autoComplete="current-password"
+                required
+                aria-invalid={hasFeedback}
+                aria-describedby={hasFeedback ? feedbackId : undefined}
               />
             </label>
           </div>
 
           {feedback ? (
-            <div className="rounded-[14px] border border-[rgba(221,108,112,0.34)] bg-[rgba(221,108,112,0.12)] px-4 py-3 text-[0.94rem] text-[#ffc1c4]">
+            <div
+              id={feedbackId}
+              role="alert"
+              className="rounded-[14px] border border-[rgba(221,108,112,0.34)] bg-[rgba(221,108,112,0.12)] px-4 py-3 text-[0.94rem] text-[#ffc1c4]"
+            >
               {feedback}
             </div>
           ) : null}
@@ -100,7 +113,11 @@ export function AdminLoginForm({
             disabled={isPending}
             className="rr-button rr-button-primary w-full justify-center disabled:cursor-wait disabled:opacity-70"
           >
-            {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+            {isPending ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            )}
             Entrar al admin
           </button>
         </div>

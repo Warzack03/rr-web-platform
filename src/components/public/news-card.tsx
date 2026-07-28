@@ -19,6 +19,8 @@ type ArticleNewsCardProps = {
   excerpt: string;
   dateLabel: string;
   imageTone: PublicNewsImageTone;
+  imageUrl?: string;
+  imageAlt?: string;
   relatedTeam?: string;
   ctaLabel?: string;
   className?: string;
@@ -34,6 +36,8 @@ function ArticleNewsCard({
   excerpt,
   dateLabel,
   imageTone,
+  imageUrl,
+  imageAlt,
   relatedTeam,
   ctaLabel = "Leer articulo",
   className,
@@ -48,6 +52,8 @@ function ArticleNewsCard({
       <Link href={href} className="block">
         <NewsArtwork
           imageTone={imageTone}
+          imageUrl={imageUrl}
+          alt={imageAlt}
           className="aspect-[16/10] border-b border-[color:var(--rr-border)]"
         />
         <div className="space-y-4 p-5 sm:p-6">

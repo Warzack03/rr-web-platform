@@ -11,7 +11,7 @@ type MatchFiltersProps = {
 
 export function MatchFilters({ options, activeFilter, onChange }: MatchFiltersProps) {
   return (
-    <div className="-mx-1 overflow-x-auto pb-2">
+    <div className="-mx-1 overflow-x-auto pb-2" aria-label="Filtrar partidos">
       <div className="flex min-w-max gap-3 px-1">
         {options.map((option) => {
           const isActive = option.value === activeFilter;
@@ -21,6 +21,7 @@ export function MatchFilters({ options, activeFilter, onChange }: MatchFiltersPr
               key={option.value}
               type="button"
               onClick={() => onChange(option.value)}
+              aria-pressed={isActive}
               className={cn(
                 "rr-kicker inline-flex min-h-11 items-center justify-center border px-5 py-3 text-[0.92rem] transition",
                 isActive

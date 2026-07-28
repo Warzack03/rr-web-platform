@@ -1,12 +1,45 @@
 import type { Metadata, Viewport } from "next";
+import {
+  DEFAULT_SITE_DESCRIPTION,
+  SITE_NAME,
+  getAbsoluteUrl,
+  getMetadataBase,
+} from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: getMetadataBase(),
   title: {
-    default: "Rising Raimon",
-    template: "%s | Rising Raimon",
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: "Plataforma web publica y backoffice deportivo de Rising Raimon.",
+  description: DEFAULT_SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: SITE_NAME,
+    description: DEFAULT_SITE_DESCRIPTION,
+    url: getAbsoluteUrl("/"),
+    siteName: SITE_NAME,
+    locale: "es_ES",
+    type: "website",
+    images: [
+      {
+        url: getAbsoluteUrl("/images/rr-og-card.svg"),
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: DEFAULT_SITE_DESCRIPTION,
+    images: [getAbsoluteUrl("/images/rr-og-card.svg")],
+  },
 };
 
 export const viewport: Viewport = {

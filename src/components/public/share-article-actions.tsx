@@ -43,7 +43,7 @@ export function ShareArticleActions({ title }: ShareArticleActionsProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="rr-kicker text-[0.82rem] text-[color:var(--rr-gold)]">Compartir noticia</p>
-          <p className="mt-2 text-[0.96rem] text-[color:var(--rr-muted)]">
+          <p className="mt-2 text-[0.96rem] text-[color:var(--rr-muted)]" aria-live="polite">
             {status === "copied" && "Enlace copiado."}
             {status === "shared" && "Panel de compartir abierto."}
             {status === "error" && "No se pudo compartir ahora."}
@@ -57,7 +57,7 @@ export function ShareArticleActions({ title }: ShareArticleActionsProps) {
             onClick={handleShare}
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[6px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-[color:var(--rr-text)] transition hover:border-[color:var(--rr-border-strong)] hover:text-[color:var(--rr-gold)]"
           >
-            <Share2 className="h-4 w-4" strokeWidth={1.9} />
+            <Share2 className="h-4 w-4" strokeWidth={1.9} aria-hidden="true" />
             <span className="rr-kicker text-[0.82rem]">Compartir</span>
           </button>
           <button
@@ -65,7 +65,7 @@ export function ShareArticleActions({ title }: ShareArticleActionsProps) {
             onClick={copyCurrentUrl}
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[6px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-[color:var(--rr-text)] transition hover:border-[color:var(--rr-border-strong)] hover:text-[color:var(--rr-gold)]"
           >
-            <Link2 className="h-4 w-4" strokeWidth={1.9} />
+            <Link2 className="h-4 w-4" strokeWidth={1.9} aria-hidden="true" />
             <span className="rr-kicker text-[0.82rem]">Copiar enlace</span>
           </button>
         </div>

@@ -28,6 +28,7 @@ export function NewsArticlePage({ article, relatedArticles }: NewsArticlePagePro
           <NewsArticleHeroImage
             category={article.category}
             imageTone={article.imageTone}
+            imageUrl={article.coverImageUrl}
             alt={article.coverImageAlt}
           />
           <NewsArticleHeader article={article} />

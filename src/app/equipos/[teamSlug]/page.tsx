@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamOverviewPage } from "@/components/public/team-overview-page";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamDetailPageProps = {
@@ -34,8 +35,12 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${teamSummary.name} | Equipos`,
-    description: `Detalle publico de ${teamSummary.name} en Rising Raimon.`,
+    ...buildPublicPageMetadata({
+      title: `${teamSummary.name} | Equipos`,
+      description: `Resumen público de ${teamSummary.name}: plantilla, calendario, clasificación y estadísticas.`,
+      path: `/equipos/${teamSummary.slug}`,
+      imageUrl: teamSummary.heroImageUrl,
+    }),
   };
 }
 

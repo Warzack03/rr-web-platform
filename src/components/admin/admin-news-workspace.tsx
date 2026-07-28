@@ -745,14 +745,17 @@ export function AdminNewsWorkspace({
               </div>
 
               <label className="grid gap-2">
-                <span className={labelClassName()}>Contenido Markdown</span>
+                <span className={labelClassName()}>Contenido</span>
                 <textarea
                   value={editorState.bodyMarkdown}
                   onChange={(event) => updateEditor("bodyMarkdown", event.target.value)}
                   rows={16}
                   className={inputClassName("py-3 font-mono text-[0.88rem] leading-6")}
-                  placeholder="Escribe el cuerpo de la noticia..."
+                  placeholder={"Parrafos separados por linea en blanco\n## Titulo interno\n> Cita destacada\n[Referencia](https://...)"}
                 />
+                <span className="text-[0.78rem] leading-5 text-[color:var(--rr-muted)]">
+                  Formato seguro: parrafos, titulos, citas y enlaces http/https. Sin HTML.
+                </span>
               </label>
             </div>
           </AdminPanel>

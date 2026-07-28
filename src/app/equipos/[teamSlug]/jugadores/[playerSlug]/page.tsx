@@ -4,6 +4,7 @@ import {
   getAcademyPlayerStaticParamsFromDb,
 } from "@/server/services/public/player-detail";
 import { getGlobalPlayerHref } from "@/lib/public/player-routes";
+import { buildPublicPageMetadata } from "@/lib/seo";
 
 type AcademyPlayerDetailRouteProps = {
   params: Promise<{
@@ -24,9 +25,14 @@ export async function generateMetadata({
   const { playerSlug } = await params;
 
   return {
-    title: "Ficha global de jugador | Rising Raimon",
-    alternates: {
-      canonical: getGlobalPlayerHref(playerSlug),
+    ...buildPublicPageMetadata({
+      title: "Ficha global de jugador",
+      description: "La ficha canónica del jugador está disponible en su URL global.",
+      path: getGlobalPlayerHref(playerSlug),
+    }),
+    robots: {
+      index: false,
+      follow: true,
     },
   };
 }

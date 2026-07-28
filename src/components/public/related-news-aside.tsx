@@ -27,6 +27,7 @@ export function RelatedNewsAside({ articles }: RelatedNewsAsideProps) {
           >
             <NewsArtwork
               imageTone={article.imageTone}
+              imageUrl={article.coverImageUrl}
               alt={article.coverImageAlt}
               className="aspect-[16/10] border-b border-[color:var(--rr-border)]"
             />

@@ -6,6 +6,7 @@ import { TeamCalendar } from "@/components/public/team-calendar";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import { getPublicTeamCalendarContentFromDb } from "@/server/services/public/calendar";
 import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
@@ -38,8 +39,12 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Calendario | ${teamSummary.name}`,
-    description: `Calendario publico de ${teamSummary.name} en Rising Raimon.`,
+    ...buildPublicPageMetadata({
+      title: `Calendario | ${teamSummary.name}`,
+      description: `Calendario público de partidos de ${teamSummary.name}.`,
+      path: `/equipos/${teamSummary.slug}/calendario`,
+      imageUrl: teamSummary.heroImageUrl,
+    }),
   };
 }
 

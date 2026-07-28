@@ -6,11 +6,13 @@ import { HomeHero } from "@/components/public/home-hero";
 import { HomeNewsSection } from "@/components/public/home-news-section";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
 import { getPublicHomePageContent } from "@/lib/public/home-content";
+import { buildPublicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPublicPageMetadata({
   title: "Home",
-  description: "Entrada publica a la actualidad, el Primer Equipo y la cantera de Rising Raimon.",
-};
+  description: "Entrada a la actualidad, el Primer Equipo y la cantera de Rising Raimon.",
+  path: "/",
+});
 
 export const revalidate = 300;
 
@@ -22,7 +24,7 @@ export default async function HomePage() {
       <PublicSiteLayout activeNav="home">
         <PublicEmptyState
           title="No hay datos publicados"
-          description="Cuando el backoffice tenga temporada, equipos y noticias publicados, la portada se mostrara aqui."
+          description="La portada se activara cuando haya temporada, equipos y noticias visibles."
         />
       </PublicSiteLayout>
     );

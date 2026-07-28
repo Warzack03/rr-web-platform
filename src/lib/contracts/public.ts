@@ -370,6 +370,7 @@ export type PublicNewsArticle = {
   dateLabel: string;
   author: string;
   imageTone: PublicNewsImageTone;
+  coverImageUrl?: string;
   coverImageAlt: string;
   featured: boolean;
   relatedTeam?: string;

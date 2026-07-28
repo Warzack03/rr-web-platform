@@ -7,6 +7,7 @@ import { getTeamsDirectoryTeamName } from "@/lib/public/team-display-name";
 import { NewsStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/server/db/prisma";
 import { logServerError } from "@/server/logging/safe-server-log";
+import { buildPublicNewsContentBlocks } from "@/server/services/news-content-policy";
 
 const PUBLIC_NEWS_LIST_LIMIT = 60;
 
@@ -18,7 +19,10 @@ const publicNewsSummarySelect = {
   publishedAt: true,
   coverMedia: {
     select: {
+      publicUrl: true,
       altText: true,
+      width: true,
+      height: true,
     },
   },
   author: {
@@ -107,36 +111,6 @@ function inferImageTone(input: {
   return input.featured ? "press-room" : "locker-room";
 }
 
-function buildContentBlocks(bodyMarkdown: string, externalVideoUrl: string | null) {
-  const blocks: PublicNewsArticle["content"] = bodyMarkdown
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean)
-    .map((paragraph) => ({
-      type: "paragraph" as const,
-      text: paragraph,
-    }));
-
-  if (externalVideoUrl) {
-    blocks.push({
-      type: "link",
-      label: "Ver video",
-      href: externalVideoUrl,
-      description: "Video externo asociado a la noticia.",
-      external: true,
-    });
-  }
-
-  return blocks.length > 0
-    ? blocks
-    : [
-        {
-          type: "paragraph" as const,
-          text: "Contenido pendiente de ampliar.",
-        },
-      ];
-}
-
 function getPublishedNewsWhere(now = new Date()) {
   return {
     deletedAt: null,
@@ -177,13 +151,14 @@ function mapPublicNewsRowToArticle(
       relatedTeamName: relatedTeam,
       isFirstTeam,
     }),
+    coverImageUrl: post.coverMedia?.publicUrl?.trim() || undefined,
     coverImageAlt: post.coverMedia?.altText?.trim() || `Imagen de portada para ${post.title}.`,
     featured: post.featured,
     relatedTeam,
     relatedTeams,
     badge: post.featured ? "Destacada" : undefined,
     content: hasDetailContent
-      ? buildContentBlocks(post.bodyMarkdown, post.externalVideoUrl)
+      ? buildPublicNewsContentBlocks(post.bodyMarkdown, post.externalVideoUrl)
       : [],
   } satisfies PublicNewsArticle;
 }

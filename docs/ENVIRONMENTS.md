@@ -51,9 +51,8 @@ Key variables:
 - `DATABASE_URL`
 - `AUTH_SECRET`
 - `AUTH_URL` or framework-specific public URL
-- `PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_SITE_URL`
 - `UPLOAD_DIR`
 - `NODE_ENV`
 - `ADMIN_INITIAL_EMAIL` for setup only
 - `ADMIN_INITIAL_PASSWORD` for setup only/local only
-

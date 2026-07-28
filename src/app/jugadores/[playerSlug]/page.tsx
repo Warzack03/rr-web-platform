@@ -8,6 +8,7 @@ import {
   getPublicPlayerDetailFromDb,
 } from "@/server/services/public/player-detail";
 import { getGlobalPlayerHref } from "@/lib/public/player-routes";
+import { buildPublicPageMetadata } from "@/lib/seo";
 
 type PlayerDetailRouteProps = {
   params: Promise<{
@@ -46,11 +47,12 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${dbPlayer.name} | ${dbPlayer.teamLabel}`,
-    description: `Ficha publica de ${dbPlayer.name}, ${dbPlayer.position.toLowerCase()} en la temporada ${dbPlayer.seasonLabel}.`,
-    alternates: {
-      canonical: getGlobalPlayerHref(playerSlug),
-    },
+    ...buildPublicPageMetadata({
+      title: `${dbPlayer.name} | ${dbPlayer.teamLabel}`,
+      description: `Ficha pública de ${dbPlayer.name}, ${dbPlayer.position.toLowerCase()} en la temporada ${dbPlayer.seasonLabel}.`,
+      path: getGlobalPlayerHref(playerSlug),
+      imageUrl: dbPlayer.imageUrl,
+    }),
   };
 }
 

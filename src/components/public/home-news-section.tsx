@@ -40,6 +40,8 @@ export function HomeNewsSection({ content }: HomeNewsSectionProps) {
               title={content.featured.title}
               excerpt={content.featured.excerpt}
               imageTone={content.featured.imageTone}
+              imageUrl={content.featured.coverImageUrl}
+              imageAlt={content.featured.coverImageAlt}
               relatedTeam={content.featured.relatedTeam}
             />
           </div>
@@ -59,7 +61,12 @@ function HomeNewsRailItem({
       href={`/noticias/${article.slug}`}
       className="group flex overflow-hidden border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)]"
     >
-      <NewsArtwork imageTone={article.imageTone} className="hidden w-40 shrink-0 border-r border-[color:var(--rr-border)] sm:block" />
+      <NewsArtwork
+        imageTone={article.imageTone}
+        imageUrl={article.coverImageUrl}
+        alt={article.coverImageAlt}
+        className="hidden w-40 shrink-0 border-r border-[color:var(--rr-border)] sm:block"
+      />
       <div className="flex min-h-[9.5rem] flex-1 flex-col justify-between p-4 md:p-5">
         <div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.82rem] uppercase tracking-[0.14em] text-[color:var(--rr-muted)]/82">

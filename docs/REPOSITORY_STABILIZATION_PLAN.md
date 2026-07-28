@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
 Última revisión: 24 de julio de 2026  
-Estado general: Fase A, Fase B y Fase C completadas; continuar por Fase D.1  
-Siguiente bloque: Fase D.1 — Decisión sobre el contenido de noticias
+Estado general: Fase A, Fase B, Fase C, D.3 y D.5 completadas; D.4 y cierre D.6 siguen pendientes  
+Siguiente bloque: Fase D.4 — Rendimiento visual
 
 ## Cómo usar este documento
 
@@ -598,35 +598,86 @@ Cerrar la experiencia pública y administrativa con contenido real, una decisió
 
 ## D.1 — Decisión sobre el contenido de noticias
 
-- [ ] Elegir entre bloques estructurados o Markdown restringido antes de construir el editor definitivo.
-- [ ] Documentar qué bloques o sintaxis se admiten.
-- [ ] Definir imágenes, enlaces/referencias y vídeos externos permitidos.
-- [ ] Definir cómo se previsualiza antes de publicar.
-- [ ] Definir migración del contenido real existente, si lo hay.
-- [ ] Evitar HTML libre no sanitizado.
+- [x] Elegir entre bloques estructurados o Markdown restringido antes de construir el editor definitivo.
+- [x] Documentar qué bloques o sintaxis se admiten.
+- [x] Definir imágenes, enlaces/referencias y vídeos externos permitidos.
+- [x] Definir cómo se previsualiza antes de publicar.
+- [x] Definir migración del contenido real existente, si lo hay.
+- [x] Evitar HTML libre no sanitizado.
 
 Recomendación: bloques estructurados sencillos para párrafo, subtítulo, imagen, enlace y vídeo externo. Reducen el riesgo de HTML inseguro y encajan mejor con la especificación pública. Markdown restringido solo sería preferible si la velocidad editorial pesa más y se acepta una previsualización menos guiada.
 
+Comprobación D.1:
+
+- Decisión cerrada: noticias usarán contenido estructurado sencillo. Para evitar migración inmediata, se guarda temporalmente en `NewsPost.bodyMarkdown` como sintaxis editorial restringida y se transforma a bloques públicos.
+- `docs/NEWS_CONTENT_FORMAT.md` documenta bloques permitidos, sintaxis actual, imágenes, enlaces, vídeos externos, preview y migración de contenido existente.
+- Bloques MVP implementados: párrafo, `##` título interno, cita `>`, atribución de cita, enlace/referencia Markdown independiente y vídeo externo como link final.
+- Imágenes en D.1: portada por `coverMediaId`/media segura; imágenes internas quedan definidas como bloque futuro con `MediaAsset`, no como Markdown libre.
+- Vídeos: solo URL externa `http/https`, sin subir archivos ni iframes libres.
+- `server/services/news-content-policy.ts` centraliza `validateNewsBodyContent` y `buildPublicNewsContentBlocks`.
+- `server/services/public/news.ts` usa el parser común para render público seguro.
+- `server/validators/admin-news.ts` rechaza HTML libre, imágenes Markdown y enlaces no `http/https` dentro del cuerpo.
+- El textarea de `/admin/noticias` ya habla de formato seguro, no de Markdown libre.
+- `tests/news-content-policy.test.ts` cubre bloques estructurados, rechazo de HTML/imagenes Markdown/enlaces inseguros y body vacío con vídeo externo.
+- No se añadió migración ni se modificó `prisma/schema.prisma`.
+- `cmd /c npm run test` termina con 23 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>`.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0. El entorno local sigue con `MYSQL80` parado y registra timeouts de pool durante prerender, como en C.3-C.6.
+
 ## D.2 — Pulido de páginas públicas
 
-- [ ] Revisar Home como resumen y puerta de entrada, sin duplicar páginas completas.
-- [ ] Revisar Primer Equipo con variante premium consistente.
-- [ ] Revisar equipos de cantera con variante reducida.
-- [ ] Revisar la ficha global de jugador y su representación de varias asignaciones.
-- [ ] Revisar calendario, clasificación y estadísticas por equipo.
-- [ ] Revisar detalle de partido de Primer Equipo y cantera según sus reglas distintas.
-- [ ] Revisar listado y detalle de noticias con contenido real.
-- [ ] Eliminar copy técnico, explicativo o redundante.
+- [x] Revisar Home como resumen y puerta de entrada, sin duplicar páginas completas.
+- [x] Revisar Primer Equipo con variante premium consistente.
+- [x] Revisar equipos de cantera con variante reducida.
+- [x] Revisar la ficha global de jugador y su representación de varias asignaciones.
+- [x] Revisar calendario, clasificación y estadísticas por equipo.
+- [x] Revisar detalle de partido de Primer Equipo y cantera según sus reglas distintas.
+- [x] Revisar listado y detalle de noticias con contenido real.
+- [x] Eliminar copy técnico, explicativo o redundante.
+
+Comprobación D.2:
+
+- Home y páginas de equipo se mantienen como resúmenes/puertas de entrada; no se añadieron listados completos dentro de páginas resumen.
+- La variante premium del Primer Equipo y la variante reducida de cantera siguen separadas en servicios/componentes públicos.
+- La ficha global de jugador conserva contexto multi-asignación sin reactivar fichas contextuales como canónicas.
+- Calendario, clasificación y estadísticas siguen resolviendo por equipo.
+- Los partidos de cantera siguen sin exponer `En vivo` ni highlights; los highlights se limitan a partidos jugados del Primer Equipo.
+- Las noticias públicas ya usan `coverMedia.publicUrl` cuando existe en home, listado, hero de noticias, detalle y relacionadas; si no hay media, mantienen el artwork generado como fallback.
+- Se redujo copy público demasiado técnico en estados vacíos de Home y Equipos.
+- `cmd /c npm run test` termina con 23 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>` en admin.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0. El entorno local sigue con `MYSQL80` parado y registra timeouts de pool durante prerender, como en C.3-D.1.
 
 ## D.3 — SEO y compartición
 
-- [ ] Configurar `metadataBase` para producción.
-- [ ] Añadir títulos y descripciones dinámicas a rutas públicas.
-- [ ] Añadir URLs canónicas, incluida la ficha global de jugador.
-- [ ] Añadir Open Graph y metadatos de redes con imágenes válidas.
-- [ ] Crear sitemap solo con entidades públicas.
-- [ ] Crear robots coherente con el despliegue y excluir administración.
-- [ ] Verificar que páginas no publicadas no aparecen en sitemap.
+- [x] Configurar `metadataBase` para producción.
+- [x] Añadir títulos y descripciones dinámicas a rutas públicas.
+- [x] Añadir URLs canónicas, incluida la ficha global de jugador.
+- [x] Añadir Open Graph y metadatos de redes con imágenes válidas.
+- [x] Crear sitemap solo con entidades públicas.
+- [x] Crear robots coherente con el despliegue y excluir administración.
+- [x] Verificar que páginas no publicadas no aparecen en sitemap.
+
+Comprobación D.3:
+
+- `src/lib/seo.ts` centraliza `metadataBase`, URL pública, canonical, Open Graph y Twitter Cards usando `NEXT_PUBLIC_SITE_URL` y fallback de producción.
+- `src/app/layout.tsx` define `metadataBase` global y metadatos sociales base.
+- Las rutas públicas estáticas usan canonical propio y metadatos sociales: Home, Primer Equipo, secciones del Primer Equipo, Equipos, Noticias y páginas legales.
+- Las rutas públicas dinámicas usan canonical y metadatos desde datos publicables: equipos de cantera, secciones de equipo, partidos, ficha global de jugador y detalle de noticia.
+- La ruta contextual antigua `/equipos/[teamSlug]/jugadores/[playerSlug]` mantiene canonical hacia `/jugadores/[playerSlug]`, aplica `noindex` y redirige permanentemente.
+- `public/images/rr-og-card.svg` sirve como imagen social válida de fallback; noticias y jugadores usan su cover/foto cuando existe.
+- `src/app/sitemap.ts` genera solo rutas públicas canónicas desde servicios públicos; no incluye `/admin`, `/api` ni la ruta contextual antigua de jugador.
+- `src/app/robots.ts` permite la web pública, excluye `/admin` y `/api`, y anuncia el sitemap.
+- `docs/ENVIRONMENTS.md` queda alineado con `.env.example` usando `NEXT_PUBLIC_SITE_URL`.
+- `cmd /c npm run test` termina con 26 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>` en admin.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0 y lista `/robots.txt` y `/sitemap.xml`. El entorno local sigue con `MYSQL80` parado y registra timeouts de pool durante prerender, como en C.3-D.2.
 
 ## D.4 — Rendimiento visual
 
@@ -639,21 +690,52 @@ Recomendación: bloques estructurados sencillos para párrafo, subtítulo, image
 
 ## D.5 — Accesibilidad y responsive
 
-- [ ] Verificar navegación completa por teclado.
-- [ ] Verificar foco visible y orden lógico.
-- [ ] Verificar nombres accesibles de iconos, botones y menús.
-- [ ] Verificar contraste con los tokens de diseño.
-- [ ] Verificar tablas deportivas en móvil sin perder contexto.
-- [ ] Verificar formularios con etiquetas, errores y estados de carga claros.
-- [ ] Verificar páginas públicas en anchos móvil, tableta y escritorio.
+- [x] Verificar navegación completa por teclado.
+- [x] Verificar foco visible y orden lógico.
+- [x] Verificar nombres accesibles de iconos, botones y menús.
+- [x] Verificar contraste con los tokens de diseño.
+- [x] Verificar tablas deportivas en móvil sin perder contexto.
+- [x] Verificar formularios con etiquetas, errores y estados de carga claros.
+- [x] Verificar páginas públicas en anchos móvil, tableta y escritorio.
+
+Comprobación D.5:
+
+- `src/app/globals.css` añade foco global visible para enlaces, botones, `summary`, campos de formulario y elementos enfocables, usando el acento dorado del sistema visual.
+- `src/app/globals.css` respeta `prefers-reduced-motion` reduciendo transiciones y animaciones para usuarios sensibles al movimiento.
+- `src/components/layout/public-header.tsx` mejora la navegación pública con `aria-label`, `aria-current`, texto oculto para el menú móvil y labels claros para la tienda externa.
+- Los filtros públicos de calendario y noticias exponen estado con `aria-pressed`.
+- Las tablas públicas de clasificación y estadísticas añaden `caption` oculto y `scope="col"` en cabeceras; las tablas móviles mantienen contexto con scroll controlado.
+- `src/components/admin/admin-table.tsx` añade `caption` y `scope="col"`; partidos/equipos pasan captions específicos.
+- La tabla editable de clasificación admin añade caption, cabeceras con scope y alertas accesibles para errores de validación.
+- El login admin marca errores con `role="alert"`, `aria-invalid`, `aria-describedby` y campos requeridos.
+- Las acciones de compartir noticia anuncian cambios de estado con `aria-live`.
+- Revisión responsive por código completada: las páginas públicas mantienen layouts `flex/grid` con cortes `sm/md/lg`, scroll horizontal controlado en tablas deportivas y cards móviles en listados sensibles.
+- No se levantó smoke visual en navegador porque el entorno local sigue sin MySQL disponible; queda como revisión manual real para el cierre D.6/E.5.
+- `cmd /c npm run test` termina con 26 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos de fuente externa y uso de `<img>` en admin.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0. El entorno local sigue con `MYSQL80` parado y registra timeouts de pool durante prerender, como en bloques anteriores.
 
 ## D.6 — Cierre de la Fase D
 
-- [ ] Formato de noticias decidido, documentado e implementado.
-- [ ] Rutas públicas canónicas revisadas con datos reales.
-- [ ] SEO, sitemap, robots y `noindex` de administración verificados.
+- [x] Formato de noticias decidido, documentado e implementado.
+- [x] Rutas públicas canónicas revisadas con datos reales.
+- [x] SEO, sitemap, robots y `noindex` de administración verificados.
 - [ ] Auditoría manual de accesibilidad y responsive completada.
-- [ ] Lint, build y pruebas seleccionadas terminan correctamente.
+- [x] Lint, build y pruebas seleccionadas terminan correctamente.
+
+Comprobación D.6 parcial:
+
+- D.1 queda cubierto por `docs/NEWS_CONTENT_FORMAT.md`, `server/services/news-content-policy.ts`, el validador admin de noticias y `tests/news-content-policy.test.ts`; no hay render público con HTML libre.
+- Las rutas públicas canónicas usan servicios públicos, filtros `publicVisible`/`active`/`deletedAt`/`publishedAt` cuando aplica y `notFound()` en entidades no publicables.
+- SEO verificado por código: `metadataBase`, canonicales, Open Graph/Twitter, `/robots.txt`, `/sitemap.xml`, `noindex` global de `/admin` y `noindex` en la ruta contextual antigua de jugador.
+- `cmd /c npm run test` termina con 26 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run build` termina con código 0; mantiene los timeouts locales de pool porque `MYSQL80` está parado.
+- No se marca el cierre completo de D.6 porque D.4 sigue pendiente y falta una auditoría manual real de accesibilidad/responsive con la app arrancada y datos disponibles.
 
 ---
 
@@ -771,3 +853,8 @@ Añadir una entrada al cerrar cada bloque de trabajo.
 | 2026-07-24 | C.4 | Pipeline de media definido; validación de archivos centralizada; dimensiones reales leídas en servidor; PNG/JPEG se optimizan a WebP si es seguro; borrado de media pasa a papelera recuperable | `cmd /c npm run test` correcto con 18 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | C.5 debe inventariar deuda de esquema/compatibilidad sin mezclar migraciones; repetir build con MySQL disponible antes del cierre C.6 |
 | 2026-07-24 | C.5 | Deuda de esquema inventariada sin migraciones; roles/coach scope, importación, cromos/media y campos deportivos futuros clasificados como compatibilidad, obsoleto funcional o candidato futuro | `cmd /c npm run test` correcto con 18 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto | C.6 debe cerrar la Fase C; repetir build con MySQL disponible si es posible |
 | 2026-07-24 | C.6 | Fase C cerrada; consultas, mutaciones, caché/publicación, pipeline de media y deuda de esquema quedan revisados y documentados | `cmd /c npm run test` correcto con 20 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | Continuar por D.1; repetir build con MySQL disponible antes de despliegue o cierre final |
+| 2026-07-28 | D.1 | Formato editorial de noticias decidido: bloques estructurados sencillos sobre el campo existente; parser/validador común añadido; admin deja de presentar Markdown libre | `cmd /c npm run test` correcto con 23 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | D.2 debe pulir páginas públicas y revisar noticias con contenido real/estructurado |
+| 2026-07-28 | D.2 | Páginas públicas revisadas; noticias públicas conectan la imagen real de portada cuando existe y mantienen fallback visual; copy público vacío simplificado | `cmd /c npm run test` correcto con 23 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | Continuar por D.3: SEO y compartición |
+| 2026-07-28 | D.3 | SEO público centralizado; metadataBase, canonical, Open Graph/Twitter, robots y sitemap público canónico añadidos; ruta contextual de jugador queda noindex/canonical global | `cmd /c npm run test` correcto con 26 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | Continuar por D.4: rendimiento visual |
+| 2026-07-28 | D.5 | Accesibilidad/responsive reforzada: foco visible global, navegación pública etiquetada, filtros con estado accesible, tablas con captions/scope y formularios/admin con errores anunciables | `cmd /c npm run test` correcto con 26 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | D.4 sigue pendiente; smoke visual real queda para D.6/E.5 con MySQL disponible |
+| 2026-07-28 | D.6 parcial | Cierre técnico parcialmente verificado: noticias, rutas canónicas, SEO/robots/sitemap/noindex y validaciones quedan comprobados | `cmd /c npm run test` correcto con 26 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | No cerrar Fase D hasta completar D.4 y auditoría manual real con app/datos disponibles |

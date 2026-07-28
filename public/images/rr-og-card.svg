@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Rising Raimon</title>
+  <desc id="desc">Tarjeta de compartición de Rising Raimon.</desc>
+  <defs>
+    <radialGradient id="light-left" cx="0.2" cy="0.05" r="0.7">
+      <stop offset="0" stop-color="#fff2ba" stop-opacity="0.52" />
+      <stop offset="0.4" stop-color="#fdcb58" stop-opacity="0.16" />
+      <stop offset="1" stop-color="#071629" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#142842" />
+      <stop offset="0.48" stop-color="#0b1a2e" />
+      <stop offset="1" stop-color="#050b13" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0" stop-color="#f4b83f" />
+      <stop offset="1" stop-color="#ffe28a" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect width="1200" height="630" fill="url(#light-left)" />
+  <path d="M0 496 C190 426 362 420 558 474 C760 529 942 517 1200 420 L1200 630 L0 630 Z" fill="#07121f" opacity="0.8" />
+  <path d="M118 118 H1082 V512 H118 Z" fill="none" stroke="#fdcb58" stroke-opacity="0.38" stroke-width="2" />
+  <path d="M162 160 H1038 V470 H162 Z" fill="none" stroke="#ffffff" stroke-opacity="0.09" stroke-width="1" />
+  <circle cx="600" cy="315" r="92" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2" />
+  <path d="M232 380 C363 312 482 300 606 337 C747 379 878 367 1000 300" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round" opacity="0.88" />
+  <text x="600" y="288" text-anchor="middle" font-family="Arial Narrow, Bebas Neue, Impact, sans-serif" font-size="104" letter-spacing="4" fill="#ffffff">RISING RAIMON</text>
+  <text x="600" y="348" text-anchor="middle" font-family="Arial, sans-serif" font-size="27" letter-spacing="9" fill="#fdcb58">FÚTBOL · CANTERA · CLUB</text>
+  <text x="600" y="421" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#cbd6e4">Actualidad, partidos, equipos y estadísticas</text>
+</svg>

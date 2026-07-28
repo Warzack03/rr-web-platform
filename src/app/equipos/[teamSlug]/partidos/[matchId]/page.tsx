@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { MatchDetailPage } from "@/components/public/match-detail-page";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import {
   getAcademyMatchDetailFromDb,
   getAcademyMatchDetailStaticParamsFromDb,
@@ -33,8 +34,11 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${detail.match.homeTeam.name} vs ${detail.match.awayTeam.name} | ${detail.context?.teamName ?? "Equipo"}`,
-    description: `Detalle publico del partido ${detail.match.homeTeam.name} vs ${detail.match.awayTeam.name} de ${detail.context?.teamName ?? "equipo"}.`,
+    ...buildPublicPageMetadata({
+      title: `${detail.match.homeTeam.name} vs ${detail.match.awayTeam.name} | ${detail.context?.teamName ?? "Equipo"}`,
+      description: `Detalle público del partido ${detail.match.homeTeam.name} vs ${detail.match.awayTeam.name}.`,
+      path: `/equipos/${teamSlug}/partidos/${matchId}`,
+    }),
   };
 }
 

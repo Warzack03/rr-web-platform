@@ -7,6 +7,7 @@ import {
   getResolvedPublicNewsArticleBySlug,
   getResolvedRelatedPublicNewsArticles,
 } from "@/server/services/public/news-content";
+import { buildPublicPageMetadata } from "@/lib/seo";
 
 type NewsDetailPageProps = {
   params: Promise<{
@@ -35,8 +36,13 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
   }
 
   return {
-    title: article.title,
-    description: article.excerpt,
+    ...buildPublicPageMetadata({
+      title: article.title,
+      description: article.excerpt,
+      path: `/noticias/${article.slug}`,
+      imageUrl: article.coverImageUrl,
+      type: "article",
+    }),
   };
 }
 

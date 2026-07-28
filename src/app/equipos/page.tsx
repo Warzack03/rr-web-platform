@@ -6,12 +6,14 @@ import {
   TeamsPageHeader,
 } from "@/components/public/teams-directory";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import { getPublicTeamsDirectoryContentFromDb } from "@/server/services/public/teams";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPublicPageMetadata({
   title: "Equipos",
-  description: "Indice publico de la estructura deportiva de Rising Raimon.",
-};
+  description: "Primer Equipo y equipos de cantera publicados por Rising Raimon.",
+  path: "/equipos",
+});
 
 export const revalidate = 300;
 
@@ -23,7 +25,7 @@ export default async function TeamsPage() {
       <PublicSiteLayout activeNav="equipos">
         <PublicEmptyState
           title="No hay equipos publicados"
-          description="Cuando haya equipos visibles en la temporada activa, apareceran en esta seccion."
+          description="Los equipos apareceran aqui cuando esten visibles."
         />
       </PublicSiteLayout>
     );

@@ -14,7 +14,7 @@ export function NewsCategoryTabs({
   onChange,
 }: NewsCategoryTabsProps) {
   return (
-    <div className="-mx-5 overflow-x-auto px-5 md:mx-0 md:px-0">
+    <div className="-mx-5 overflow-x-auto px-5 md:mx-0 md:px-0" aria-label="Filtrar noticias por categoria">
       <div className="flex min-w-max items-center gap-2 md:gap-3">
         {categories.map((category) => {
           const isActive = category === activeCategory;
@@ -24,6 +24,7 @@ export function NewsCategoryTabs({
               key={category}
               type="button"
               onClick={() => onChange(category)}
+              aria-pressed={isActive}
               className={cn(
                 "rr-kicker min-h-11 border px-4 py-3 text-[0.84rem] transition",
                 isActive

@@ -105,6 +105,7 @@ export function StandingsTable({ rows }: StandingsTableProps) {
   return (
     <section className="rr-panel hidden overflow-hidden border-white/15 bg-[rgba(12,35,65,0.82)] shadow-[0_18px_56px_rgba(0,0,0,0.22)] lg:block">
       <table className="w-full table-fixed border-collapse">
+        <caption className="sr-only">Clasificacion completa del equipo</caption>
         <thead>
           <tr className="border-b border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.025))]">
             <StandingsTableHead className="w-[6.2rem] pl-6 text-left">Pos</StandingsTableHead>
@@ -134,6 +135,7 @@ function StandingsMobileTable({ rows }: StandingsTableProps) {
     <section className="rr-panel overflow-hidden border-white/15 bg-[rgba(12,35,65,0.82)] lg:hidden">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[34rem] border-collapse">
+          <caption className="sr-only">Clasificacion completa del equipo en vista movil</caption>
           <thead>
             <tr className="border-b border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.025))]">
               <StandingsTableHead className="w-14 pl-4 text-left">Pos</StandingsTableHead>
@@ -166,6 +168,7 @@ function StandingsTableHead({
 }) {
   return (
     <th
+      scope="col"
       className={cn(
         "rr-kicker px-2 py-4 text-center text-[0.8rem] text-[color:var(--rr-muted)]",
         className,

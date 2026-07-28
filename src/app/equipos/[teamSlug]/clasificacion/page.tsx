@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamStandingsPage } from "@/components/public/team-standings-page";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import { getAcademyTeamStandingsContentFromDb } from "@/server/services/public/standings";
 import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
@@ -34,8 +35,11 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Clasificacion | ${content.teamName}`,
-    description: `Clasificacion publica de ${content.teamName} en Rising Raimon.`,
+    ...buildPublicPageMetadata({
+      title: `Clasificacion | ${content.teamName}`,
+      description: `Clasificación pública de ${content.teamName}.`,
+      path: `/equipos/${content.slug}/clasificacion`,
+    }),
   };
 }
 

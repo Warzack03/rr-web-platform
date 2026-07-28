@@ -4,13 +4,15 @@ import type { PublicNewsCategory, PublicNewsImageTone } from "@/lib/contracts/pu
 type NewsArticleHeroImageProps = {
   category: PublicNewsCategory;
   imageTone: PublicNewsImageTone;
+  imageUrl?: string;
   alt: string;
 };
 
-export function NewsArticleHeroImage({ category, imageTone, alt }: NewsArticleHeroImageProps) {
+export function NewsArticleHeroImage({ category, imageTone, imageUrl, alt }: NewsArticleHeroImageProps) {
   return (
     <NewsArtwork
       imageTone={imageTone}
+      imageUrl={imageUrl}
       alt={alt}
       className="aspect-[16/10] rounded-[6px] border border-[color:var(--rr-border)] shadow-[var(--rr-shadow)] md:aspect-[16/8.8]"
     >

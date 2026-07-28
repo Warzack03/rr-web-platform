@@ -1,9 +1,10 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { PublicNewsImageTone } from "@/lib/contracts/public";
 
 type NewsArtworkProps = {
   imageTone: PublicNewsImageTone;
+  imageUrl?: string;
   className?: string;
   alt?: string;
   children?: ReactNode;
@@ -28,13 +29,26 @@ function getArticleToneClassName(imageTone: PublicNewsImageTone) {
   }
 }
 
-export function NewsArtwork({ imageTone, className, alt, children }: NewsArtworkProps) {
+export function NewsArtwork({ imageTone, imageUrl, className, alt, children }: NewsArtworkProps) {
+  const coverImageStyle: CSSProperties | undefined = imageUrl
+    ? {
+        backgroundImage: `url(${JSON.stringify(imageUrl)})`,
+      }
+    : undefined;
+
   return (
     <div
       role={alt ? "img" : undefined}
       aria-label={alt}
       className={cn("relative overflow-hidden", getArticleToneClassName(imageTone), className)}
     >
+      {imageUrl ? (
+        <div
+          className="absolute inset-0 scale-[1.01] bg-cover bg-center opacity-95"
+          style={coverImageStyle}
+        />
+      ) : null}
+
       {imageTone === "locker-room" ? (
         <>
           <div className="absolute inset-x-[14%] top-[14%] bottom-[14%] rounded-[4px] border border-white/12" />
@@ -68,7 +82,7 @@ export function NewsArtwork({ imageTone, className, alt, children }: NewsArtwork
         </>
       ) : null}
 
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_30%,rgba(7,18,31,0.18)_56%,rgba(7,18,31,0.92)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,18,31,0.04)_0%,rgba(7,18,31,0.2)_46%,rgba(7,18,31,0.92)_100%)]" />
       {children ? <div className="absolute inset-0">{children}</div> : null}
     </div>
   );

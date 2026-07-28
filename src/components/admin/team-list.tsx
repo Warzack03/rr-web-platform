@@ -215,6 +215,7 @@ export function TeamList({
       </div>
 
       <AdminTable
+        caption="Listado de equipos"
         columns={[
           { key: "team", label: "Equipo", className: "w-[16rem]" },
           { key: "context", label: "Contexto deportivo", className: "w-[22%]" },

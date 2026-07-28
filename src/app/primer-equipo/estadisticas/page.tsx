@@ -4,11 +4,13 @@ import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamStatisticsPage } from "@/components/public/team-statistics-page";
 import { getFirstTeamStatisticsPageContent } from "@/lib/public/team-statistics-content";
 import { parseTeamStatisticsInitialState } from "@/lib/public/team-statistics-url-state";
+import { buildPublicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPublicPageMetadata({
   title: "Estadisticas | Primer Equipo",
-  description: "Estadisticas resumen del Primer Equipo de Rising Raimon.",
-};
+  description: "Estadísticas públicas de rendimiento del Primer Equipo de Rising Raimon.",
+  path: "/primer-equipo/estadisticas",
+});
 
 export const revalidate = 300;
 

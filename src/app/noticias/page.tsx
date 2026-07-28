@@ -3,12 +3,14 @@ import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsGrid } from "@/components/public/news-grid";
 import { NewsHero } from "@/components/public/news-hero";
 import { PublicEmptyState } from "@/components/public/public-empty-state";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import { getPublicNewsArticles } from "@/server/services/public/news-content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPublicPageMetadata({
   title: "Noticias",
-  description: "Centro publico de noticias, cronicas y actualidad de Rising Raimon.",
-};
+  description: "Noticias, crónicas y actualidad deportiva de Rising Raimon.",
+  path: "/noticias",
+});
 
 export const revalidate = 300;
 

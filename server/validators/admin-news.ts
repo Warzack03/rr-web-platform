@@ -7,6 +7,7 @@ import {
   externalHttpUrlSchema,
   publicImageReferenceSchema,
 } from "@/server/validators/public-url";
+import { validateNewsBodyContent } from "@/server/services/news-content-policy";
 
 const mediaReferenceSchema = publicImageReferenceSchema(
   "Introduce una ruta publica valida para la portada.",
@@ -31,11 +32,20 @@ export const saveNewsPostInputSchema = z
     const hasBody = value.bodyMarkdown.trim().length > 0;
     const hasVideo = (value.externalVideoUrl ?? "").trim().length > 0;
     const publishedAt = value.publishedAt ?? "";
+    const bodyIssues = validateNewsBodyContent(value.bodyMarkdown);
 
     if (!hasBody && !hasVideo) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Anade contenido o un video externo.",
+        path: ["bodyMarkdown"],
+      });
+    }
+
+    for (const issue of bodyIssues) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: issue.message,
         path: ["bodyMarkdown"],
       });
     }

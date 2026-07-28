@@ -203,6 +203,7 @@ export function MatchList({
       </div>
 
       <AdminTable
+        caption="Listado de partidos"
         columns={[
           { key: "date", label: "Fecha", className: "w-[15%]" },
           { key: "team", label: "Equipo", className: "w-[13%]" },

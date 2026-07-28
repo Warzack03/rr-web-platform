@@ -10,6 +10,14 @@ export function NewsHero({ article }: NewsHeroProps) {
   return (
     <section className="relative isolate overflow-hidden border-b border-[color:var(--rr-border)] bg-[linear-gradient(180deg,#102746_0%,#09162a_100%)]">
       <div className="absolute inset-0 opacity-95">
+        {article.coverImageUrl ? (
+          <div
+            className="absolute inset-0 scale-[1.01] bg-cover bg-center"
+            role="img"
+            aria-label={article.coverImageAlt}
+            style={{ backgroundImage: `url(${JSON.stringify(article.coverImageUrl)})` }}
+          />
+        ) : null}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(205,231,255,0.5),transparent_22%),radial-gradient(circle_at_top_right,rgba(205,231,255,0.46),transparent_22%),linear-gradient(180deg,rgba(10,24,42,0.18),rgba(7,22,41,0.94))]" />
         <div className="absolute left-[-18%] top-[-30%] h-[22rem] w-[68%] rounded-[100%] border border-white/10 opacity-45 md:h-[32rem]" />
         <div className="absolute right-[-18%] top-[-30%] h-[22rem] w-[68%] rounded-[100%] border border-white/10 opacity-45 md:h-[32rem]" />

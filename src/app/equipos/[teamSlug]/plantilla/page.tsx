@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamSquadPage } from "@/components/public/team-squad-page";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
 import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
@@ -35,8 +36,12 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Plantilla | ${teamSummary.name}`,
-    description: `Plantilla publica de ${teamSummary.name} en Rising Raimon.`,
+    ...buildPublicPageMetadata({
+      title: `Plantilla | ${teamSummary.name}`,
+      description: `Plantilla pública y cromos de ${teamSummary.name}.`,
+      path: `/equipos/${teamSummary.slug}/plantilla`,
+      imageUrl: teamSummary.heroImageUrl,
+    }),
   };
 }
 

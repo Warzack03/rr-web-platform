@@ -191,7 +191,10 @@ export function EditableStandingTable({
         </div>
 
         {validationErrors.length > 0 ? (
-          <div className="mt-4 space-y-2 rounded-[16px] border border-[rgba(221,108,112,0.34)] bg-[rgba(221,108,112,0.1)] px-4 py-3 text-[0.92rem] text-[#ffc1c4]">
+          <div
+            role="alert"
+            className="mt-4 space-y-2 rounded-[16px] border border-[rgba(221,108,112,0.34)] bg-[rgba(221,108,112,0.1)] px-4 py-3 text-[0.92rem] text-[#ffc1c4]"
+          >
             {validationErrors.slice(0, 3).map((error) => (
               <p key={error}>{error}</p>
             ))}
@@ -203,6 +206,7 @@ export function EditableStandingTable({
       <AdminPanel className="hidden overflow-hidden lg:block">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[76rem] table-fixed border-collapse">
+            <caption className="sr-only">Clasificacion editable</caption>
             <colgroup>
               <col className="w-12" />
               <col className="w-[17rem]" />
@@ -223,6 +227,7 @@ export function EditableStandingTable({
                   (label) => (
                     <th
                       key={label}
+                      scope="col"
                       className={cn(
                         "px-3 py-3 font-[var(--rr-font-body)] text-[0.78rem] font-bold text-[color:var(--rr-muted)]",
                         label === "Equipo" || label === "Pos" ? "text-left" : "text-center",
@@ -298,7 +303,7 @@ export function EditableStandingTable({
                             : "Marcar equipo del club"
                         }
                       >
-                        <Star className="h-4 w-4" />
+                        <Star className="h-4 w-4" aria-hidden="true" />
                       </button>
                     ) : (
                       <span className="text-[0.84rem] text-[color:var(--rr-muted)]">

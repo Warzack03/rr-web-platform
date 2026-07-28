@@ -5,12 +5,14 @@ import { CalendarPageTitle } from "@/components/public/calendar-page-title";
 import { TeamCalendar } from "@/components/public/team-calendar";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import { getTeamSectionLinks } from "@/lib/public/team-section-links";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import { getPublicTeamCalendarContentFromDb } from "@/server/services/public/calendar";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPublicPageMetadata({
   title: "Calendario | Primer Equipo",
-  description: "Calendario publico del Primer Equipo de Rising Raimon.",
-};
+  description: "Calendario público de partidos del Primer Equipo de Rising Raimon.",
+  path: "/primer-equipo/calendario",
+});
 
 export const revalidate = 300;
 

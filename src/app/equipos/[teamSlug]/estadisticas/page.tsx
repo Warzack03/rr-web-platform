@@ -4,6 +4,7 @@ import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamStatisticsPage } from "@/components/public/team-statistics-page";
 import { getAcademyTeamStatisticsPageContent } from "@/lib/public/team-statistics-content";
 import { parseTeamStatisticsInitialState } from "@/lib/public/team-statistics-url-state";
+import { buildPublicPageMetadata } from "@/lib/seo";
 import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamStatisticsRouteProps = {
@@ -36,8 +37,11 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Estadisticas | ${content.teamName}`,
-    description: `Estadisticas resumen del equipo ${content.teamName} en Rising Raimon.`,
+    ...buildPublicPageMetadata({
+      title: `Estadisticas | ${content.teamName}`,
+      description: `Estadísticas públicas de rendimiento de ${content.teamName}.`,
+      path: `/equipos/${content.teamSlug}/estadisticas`,
+    }),
   };
 }
 

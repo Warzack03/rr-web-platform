@@ -262,6 +262,7 @@ export function TeamStatisticsPage({
                   columns={columns}
                   sortKey={activeSortKey}
                   sortDirection={statsState.sortDirection}
+                  caption={`${content.teamName}: estadisticas en tabla movil`}
                   compact
                 />
               </div>
@@ -272,6 +273,7 @@ export function TeamStatisticsPage({
                 columns={columns}
                 sortKey={activeSortKey}
                 sortDirection={statsState.sortDirection}
+                caption={`${content.teamName}: estadisticas de jugadores`}
               />
             </>
           ) : (
@@ -577,6 +579,7 @@ type PlayerStatsTableProps = {
   sortKey: StatSortKey | null;
   sortDirection: SortDirection;
   compact?: boolean;
+  caption?: string;
   className?: string;
 };
 
@@ -586,6 +589,7 @@ export function PlayerStatsTable({
   sortKey,
   sortDirection,
   compact = false,
+  caption = "Estadisticas de jugadores",
   className,
 }: PlayerStatsTableProps) {
   const topStatValues = getTopStatValues(players, columns);
@@ -599,6 +603,7 @@ export function PlayerStatsTable({
     >
       <div className="overflow-x-auto">
         <table className={cn("w-full min-w-[52rem] border-collapse", compact && "min-w-[48rem]")}>
+          <caption className="sr-only">{caption}</caption>
           <thead>
             <tr className="border-b border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.025))]">
               {columns.map((column, index) => (
@@ -668,6 +673,7 @@ export function SortableStatHeader({
 
   return (
     <th
+      scope="col"
       className={cn(
         "px-3 py-4 text-center text-[0.8rem] md:px-4",
         sticky && "sticky left-0 z-20 bg-[rgba(20,34,54,0.98)] text-left",
