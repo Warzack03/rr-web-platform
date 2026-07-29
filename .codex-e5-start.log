@@ -1,0 +1,8 @@
+
+> rr-web-platform@0.1.0 start
+> next start -p 3105
+
+▲ Next.js 16.2.12
+- Local:         http://localhost:3105
+- Network:       http://192.168.0.14:3105
+✓ Ready in 1210ms

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
+import { sanitizeAdminCallbackUrl } from "@/lib/admin/login-callback";
 
 export const metadata: Metadata = {
   title: "Login admin",
@@ -27,7 +28,10 @@ export default async function AdminLoginPage({
   return (
     <div className="rr-admin min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(243,203,69,0.16),transparent_26%),linear-gradient(165deg,#06111d_0%,#0b223d_52%,#07111b_100%)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
       <div className="mx-auto max-w-6xl">
-        <AdminLoginForm callbackUrl={callbackUrl} error={error} />
+        <AdminLoginForm
+          callbackUrl={sanitizeAdminCallbackUrl(callbackUrl)}
+          error={error}
+        />
       </div>
     </div>
   );

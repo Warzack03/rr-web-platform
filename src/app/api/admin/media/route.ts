@@ -5,6 +5,7 @@ import {
   getSafeServerErrorMessage,
   logServerError,
 } from "@/server/logging/safe-server-log";
+import { MAX_MEDIA_MULTIPART_BODY_BYTES } from "@/server/services/media-file-policy";
 import { storeUploadedMediaAsset } from "@/server/services/admin-media";
 
 export async function POST(request: Request) {
@@ -19,6 +20,18 @@ export async function POST(request: Request) {
   }
 
   try {
+    const contentLength = Number(request.headers.get("content-length") ?? "0");
+
+    if (
+      Number.isFinite(contentLength) &&
+      contentLength > MAX_MEDIA_MULTIPART_BODY_BYTES
+    ) {
+      return NextResponse.json(
+        { ok: false, message: "La subida supera el limite permitido." },
+        { status: 413 },
+      );
+    }
+
     const formData = await request.formData();
     const item = await storeUploadedMediaAsset(user, formData);
 

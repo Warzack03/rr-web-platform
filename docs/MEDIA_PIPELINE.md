@@ -16,6 +16,14 @@ Las subidas locales se guardan bajo:
 public/media/uploads/{uso}/{yyyy}/{mm}/{nombre-normalizado}-{uuid}.{extension}
 ```
 
+Esa ruta es la ruta lógica guardada en `MediaAsset.storagePath`. La raíz física se resuelve con `UPLOAD_DIR`, que por defecto apunta a:
+
+```env
+UPLOAD_DIR="./public/media"
+```
+
+En Hostinger puede apuntar a una ruta absoluta persistente si el ensayo de despliegue demuestra que el directorio de la app se reemplaza en redeploy. La URL pública no cambia porque `/media/...` se sirve desde esa raíz configurable.
+
 El `{uso}` se obtiene de `getAdminMediaUsageFolder`:
 
 | Uso | Carpeta |
@@ -37,6 +45,8 @@ public/media/uploads/teams/logos/2026/07/escudo-rising-5f0b...webp
 La URL pública se deriva de la ruta quitando el prefijo `public/`.
 
 ## Validación de subida
+
+La decisión operativa completa vive en `docs/MEDIA_PERSISTENCE_DECISION.md`.
 
 El servidor valida:
 
@@ -90,4 +100,3 @@ storage/media-trash/{ruta-original-dentro-de-media}
 Después se marca `deletedAt` en `MediaAsset`. Si falla la actualización de DB tras mover el archivo, se intenta restaurar el archivo a su ruta pública original.
 
 La limpieza definitiva de `storage/media-trash` debe hacerse manualmente o mediante una tarea futura después de comprobar backups y retención.
-

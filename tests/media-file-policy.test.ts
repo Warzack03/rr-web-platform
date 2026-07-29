@@ -4,6 +4,8 @@ import {
   allowedImageMimeTypes,
   getMediaUsageConstraint,
   hasExpectedImageSignature,
+  MAX_MEDIA_MULTIPART_BODY_BYTES,
+  MAX_MEDIA_UPLOAD_BYTES,
   prepareImageUpload,
   resolveImageExtension,
 } from "@/server/services/media-file-policy";
@@ -129,5 +131,11 @@ describe("media file policy", () => {
     assert.equal(bannerConstraint.minWidth >= logoConstraint.minWidth, true);
     assert.equal((bannerConstraint.minAspectRatio ?? 0) > 1, true);
     assert.equal((logoConstraint.maxAspectRatio ?? 0) <= 2, true);
+  });
+
+  it("keeps multipart and file upload limits bounded for Hostinger", () => {
+    assert.equal(MAX_MEDIA_UPLOAD_BYTES, 8 * 1024 * 1024);
+    assert.equal(MAX_MEDIA_MULTIPART_BODY_BYTES, 10 * 1024 * 1024);
+    assert.equal(MAX_MEDIA_MULTIPART_BODY_BYTES > MAX_MEDIA_UPLOAD_BYTES, true);
   });
 });

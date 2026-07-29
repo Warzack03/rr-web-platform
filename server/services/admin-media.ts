@@ -22,6 +22,10 @@ import {
   MAX_MEDIA_UPLOAD_BYTES,
   prepareImageUpload,
 } from "@/server/services/media-file-policy";
+import {
+  resolveMediaStorageAbsolutePath,
+  resolveMediaTrashAbsolutePath,
+} from "@/server/services/media-storage";
 
 const ADMIN_MEDIA_LIST_LIMIT = 240;
 const ADMIN_MEDIA_PICKER_LIMIT = 180;
@@ -197,42 +201,6 @@ function isUnsafeSvgMediaReference(input: {
 function normalizeAltText(value: string | null | undefined, fallbackLabel: string) {
   const normalized = value?.trim();
   return normalized && normalized.length > 0 ? normalized : fallbackLabel;
-}
-
-function resolveStorageAbsolutePath(storagePath: string) {
-  const absolutePath = path.resolve(/* turbopackIgnore: true */ process.cwd(), storagePath);
-  const mediaRoot = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    "public",
-    "media",
-  );
-
-  if (!absolutePath.startsWith(mediaRoot)) {
-    throw new Error("Ruta de media fuera del directorio permitido.");
-  }
-
-  return absolutePath;
-}
-
-function resolveTrashAbsolutePath(storagePath: string) {
-  const normalizedStoragePath = storagePath.replace(/^public\/media\//, "");
-  const absolutePath = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    "storage",
-    "media-trash",
-    normalizedStoragePath,
-  );
-  const trashRoot = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    "storage",
-    "media-trash",
-  );
-
-  if (!absolutePath.startsWith(trashRoot)) {
-    throw new Error("Ruta de papelera fuera del directorio permitido.");
-  }
-
-  return absolutePath;
 }
 
 function buildRelativeStoragePath(
@@ -520,7 +488,7 @@ export async function storeUploadedMediaAsset(
   const safeBaseName = sanitizeBaseName(file.name.replace(/\.[^/.]+$/, ""));
   const fileName = `${safeBaseName}-${randomUUID()}.${preparedImage.extension}`;
   const relativeStoragePath = buildRelativeStoragePath(usageValue, fileName);
-  const absoluteStoragePath = resolveStorageAbsolutePath(relativeStoragePath);
+  const absoluteStoragePath = resolveMediaStorageAbsolutePath(relativeStoragePath);
 
   await mkdir(path.dirname(absoluteStoragePath), { recursive: true });
   await writeFile(absoluteStoragePath, preparedImage.buffer);
@@ -627,8 +595,8 @@ export async function updateMediaAssetMetadata(
     );
 
     if (movedStoragePath !== existing.storagePath) {
-      const currentAbsolutePath = resolveStorageAbsolutePath(existing.storagePath);
-      const nextAbsolutePath = resolveStorageAbsolutePath(movedStoragePath);
+      const currentAbsolutePath = resolveMediaStorageAbsolutePath(existing.storagePath);
+      const nextAbsolutePath = resolveMediaStorageAbsolutePath(movedStoragePath);
 
       await mkdir(path.dirname(nextAbsolutePath), { recursive: true });
       await rename(currentAbsolutePath, nextAbsolutePath);
@@ -713,8 +681,8 @@ export async function deleteMediaAsset(user: AuthenticatedAdmin, mediaId: string
 
   if (existing.storagePath) {
     try {
-      const currentAbsolutePath = resolveStorageAbsolutePath(existing.storagePath);
-      const trashAbsolutePath = resolveTrashAbsolutePath(existing.storagePath);
+      const currentAbsolutePath = resolveMediaStorageAbsolutePath(existing.storagePath);
+      const trashAbsolutePath = resolveMediaTrashAbsolutePath(existing.storagePath);
 
       await mkdir(path.dirname(trashAbsolutePath), { recursive: true });
       await rename(currentAbsolutePath, trashAbsolutePath);

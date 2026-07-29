@@ -2,6 +2,7 @@ import path from "node:path";
 import type { AdminMediaUsage } from "@/lib/admin/media-management";
 
 export const MAX_MEDIA_UPLOAD_BYTES = 8 * 1024 * 1024;
+export const MAX_MEDIA_MULTIPART_BODY_BYTES = 10 * 1024 * 1024;
 
 const MAX_INPUT_PIXELS = 36_000_000;
 
@@ -414,4 +415,3 @@ export async function prepareImageUpload(input: {
     optimizedToWebp: false,
   };
 }
-

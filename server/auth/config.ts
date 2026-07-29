@@ -17,8 +17,24 @@ function getAuthSecret() {
   throw new Error("Missing AUTH_SECRET environment variable.");
 }
 
+function getUseSecureCookies() {
+  if (process.env.NODE_ENV !== "production") {
+    return false;
+  }
+
+  if (
+    process.env.NEXT_PHASE !== "phase-production-build" &&
+    !process.env.NEXTAUTH_URL?.startsWith("https://")
+  ) {
+    throw new Error("NEXTAUTH_URL must use https:// in production.");
+  }
+
+  return true;
+}
+
 export const authOptions: NextAuthOptions = {
   secret: getAuthSecret(),
+  useSecureCookies: getUseSecureCookies(),
   session: {
     strategy: "jwt",
   },
@@ -86,6 +102,26 @@ export const authOptions: NextAuthOptions = {
       }
 
       return token;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/admin")) {
+        return `${baseUrl}${url}`;
+      }
+
+      try {
+        const parsedUrl = new URL(url);
+
+        if (
+          parsedUrl.origin === baseUrl &&
+          parsedUrl.pathname.startsWith("/admin")
+        ) {
+          return url;
+        }
+      } catch {
+        return `${baseUrl}/admin`;
+      }
+
+      return `${baseUrl}/admin`;
     },
     async session({ session, token }) {
       if (session.user && token.sub) {

@@ -90,6 +90,16 @@ If the installed Prisma version requires a runtime driver adapter, use `@prisma/
 
 Keep `DATABASE_URL` for Prisma CLI and migrations.
 
+For staging/production migrations, use the checked repo migration history and run:
+
+```bash
+npm run db:predeploy
+npm run db:migrate:deploy
+npm run db:migrate:status
+```
+
+Do not use `prisma migrate dev`, `prisma migrate reset` or `prisma db push` against staging/production databases. See `docs/DATABASE_MIGRATION_RUNBOOK.md` for backup, staging validation and rollback.
+
 For runtime client/seed, use separate environment variables when required:
 
 ```env

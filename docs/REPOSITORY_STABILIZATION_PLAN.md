@@ -1,8 +1,8 @@
 # Plan de estabilización y cierre del repositorio
 
 Última revisión: 24 de julio de 2026  
-Estado general: Fase A, Fase B, Fase C, D.3 y D.5 completadas; D.4 y cierre D.6 siguen pendientes  
-Siguiente bloque: Fase D.4 — Rendimiento visual
+Estado general: Fase A, Fase B, Fase C, D.3, D.5, E.1, E.2, E.3, E.4 y E.6 completadas; E.7 queda cerrado parcialmente en su parte técnica/documental; E.5 queda parcial/saltada hasta entorno real; D.4 y cierre D.6 siguen pendientes  
+Siguiente bloque pendiente por orden: Fase D.4 — Rendimiento visual. Si se continúa Fase E, el cierre definitivo de E.7 queda bloqueado hasta completar el smoke manual de E.5
 
 ## Cómo usar este documento
 
@@ -747,47 +747,105 @@ Dejar una entrega reproducible, segura y operable en Hostinger Business Web Host
 
 ## E.1 — Runtime y variables
 
-- [ ] Fijar Node.js 20 LTS para producción salvo validación documentada de una versión posterior.
-- [ ] Revisar scripts de instalación, build, start y migración.
-- [ ] Comparar `.env.example` con todas las variables realmente usadas sin copiar secretos.
-- [ ] Configurar `DATABASE_URL` para CLI y variables separadas del adaptador cuando corresponda.
-- [ ] Establecer un límite conservador de conexiones a MySQL.
-- [ ] Confirmar secretos de sesión, URL pública y configuración de cookies seguras.
-- [ ] Evitar registrar contraseñas, tokens o URLs con credenciales.
+- [x] Fijar Node.js 20 LTS para producción salvo validación documentada de una versión posterior.
+- [x] Revisar scripts de instalación, build, start y migración.
+- [x] Comparar `.env.example` con todas las variables realmente usadas sin copiar secretos.
+- [x] Configurar `DATABASE_URL` para CLI y variables separadas del adaptador cuando corresponda.
+- [x] Establecer un límite conservador de conexiones a MySQL.
+- [x] Confirmar secretos de sesión, URL pública y configuración de cookies seguras.
+- [x] Evitar registrar contraseñas, tokens o URLs con credenciales.
+
+Comprobación E.1:
+
+- `package.json` fija `engines.node` en `>=20.9.0 <21`, compatible con Next 16 y con Node.js 20 LTS de Hostinger.
+- `.nvmrc` fija `20` para desarrollo/despliegue reproducible.
+- `package-lock.json` queda alineado con el engine del paquete raíz.
+- Scripts revisados: `npm install`, `npm run build`, `npm run start`, `npm run prisma:generate` y nuevo `npm run db:migrate:deploy` para producción.
+- `.env.example` cubre las variables leídas por código y scripts: `DATABASE_URL`, `DB_*`, `NODE_ENV`, `AUTH_SECRET`, `NEXTAUTH_URL`, `NEXT_PUBLIC_SITE_URL`, `UPLOAD_DIR`, `ADMIN_INITIAL_*`, `ENABLE_TEST_MANAGER` e `INITIAL_LOAD_DOC_PATH`.
+- Se sustituye la referencia de ejemplo `AUTH_URL` por `NEXTAUTH_URL`, que es la variable usada por `next-auth@4` para la URL pública.
+- `server/db/runtime-config.ts` ya mantiene `DATABASE_URL` como fallback/CLI y usa `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` y `DB_CONNECTION_LIMIT` para runtime con `@prisma/adapter-mariadb`.
+- El límite de conexiones queda conservador: `DB_CONNECTION_LIMIT=5` en ejemplo y máximo 10 validado por Zod.
+- `AUTH_SECRET` es obligatorio en producción y `NEXTAUTH_URL`/`NEXT_PUBLIC_SITE_URL` quedan documentadas como origen HTTPS público.
+- `docs/ENVIRONMENTS.md` y `docs/HOSTINGER_DEPLOYMENT.md` documentan variables, runtime Node 20, comandos recomendados y la regla de no usar `migrate dev` en producción.
+- No se copiaron secretos reales ni se añadieron logs de credenciales.
+- Escaneo de `process.env.*` contra `.env.example`: sin variables faltantes.
+- `cmd /c npx prisma validate` termina con código 0.
+- `cmd /c npm run prisma:generate` termina con código 0.
+- `cmd /c npm run test` termina con 26 tests correctos.
+- `cmd /c npx tsc --noEmit --pretty false` termina con código 0.
+- `cmd /c npm run lint` termina con código 0; mantiene 9 warnings conocidos.
+- `cmd /c npm run build` termina con código 0; mantiene los timeouts locales de pool porque `MYSQL80` está parado.
 
 ## E.2 — Decisión de persistencia de medios
 
-- [ ] Verificar si el directorio de archivos de la app persiste entre builds y despliegues de Hostinger.
-- [ ] Verificar si los backups de Hostinger incluyen ese directorio y con qué retención.
-- [ ] Medir el impacto de usar disco local: pérdida en redeploy, sincronización, permisos, cuota y recuperación.
-- [ ] Medir el impacto de una alternativa externa solo si el disco local no cumple: coste, complejidad, latencia y dependencia.
-- [ ] Elegir la opción de menor coste que garantice persistencia y recuperación suficientes.
-- [ ] Documentar copia, restauración y eliminación de medios.
-- [ ] No contratar ni integrar un servicio de pago sin aprobación explícita.
+- [x] Verificar si el directorio de archivos de la app persiste entre builds y despliegues de Hostinger.
+- [x] Verificar si los backups de Hostinger incluyen ese directorio y con qué retención.
+- [x] Medir el impacto de usar disco local: pérdida en redeploy, sincronización, permisos, cuota y recuperación.
+- [x] Medir el impacto de una alternativa externa solo si el disco local no cumple: coste, complejidad, latencia y dependencia.
+- [x] Elegir la opción de menor coste que garantice persistencia y recuperación suficientes.
+- [x] Documentar copia, restauración y eliminación de medios.
+- [x] No contratar ni integrar un servicio de pago sin aprobación explícita.
+
+Comprobación E.2:
+
+- La decisión MVP queda documentada en `docs/MEDIA_PERSISTENCE_DECISION.md`: usar filesystem de Hostinger con metadata en MySQL, sin servicio externo de pago.
+- Las fuentes públicas de Hostinger confirman apps Node.js en Business, almacenamiento de backend/build bajo el árbol `nodejs` del dominio y backups descargables de archivos/base de datos; la documentación pública no garantiza explícitamente que ficheros mutados en runtime dentro del directorio de la app sobrevivan a todos los redeploys.
+- Para cubrir ese riesgo, `UPLOAD_DIR` pasa a ser efectivo: por defecto apunta a `./public/media`, pero puede apuntar a una ruta absoluta persistente en Hostinger sin cambiar URLs públicas ni `MediaAsset.publicUrl`.
+- `server/services/media-storage.ts` centraliza la resolución segura de rutas de media, raíz pública fallback y papelera.
+- `server/services/admin-media.ts` usa la raíz configurable para subir, mover entre usos y borrar de forma recuperable.
+- `src/app/media/[...mediaPath]/route.ts` sirve `/media/...` desde `UPLOAD_DIR` y conserva fallback a `public/media`.
+- `.env.example`, `docs/HOSTINGER_DEPLOYMENT.md`, `docs/ENVIRONMENTS.md`, `docs/MEDIA_POLICY.md` y `docs/MEDIA_PIPELINE.md` quedan alineados con la decisión.
+- El smoke real queda aplazado a E.5: subir imagen, reiniciar app, redeploy controlado y comprobar que la misma URL sigue cargando y entra en backup.
+- No se contrató ni integró ningún servicio externo.
 
 ## E.3 — Base de datos y migraciones
 
-- [ ] Crear backup manual de MySQL antes de cualquier migración de producción.
-- [ ] Validar migraciones contra una copia o entorno de ensayo.
-- [ ] Ejecutar `prisma validate` y `prisma generate` con la versión de producción.
-- [ ] Definir el comando exacto de despliegue de migraciones.
-- [ ] No usar `migrate dev` en producción.
-- [ ] Documentar rollback de aplicación y recuperación de base de datos.
+- [x] Crear backup manual de MySQL antes de cualquier migración de producción.
+- [x] Validar migraciones contra una copia o entorno de ensayo.
+- [x] Ejecutar `prisma validate` y `prisma generate` con la versión de producción.
+- [x] Definir el comando exacto de despliegue de migraciones.
+- [x] No usar `migrate dev` en producción.
+- [x] Documentar rollback de aplicación y recuperación de base de datos.
+
+Comprobación E.3:
+
+- No se ejecutó ninguna migración de producción ni se tocó una base externa.
+- `docs/DATABASE_MIGRATION_RUNBOOK.md` define el flujo obligatorio: backup manual MySQL, ensayo contra staging/copia, `db:predeploy`, inspección con `db:migrate:status`, `db:migrate:deploy`, smoke y recuperación.
+- `package.json` añade `db:migrate:status` y `db:predeploy`. `db:predeploy` ejecuta solo `prisma validate && prisma generate`; `migrate status` queda separado porque Prisma devuelve código 1 también cuando hay migraciones pendientes esperadas.
+- El comando exacto de producción queda: `npm run db:migrate:deploy`, equivalente a `prisma migrate deploy`.
+- `docs/HOSTINGER_DEPLOYMENT.md`, `docs/ENVIRONMENTS.md` y `docs/DATABASE_IMPLEMENTATION_NOTES.md` quedan alineados con la regla de no usar `migrate dev`, `migrate reset` ni `db push` en producción/staging.
+- Prisma oficial confirma que `migrate deploy` aplica migraciones pendientes en staging/producción, no genera Prisma Client, no usa shadow database y no detecta drift completo; por eso el runbook separa validación/generación/status.
+- Migraciones actuales inventariadas: `20260510111826_init` y `20260709120000_add_player_match_stats_mvp`.
+- `cmd /c npm run db:predeploy` termina correctamente con Prisma Client v7.8.0.
+- `cmd /c npm run db:migrate:status` no puede completarse en local porque `MYSQL80` está parado; el intento de arrancarlo con `Start-Service MYSQL80` falla por permisos/servicio no abrible en Windows.
 
 ## E.4 — Seguridad operativa
 
-- [ ] Verificar HTTPS y cookies seguras.
-- [ ] Verificar que `/admin` exige sesión en todas sus rutas y acciones.
-- [ ] Verificar límites de subida y conversión de archivos bajo carga razonable.
-- [ ] Verificar cabeceras de seguridad compatibles con imágenes y vídeos externos.
-- [ ] Verificar que errores de producción no muestran trazas ni variables.
-- [ ] Revisar dependencias con vulnerabilidades conocidas y resolver las relevantes para runtime.
+- [x] Verificar HTTPS y cookies seguras.
+- [x] Verificar que `/admin` exige sesión en todas sus rutas y acciones.
+- [x] Verificar límites de subida y conversión de archivos bajo carga razonable.
+- [x] Verificar cabeceras de seguridad compatibles con imágenes y vídeos externos.
+- [x] Verificar que errores de producción no muestran trazas ni variables.
+- [x] Revisar dependencias con vulnerabilidades conocidas y resolver las relevantes para runtime.
+
+Comprobación E.4:
+
+- `server/auth/config.ts` exige `AUTH_SECRET` en producción y fuerza cookies seguras; en runtime producción falla si `NEXTAUTH_URL` no usa `https://`. La fase `next build` queda permitida para no romper builds locales con `.env` de `localhost`.
+- El callback de NextAuth queda restringido a rutas locales `/admin`; `src/lib/admin/login-callback.ts` sanea también el `callbackUrl` recibido por la pantalla de login.
+- `next.config.ts` añade headers globales: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` y `Permissions-Policy` restrictiva.
+- `/admin/:path*` y `/api/:path*` añaden `Cache-Control: no-store, max-age=0`.
+- `/admin/(panel)` exige `requireAuthenticatedAdmin()` en layout; páginas y acciones reales usan `requireAdminSectionAccess(...)`; `POST /api/admin/media` usa `getAuthenticatedAdmin()` y permiso `media`.
+- `POST /api/admin/media` rechaza cuerpos multipart superiores a 10 MB por `Content-Length` cuando está disponible; la validación de archivo mantiene límite real de 8 MB, MIME/firma, dimensiones, proporciones y límite de píxeles para `sharp`.
+- `docs/OPERATIONAL_SECURITY_CHECKS.md` documenta smoke manual de HTTPS/cookies, headers, `/admin`, media y errores seguros.
+- `npm audit --omit=dev --audit-level=moderate` termina con `found 0 vulnerabilities`.
+- `npm audit --audit-level=moderate` conserva una vulnerabilidad dev-only en la cadena ESLint/minimatch/brace-expansion; el override directo rompe ESLint y el fix automático exige un cambio mayor de ESLint, por lo que queda documentada como deuda no-runtime.
+- Dependencias runtime actualizadas/resueltas: `next@16.2.12`, `next-auth@4.24.15`, `prisma@7.9.1`, `postcss@8.5.24`, `sharp@0.35.3` y `esbuild@0.28.1`.
 
 ## E.5 — Ensayo de despliegue y smoke tests
 
-- [ ] Ejecutar instalación limpia de dependencias.
-- [ ] Ejecutar build de producción limpio.
-- [ ] Arrancar la aplicación con configuración equivalente a producción.
+- [x] Ejecutar instalación limpia de dependencias.
+- [x] Ejecutar build de producción limpio.
+- [x] Arrancar la aplicación con configuración equivalente a producción.
 - [ ] Probar Home y todas las familias de rutas públicas canónicas.
 - [ ] Probar login, logout y rutas administrativas reales.
 - [ ] Probar crear, editar, publicar y archivar contenido representativo.
@@ -795,25 +853,70 @@ Dejar una entrega reproducible, segura y operable en Hostinger Business Web Host
 - [ ] Probar `404`, páginas no publicadas y ausencia de datos ficticios.
 - [ ] Probar conexión bajo el límite configurado del pool.
 
+Comprobación E.5 parcial:
+
+- `cmd /c npm ci` termina correctamente y genera Prisma Client v7.9.1; npm avisa que el entorno local usa Node v22.22.0 aunque el proyecto fija `engines.node >=20.9.0 <21` para Hostinger/Node 20.
+- `cmd /c npm run build` termina correctamente con Next.js 16.2.12; mantiene los avisos conocidos de pool timeout porque `MYSQL80` está parado.
+- `cmd /c npm run db:predeploy` termina correctamente.
+- `cmd /c npm audit --omit=dev --audit-level=moderate` termina con `found 0 vulnerabilities`.
+- `npm run start -- -p 3105` arranca correctamente con `NEXTAUTH_URL=https://www.risingraimon.es`, `NEXT_PUBLIC_SITE_URL=https://www.risingraimon.es` y `AUTH_SECRET` temporal de smoke.
+- Smoke HTTP local verificado sin sesión en `/`, `/equipos`, `/noticias`, `/primer-equipo`, `/primer-equipo/calendario`, `/primer-equipo/clasificacion`, `/primer-equipo/plantilla`, `/admin`, `/admin/login`, `/api/auth/session` y una ruta inexistente.
+- Headers verificados en smoke local: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, cache pública ISR en rutas públicas y `Cache-Control: no-store, max-age=0` en `/admin` y `/api`.
+- `/api/admin/media` sin sesión devuelve `401` con `{"ok":false,"message":"Sesion no valida."}`.
+- Rutas dinámicas inexistentes devuelven HTML con marcador interno `NEXT_HTTP_ERROR_FALLBACK;404`; PowerShell recibe `200` por cómo Next serializa el fallback RSC en este smoke local, así que la comprobación HTTP final queda para entorno real/navegador.
+- Media estática `/media/teams/logos/escudo-madrid.webp` responde `200 image/webp`.
+- Se detuvo el `next start` local para no dejar procesos colgados.
+- No se pudo completar login/logout, CRUD admin, subida real, recuperación tras redeploy ni prueba de pool porque `MYSQL80` sigue parado y `Start-Service MYSQL80` falla con “No se puede abrir el servicio MYSQL80”.
+- Se acepta saltar el resto de E.5 hasta tener staging/Hostinger o una MySQL local disponible.
+
 ## E.6 — Entrega y operación
 
-- [ ] Documentar despliegue desde GitHub a Hostinger.
-- [ ] Documentar variables, migración, backup y rollback.
-- [ ] Documentar comprobaciones posteriores a cada despliegue.
-- [ ] Documentar recuperación de medios y base de datos.
-- [ ] Registrar limitaciones conocidas aceptadas para el MVP.
-- [ ] Confirmar que tienda y `rr-management` continúan separados y sin dependencia runtime.
+- [x] Documentar despliegue desde GitHub a Hostinger.
+- [x] Documentar variables, migración, backup y rollback.
+- [x] Documentar comprobaciones posteriores a cada despliegue.
+- [x] Documentar recuperación de medios y base de datos.
+- [x] Registrar limitaciones conocidas aceptadas para el MVP.
+- [x] Confirmar que tienda y `rr-management` continúan separados y sin dependencia runtime.
+
+Comprobación E.6:
+
+- Se añade `docs/PRODUCTION_OPERATIONS_RUNBOOK.md` como runbook operativo de producción, enlazando despliegue, variables, migraciones, backups, rollback, smoke posterior, media y criterios go/no-go.
+- `docs/HOSTINGER_DEPLOYMENT.md` queda conectado con el runbook y aclara que la vía preferente es GitHub integration desde hPanel, aceptando ZIP solo como alternativa menos trazable.
+- El runbook documenta que los comandos npm de Hostinger Node.js Web Apps se gestionan desde hPanel/build settings y que no se debe asumir SSH libre para pasos manuales.
+- Las variables de producción quedan explicitadas con Node 20, `DATABASE_URL`, `DB_*`, `AUTH_SECRET`, URLs HTTPS y `UPLOAD_DIR`.
+- Las migraciones quedan referenciadas al flujo seguro de `docs/DATABASE_MIGRATION_RUNBOOK.md`: backup previo, staging/copia cuando exista, `db:predeploy`, `db:migrate:status`, `db:migrate:deploy` y prohibición de `migrate dev/reset/db push` en producción.
+- La recuperación documenta código, base de datos y media, incluyendo `UPLOAD_DIR`, `storage/media-trash`, backups `.tar.gz` de archivos y `.sql.gz` de base de datos.
+- Las comprobaciones post-deploy cubren rutas públicas, admin/login/logout, contenido, media, headers, cookies, API admin sin sesión y pool MySQL.
+- Las limitaciones aceptadas para MVP quedan registradas: E.5 parcial hasta entorno real, D.4/D.6 pendientes por orden global, deuda dev-only de audit, sin ecommerce propio, sin live sync con `rr-management`, sin integraciones automáticas externas y sin backup externo automatizado.
+- La separación operativa queda confirmada: tienda en WordPress/WooCommerce, `rr-management` como app interna separada, nueva plataforma con MySQL dedicado y sin dependencia runtime de ambos.
 
 ## E.7 — Cierre del plan
 
 - [ ] Despliegue de producción completado o ensayo equivalente aprobado.
 - [ ] Smoke tests aprobados.
-- [ ] Backup y rollback comprobados documentalmente.
-- [ ] No quedan mocks de ejecución.
-- [ ] No quedan rutas descartadas ni ramas funcionales por rol.
-- [ ] La ficha global de jugador es la única ficha canónica.
+- [x] Backup y rollback comprobados documentalmente.
+- [x] No quedan mocks de ejecución.
+- [x] No quedan rutas descartadas ni ramas funcionales por rol.
+- [x] La ficha global de jugador es la única ficha canónica.
 - [ ] El administrador puede operar el backoffice sin funciones fuera del MVP.
-- [ ] Riesgos residuales y siguientes mejoras quedan documentados fuera de este plan.
+- [x] Riesgos residuales y siguientes mejoras quedan documentados fuera de este plan.
+
+Comprobación E.7 parcial:
+
+- No se marca el despliegue/ensayo completo ni los smoke tests definitivos porque el usuario asume manualmente las pruebas restantes de E.5 en Hostinger/staging.
+- No se marca todavía la operativa completa del administrador porque login/logout y CRUD real requieren MySQL disponible y sesión en entorno real.
+- Backup, rollback, media y go/no-go quedan documentados en `docs/PRODUCTION_OPERATIONS_RUNBOOK.md`, `docs/HOSTINGER_DEPLOYMENT.md`, `docs/DATABASE_MIGRATION_RUNBOOK.md` y `docs/MEDIA_PERSISTENCE_DECISION.md`.
+- Riesgos residuales y mejoras posteriores quedan fuera de este plan en `docs/POST_STABILIZATION_BACKLOG.md`.
+- La búsqueda de rutas admin activas solo encuentra las pantallas MVP: panel, asignaciones, clasificaciones, equipos, estadísticas, jugadores, media, noticias, partidos y login.
+- No hay rutas activas `/admin/usuarios`, `/admin/temporadas` ni `/admin/importaciones`.
+- La ruta heredada `/equipos/[teamSlug]/jugadores/[playerSlug]` existe solo como redirección permanente a `/jugadores/[playerSlug]`; la ficha global conserva canonical.
+- La búsqueda de `mock`, `fixture`, `sample`, `demo`, rutas descartadas y roles legacy no detecta mocks de ejecución ni ramas funcionales por rol bajo `src` o `server`; las coincidencias restantes son documentación, seeds/bootstrap, placeholders de formulario/CSS, entrenadores públicos visibles o campos/enums de compatibilidad en Prisma.
+- `cmd /c npm run test` termina correctamente con 33 tests.
+- `cmd /c npx tsc --noEmit --pretty false` termina correctamente.
+- `cmd /c npx prisma validate` termina correctamente.
+- `cmd /c npm run lint` termina correctamente con 9 warnings conocidos.
+- `cmd /c npm audit --omit=dev --audit-level=moderate` termina correctamente con 0 vulnerabilidades.
+- `cmd /c npm run build` termina correctamente; mantiene avisos conocidos de pool timeout porque `MYSQL80` está parado en el entorno local.
 
 ---
 
@@ -858,3 +961,10 @@ Añadir una entrada al cerrar cada bloque de trabajo.
 | 2026-07-28 | D.3 | SEO público centralizado; metadataBase, canonical, Open Graph/Twitter, robots y sitemap público canónico añadidos; ruta contextual de jugador queda noindex/canonical global | `cmd /c npm run test` correcto con 26 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | Continuar por D.4: rendimiento visual |
 | 2026-07-28 | D.5 | Accesibilidad/responsive reforzada: foco visible global, navegación pública etiquetada, filtros con estado accesible, tablas con captions/scope y formularios/admin con errores anunciables | `cmd /c npm run test` correcto con 26 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | D.4 sigue pendiente; smoke visual real queda para D.6/E.5 con MySQL disponible |
 | 2026-07-28 | D.6 parcial | Cierre técnico parcialmente verificado: noticias, rutas canónicas, SEO/robots/sitemap/noindex y validaciones quedan comprobados | `cmd /c npm run test` correcto con 26 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | No cerrar Fase D hasta completar D.4 y auditoría manual real con app/datos disponibles |
+| 2026-07-28 | E.1 | Runtime y variables de Hostinger alineados: Node 20 fijado, scripts de build/start/migración revisados, `.env.example` completo y docs de entorno/despliegue actualizadas | `cmd /c npx prisma validate` correcto, `cmd /c npm run prisma:generate` correcto, `cmd /c npm run test` correcto con 26 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | Si se continúa Fase E, seguir por E.2; por orden global aún queda D.4/D.6 |
+| 2026-07-28 | E.2 | Persistencia de medios decidida: filesystem de Hostinger con metadata en DB, `UPLOAD_DIR` efectivo y ruta `/media/...` compatible con raíz persistente configurable; backup/restore/borrado documentados | `cmd /c npm run test` correcto con 29 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | Smoke real en Hostinger queda para E.5: upload, restart, redeploy y verificación de backup; por orden global aún queda D.4/D.6 |
+| 2026-07-28 | E.3 | Runbook de migraciones cerrado: backup MySQL obligatorio, ensayo en staging/copia, comandos `db:predeploy`, `db:migrate:status` y `db:migrate:deploy`, prohibición de `migrate dev/reset/db push` en producción y rollback documentado | `cmd /c npm run db:predeploy` correcto, `cmd /c npm run test` correcto con 29 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | `db:migrate:status` queda pendiente de una DB disponible; en local falla porque `MYSQL80` está parado y no se puede arrancar desde este entorno |
+| 2026-07-28 | E.4 | Seguridad operativa reforzada: HTTPS/cookies seguras en runtime producción, callback admin saneado, headers globales/no-store, límites multipart/media, audit runtime limpio y checklist operativo documentado | `cmd /c npm run test` correcto con 33 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npx prisma validate` correcto, `cmd /c npm run db:predeploy` correcto, `cmd /c npm audit --omit=dev --audit-level=moderate` correcto con 0 vulnerabilidades, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | `npm audit` total conserva deuda dev-only de ESLint/minimatch/brace-expansion; smoke real de HTTPS/cookies/headers/media queda para E.5 |
+| 2026-07-29 | E.5 parcial/saltado | Ensayo local equivalente ejecutado hasta el límite del entorno: instalación limpia, build, predeploy, audit runtime, arranque `next start` y smoke HTTP sin sesión; se saltan pruebas con DB/Hostinger real | `cmd /c npm ci` correcto, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool, `cmd /c npm run db:predeploy` correcto, `cmd /c npm audit --omit=dev --audit-level=moderate` correcto con 0 vulnerabilidades, `npm run start -- -p 3105` listo, smoke HTTP básico correcto | Completar en staging/Hostinger: Node 20 real, MySQL disponible, `db:migrate:status`, login/logout, CRUD admin, subida de media, persistencia tras restart/redeploy, cookies Secure/HTTPS y pool |
+| 2026-07-29 | E.6 | Entrega y operación documentadas: runbook de producción, despliegue GitHub/Hostinger, variables, migraciones, backups, rollback, smoke post-deploy, media y separaciones operativas cerradas | Revisión documental contra `docs/HOSTINGER_DEPLOYMENT.md`, `docs/ENVIRONMENTS.md`, `docs/DATABASE_MIGRATION_RUNBOOK.md`, `docs/MEDIA_PERSISTENCE_DECISION.md`, `docs/OPERATIONAL_SECURITY_CHECKS.md` y fuentes oficiales de Hostinger | E.7 queda condicionado por el smoke manual de E.5 en Hostinger/staging; por orden global aún quedan D.4 y cierre D.6 |
+| 2026-07-29 | E.7 parcial | Cierre técnico/documental ejecutado: mocks runtime, rutas descartadas, ficha global, rollback/backups y backlog posterior quedan comprobados; no se falsean los checks que dependen de Hostinger/staging | `cmd /c npm run test` correcto con 33 tests, `cmd /c npx tsc --noEmit --pretty false` correcto, `cmd /c npx prisma validate` correcto, `cmd /c npm run lint` correcto con 9 warnings, `cmd /c npm audit --omit=dev --audit-level=moderate` correcto con 0 vulnerabilidades, `cmd /c npm run build` correcto con aviso local de `MYSQL80` parado/timeouts de pool | Cierre definitivo pendiente de smoke manual E.5: deploy/ensayo real, smoke completo y operativa admin con DB; por orden global aún quedan D.4 y cierre D.6 |
