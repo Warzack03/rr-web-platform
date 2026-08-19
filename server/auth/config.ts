@@ -3,7 +3,6 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { UserRole } from "@prisma/client";
 import { prisma } from "@/server/db/prisma";
-import { logDatabaseTcpDiagnostic } from "@/server/db/tcp-diagnostic";
 import { adminLoginSchema } from "@/server/validators/auth";
 
 function getAuthSecret() {
@@ -58,8 +57,6 @@ export const authOptions: NextAuthOptions = {
         }
 
         const login = parsedCredentials.data.login.toLowerCase();
-        await logDatabaseTcpDiagnostic();
-
         const user = await prisma.user.findFirst({
           where: {
             active: true,
