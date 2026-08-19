@@ -14,6 +14,7 @@ type DatabaseDiagnosticResult = {
   code?: string;
   sqlState?: string;
   errno?: number;
+  sourceHost?: string;
   durationMs: number;
 };
 
@@ -30,6 +31,18 @@ function getDatabaseErrorMetadata(error: unknown) {
       typeof candidate.sqlState === "string" ? candidate.sqlState : undefined,
     errno: typeof candidate.errno === "number" ? candidate.errno : undefined,
   };
+}
+
+function getSourceHost(authenticatedUser: unknown) {
+  if (typeof authenticatedUser !== "string") {
+    return undefined;
+  }
+
+  const separatorIndex = authenticatedUser.lastIndexOf("@");
+
+  return separatorIndex >= 0
+    ? authenticatedUser.slice(separatorIndex + 1)
+    : undefined;
 }
 
 export async function logDatabaseTcpDiagnostic() {
@@ -86,9 +99,12 @@ export async function logDatabaseTcpDiagnostic() {
       socketTimeout: 5_000,
     });
     connection = establishedConnection;
-    await establishedConnection.query("SELECT 1");
+    const rows = await establishedConnection.query<
+      Array<{ authenticatedUser: string }>
+    >("SELECT USER() AS authenticatedUser");
     databaseResult = {
       status: "DB_OK",
+      sourceHost: getSourceHost(rows[0]?.authenticatedUser),
       durationMs: Date.now() - databaseStartedAt,
     };
   } catch (error) {
