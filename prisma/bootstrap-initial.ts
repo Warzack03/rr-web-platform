@@ -219,6 +219,219 @@ type ParsedAssignment = {
   active: boolean;
 };
 
+const SUPPLEMENTAL_ASSIGNMENTS = [
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Iván",
+    fullName: "Iván Bermúdez Sagra",
+    playerSlug: "ivan-bermudez-sagra",
+    shirtNumber: 5,
+    primaryPosition: "Defensa",
+    secondaryPosition: null,
+    isCaptain: true,
+    birthDate: "1999-04-17",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Valentín",
+    fullName: "Valentín Domenech Esteban",
+    playerSlug: "valentin-domenech-esteban",
+    shirtNumber: 1,
+    primaryPosition: "Portero",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2000-12-22",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Axel",
+    fullName: "Axel Lesan Farres",
+    playerSlug: "axel-lesan-farres",
+    shirtNumber: 10,
+    primaryPosition: "Delantero",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "1998-02-13",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Luke",
+    fullName: "Luke Joseph Schafer Denton",
+    playerSlug: "luke-joseph-schafer-denton",
+    shirtNumber: 99,
+    primaryPosition: "Defensa",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "1998-06-27",
+    nationality: "Polonia",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Sergi",
+    fullName: "Sergi Hernández Miras",
+    playerSlug: "sergi-hernandez-miras",
+    shirtNumber: 19,
+    primaryPosition: "Mediocentro",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2000-01-14",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Iván",
+    fullName: "Iván Nieto Varela",
+    playerSlug: "ivan-nieto-varela",
+    shirtNumber: 23,
+    primaryPosition: "Delantero",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "1999-03-10",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Jeremy",
+    fullName: "Jeremy Bravo Diaz",
+    playerSlug: "jeremy-bravo-diaz",
+    shirtNumber: 22,
+    primaryPosition: "Defensa",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2002-10-20",
+    nationality: "España",
+    dominantFoot: "Izquierda",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Adrián",
+    fullName: "Adrián Crespo Daniel",
+    playerSlug: "adrian-crespo-daniel",
+    shirtNumber: 18,
+    primaryPosition: "Mediocentro",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "1999-10-28",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Giovanni",
+    fullName: "Giovanni Valderrama Flores",
+    playerSlug: "giovanni-valderrama-flores",
+    shirtNumber: 8,
+    primaryPosition: "Mediocentro",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2001-08-24",
+    nationality: "Bolivia",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Hugo",
+    fullName: "Hugo Martínez Peláez",
+    playerSlug: "hugo-martinez-pelaez",
+    shirtNumber: 21,
+    primaryPosition: "Mediocentro",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "1989-02-25",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Sergio",
+    fullName: "Sergio Gesteira González",
+    playerSlug: "sergio-gesteira-gonzalez",
+    shirtNumber: 35,
+    primaryPosition: "Defensa",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2000-12-01",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Jan",
+    fullName: "Jan Figueroa Sacristán",
+    playerSlug: "jan-figueroa-sacristan",
+    shirtNumber: 15,
+    primaryPosition: "Mediocentro",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2006-05-11",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Barcelona",
+    publicName: "Adria",
+    fullName: "Adrià Prieto Berjillos",
+    playerSlug: "adria-prieto-berjillos",
+    shirtNumber: 17,
+    primaryPosition: "Defensa",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2003-04-17",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Tarragona",
+    publicName: "Dani",
+    fullName: "Daniel Diaz Martínez",
+    playerSlug: "daniel-diaz-martinez",
+    shirtNumber: 9,
+    primaryPosition: "Banda",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2000-08-03",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+  {
+    teamName: "Rising Raimon Senior Tarragona",
+    publicName: "Mohamed",
+    fullName: "Mohamed Ali Friha",
+    playerSlug: "mohamed-ali-friha",
+    shirtNumber: 43,
+    primaryPosition: "Mediocentro",
+    secondaryPosition: null,
+    isCaptain: false,
+    birthDate: "2001-12-13",
+    nationality: "España",
+    dominantFoot: "Derecha",
+    active: true,
+  },
+] as const satisfies readonly ParsedAssignment[];
+
 function normalizeText(value: string) {
   return value
     .normalize("NFD")
@@ -452,15 +665,18 @@ async function main() {
 
   const sourcePath = resolveMarkdownSourcePath();
   const markdown = fs.readFileSync(sourcePath, "utf8");
-  const assignments = parseAssignmentsFromMarkdown(markdown);
+  const assignments = [
+    ...parseAssignmentsFromMarkdown(markdown),
+    ...SUPPLEMENTAL_ASSIGNMENTS,
+  ];
   const uniquePlayerSlugs = new Set(assignments.map((assignment) => assignment.playerSlug));
 
-  if (assignments.length !== 57) {
-    throw new Error(`Esperábamos 57 asignaciones en el documento y hemos encontrado ${assignments.length}.`);
+  if (assignments.length !== 72) {
+    throw new Error(`Esperábamos 72 asignaciones y hemos encontrado ${assignments.length}.`);
   }
 
-  if (uniquePlayerSlugs.size !== 54) {
-    throw new Error(`Esperábamos 54 jugadores únicos en el documento y hemos encontrado ${uniquePlayerSlugs.size}.`);
+  if (uniquePlayerSlugs.size !== 69) {
+    throw new Error(`Esperábamos 69 jugadores únicos y hemos encontrado ${uniquePlayerSlugs.size}.`);
   }
 
   const [superadmin] = await prisma.user.findMany({
@@ -474,7 +690,11 @@ async function main() {
     },
   });
 
-  const sourceHash = crypto.createHash("sha256").update(markdown).digest("hex");
+  const sourceHash = crypto
+    .createHash("sha256")
+    .update(markdown)
+    .update(JSON.stringify(SUPPLEMENTAL_ASSIGNMENTS))
+    .digest("hex");
 
   await prisma.$transaction(async (tx) => {
     const importBatch = await tx.importBatch.create({
@@ -1037,7 +1257,7 @@ async function main() {
         {
           importBatchId: importBatch.id,
           entityType: "Player",
-          sourceExternalId: "players:54",
+          sourceExternalId: `players:${uniquePlayerSlugs.size}`,
           action: ImportAction.CREATE,
           status: "APPLIED",
           message: "Jugadores y perfiles de temporada cargados",
@@ -1046,7 +1266,7 @@ async function main() {
         {
           importBatchId: importBatch.id,
           entityType: "Assignment",
-          sourceExternalId: "assignments:57",
+          sourceExternalId: `assignments:${assignments.length}`,
           action: ImportAction.CREATE,
           status: "APPLIED",
           message: "Asignaciones jugador-equipo cargadas",
@@ -1063,6 +1283,9 @@ async function main() {
         },
       ],
     });
+  }, {
+    maxWait: 10_000,
+    timeout: 120_000,
   });
 
   const [seasonCount, teamCount, seasonTeamCount, playerCount, assignmentCount, standingCount, coachCount] =
