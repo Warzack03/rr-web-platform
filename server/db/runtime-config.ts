@@ -47,6 +47,8 @@ function getDatabaseUrlFallback() {
     return null;
   }
 
+  console.log("Database host:", databaseUrl);
+
   const parsedUrl = new URL(databaseUrl);
 
   return databaseUrlFallbackSchema.parse({
