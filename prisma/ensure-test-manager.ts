@@ -14,6 +14,7 @@ const testManager = {
   password: "risingraimon",
 };
 
+
 function canCreateTestManager() {
   return process.env.ENABLE_TEST_MANAGER === "true" || process.env.NODE_ENV !== "production";
 }
