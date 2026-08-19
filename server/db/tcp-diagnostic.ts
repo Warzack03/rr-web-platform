@@ -3,6 +3,8 @@ import * as mariadb from "mariadb";
 import type { Connection } from "mariadb";
 import { getRuntimeDatabaseConfig } from "@/server/db/runtime-config";
 
+const diagnosticVersion = 2;
+
 type TcpDiagnosticResult = {
   status: "TCP_OK" | "TCP_TIMEOUT" | "TCP_ERROR";
   code?: string;
@@ -78,7 +80,7 @@ export async function logDatabaseTcpDiagnostic() {
     );
   });
 
-  console.info("[db-tcp-diagnostic]", result);
+  console.info("[db-tcp-diagnostic]", { diagnosticVersion, ...result });
 
   if (result.status !== "TCP_OK") {
     return;
@@ -117,5 +119,8 @@ export async function logDatabaseTcpDiagnostic() {
     await connection?.end().catch(() => undefined);
   }
 
-  console.info("[db-connection-diagnostic]", databaseResult);
+  console.info("[db-connection-diagnostic]", {
+    diagnosticVersion,
+    ...databaseResult,
+  });
 }
