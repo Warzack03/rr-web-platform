@@ -71,6 +71,24 @@ Keep `DATABASE_URL` for Prisma CLI/migrations. The app runtime uses the separate
 
 Start with `connection_limit=5` and `DB_CONNECTION_LIMIT=5`. Increase to 10 only if needed.
 
+### Temporary database IP diagnostic
+
+If MySQL stops accepting the Node.js app after a redeploy, temporarily add this
+Hostinger environment variable and restart/redeploy the app:
+
+```env
+DB_IP_DIAGNOSTIC="true"
+```
+
+Submit one validly formatted login attempt and search the application logs for
+`[node-egress-ip-diagnostic]`. A successful lookup prints `status: "IP_OK"` and
+the public `sourceIp` used by Node immediately before Prisma queries MySQL. It
+does not log the submitted login, password, database credentials or database
+URL. If that IP is missing from the MySQL allowlist, add it and retry.
+
+Set `DB_IP_DIAGNOSTIC="false"` and restart/redeploy after the check. The
+diagnostic is disabled by default and must not remain enabled permanently.
+
 ## Required production variables
 
 ```env
