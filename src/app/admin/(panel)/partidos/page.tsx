@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { AdminMatchesWorkspace } from "@/components/admin/admin-matches-workspace";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminMatchesScreenData } from "@/server/services/admin-matches";
+
+export const metadata: Metadata = {
+  title: "Partidos",
+};
 
 type AdminMatchesPageProps = {
   searchParams: Promise<{

@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { AdminStatsWorkspace } from "@/components/admin/admin-stats-workspace";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminStatsScreenData } from "@/server/services/admin-stats";
+
+export const metadata: Metadata = {
+  title: "Estadisticas",
+};
 
 type AdminStatsPageProps = {
   searchParams: Promise<{

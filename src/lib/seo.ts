@@ -43,7 +43,15 @@ function normalizeImageUrl(imageUrl?: string) {
 }
 
 function buildSocialTitle(title: string) {
-  return title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+  if (title === SITE_NAME || title.startsWith(`${SITE_NAME} |`)) {
+    return title;
+  }
+
+  const pageTitle = title.endsWith(`| ${SITE_NAME}`)
+    ? title.slice(0, -(`| ${SITE_NAME}`.length)).trim()
+    : title;
+
+  return `${SITE_NAME} | ${pageTitle}`;
 }
 
 export function buildPublicPageMetadata({
@@ -64,7 +72,9 @@ export function buildPublicPageMetadata({
   const socialImageUrl = normalizeImageUrl(imageUrl);
 
   return {
-    title,
+    title: {
+      absolute: socialTitle,
+    },
     description,
     alternates: {
       canonical: path,

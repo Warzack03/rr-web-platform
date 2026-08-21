@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { AdminStandingsWorkspace } from "@/components/admin/admin-standings-workspace";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminStandingsScreenData } from "@/server/services/admin-standings";
+
+export const metadata: Metadata = {
+  title: "Clasificaciones",
+};
 
 type AdminStandingsPageProps = {
   searchParams: Promise<{

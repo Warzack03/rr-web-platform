@@ -10,8 +10,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
   title: {
-    default: SITE_NAME,
-    template: `%s | ${SITE_NAME}`,
+    default: `${SITE_NAME} | Home`,
+    template: `${SITE_NAME} | %s`,
   },
   description: DEFAULT_SITE_DESCRIPTION,
   applicationName: SITE_NAME,
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: SITE_NAME,
+    title: `${SITE_NAME} | Home`,
     description: DEFAULT_SITE_DESCRIPTION,
     url: getAbsoluteUrl("/"),
     siteName: SITE_NAME,
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_NAME,
+    title: `${SITE_NAME} | Home`,
     description: DEFAULT_SITE_DESCRIPTION,
     images: [getAbsoluteUrl("/images/rr-og-card.svg")],
   },

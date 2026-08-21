@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { AdminTeamsWorkspace } from "@/components/admin/admin-teams-workspace";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminMediaPickerOptions } from "@/server/services/admin-media";
 import { getAdminTeamsScreenData } from "@/server/services/admin-teams";
+
+export const metadata: Metadata = {
+  title: "Equipos",
+};
 
 type AdminTeamsPageProps = {
   searchParams: Promise<{

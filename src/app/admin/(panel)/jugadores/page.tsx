@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { AdminPlayersWorkspace } from "@/components/admin/admin-players-workspace";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminMediaPickerOptions } from "@/server/services/admin-media";
 import { getAdminPlayersScreenData } from "@/server/services/admin-players";
+
+export const metadata: Metadata = {
+  title: "Jugadores",
+};
 
 type AdminPlayersPageProps = {
   searchParams: Promise<{

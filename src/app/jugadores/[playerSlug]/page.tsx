@@ -42,7 +42,7 @@ export async function generateMetadata({
 
   if (!dbPlayer) {
     return {
-      title: "Jugador no encontrado | Rising Raimon",
+      title: "Jugador no encontrado",
     };
   }
 

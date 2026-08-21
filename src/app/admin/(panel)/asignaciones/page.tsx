@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { AdminAssignmentsWorkspace } from "@/components/admin/admin-assignments-workspace";
 import { getAdminAssignmentsScreenData } from "@/server/services/admin-assignments";
 import { requireAdminSectionAccess } from "@/server/auth/session";
+
+export const metadata: Metadata = {
+  title: "Asignaciones",
+};
 
 type AdminAssignmentsPageProps = {
   searchParams: Promise<{
