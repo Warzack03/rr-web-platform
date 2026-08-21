@@ -92,10 +92,10 @@ export async function getPublicHomePageContent(): Promise<PublicHomePageContent 
   return {
     hero: {
       eyebrow: "Rising Raimon",
-      titleLead: "Mas que un club,",
-      titleAccent: "una identidad",
+      titleLead: "Rising Raimon",
+      titleAccent: "pura electricidad",
       description:
-        "Competimos con una idea clara: futbol reconocible, cantera conectada y ambicion para sostener cada jornada.",
+        "Vivimos el futbol en equipo, creciendo juntos y disfrutando cada jornada con nuestra aficion.",
       primaryCta: {
         href: nextMatchHref,
         label: "Ver proximo partido",

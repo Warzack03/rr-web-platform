@@ -369,7 +369,7 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
         eyebrow: "Cantera Rising",
         title: "Futuro Raimon",
         description:
-          "Un bloque corto para mirar hacia abajo sin perder foco: equipos conectados, formacion competitiva y rutas claras de progresion.",
+          "Un bloque que alimenta las ganas de seguir compitiendo, formándose y haciendo crecer nuestra ambición.",
         href: "/equipos",
         metrics: [
           {

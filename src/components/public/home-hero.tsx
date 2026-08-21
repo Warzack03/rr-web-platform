@@ -31,7 +31,9 @@ export function HomeHero({ content }: HomeHeroProps) {
 
           <h1 className="rr-display mt-7 text-[4.25rem] leading-[0.9] text-white sm:text-[5.6rem] lg:text-[7rem]">
             <span className="block">{content.titleLead}</span>
-            <span className="mt-1 block text-[color:var(--rr-gold)]">{content.titleAccent}</span>
+            <span className="mt-1 block whitespace-nowrap text-[clamp(2.25rem,10.8vw,7rem)] text-[color:var(--rr-gold)]">
+              {content.titleAccent}
+            </span>
           </h1>
 
           <p className="mt-6 max-w-[34rem] text-[1.08rem] leading-7 text-[color:var(--rr-muted)] md:text-[1.18rem]">
