@@ -26,6 +26,10 @@ export type MatchManagementOpponent = {
 export type MatchManagementVenue = {
   id: string;
   name: string;
+  competitionId: string;
+  competition: string;
+  address?: string;
+  active: boolean;
 };
 
 export type MatchManagementMatch = {
@@ -41,6 +45,7 @@ export type MatchManagementMatch = {
   isHome: boolean;
   date: string;
   time: string;
+  venueId?: string;
   venue: string;
   status: MatchManagementStatus;
   ownScore: number | null;

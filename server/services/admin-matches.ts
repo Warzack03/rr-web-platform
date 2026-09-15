@@ -7,6 +7,10 @@ import type {
 } from "@/lib/admin/match-management";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
+import {
+  formatMadridDateInput,
+  formatMadridTimeInput,
+} from "@/lib/date-time/madrid";
 
 export type AdminMatchesScreenData = {
   activeSeasonName: string | null;
@@ -29,22 +33,6 @@ type ScopedSeasonTeam = {
     isFirstTeam: boolean;
   };
 };
-
-function toDateInputValue(dateTime: Date | null) {
-  if (!dateTime) {
-    return "";
-  }
-
-  return dateTime.toISOString().slice(0, 10);
-}
-
-function toTimeInputValue(dateTime: Date | null) {
-  if (!dateTime) {
-    return "";
-  }
-
-  return dateTime.toISOString().slice(11, 16);
-}
 
 function toSlugId(value: string) {
   return value
@@ -170,7 +158,7 @@ export async function getAdminMatchesScreenData(
     new Set(teams.map((team) => team.competitionId).filter((id): id is bigint => id !== null)),
   );
 
-  const [matches, opponents] = await Promise.all([prisma.match.findMany({
+  const [matches, opponents, venues] = await Promise.all([prisma.match.findMany({
     where: {
       seasonId: activeSeason.id,
       deletedAt: null,
@@ -186,6 +174,7 @@ export async function getAdminMatchesScreenData(
       opponentName: true,
       isHome: true,
       dateTime: true,
+      venueId: true,
       venue: true,
       status: true,
       homeScore: true,
@@ -231,6 +220,20 @@ export async function getAdminMatchesScreenData(
       competition: { select: { name: true } },
       logoMedia: { select: { publicUrl: true, altText: true } },
     },
+  }), prisma.venue.findMany({
+    where: {
+      competitionId: { in: competitionIds },
+      deletedAt: null,
+    },
+    orderBy: [{ competition: { name: "asc" } }, { name: "asc" }],
+    select: {
+      id: true,
+      name: true,
+      address: true,
+      competitionId: true,
+      active: true,
+      competition: { select: { name: true } },
+    },
   })]);
 
   const mappedTeams: MatchManagementTeam[] = teams.map((team) => ({
@@ -254,8 +257,9 @@ export async function getAdminMatchesScreenData(
     opponentId: match.opponentId?.toString(),
     opponentName: match.opponentName,
     isHome: match.isHome,
-    date: toDateInputValue(match.dateTime),
-    time: toTimeInputValue(match.dateTime),
+    date: formatMadridDateInput(match.dateTime),
+    time: formatMadridTimeInput(match.dateTime),
+    venueId: match.venueId?.toString(),
     venue: match.venue ?? "Campo pendiente",
     status:
       match.status === MatchStatus.SCHEDULED
@@ -307,20 +311,37 @@ export async function getAdminMatchesScreenData(
     return competitionDiff !== 0 ? competitionDiff : left.name.localeCompare(right.name, "es");
   });
 
+  const catalogVenueOptions: MatchManagementVenue[] = venues.map((venue) => ({
+    id: venue.id.toString(),
+    name: venue.name,
+    competitionId: venue.competitionId.toString(),
+    competition: venue.competition.name,
+    address: venue.address ?? undefined,
+    active: venue.active,
+  }));
+  const catalogVenueKeys = new Set(
+    catalogVenueOptions.map((venue) => `${venue.competition}::${venue.name}`.toLowerCase()),
+  );
+  const legacyVenueOptions: MatchManagementVenue[] = mappedMatches
+    .filter((match) => !catalogVenueKeys.has(`${match.competition}::${match.venue}`.toLowerCase()))
+    .map((match) => ({
+      id: `legacy-${toSlugId(match.competition)}-${toSlugId(match.venue)}`,
+      name: match.venue,
+      competitionId: "",
+      competition: match.competition,
+      active: false,
+    }));
   const venueOptions: MatchManagementVenue[] = Array.from(
     new Map(
-      mappedMatches
-        .map((match) => match.venue.trim())
-        .filter(Boolean)
-        .map((venue) => [
-          venue.toLowerCase(),
-          {
-            id: `venue-${toSlugId(venue)}`,
-            name: venue,
-          },
-        ]),
+      [...catalogVenueOptions, ...legacyVenueOptions].map((venue) => [
+        `${venue.competition}::${venue.name}`.toLowerCase(),
+        venue,
+      ]),
     ).values(),
-  ).sort((left, right) => left.name.localeCompare(right.name, "es"));
+  ).sort((left, right) => {
+    const competitionDiff = left.competition.localeCompare(right.competition, "es");
+    return competitionDiff !== 0 ? competitionDiff : left.name.localeCompare(right.name, "es");
+  });
 
   return {
     activeSeasonName: activeSeason.name,

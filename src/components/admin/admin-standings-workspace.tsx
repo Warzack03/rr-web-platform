@@ -144,6 +144,7 @@ export function AdminStandingsWorkspace({
   const hasUnsavedChanges =
     Boolean(selectedStanding && savedSelectedStanding) &&
     JSON.stringify(selectedStanding) !== JSON.stringify(savedSelectedStanding);
+  const requiresCatalogSync = selectedStanding?.status === "review";
   const activeSeason = activeSeasonLabel ?? seasons[0] ?? "Sin temporada";
   const publishedCount = scopedTables.filter(
     (standing) => standing.status === "published",
@@ -512,7 +513,7 @@ export function AdminStandingsWorkspace({
         </div>
       ) : null}
 
-      {screenState === "ready" && hasUnsavedChanges ? (
+      {screenState === "ready" && (hasUnsavedChanges || requiresCatalogSync) ? (
         <UnsavedChangesBar
           onDiscard={discardChanges}
           onSave={persistSelectedStanding}

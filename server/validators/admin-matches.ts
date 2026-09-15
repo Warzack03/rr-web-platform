@@ -12,6 +12,7 @@ export const saveMatchInputSchema = z.object({
   isHome: z.boolean(),
   date: z.string(),
   time: z.string(),
+  venueId: z.string().trim().regex(/^\d+$/, "Selecciona un campo del catalogo."),
   venue: z.string().trim().min(1, "Selecciona un campo."),
   status: z.enum(["pending", "live", "played"]),
   ownScore: z.number().int().min(0).nullable(),
@@ -27,6 +28,14 @@ export const saveOpponentInputSchema = z.object({
   active: z.boolean(),
 });
 
+export const saveVenueInputSchema = z.object({
+  venueId: z.string().trim().regex(/^\d+$/).optional(),
+  competitionId: z.string().trim().regex(/^\d+$/, "Selecciona una competicion."),
+  name: z.string().trim().min(2, "Introduce el nombre del campo.").max(180),
+  address: z.string().trim().max(255),
+  active: z.boolean(),
+});
+
 export const saveQuickResultInputSchema = z.object({
   matchId: z.string().trim().min(1),
   ownScore: z.number().int().min(0),
@@ -36,4 +45,5 @@ export const saveQuickResultInputSchema = z.object({
 
 export type SaveMatchInput = z.infer<typeof saveMatchInputSchema>;
 export type SaveOpponentInput = z.infer<typeof saveOpponentInputSchema>;
+export type SaveVenueInput = z.infer<typeof saveVenueInputSchema>;
 export type SaveQuickResultInput = z.infer<typeof saveQuickResultInputSchema>;

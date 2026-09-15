@@ -10,13 +10,20 @@ import {
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 import { buildOpponentSlug } from "@/lib/admin/opponent-management";
+import { buildVenueSlug } from "@/lib/admin/venue-management";
+import {
+  buildMadridDateTime,
+  formatMadridTimeInput,
+} from "@/lib/date-time/madrid";
 import {
   saveMatchInputSchema,
   saveOpponentInputSchema,
   saveQuickResultInputSchema,
+  saveVenueInputSchema,
   type SaveMatchInput,
   type SaveOpponentInput,
   type SaveQuickResultInput,
+  type SaveVenueInput,
 } from "@/server/validators/admin-matches";
 
 type AdminMatchesActionResult =
@@ -58,11 +65,7 @@ function resolveStoredStatus(
 }
 
 function buildDateTime(date: string, time: string) {
-  if (!date) {
-    return null;
-  }
-
-  return new Date(`${date}T${time || "12:00"}:00.000Z`);
+  return buildMadridDateTime(date, time || "12:00");
 }
 
 function buildDateTimeKeepingTime(date: string, currentDateTime: Date | null) {
@@ -74,9 +77,7 @@ function buildDateTimeKeepingTime(date: string, currentDateTime: Date | null) {
     return buildDateTime(date, "");
   }
 
-  const hours = currentDateTime.toISOString().slice(11, 13);
-  const minutes = currentDateTime.toISOString().slice(14, 16);
-  return new Date(`${date}T${hours}:${minutes}:00.000Z`);
+  return buildMadridDateTime(date, formatMadridTimeInput(currentDateTime));
 }
 
 function buildHomeAwayScores(input: {
@@ -270,6 +271,107 @@ export async function saveOpponentAction(
   };
 }
 
+export async function saveVenueAction(
+  input: SaveVenueInput,
+): Promise<AdminMatchesActionResult> {
+  const { user } = await assertMatchWriteRole();
+  const parsed = saveVenueInputSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: parsed.error.issues[0]?.message ?? "No hemos podido validar el campo.",
+    };
+  }
+
+  const { activeSeason, teams } = await getAdminMatchesScope(user);
+
+  if (!activeSeason) {
+    return { ok: false, message: "No hay una temporada activa." };
+  }
+
+  const payload = parsed.data;
+  const competitionId = BigInt(payload.competitionId);
+  const scopedCompetitionIds = new Set(
+    teams.map((team) => team.competitionId?.toString()).filter(Boolean),
+  );
+
+  if (!scopedCompetitionIds.has(payload.competitionId)) {
+    return { ok: false, message: "La competicion no esta disponible en la temporada activa." };
+  }
+
+  const slug = buildVenueSlug(payload.name);
+  const currentId = payload.venueId ? BigInt(payload.venueId) : null;
+  const duplicate = await prisma.venue.findFirst({
+    where: {
+      competitionId,
+      slug,
+      deletedAt: null,
+      ...(currentId ? { id: { not: currentId } } : {}),
+    },
+    select: { id: true },
+  });
+
+  if (duplicate) {
+    return { ok: false, message: "Ya existe un campo con ese nombre en la competicion." };
+  }
+
+  const previous = currentId
+    ? await prisma.venue.findFirst({
+        where: { id: currentId, competitionId, deletedAt: null },
+        select: { id: true, name: true },
+      })
+    : null;
+
+  if (currentId && !previous) {
+    return { ok: false, message: "El campo ya no esta disponible." };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const saved = previous
+      ? await tx.venue.update({
+          where: { id: previous.id },
+          data: {
+            name: payload.name,
+            slug,
+            address: payload.address || null,
+            active: payload.active,
+          },
+          select: { id: true },
+        })
+      : await tx.venue.create({
+          data: {
+            competitionId,
+            name: payload.name,
+            slug,
+            address: payload.address || null,
+            active: payload.active,
+          },
+          select: { id: true },
+        });
+
+    const legacyName = previous?.name ?? payload.name;
+
+    await tx.match.updateMany({
+      where: {
+        competitionId,
+        OR: [{ venueId: saved.id }, { venueId: null, venue: legacyName }],
+      },
+      data: { venueId: saved.id, venue: payload.name },
+    });
+  });
+
+  for (const team of teams.filter((item) => item.competitionId === competitionId)) {
+    revalidateMatchPaths(team.publicSlug);
+  }
+
+  return {
+    ok: true,
+    data: await getAdminMatchesScreenData(user),
+    message: previous ? "Campo actualizado." : "Campo creado.",
+  };
+}
+
 export async function saveMatchAction(
   input: SaveMatchInput,
 ): Promise<AdminMatchesActionResult> {
@@ -336,20 +438,38 @@ export async function saveMatchAction(
   const dateTime = buildDateTime(payload.date, payload.time);
   const matchdayNumber = parseMatchdayNumber(payload.matchday);
   const { homeScore, awayScore } = buildHomeAwayScores(payload);
-  const opponent = await prisma.opponent.findFirst({
-    where: {
-      id: BigInt(payload.opponentId),
-      competitionId: targetTeam.competitionId ?? undefined,
-      active: true,
-      deletedAt: null,
-    },
-    select: { id: true, name: true },
-  });
+  const [opponent, venue] = await Promise.all([
+    prisma.opponent.findFirst({
+      where: {
+        id: BigInt(payload.opponentId),
+        competitionId: targetTeam.competitionId ?? undefined,
+        active: true,
+        deletedAt: null,
+      },
+      select: { id: true, name: true },
+    }),
+    prisma.venue.findFirst({
+      where: {
+        id: BigInt(payload.venueId),
+        competitionId: targetTeam.competitionId ?? undefined,
+        active: true,
+        deletedAt: null,
+      },
+      select: { id: true, name: true },
+    }),
+  ]);
 
   if (!opponent || !targetTeam.competitionId) {
     return {
       ok: false,
       message: "Selecciona un rival activo de la competicion del equipo.",
+    };
+  }
+
+  if (!venue) {
+    return {
+      ok: false,
+      message: "Selecciona un campo activo de la competicion del equipo.",
     };
   }
 
@@ -389,7 +509,8 @@ export async function saveMatchAction(
         competitionId: targetTeam.competitionId,
         matchday: matchdayNumber,
         dateTime,
-        venue: payload.venue,
+        venueId: venue.id,
+        venue: venue.name,
         isHome: payload.isHome,
         opponentId: opponent.id,
         opponentName: opponent.name,
@@ -423,7 +544,8 @@ export async function saveMatchAction(
       competitionId: targetTeam.competitionId,
       matchday: matchdayNumber,
       dateTime,
-      venue: payload.venue,
+      venueId: venue.id,
+      venue: venue.name,
       isHome: payload.isHome,
       opponentId: opponent.id,
       opponentName: opponent.name,

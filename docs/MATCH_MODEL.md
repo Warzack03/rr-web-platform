@@ -25,6 +25,7 @@
 - matchday opcional.
 - date.
 - time.
+- venueId, seleccionado del catalogo de la competicion.
 - venue.
 - isHome.
 - opponentId, seleccionado del catalogo de la competicion.
@@ -44,6 +45,12 @@
 - El mismo rival se reutiliza en partidos, calendario, detalle y clasificacion.
 - `opponentName` se conserva en cada partido como copia historica y compatibilidad con datos anteriores.
 - Un rival inactivo sigue visible en el historico, pero no se puede seleccionar para partidos nuevos.
+
+## Catalogo de campos
+
+- Cada campo o pista pertenece a una competicion.
+- El formulario de partido solo muestra campos activos de la competicion del equipo.
+- `venue` se conserva como copia historica para que los partidos anteriores no dependan de futuros cambios de nombre.
 
 ## Video asociado
 

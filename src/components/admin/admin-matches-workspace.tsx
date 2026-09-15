@@ -8,6 +8,7 @@ import {
   ChevronRight,
   CircleDotDashed,
   Eye,
+  MapPin,
   Plus,
   Shield,
   Trophy,
@@ -22,6 +23,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { QuickResultDialog } from "@/components/admin/quick-result-dialog";
 import { OpponentCatalogDialog } from "@/components/admin/opponent-catalog-dialog";
+import { VenueCatalogDialog } from "@/components/admin/venue-catalog-dialog";
 import type { AdminMediaPickerItem } from "@/lib/admin/media-management";
 import {
   saveMatchAction,
@@ -82,6 +84,7 @@ export function AdminMatchesWorkspace({
   const [dialogState, setDialogState] = useState<MatchDialogState>(null);
   const [quickResultMatchId, setQuickResultMatchId] = useState<string | null>(null);
   const [isOpponentCatalogOpen, setIsOpponentCatalogOpen] = useState(false);
+  const [isVenueCatalogOpen, setIsVenueCatalogOpen] = useState(false);
   const [feedback, setFeedback] = useState<AdminMatchesFeedback | null>(null);
   const [screenState, setScreenState] = useState<AdminMatchesScreenState>("loading");
   const [currentPage, setCurrentPage] = useState(1);
@@ -185,6 +188,7 @@ export function AdminMatchesWorkspace({
       isHome: nextMatchValue.isHome,
       date: nextMatchValue.date,
       time: nextMatchValue.time,
+      venueId: nextMatchValue.venueId ?? "",
       venue: nextMatchValue.venue,
       status:
         nextMatchValue.status === "played"
@@ -236,6 +240,15 @@ export function AdminMatchesWorkspace({
         description="Ordena el calendario por equipo y estado con acciones claras."
         actions={
           <>
+            <button
+              type="button"
+              onClick={() => setIsVenueCatalogOpen(true)}
+              disabled={isPersisting || allowedTeams.length === 0}
+              className="rr-button rr-button-secondary text-[0.84rem]"
+            >
+              <MapPin className="h-4 w-4" />
+              Campos
+            </button>
             <button
               type="button"
               onClick={() => setIsOpponentCatalogOpen(true)}
@@ -516,6 +529,18 @@ export function AdminMatchesWorkspace({
         teams={allowedTeams}
         mediaItems={opponentLogoOptions}
         onClose={() => setIsOpponentCatalogOpen(false)}
+        onSaved={(data, message) => {
+          applyServerData(data);
+          pushBanner(message);
+        }}
+        onError={(message) => pushBanner(message, "danger")}
+      />
+
+      <VenueCatalogDialog
+        open={isVenueCatalogOpen}
+        venues={venueOptions}
+        teams={allowedTeams}
+        onClose={() => setIsVenueCatalogOpen(false)}
         onSaved={(data, message) => {
           applyServerData(data);
           pushBanner(message);

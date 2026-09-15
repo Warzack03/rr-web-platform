@@ -335,6 +335,7 @@ model Competition {
   matches     Match[]
   standings   StandingTable[]
   opponents   Opponent[]
+  venues      Venue[]
 
   @@unique([seasonId, slug])
   @@map("competitions")
@@ -360,6 +361,24 @@ model Opponent {
   @@map("opponents")
 }
 
+model Venue {
+  id            BigInt      @id @default(autoincrement())
+  competitionId BigInt
+  name          String      @db.VarChar(180)
+  slug          String      @db.VarChar(190)
+  address       String?     @db.VarChar(255)
+  active        Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Restrict)
+  matches       Match[]
+
+  @@unique([competitionId, slug])
+  @@index([competitionId, active])
+  @@map("venues")
+}
+
 model Match {
   id                  BigInt             @id @default(autoincrement())
   seasonId            BigInt
@@ -367,6 +386,7 @@ model Match {
   competitionId       BigInt?
   matchday            Int?
   dateTime            DateTime?
+  venueId             BigInt?
   venue               String?            @db.VarChar(180)
   isHome              Boolean            @default(true)
   opponentId          BigInt?
@@ -388,6 +408,7 @@ model Match {
   season              Season             @relation(fields: [seasonId], references: [id])
   seasonTeam          SeasonTeam         @relation(fields: [seasonTeamId], references: [id])
   competition         Competition?       @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  venueRef            Venue?             @relation(fields: [venueId], references: [id], onDelete: SetNull)
   opponent            Opponent?          @relation(fields: [opponentId], references: [id], onDelete: SetNull)
   opponentLogo        MediaAsset?        @relation("OpponentLogo", fields: [opponentLogoMediaId], references: [id], onDelete: SetNull)
   stats               PlayerMatchStats[]
@@ -396,6 +417,7 @@ model Match {
   @@index([seasonTeamId, dateTime])
   @@index([seasonId, dateTime])
   @@index([opponentId])
+  @@index([venueId])
   @@map("matches")
 }
 

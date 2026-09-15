@@ -490,6 +490,7 @@ Fields:
 - `competitionId` optional
 - `matchday` optional
 - `dateTime` optional
+- `venueId` optional for legacy compatibility
 - `venue` optional
 - `isHome`
 - `opponentId` optional for legacy compatibility
@@ -511,6 +512,7 @@ Indexes:
 - `(seasonTeamId, dateTime)`
 - `(seasonId, dateTime)`
 - `(opponentId)`
+- `(venueId)`
 
 Rules:
 
@@ -519,6 +521,29 @@ Rules:
 - `LIVE` mainly for First Team.
 - New matches select an active opponent from the competition catalog.
 - `opponentName` remains a historical display snapshot.
+
+### Venue
+
+Purpose: reusable field or court catalog scoped to one competition.
+
+Fields:
+
+- `id`
+- `competitionId`
+- `name`
+- `slug`
+- `address` optional
+- `active`
+- `createdAt`, `updatedAt`, `deletedAt`
+
+Constraints:
+
+- unique `(competitionId, slug)`
+
+Rules:
+
+- New matches select an active venue from the competition catalog.
+- `Match.venue` remains a historical display snapshot.
 
 ### StandingTable
 

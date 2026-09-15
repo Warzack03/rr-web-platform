@@ -40,6 +40,7 @@ type MatchFormState = {
   isHome: boolean;
   date: string;
   time: string;
+  venueId: string;
   venue: string;
   status: MatchVisualStatus;
   ownScore: string;
@@ -57,6 +58,7 @@ const matchFormSchema = z.object({
   isHome: z.boolean(),
   date: z.string(),
   time: z.string(),
+  venueId: z.string().trim().min(1, "Selecciona un campo del catalogo."),
   venue: z.string().trim().min(1, "Introduce un campo."),
   status: z.enum(["pending", "live", "played"]),
   ownScore: z.string(),
@@ -73,6 +75,9 @@ function createDefaultState(
   venueOptions: MatchManagementVenue[],
 ): MatchFormState {
   const defaultTeam = availableTeams[0];
+  const defaultVenue = venueOptions.find(
+    (venue) => venue.competitionId === defaultTeam?.competitionId && venue.active,
+  );
 
   return {
     teamSlug: defaultTeam?.slug ?? "",
@@ -86,7 +91,8 @@ function createDefaultState(
     isHome: true,
     date: "",
     time: "",
-    venue: venueOptions[0]?.name ?? "",
+    venueId: defaultVenue?.id ?? "",
+    venue: defaultVenue?.name ?? "",
     status: "pending",
     ownScore: "",
     opponentScore: "",
@@ -97,10 +103,14 @@ function createDefaultState(
 function createStateFromMatch(
   match: MatchManagementMatch,
   opponentOptions: MatchManagementOpponent[],
+  venueOptions: MatchManagementVenue[],
 ): MatchFormState {
   const linkedOpponent = opponentOptions.find(
     (opponent) =>
       opponent.competition === match.competition && opponent.name === match.opponentName,
+  );
+  const linkedVenue = venueOptions.find(
+    (venue) => venue.competition === match.competition && venue.name === match.venue,
   );
 
   return {
@@ -113,6 +123,7 @@ function createStateFromMatch(
     isHome: match.isHome,
     date: match.date,
     time: match.time,
+    venueId: match.venueId ?? linkedVenue?.id ?? "",
     venue: match.venue,
     status:
       getVisualMatchStatus(match.status),
@@ -149,7 +160,7 @@ export function MatchFormDialog({
 }: MatchFormDialogProps) {
   const [formState, setFormState] = useState<MatchFormState>(() =>
     match
-      ? createStateFromMatch(match, opponentOptions)
+      ? createStateFromMatch(match, opponentOptions, venueOptions)
       : createDefaultState(availableTeams, existingMatches, venueOptions),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -168,10 +179,11 @@ export function MatchFormDialog({
       opponent.competitionId === selectedTeam?.competitionId &&
       (opponent.active || opponent.id === formState.opponentId),
   );
-  const venueSelectionOptions =
-    formState.venue && !venueOptions.some((venue) => venue.name === formState.venue)
-      ? [...venueOptions, { id: `current-${formState.venue}`, name: formState.venue }]
-      : venueOptions;
+  const filteredVenueOptions = venueOptions.filter(
+    (venue) =>
+      venue.competitionId === selectedTeam?.competitionId &&
+      (venue.active || venue.id === formState.venueId),
+  );
 
   function updateField<Key extends keyof MatchFormState>(
     key: Key,
@@ -189,6 +201,9 @@ export function MatchFormDialog({
     const nextOpponents = opponentOptions.filter(
       (opponent) => opponent.competitionId === nextTeam?.competitionId && opponent.active,
     );
+    const nextVenues = venueOptions.filter(
+      (venue) => venue.competitionId === nextTeam?.competitionId && venue.active,
+    );
 
     setFormState((currentValue) => ({
       ...currentValue,
@@ -203,6 +218,13 @@ export function MatchFormDialog({
         ? currentValue.opponentId
         : "",
       opponentName: nextOpponents.find((opponent) => opponent.id === currentValue.opponentId)?.name ?? "",
+      venueId: nextVenues.some((venue) => venue.id === currentValue.venueId)
+        ? currentValue.venueId
+        : nextVenues[0]?.id ?? "",
+      venue:
+        nextVenues.find((venue) => venue.id === currentValue.venueId)?.name ??
+        nextVenues[0]?.name ??
+        "",
       status:
         currentValue.status === "live" && !nextTeam?.isFirstTeam ? "pending" : currentValue.status,
       highlightsUrl: nextTeam?.isFirstTeam ? currentValue.highlightsUrl : "",
@@ -219,6 +241,7 @@ export function MatchFormDialog({
       matchday: formState.matchday.trim(),
       opponentId: formState.opponentId,
       opponentName: formState.opponentName.trim(),
+      venueId: formState.venueId,
       venue: formState.venue.trim(),
       highlightsUrl: formState.highlightsUrl.trim(),
     });
@@ -290,6 +313,7 @@ export function MatchFormDialog({
       isHome: parsedValue.data.isHome,
       date: parsedValue.data.date,
       time: parsedValue.data.time,
+      venueId: parsedValue.data.venueId,
       venue: parsedValue.data.venue,
       status: getStoredMatchStatus(parsedValue.data.status, Boolean(parsedValue.data.date)),
       ownScore: parsedValue.data.status === "played" ? ownScore : null,
@@ -467,18 +491,33 @@ export function MatchFormDialog({
             <label className="grid gap-2 md:col-span-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Campo</span>
               <select
-                value={formState.venue}
-                onChange={(event) => updateField("venue", event.target.value)}
+                value={formState.venueId}
+                onChange={(event) => {
+                  const venue = filteredVenueOptions.find(
+                    (item) => item.id === event.target.value,
+                  );
+                  setFormState((current) => ({
+                    ...current,
+                    venueId: event.target.value,
+                    venue: venue?.name ?? "",
+                  }));
+                }}
                 disabled={isSaving}
                 className={fieldClassName}
               >
-                {venueSelectionOptions.map((venue) => (
-                  <option key={venue.id} value={venue.name}>
+                <option value="">Selecciona campo</option>
+                {filteredVenueOptions.map((venue) => (
+                  <option key={venue.id} value={venue.id}>
                     {venue.name}
                   </option>
                 ))}
               </select>
-              {errors.venue ? <span className="text-[0.82rem] text-[#ff8d8d]">{errors.venue}</span> : null}
+              {errors.venueId || errors.venue ? <span className="text-[0.82rem] text-[#ff8d8d]">{errors.venueId ?? errors.venue}</span> : null}
+              {filteredVenueOptions.length === 0 ? (
+                <span className="text-[0.82rem] text-[color:var(--rr-muted)]">
+                  Da de alta primero el campo desde el boton Campos.
+                </span>
+              ) : null}
             </label>
           </div>
 

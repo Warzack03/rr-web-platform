@@ -5,6 +5,7 @@ import type {
 } from "@/lib/admin/standings-management";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
+import { normalizeOpponentName } from "@/lib/admin/opponent-management";
 import {
   buildStandingTableScopeWhere,
   type StandingScopeTeamRef,
@@ -193,6 +194,7 @@ export async function getAdminStandingsScreenData(
         orderBy: [{ displayOrder: "asc" }, { position: "asc" }, { id: "asc" }],
         select: {
           id: true,
+          opponentId: true,
           position: true,
           teamName: true,
           played: true,
@@ -220,6 +222,40 @@ export async function getAdminStandingsScreenData(
         .filter((value): value is bigint => value !== null),
     ),
   );
+
+  const competitionIds = Array.from(
+    new Set(
+      standings
+        .map((standing) => standing.competitionId)
+        .filter((value): value is bigint => value !== null),
+    ),
+  );
+  const opponents =
+    competitionIds.length > 0
+      ? await prisma.opponent.findMany({
+          where: {
+            competitionId: { in: competitionIds },
+            active: true,
+            deletedAt: null,
+          },
+          orderBy: [{ name: "asc" }],
+          select: {
+            id: true,
+            competitionId: true,
+            name: true,
+            logoMedia: { select: { publicUrl: true } },
+          },
+        })
+      : [];
+  const opponentsByCompetition = new Map<string, typeof opponents>();
+
+  for (const opponent of opponents) {
+    const key = opponent.competitionId.toString();
+    opponentsByCompetition.set(key, [
+      ...(opponentsByCompetition.get(key) ?? []),
+      opponent,
+    ]);
+  }
 
   const updatedByUsers =
     updatedByIds.length > 0
@@ -261,7 +297,7 @@ export async function getAdminStandingsScreenData(
     const ownTeamCrest =
       ownTeam?.logoMedia?.publicUrl ?? standing.seasonTeam.logoMedia?.publicUrl ?? undefined;
 
-    const rows: StandingManagementRow[] = standing.rows.map((row) => {
+    const persistedRows: StandingManagementRow[] = standing.rows.map((row) => {
       const sanctionPoints = Math.max(row.won * 3 + row.drawn - row.points, 0);
       const matchedTeam =
         row.isOwnTeam
@@ -289,6 +325,43 @@ export async function getAdminStandingsScreenData(
         isOwnTeam: row.isOwnTeam,
       };
     });
+    const persistedOpponentIds = new Set(
+      standing.rows
+        .map((row) => row.opponentId?.toString())
+        .filter((value): value is string => Boolean(value)),
+    );
+    const persistedExternalNames = new Set(
+      standing.rows
+        .filter((row) => !row.isOwnTeam)
+        .map((row) => normalizeOpponentName(row.teamName)),
+    );
+    const catalogOpponents = standing.competitionId
+      ? opponentsByCompetition.get(standing.competitionId.toString()) ?? []
+      : [];
+    const missingOpponents = catalogOpponents.filter(
+      (opponent) =>
+        !persistedOpponentIds.has(opponent.id.toString()) &&
+        !persistedExternalNames.has(normalizeOpponentName(opponent.name)),
+    );
+    const rows: StandingManagementRow[] = [
+      ...persistedRows,
+      ...missingOpponents.map((opponent, index) => ({
+        id: `catalog-opponent-${opponent.id.toString()}`,
+        position: persistedRows.length + index + 1,
+        teamName: opponent.name,
+        crestSrc: opponent.logoMedia?.publicUrl ?? undefined,
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        sanctionPoints: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+        goalDifference: 0,
+        points: 0,
+        isOwnTeam: false,
+      })),
+    ];
 
     return {
       id: standing.id.toString(),
@@ -305,7 +378,7 @@ export async function getAdminStandingsScreenData(
         (teamMap.get(standing.seasonTeam.id.toString())?.team.isFirstTeam
           ? "Senior"
           : "Cantera"),
-      status: standing.publicVisible ? "published" : "review",
+      status: standing.publicVisible && missingOpponents.length === 0 ? "published" : "review",
       updatedAt: standing.updatedAt.toISOString(),
       updatedBy: mapUpdatedByLabel(
         standing.updatedById,
