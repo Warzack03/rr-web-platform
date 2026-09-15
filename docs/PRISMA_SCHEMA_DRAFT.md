@@ -345,9 +345,31 @@ model Competition {
   seasonTeams SeasonTeam[]
   matches     Match[]
   standings   StandingTable[]
+  opponents   Opponent[]
 
   @@unique([seasonId, slug])
   @@map("competitions")
+}
+
+model Opponent {
+  id            BigInt   @id @default(autoincrement())
+  competitionId BigInt
+  name          String   @db.VarChar(150)
+  slug          String   @db.VarChar(160)
+  logoMediaId   BigInt?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  competition  Competition  @relation(fields: [competitionId], references: [id])
+  logoMedia    MediaAsset?  @relation("OpponentCatalogLogo", fields: [logoMediaId], references: [id])
+  matches      Match[]
+  standingRows StandingRow[]
+
+  @@unique([competitionId, slug])
+  @@index([competitionId, active])
+  @@map("opponents")
 }
 
 model Match {
@@ -359,6 +381,7 @@ model Match {
   dateTime           DateTime?
   venue              String?     @db.VarChar(180)
   isHome             Boolean     @default(true)
+  opponentId         BigInt?
   opponentName       String      @db.VarChar(150)
   opponentLogoMediaId BigInt?
   status             MatchStatus @default(SCHEDULED)
@@ -378,12 +401,14 @@ model Match {
   season       Season       @relation(fields: [seasonId], references: [id])
   seasonTeam   SeasonTeam   @relation(fields: [seasonTeamId], references: [id])
   competition  Competition? @relation(fields: [competitionId], references: [id])
+  opponent     Opponent?    @relation(fields: [opponentId], references: [id])
   opponentLogo MediaAsset?  @relation("OpponentLogo", fields: [opponentLogoMediaId], references: [id])
   stats        PlayerMatchStats[]
 
   @@index([seasonTeamId, status])
   @@index([seasonTeamId, dateTime])
   @@index([seasonId, dateTime])
+  @@index([opponentId])
   @@map("matches")
 }
 
@@ -416,6 +441,7 @@ model StandingRow {
   standingTableId BigInt
   position        Int
   teamName        String @db.VarChar(150)
+  opponentId      BigInt?
   played          Int    @default(0)
   won             Int    @default(0)
   drawn           Int    @default(0)
@@ -428,8 +454,10 @@ model StandingRow {
   displayOrder    Int     @default(0)
 
   standingTable StandingTable @relation(fields: [standingTableId], references: [id])
+  opponent      Opponent?     @relation(fields: [opponentId], references: [id])
 
   @@index([standingTableId, displayOrder])
+  @@index([opponentId])
   @@map("standing_rows")
 }
 
@@ -530,6 +558,7 @@ model MediaAsset {
   seasonTeamBanners  SeasonTeam[] @relation("SeasonTeamBanner")
   teamCoachPhotos    TeamCoach[]  @relation("TeamCoachPhoto")
   opponentLogos      Match[]      @relation("OpponentLogo")
+  opponentCatalogLogos Opponent[] @relation("OpponentCatalogLogo")
   newsCovers         NewsPost[]   @relation("NewsCover")
 
   @@index([usage])

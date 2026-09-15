@@ -9,6 +9,7 @@ import {
   CircleDotDashed,
   Eye,
   Plus,
+  Shield,
   Trophy,
 } from "lucide-react";
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
@@ -20,6 +21,8 @@ import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { QuickResultDialog } from "@/components/admin/quick-result-dialog";
+import { OpponentCatalogDialog } from "@/components/admin/opponent-catalog-dialog";
+import type { AdminMediaPickerItem } from "@/lib/admin/media-management";
 import {
   saveMatchAction,
   saveQuickResultAction,
@@ -50,6 +53,7 @@ type AdminMatchesWorkspaceProps = {
   initialTeams: MatchManagementTeam[];
   initialOpponentOptions: MatchManagementOpponent[];
   initialVenueOptions: MatchManagementVenue[];
+  opponentLogoOptions: AdminMediaPickerItem[];
   initialUiState?: "ready" | "error";
   initialSelectedTeamSlug?: string;
 };
@@ -64,6 +68,7 @@ export function AdminMatchesWorkspace({
   initialTeams,
   initialOpponentOptions,
   initialVenueOptions,
+  opponentLogoOptions,
   initialUiState = "ready",
   initialSelectedTeamSlug,
 }: AdminMatchesWorkspaceProps) {
@@ -76,6 +81,7 @@ export function AdminMatchesWorkspace({
   );
   const [dialogState, setDialogState] = useState<MatchDialogState>(null);
   const [quickResultMatchId, setQuickResultMatchId] = useState<string | null>(null);
+  const [isOpponentCatalogOpen, setIsOpponentCatalogOpen] = useState(false);
   const [feedback, setFeedback] = useState<AdminMatchesFeedback | null>(null);
   const [screenState, setScreenState] = useState<AdminMatchesScreenState>("loading");
   const [currentPage, setCurrentPage] = useState(1);
@@ -174,6 +180,7 @@ export function AdminMatchesWorkspace({
       season: nextMatchValue.season,
       competition: nextMatchValue.competition,
       matchday: nextMatchValue.matchday,
+      opponentId: nextMatchValue.opponentId ?? "",
       opponentName: nextMatchValue.opponentName,
       isHome: nextMatchValue.isHome,
       date: nextMatchValue.date,
@@ -228,15 +235,26 @@ export function AdminMatchesWorkspace({
         title="Partidos"
         description="Ordena el calendario por equipo y estado con acciones claras."
         actions={
-          <button
-            type="button"
-            onClick={() => setDialogState({ mode: "create" })}
-            disabled={isPersisting || allowedTeams.length === 0}
-            className="rr-button rr-button-primary text-[0.84rem]"
-          >
-            <Plus className="h-4 w-4" />
-            Crear partido
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => setIsOpponentCatalogOpen(true)}
+              disabled={isPersisting || allowedTeams.length === 0}
+              className="rr-button rr-button-secondary text-[0.84rem]"
+            >
+              <Shield className="h-4 w-4" />
+              Rivales
+            </button>
+            <button
+              type="button"
+              onClick={() => setDialogState({ mode: "create" })}
+              disabled={isPersisting || allowedTeams.length === 0}
+              className="rr-button rr-button-primary text-[0.84rem]"
+            >
+              <Plus className="h-4 w-4" />
+              Crear partido
+            </button>
+          </>
         }
       />
 
@@ -490,6 +508,19 @@ export function AdminMatchesWorkspace({
         isSaving={isPersisting}
         onClose={() => setQuickResultMatchId(null)}
         onSave={saveQuickResult}
+      />
+
+      <OpponentCatalogDialog
+        open={isOpponentCatalogOpen}
+        opponents={opponentOptions}
+        teams={allowedTeams}
+        mediaItems={opponentLogoOptions}
+        onClose={() => setIsOpponentCatalogOpen(false)}
+        onSaved={(data, message) => {
+          applyServerData(data);
+          pushBanner(message);
+        }}
+        onError={(message) => pushBanner(message, "danger")}
       />
     </div>
   );

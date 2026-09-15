@@ -76,6 +76,12 @@ function mapStandingRows(
     goalDifference: number;
     points: number;
     isOwnTeam: boolean;
+    opponent: {
+      logoMedia: {
+        publicUrl: string;
+        altText: string | null;
+      } | null;
+    } | null;
   }>,
   teams: Array<{
     publicName: string;
@@ -95,6 +101,7 @@ function mapStandingRows(
 
   return rows.map((row) => {
     const linkedTeam = teamByName.get(normalizeTeamName(row.teamName));
+    const opponentLogo = row.opponent?.logoMedia;
 
     return {
       position: row.position,
@@ -102,9 +109,10 @@ function mapStandingRows(
         ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
         : row.teamName,
       teamSlug: linkedTeam?.publicSlug,
-      logoUrl: linkedTeam?.logoMedia?.publicUrl,
+      logoUrl: linkedTeam?.logoMedia?.publicUrl ?? opponentLogo?.publicUrl,
       logoAlt:
         linkedTeam?.logoMedia?.altText ??
+        opponentLogo?.altText ??
         `Escudo ${
           linkedTeam
             ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
@@ -220,6 +228,14 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
           dateTime: true,
           venue: true,
           opponentName: true,
+          opponent: {
+            select: {
+              logoMedia: { select: { publicUrl: true, altText: true } },
+            },
+          },
+          opponentLogo: {
+            select: { publicUrl: true, altText: true },
+          },
           status: true,
           matchday: true,
           competition: {
@@ -280,6 +296,11 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
               goalDifference: true,
               points: true,
               isOwnTeam: true,
+              opponent: {
+                select: {
+                  logoMedia: { select: { publicUrl: true, altText: true } },
+                },
+              },
             },
           },
         },
@@ -297,6 +318,12 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
           },
           away: {
             name: nextMatch.opponentName,
+            logoUrl:
+              nextMatch.opponent?.logoMedia?.publicUrl ?? nextMatch.opponentLogo?.publicUrl,
+            logoAlt:
+              nextMatch.opponent?.logoMedia?.altText ??
+              nextMatch.opponentLogo?.altText ??
+              `Escudo ${nextMatch.opponentName}`,
           },
           competition: buildMatchCompetitionLabel(
             nextMatch.competition?.name ?? firstTeam.competitionName ?? null,

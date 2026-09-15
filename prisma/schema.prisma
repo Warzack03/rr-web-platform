@@ -70,20 +70,20 @@ enum MediaUsage {
 }
 
 model User {
-  id                BigInt                @id @default(autoincrement())
-  email             String                @unique @db.VarChar(190)
-  username          String                @unique @db.VarChar(80)
-  passwordHash      String                @db.VarChar(255)
-  displayName       String                @db.VarChar(150)
-  role              UserRole
-  active            Boolean               @default(true)
-  lastLoginAt       DateTime?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  coachPermissions  CoachTeamPermission[]
-  visibleCoachRows  TeamCoach[]           @relation("TeamCoachAccount")
-  uploadedMedia     MediaAsset[]          @relation("MediaUploadedBy")
-  authoredNews      NewsPost[]            @relation("NewsAuthor")
+  id               BigInt                @id @default(autoincrement())
+  email            String                @unique @db.VarChar(190)
+  username         String                @unique @db.VarChar(80)
+  passwordHash     String                @db.VarChar(255)
+  displayName      String                @db.VarChar(150)
+  role             UserRole
+  active           Boolean               @default(true)
+  lastLoginAt      DateTime?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  coachPermissions CoachTeamPermission[]
+  visibleCoachRows TeamCoach[]           @relation("TeamCoachAccount")
+  uploadedMedia    MediaAsset[]          @relation("MediaUploadedBy")
+  authoredNews     NewsPost[]            @relation("NewsAuthor")
 
   @@map("users")
 }
@@ -152,34 +152,34 @@ model Team {
 }
 
 model SeasonTeam {
-  id                BigInt                  @id @default(autoincrement())
+  id                BigInt                 @id @default(autoincrement())
   seasonId          BigInt
   teamId            BigInt
   competitionId     BigInt?
-  publicName        String                  @db.VarChar(150)
-  publicSlug        String                  @db.VarChar(160)
-  category          String?                 @db.VarChar(100)
-  competitionName   String?                 @db.VarChar(150)
-  description       String?                 @db.Text
-  publicVisible     Boolean                 @default(true)
+  publicName        String                 @db.VarChar(150)
+  publicSlug        String                 @db.VarChar(160)
+  category          String?                @db.VarChar(100)
+  competitionName   String?                @db.VarChar(150)
+  description       String?                @db.Text
+  publicVisible     Boolean                @default(true)
   logoMediaId       BigInt?
   bannerMediaId     BigInt?
-  displayOrder      Int                     @default(0)
-  active            Boolean                 @default(true)
-  sourceSystem      String?                 @db.VarChar(80)
-  sourceExternalId  String?                 @db.VarChar(80)
+  displayOrder      Int                    @default(0)
+  active            Boolean                @default(true)
+  sourceSystem      String?                @db.VarChar(80)
+  sourceExternalId  String?                @db.VarChar(80)
   lastImportBatchId BigInt?
   createdById       BigInt?
   updatedById       BigInt?
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
   deletedAt         DateTime?
-  season            Season                  @relation(fields: [seasonId], references: [id])
-  team              Team                    @relation(fields: [teamId], references: [id])
-  competition       Competition?            @relation(fields: [competitionId], references: [id], onDelete: SetNull)
-  logoMedia         MediaAsset?             @relation("SeasonTeamLogo", fields: [logoMediaId], references: [id], onDelete: SetNull)
-  bannerMedia       MediaAsset?             @relation("SeasonTeamBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
-  lastImportBatch   ImportBatch?            @relation("SeasonTeamLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+  season            Season                 @relation(fields: [seasonId], references: [id])
+  team              Team                   @relation(fields: [teamId], references: [id])
+  competition       Competition?           @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  logoMedia         MediaAsset?            @relation("SeasonTeamLogo", fields: [logoMediaId], references: [id], onDelete: SetNull)
+  bannerMedia       MediaAsset?            @relation("SeasonTeamBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
+  lastImportBatch   ImportBatch?           @relation("SeasonTeamLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
   assignments       TeamPlayerAssignment[]
   coaches           TeamCoach[]
   matches           Match[]
@@ -196,29 +196,29 @@ model SeasonTeam {
 }
 
 model Player {
-  id                 BigInt                  @id @default(autoincrement())
-  firstName          String                  @db.VarChar(150)
-  lastName           String                  @db.VarChar(200)
-  publicName         String?                 @db.VarChar(180)
-  slug               String                  @unique @db.VarChar(190)
-  birthDate          DateTime?               @db.Date
-  countryCode        String?                 @db.VarChar(2)
-  preferredFoot      String?                 @db.VarChar(20)
-  active             Boolean                 @default(true)
-  publicVisible      Boolean                 @default(true)
+  id                 BigInt                 @id @default(autoincrement())
+  firstName          String                 @db.VarChar(150)
+  lastName           String                 @db.VarChar(200)
+  publicName         String?                @db.VarChar(180)
+  slug               String                 @unique @db.VarChar(190)
+  birthDate          DateTime?              @db.Date
+  countryCode        String?                @db.VarChar(2)
+  preferredFoot      String?                @db.VarChar(20)
+  active             Boolean                @default(true)
+  publicVisible      Boolean                @default(true)
   photoMediaId       BigInt?
   premiumCardMediaId BigInt?
-  sourceSystem       String?                 @db.VarChar(80)
-  sourceExternalId   String?                 @db.VarChar(80)
+  sourceSystem       String?                @db.VarChar(80)
+  sourceExternalId   String?                @db.VarChar(80)
   lastImportBatchId  BigInt?
   createdById        BigInt?
   updatedById        BigInt?
-  createdAt          DateTime                @default(now())
-  updatedAt          DateTime                @updatedAt
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
   deletedAt          DateTime?
-  photoMedia         MediaAsset?             @relation("PlayerPhoto", fields: [photoMediaId], references: [id], onDelete: SetNull)
-  premiumCardMedia   MediaAsset?             @relation("PlayerPremiumCard", fields: [premiumCardMediaId], references: [id], onDelete: SetNull)
-  lastImportBatch    ImportBatch?            @relation("PlayerLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+  photoMedia         MediaAsset?            @relation("PlayerPhoto", fields: [photoMediaId], references: [id], onDelete: SetNull)
+  premiumCardMedia   MediaAsset?            @relation("PlayerPremiumCard", fields: [premiumCardMediaId], references: [id], onDelete: SetNull)
+  lastImportBatch    ImportBatch?           @relation("PlayerLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
   seasonProfiles     PlayerSeasonProfile[]
   assignments        TeamPlayerAssignment[]
   stats              PlayerMatchStats[]
@@ -321,77 +321,101 @@ model CoachTeamPermission {
 }
 
 model Competition {
-  id          BigInt         @id @default(autoincrement())
+  id          BigInt          @id @default(autoincrement())
   seasonId    BigInt
-  name        String         @db.VarChar(150)
-  slug        String         @db.VarChar(160)
-  organizer   String?        @db.VarChar(100)
-  groupName   String?        @db.VarChar(100)
-  active      Boolean        @default(true)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  season      Season         @relation(fields: [seasonId], references: [id])
+  name        String          @db.VarChar(150)
+  slug        String          @db.VarChar(160)
+  organizer   String?         @db.VarChar(100)
+  groupName   String?         @db.VarChar(100)
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  season      Season          @relation(fields: [seasonId], references: [id])
   seasonTeams SeasonTeam[]
   matches     Match[]
   standings   StandingTable[]
+  opponents   Opponent[]
 
   @@unique([seasonId, slug])
   @@map("competitions")
 }
 
+model Opponent {
+  id            BigInt        @id @default(autoincrement())
+  competitionId BigInt
+  name          String        @db.VarChar(150)
+  slug          String        @db.VarChar(160)
+  logoMediaId   BigInt?
+  active        Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  competition   Competition   @relation(fields: [competitionId], references: [id], onDelete: Restrict)
+  logoMedia     MediaAsset?   @relation("OpponentCatalogLogo", fields: [logoMediaId], references: [id], onDelete: SetNull)
+  matches       Match[]
+  standingRows  StandingRow[]
+
+  @@unique([competitionId, slug])
+  @@index([competitionId, active])
+  @@map("opponents")
+}
+
 model Match {
-  id                  BigInt            @id @default(autoincrement())
+  id                  BigInt             @id @default(autoincrement())
   seasonId            BigInt
   seasonTeamId        BigInt
   competitionId       BigInt?
   matchday            Int?
   dateTime            DateTime?
-  venue               String?           @db.VarChar(180)
-  isHome              Boolean           @default(true)
-  opponentName        String            @db.VarChar(150)
+  venue               String?            @db.VarChar(180)
+  isHome              Boolean            @default(true)
+  opponentId          BigInt?
+  opponentName        String             @db.VarChar(150)
   opponentLogoMediaId BigInt?
-  status              MatchStatus       @default(SCHEDULED)
+  status              MatchStatus        @default(SCHEDULED)
   homeScore           Int?
   awayScore           Int?
-  summary             String?           @db.Text
-  videoUrl            String?           @db.VarChar(500)
-  videoLabel          String?           @db.VarChar(120)
-  liveUrl             String?           @db.VarChar(500)
-  publicVisible       Boolean           @default(true)
+  summary             String?            @db.Text
+  videoUrl            String?            @db.VarChar(500)
+  videoLabel          String?            @db.VarChar(120)
+  liveUrl             String?            @db.VarChar(500)
+  publicVisible       Boolean            @default(true)
   createdById         BigInt?
   updatedById         BigInt?
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
   deletedAt           DateTime?
-  season              Season            @relation(fields: [seasonId], references: [id])
-  seasonTeam          SeasonTeam        @relation(fields: [seasonTeamId], references: [id])
-  competition         Competition?      @relation(fields: [competitionId], references: [id], onDelete: SetNull)
-  opponentLogo        MediaAsset?       @relation("OpponentLogo", fields: [opponentLogoMediaId], references: [id], onDelete: SetNull)
+  season              Season             @relation(fields: [seasonId], references: [id])
+  seasonTeam          SeasonTeam         @relation(fields: [seasonTeamId], references: [id])
+  competition         Competition?       @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  opponent            Opponent?          @relation(fields: [opponentId], references: [id], onDelete: SetNull)
+  opponentLogo        MediaAsset?        @relation("OpponentLogo", fields: [opponentLogoMediaId], references: [id], onDelete: SetNull)
   stats               PlayerMatchStats[]
 
   @@index([seasonTeamId, status])
   @@index([seasonTeamId, dateTime])
   @@index([seasonId, dateTime])
+  @@index([opponentId])
   @@map("matches")
 }
 
 model StandingTable {
-  id            BigInt       @id @default(autoincrement())
+  id            BigInt        @id @default(autoincrement())
   seasonId      BigInt
   seasonTeamId  BigInt
   competitionId BigInt?
-  title         String       @db.VarChar(150)
-  sourceLabel   String?      @db.VarChar(150)
-  updatedLabel  String?      @db.VarChar(150)
-  publicVisible Boolean      @default(true)
+  title         String        @db.VarChar(150)
+  sourceLabel   String?       @db.VarChar(150)
+  updatedLabel  String?       @db.VarChar(150)
+  publicVisible Boolean       @default(true)
   createdById   BigInt?
   updatedById   BigInt?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   deletedAt     DateTime?
-  season        Season       @relation(fields: [seasonId], references: [id])
-  seasonTeam    SeasonTeam   @relation(fields: [seasonTeamId], references: [id])
-  competition   Competition? @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  season        Season        @relation(fields: [seasonId], references: [id])
+  seasonTeam    SeasonTeam    @relation(fields: [seasonTeamId], references: [id])
+  competition   Competition?  @relation(fields: [competitionId], references: [id], onDelete: SetNull)
   rows          StandingRow[]
 
   @@index([seasonTeamId, publicVisible])
@@ -403,6 +427,7 @@ model StandingRow {
   standingTableId BigInt
   position        Int
   teamName        String        @db.VarChar(150)
+  opponentId      BigInt?
   played          Int           @default(0)
   won             Int           @default(0)
   drawn           Int           @default(0)
@@ -414,8 +439,10 @@ model StandingRow {
   isOwnTeam       Boolean       @default(false)
   displayOrder    Int           @default(0)
   standingTable   StandingTable @relation(fields: [standingTableId], references: [id])
+  opponent        Opponent?     @relation(fields: [opponentId], references: [id], onDelete: SetNull)
 
   @@index([standingTableId, displayOrder])
+  @@index([opponentId])
   @@map("standing_rows")
 }
 
@@ -456,24 +483,24 @@ model PlayerMatchStats {
 }
 
 model NewsPost {
-  id               BigInt       @id @default(autoincrement())
-  title            String       @db.VarChar(180)
-  slug             String       @unique @db.VarChar(190)
-  excerpt          String?      @db.VarChar(300)
-  bodyMarkdown     String       @db.Text
+  id               BigInt         @id @default(autoincrement())
+  title            String         @db.VarChar(180)
+  slug             String         @unique @db.VarChar(190)
+  excerpt          String?        @db.VarChar(300)
+  bodyMarkdown     String         @db.Text
   coverMediaId     BigInt?
-  externalVideoUrl String?      @db.VarChar(500)
-  status           NewsStatus   @default(DRAFT)
-  featured         Boolean      @default(false)
+  externalVideoUrl String?        @db.VarChar(500)
+  status           NewsStatus     @default(DRAFT)
+  featured         Boolean        @default(false)
   publishedAt      DateTime?
   authorId         BigInt?
   createdById      BigInt?
   updatedById      BigInt?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
   deletedAt        DateTime?
-  coverMedia       MediaAsset?  @relation("NewsCover", fields: [coverMediaId], references: [id], onDelete: SetNull)
-  author           User?        @relation("NewsAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  coverMedia       MediaAsset?    @relation("NewsCover", fields: [coverMediaId], references: [id], onDelete: SetNull)
+  author           User?          @relation("NewsAuthor", fields: [authorId], references: [id], onDelete: SetNull)
   teams            NewsPostTeam[]
 
   @@index([status, publishedAt])
@@ -491,29 +518,30 @@ model NewsPostTeam {
 }
 
 model MediaAsset {
-  id                 BigInt       @id @default(autoincrement())
-  type               MediaType    @default(IMAGE)
-  usage              MediaUsage   @default(OTHER)
-  storagePath        String?      @db.VarChar(500)
-  publicUrl          String       @db.VarChar(500)
-  externalUrl        String?      @db.VarChar(500)
-  altText            String?      @db.VarChar(255)
-  mimeType           String?      @db.VarChar(100)
-  sizeBytes          Int?
-  width              Int?
-  height             Int?
-  uploadedById       BigInt?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
-  deletedAt          DateTime?
-  uploadedBy         User?        @relation("MediaUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
-  playerPhotos       Player[]     @relation("PlayerPhoto")
-  playerPremiumCards Player[]     @relation("PlayerPremiumCard")
-  seasonTeamLogos    SeasonTeam[] @relation("SeasonTeamLogo")
-  seasonTeamBanners  SeasonTeam[] @relation("SeasonTeamBanner")
-  teamCoachPhotos    TeamCoach[]  @relation("TeamCoachPhoto")
-  opponentLogos      Match[]      @relation("OpponentLogo")
-  newsCovers         NewsPost[]   @relation("NewsCover")
+  id                   BigInt       @id @default(autoincrement())
+  type                 MediaType    @default(IMAGE)
+  usage                MediaUsage   @default(OTHER)
+  storagePath          String?      @db.VarChar(500)
+  publicUrl            String       @db.VarChar(500)
+  externalUrl          String?      @db.VarChar(500)
+  altText              String?      @db.VarChar(255)
+  mimeType             String?      @db.VarChar(100)
+  sizeBytes            Int?
+  width                Int?
+  height               Int?
+  uploadedById         BigInt?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  deletedAt            DateTime?
+  uploadedBy           User?        @relation("MediaUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+  playerPhotos         Player[]     @relation("PlayerPhoto")
+  playerPremiumCards   Player[]     @relation("PlayerPremiumCard")
+  seasonTeamLogos      SeasonTeam[] @relation("SeasonTeamLogo")
+  seasonTeamBanners    SeasonTeam[] @relation("SeasonTeamBanner")
+  teamCoachPhotos      TeamCoach[]  @relation("TeamCoachPhoto")
+  opponentLogos        Match[]      @relation("OpponentLogo")
+  opponentCatalogLogos Opponent[]   @relation("OpponentCatalogLogo")
+  newsCovers           NewsPost[]   @relation("NewsCover")
 
   @@index([usage])
   @@map("media_assets")

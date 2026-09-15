@@ -144,6 +144,16 @@ function mapCalendarMatch(input: {
     competition: {
       name: string;
     } | null;
+    opponent: {
+      logoMedia: {
+        publicUrl: string;
+        altText: string | null;
+      } | null;
+    } | null;
+    opponentLogo: {
+      publicUrl: string;
+      altText: string | null;
+    } | null;
   };
   team: DbCalendarTeam;
 }): CalendarMatch {
@@ -155,9 +165,12 @@ function mapCalendarMatch(input: {
     crestLabel: buildCrestLabel(displayName),
     isClub: true,
   };
+  const opponentLogo = match.opponent?.logoMedia ?? match.opponentLogo;
   const opponentTeam = {
     name: match.opponentName,
     crestLabel: buildCrestLabel(match.opponentName),
+    crestUrl: opponentLogo?.publicUrl,
+    crestAlt: opponentLogo?.altText ?? `Escudo ${match.opponentName}`,
     muted: !team.team.isFirstTeam,
   };
   const actionFields = buildActionFields({
@@ -263,6 +276,14 @@ export async function getPublicTeamCalendarContentFromDb(
         summary: true,
         videoUrl: true,
         liveUrl: true,
+        opponent: {
+          select: {
+            logoMedia: { select: { publicUrl: true, altText: true } },
+          },
+        },
+        opponentLogo: {
+          select: { publicUrl: true, altText: true },
+        },
         competition: {
           select: {
             name: true,

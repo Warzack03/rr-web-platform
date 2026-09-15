@@ -153,6 +153,8 @@ export type PublicMatchFilterOption = {
 export type PublicCalendarTeam = {
   name: string;
   crestLabel: string;
+  crestUrl?: string;
+  crestAlt?: string;
   isClub?: boolean;
   muted?: boolean;
 };

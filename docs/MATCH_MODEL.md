@@ -27,6 +27,7 @@
 - time.
 - venue.
 - isHome.
+- opponentId, seleccionado del catalogo de la competicion.
 - opponentName.
 - homeTeamName.
 - awayTeamName.
@@ -36,6 +37,13 @@
 - videoUrl opcional.
 - liveUrl opcional.
 - notes opcional.
+
+## Catalogo de rivales
+
+- Cada rival pertenece a una competicion y puede tener un escudo de la biblioteca de media.
+- El mismo rival se reutiliza en partidos, calendario, detalle y clasificacion.
+- `opponentName` se conserva en cada partido como copia historica y compatibilidad con datos anteriores.
+- Un rival inactivo sigue visible en el historico, pero no se puede seleccionar para partidos nuevos.
 
 ## Video asociado
 

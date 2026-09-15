@@ -17,7 +17,17 @@ export function TeamBadge({ team }: TeamBadgeProps) {
           team.muted && "opacity-70 grayscale",
         )}
       >
-        <span className="rr-display leading-none">{team.crestLabel}</span>
+        {team.crestUrl ? (
+          // Rival logos can use an admin-approved external media URL.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={team.crestUrl}
+            alt={team.crestAlt ?? `Escudo ${team.name}`}
+            className="h-full w-full object-contain p-1.5"
+          />
+        ) : (
+          <span className="rr-display leading-none">{team.crestLabel}</span>
+        )}
       </div>
       <span className="rr-kicker max-w-[8.25rem] text-[0.8rem] text-[color:var(--rr-text)]">
         {team.name}

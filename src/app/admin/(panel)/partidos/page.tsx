@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AdminMatchesWorkspace } from "@/components/admin/admin-matches-workspace";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { getAdminMatchesScreenData } from "@/server/services/admin-matches";
+import { getAdminMediaPickerOptions } from "@/server/services/admin-media";
 
 export const metadata: Metadata = {
   title: "Partidos",
@@ -22,7 +23,10 @@ export default async function AdminMatchesPage({
   searchParams,
 }: AdminMatchesPageProps) {
   const user = await requireAdminSectionAccess("matches");
-  const data = await getAdminMatchesScreenData(user);
+  const [data, opponentLogoOptions] = await Promise.all([
+    getAdminMatchesScreenData(user),
+    getAdminMediaPickerOptions(["OPPONENT_LOGO"]),
+  ]);
   const resolvedSearchParams = await searchParams;
   const initialUiState = getSingleValue(resolvedSearchParams.ui) === "error" ? "error" : "ready";
 
@@ -33,6 +37,7 @@ export default async function AdminMatchesPage({
       initialTeams={data.teams}
       initialOpponentOptions={data.opponentOptions}
       initialVenueOptions={data.venueOptions}
+      opponentLogoOptions={opponentLogoOptions}
       initialUiState={initialUiState}
       initialSelectedTeamSlug={getSingleValue(resolvedSearchParams.team)}
     />

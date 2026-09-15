@@ -8,6 +8,7 @@ import {
 } from "@/server/services/admin-standings";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
+import { normalizeOpponentName } from "@/lib/admin/opponent-management";
 import {
   buildStandingTableScopeWhere,
   standingTableCoversTeam,
@@ -194,6 +195,19 @@ export async function saveStandingAction(
     };
   }
 
+  const opponents = standing.competitionId
+    ? await prisma.opponent.findMany({
+        where: {
+          competitionId: standing.competitionId,
+          deletedAt: null,
+        },
+        select: { id: true, name: true },
+      })
+    : [];
+  const opponentByName = new Map(
+    opponents.map((opponent) => [normalizeOpponentName(opponent.name), opponent.id]),
+  );
+
   await prisma.$transaction(async (tx) => {
     await tx.standingTable.update({
       where: {
@@ -216,6 +230,9 @@ export async function saveStandingAction(
         standingTableId: standing.id,
         position: index + 1,
         teamName: row.teamName,
+        opponentId: row.isOwnTeam
+          ? null
+          : opponentByName.get(normalizeOpponentName(row.teamName)) ?? null,
         played: row.played,
         won: row.won,
         drawn: row.drawn,

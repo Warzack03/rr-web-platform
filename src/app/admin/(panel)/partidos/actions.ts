@@ -1,6 +1,6 @@
 "use server";
 
-import { MatchStatus } from "@prisma/client";
+import { MatchStatus, MediaType, MediaUsage } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import type { AdminMatchesScreenData } from "@/server/services/admin-matches";
 import {
@@ -9,10 +9,13 @@ import {
 } from "@/server/services/admin-matches";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
+import { buildOpponentSlug } from "@/lib/admin/opponent-management";
 import {
   saveMatchInputSchema,
+  saveOpponentInputSchema,
   saveQuickResultInputSchema,
   type SaveMatchInput,
+  type SaveOpponentInput,
   type SaveQuickResultInput,
 } from "@/server/validators/admin-matches";
 
@@ -132,6 +135,141 @@ async function assertMatchWriteRole() {
   };
 }
 
+export async function saveOpponentAction(
+  input: SaveOpponentInput,
+): Promise<AdminMatchesActionResult> {
+  const { user } = await assertMatchWriteRole();
+  const parsed = saveOpponentInputSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: parsed.error.issues[0]?.message ?? "No hemos podido validar el rival.",
+    };
+  }
+
+  const { activeSeason, teams } = await getAdminMatchesScope(user);
+
+  if (!activeSeason) {
+    return { ok: false, message: "No hay una temporada activa." };
+  }
+
+  const payload = parsed.data;
+  const competitionId = BigInt(payload.competitionId);
+  const scopedCompetitionIds = new Set(
+    teams.map((team) => team.competitionId?.toString()).filter(Boolean),
+  );
+
+  if (!scopedCompetitionIds.has(payload.competitionId)) {
+    return { ok: false, message: "La competicion no esta disponible en la temporada activa." };
+  }
+
+  const logoMediaId = payload.logoMediaId ? BigInt(payload.logoMediaId) : null;
+
+  if (logoMediaId) {
+    const logo = await prisma.mediaAsset.findFirst({
+      where: {
+        id: logoMediaId,
+        deletedAt: null,
+        type: MediaType.IMAGE,
+        usage: MediaUsage.OPPONENT_LOGO,
+      },
+      select: { id: true },
+    });
+
+    if (!logo) {
+      return { ok: false, message: "Selecciona un escudo de rival valido." };
+    }
+  }
+
+  const slug = buildOpponentSlug(payload.name);
+  const currentId = payload.opponentId ? BigInt(payload.opponentId) : null;
+  const duplicate = await prisma.opponent.findFirst({
+    where: {
+      competitionId,
+      slug,
+      deletedAt: null,
+      ...(currentId ? { id: { not: currentId } } : {}),
+    },
+    select: { id: true },
+  });
+
+  if (duplicate) {
+    return { ok: false, message: "Ya existe un rival con ese nombre en la competicion." };
+  }
+
+  const previous = currentId
+    ? await prisma.opponent.findFirst({
+        where: { id: currentId, competitionId, deletedAt: null },
+        select: { id: true, name: true },
+      })
+    : null;
+
+  if (currentId && !previous) {
+    return { ok: false, message: "El rival ya no esta disponible." };
+  }
+
+  const opponent = await prisma.$transaction(async (tx) => {
+    const saved = previous
+      ? await tx.opponent.update({
+          where: { id: previous.id },
+          data: {
+            name: payload.name,
+            slug,
+            logoMediaId,
+            active: payload.active,
+          },
+          select: { id: true },
+        })
+      : await tx.opponent.create({
+          data: {
+            competitionId,
+            name: payload.name,
+            slug,
+            logoMediaId,
+            active: payload.active,
+          },
+          select: { id: true },
+        });
+
+    const legacyName = previous?.name ?? payload.name;
+
+    await tx.match.updateMany({
+      where: {
+        competitionId,
+        OR: [{ opponentId: saved.id }, { opponentId: null, opponentName: legacyName }],
+      },
+      data: { opponentId: saved.id, opponentName: payload.name },
+    });
+
+    await tx.standingRow.updateMany({
+      where: {
+        standingTable: { competitionId },
+        OR: [{ opponentId: saved.id }, { opponentId: null, teamName: legacyName }],
+      },
+      data: { opponentId: saved.id, teamName: payload.name },
+    });
+
+    return saved;
+  });
+
+  for (const team of teams.filter((item) => item.competitionId === competitionId)) {
+    revalidateMatchPaths(team.publicSlug);
+    revalidatePath(
+      team.team.isFirstTeam
+        ? "/primer-equipo/clasificacion"
+        : `/equipos/${team.publicSlug}/clasificacion`,
+    );
+  }
+
+  return {
+    ok: true,
+    data: await getAdminMatchesScreenData(user),
+    selectedMatchId: opponent.id.toString(),
+    message: previous ? "Rival actualizado." : "Rival creado.",
+  };
+}
+
 export async function saveMatchAction(
   input: SaveMatchInput,
 ): Promise<AdminMatchesActionResult> {
@@ -198,6 +336,22 @@ export async function saveMatchAction(
   const dateTime = buildDateTime(payload.date, payload.time);
   const matchdayNumber = parseMatchdayNumber(payload.matchday);
   const { homeScore, awayScore } = buildHomeAwayScores(payload);
+  const opponent = await prisma.opponent.findFirst({
+    where: {
+      id: BigInt(payload.opponentId),
+      competitionId: targetTeam.competitionId ?? undefined,
+      active: true,
+      deletedAt: null,
+    },
+    select: { id: true, name: true },
+  });
+
+  if (!opponent || !targetTeam.competitionId) {
+    return {
+      ok: false,
+      message: "Selecciona un rival activo de la competicion del equipo.",
+    };
+  }
 
   if (payload.matchId) {
     const existing = await prisma.match.findFirst({
@@ -237,7 +391,8 @@ export async function saveMatchAction(
         dateTime,
         venue: payload.venue,
         isHome: payload.isHome,
-        opponentName: payload.opponentName,
+        opponentId: opponent.id,
+        opponentName: opponent.name,
         status: nextStatus,
         homeScore,
         awayScore,
@@ -270,7 +425,8 @@ export async function saveMatchAction(
       dateTime,
       venue: payload.venue,
       isHome: payload.isHome,
-      opponentName: payload.opponentName,
+      opponentId: opponent.id,
+      opponentName: opponent.name,
       status: nextStatus,
       homeScore,
       awayScore,

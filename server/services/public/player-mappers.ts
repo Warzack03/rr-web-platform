@@ -9,6 +9,7 @@ export const COUNTRY_LABELS: Record<string, string> = {
   ES: "Espana",
   PT: "Portugal",
   PL: "Polonia",
+  PE: "Perú",
   BO: "Bolivia",
   AR: "Argentina",
   BR: "Brasil",

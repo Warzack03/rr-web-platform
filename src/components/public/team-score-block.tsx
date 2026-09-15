@@ -26,7 +26,17 @@ export function TeamScoreBlock({
           team.muted && "opacity-72 grayscale",
         )}
       >
-        <span className="rr-display text-[4.2rem] leading-none">{team.crestLabel}</span>
+        {team.crestUrl ? (
+          // Rival logos can use an admin-approved external media URL.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={team.crestUrl}
+            alt={team.crestAlt ?? `Escudo ${team.name}`}
+            className="h-full w-full object-contain p-3"
+          />
+        ) : (
+          <span className="rr-display text-[4.2rem] leading-none">{team.crestLabel}</span>
+        )}
       </div>
 
       <div className="min-w-0">

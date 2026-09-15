@@ -35,6 +35,7 @@ type MatchFormState = {
   season: string;
   competition: string;
   matchday: string;
+  opponentId: string;
   opponentName: string;
   isHome: boolean;
   date: string;
@@ -51,6 +52,7 @@ const matchFormSchema = z.object({
   season: z.string().trim().min(1, "Selecciona una temporada."),
   competition: z.string().trim().min(1, "Introduce una competicion."),
   matchday: z.string().trim().min(1, "Introduce la jornada."),
+  opponentId: z.string().trim().min(1, "Selecciona un rival del catalogo."),
   opponentName: z.string().trim().min(1, "El rival es obligatorio."),
   isHome: z.boolean(),
   date: z.string(),
@@ -79,6 +81,7 @@ function createDefaultState(
     matchday: defaultTeam
       ? getNextMatchdaySuggestion(existingMatches, defaultTeam.slug)
       : "Jornada 1",
+    opponentId: "",
     opponentName: "",
     isHome: true,
     date: "",
@@ -91,12 +94,21 @@ function createDefaultState(
   };
 }
 
-function createStateFromMatch(match: MatchManagementMatch): MatchFormState {
+function createStateFromMatch(
+  match: MatchManagementMatch,
+  opponentOptions: MatchManagementOpponent[],
+): MatchFormState {
+  const linkedOpponent = opponentOptions.find(
+    (opponent) =>
+      opponent.competition === match.competition && opponent.name === match.opponentName,
+  );
+
   return {
     teamSlug: match.teamSlug,
     season: match.season,
     competition: match.competition,
     matchday: match.matchday,
+    opponentId: match.opponentId ?? linkedOpponent?.id ?? "",
     opponentName: match.opponentName,
     isHome: match.isHome,
     date: match.date,
@@ -137,7 +149,7 @@ export function MatchFormDialog({
 }: MatchFormDialogProps) {
   const [formState, setFormState] = useState<MatchFormState>(() =>
     match
-      ? createStateFromMatch(match)
+      ? createStateFromMatch(match, opponentOptions)
       : createDefaultState(availableTeams, existingMatches, venueOptions),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -152,22 +164,10 @@ export function MatchFormDialog({
   const allowLiveStatus = Boolean(selectedTeam?.isFirstTeam);
   const lockTeam = availableTeams.length <= 1;
   const filteredOpponentOptions = opponentOptions.filter(
-    (opponent) => opponent.competition === selectedTeam?.competition,
+    (opponent) =>
+      opponent.competitionId === selectedTeam?.competitionId &&
+      (opponent.active || opponent.id === formState.opponentId),
   );
-  const resolvedOpponentOptions =
-    filteredOpponentOptions.length > 0 ? filteredOpponentOptions : opponentOptions;
-  const opponentSelectionOptions =
-    formState.opponentName &&
-    !resolvedOpponentOptions.some((opponent) => opponent.name === formState.opponentName)
-      ? [
-          ...resolvedOpponentOptions,
-          {
-            id: `current-${formState.opponentName}`,
-            name: formState.opponentName,
-            competition: formState.competition,
-          },
-        ]
-      : resolvedOpponentOptions;
   const venueSelectionOptions =
     formState.venue && !venueOptions.some((venue) => venue.name === formState.venue)
       ? [...venueOptions, { id: `current-${formState.venue}`, name: formState.venue }]
@@ -187,7 +187,7 @@ export function MatchFormDialog({
     const nextTeam = availableTeams.find((team) => team.slug === nextTeamSlug);
     const nextCompetition = nextTeam?.competition ?? "";
     const nextOpponents = opponentOptions.filter(
-      (opponent) => opponent.competition === nextCompetition,
+      (opponent) => opponent.competitionId === nextTeam?.competitionId && opponent.active,
     );
 
     setFormState((currentValue) => ({
@@ -199,11 +199,10 @@ export function MatchFormDialog({
         mode === "create"
           ? getNextMatchdaySuggestion(existingMatches, nextTeamSlug)
           : currentValue.matchday,
-      opponentName: nextOpponents.some(
-        (opponent) => opponent.name === currentValue.opponentName,
-      )
-        ? currentValue.opponentName
+      opponentId: nextOpponents.some((opponent) => opponent.id === currentValue.opponentId)
+        ? currentValue.opponentId
         : "",
+      opponentName: nextOpponents.find((opponent) => opponent.id === currentValue.opponentId)?.name ?? "",
       status:
         currentValue.status === "live" && !nextTeam?.isFirstTeam ? "pending" : currentValue.status,
       highlightsUrl: nextTeam?.isFirstTeam ? currentValue.highlightsUrl : "",
@@ -218,6 +217,7 @@ export function MatchFormDialog({
       season: formState.season.trim(),
       competition: formState.competition.trim(),
       matchday: formState.matchday.trim(),
+      opponentId: formState.opponentId,
       opponentName: formState.opponentName.trim(),
       venue: formState.venue.trim(),
       highlightsUrl: formState.highlightsUrl.trim(),
@@ -285,6 +285,7 @@ export function MatchFormDialog({
       season: parsedValue.data.season,
       competition: parsedValue.data.competition,
       matchday: parsedValue.data.matchday,
+      opponentId: parsedValue.data.opponentId,
       opponentName: parsedValue.data.opponentName,
       isHome: parsedValue.data.isHome,
       date: parsedValue.data.date,
@@ -408,20 +409,36 @@ export function MatchFormDialog({
             <label className="grid gap-2 md:col-span-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Rival</span>
                 <select
-                  value={formState.opponentName}
-                  onChange={(event) => updateField("opponentName", event.target.value)}
+                  value={formState.opponentId}
+                  onChange={(event) => {
+                    const opponent = filteredOpponentOptions.find(
+                      (item) => item.id === event.target.value,
+                    );
+                    setFormState((current) => ({
+                      ...current,
+                      opponentId: event.target.value,
+                      opponentName: opponent?.name ?? "",
+                    }));
+                  }}
                   disabled={isSaving}
                   className={fieldClassName}
                 >
                   <option value="">Selecciona rival</option>
-                  {opponentSelectionOptions.map((opponent) => (
-                    <option key={opponent.id} value={opponent.name}>
+                  {filteredOpponentOptions.map((opponent) => (
+                    <option key={opponent.id} value={opponent.id}>
                       {opponent.name}
                     </option>
                 ))}
               </select>
-              {errors.opponentName ? (
-                <span className="text-[0.82rem] text-[#ff8d8d]">{errors.opponentName}</span>
+              {errors.opponentId || errors.opponentName ? (
+                <span className="text-[0.82rem] text-[#ff8d8d]">
+                  {errors.opponentId ?? errors.opponentName}
+                </span>
+              ) : null}
+              {filteredOpponentOptions.length === 0 ? (
+                <span className="text-[0.82rem] text-[color:var(--rr-muted)]">
+                  Da de alta primero el rival desde el boton Rivales.
+                </span>
               ) : null}
             </label>
 

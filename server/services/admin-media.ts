@@ -55,6 +55,7 @@ type MediaAssetWithRelations = Prisma.MediaAssetGetPayload<{
         seasonTeamBanners: true;
         teamCoachPhotos: true;
         opponentLogos: true;
+        opponentCatalogLogos: true;
         newsCovers: true;
       };
     };
@@ -126,6 +127,14 @@ function buildReferenceSummary(counts: MediaAssetWithRelations["_count"]) {
     );
   }
 
+  if (counts.opponentCatalogLogos > 0) {
+    summary.push(
+      counts.opponentCatalogLogos === 1
+        ? "1 rival"
+        : `${counts.opponentCatalogLogos} rivales`,
+    );
+  }
+
   if (counts.newsCovers > 0) {
     summary.push(
       counts.newsCovers === 1 ? "1 noticia" : `${counts.newsCovers} noticias`,
@@ -143,6 +152,7 @@ function getReferenceCount(counts: MediaAssetWithRelations["_count"]) {
     counts.seasonTeamBanners +
     counts.teamCoachPhotos +
     counts.opponentLogos +
+    counts.opponentCatalogLogos +
     counts.newsCovers
   );
 }
@@ -257,6 +267,7 @@ async function fetchMediaAssetForMutation(id: bigint) {
           seasonTeamBanners: true,
           teamCoachPhotos: true,
           opponentLogos: true,
+          opponentCatalogLogos: true,
           newsCovers: true,
         },
       },
@@ -301,6 +312,7 @@ export async function getAdminMediaScreenData(user: AuthenticatedAdmin) {
           seasonTeamBanners: true,
           teamCoachPhotos: true,
           opponentLogos: true,
+          opponentCatalogLogos: true,
           newsCovers: true,
         },
       },
@@ -539,6 +551,7 @@ export async function storeUploadedMediaAsset(
             seasonTeamBanners: true,
             teamCoachPhotos: true,
             opponentLogos: true,
+            opponentCatalogLogos: true,
             newsCovers: true,
           },
         },
@@ -644,6 +657,7 @@ export async function updateMediaAssetMetadata(
           seasonTeamBanners: true,
           teamCoachPhotos: true,
           opponentLogos: true,
+          opponentCatalogLogos: true,
           newsCovers: true,
         },
       },

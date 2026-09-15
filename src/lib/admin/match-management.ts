@@ -7,6 +7,7 @@ export type MatchManagementTeam = {
   slug: string;
   name: string;
   season: string;
+  competitionId?: string;
   competition: string;
   isFirstTeam: boolean;
 };
@@ -14,7 +15,12 @@ export type MatchManagementTeam = {
 export type MatchManagementOpponent = {
   id: string;
   name: string;
+  competitionId: string;
   competition: string;
+  logoMediaId?: string;
+  logoUrl?: string;
+  logoAlt?: string;
+  active: boolean;
 };
 
 export type MatchManagementVenue = {
@@ -30,6 +36,7 @@ export type MatchManagementMatch = {
   season: string;
   competition: string;
   matchday: string;
+  opponentId?: string;
   opponentName: string;
   isHome: boolean;
   date: string;

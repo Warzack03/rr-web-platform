@@ -35,9 +35,12 @@ export function PageHero({
 }: PageHeroProps) {
   const coachLabel = coaches.length > 1 ? "Entrenadores" : "Entrenador";
   const hasFourActions = actions.length >= 4;
+  const hasLongAcademyTitle = variant === "academy" && title.trim().length > 20;
   const titleClassName =
     variant === "academy"
-      ? "text-[3.8rem] leading-[0.92] sm:text-[4.8rem] lg:text-[5.7rem]"
+      ? hasLongAcademyTitle
+        ? "max-w-[42rem] text-[3.35rem] leading-[1] tracking-[0.035em] sm:text-[4.25rem] lg:text-[5rem]"
+        : "text-[3.8rem] leading-[0.92] sm:text-[4.8rem] lg:text-[5.7rem]"
       : "text-[4rem] leading-[0.9] sm:text-[5rem] lg:text-[6.5rem]";
   const heightClassName = variant === "academy" ? "lg:min-h-[34rem]" : "lg:min-h-[39rem]";
 
@@ -79,7 +82,7 @@ export function PageHero({
                 </span>
               ))}
             </div>
-            <h1 className={`rr-display text-white ${titleClassName}`}>{title}</h1>
+            <h1 className={`rr-display text-balance text-white ${titleClassName}`}>{title}</h1>
             <div className="mt-4 flex items-center gap-3 text-[1.35rem] text-[color:var(--rr-text)]/94">
               <UserRound className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
               <span>

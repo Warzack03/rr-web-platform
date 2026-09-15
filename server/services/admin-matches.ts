@@ -166,7 +166,11 @@ export async function getAdminMatchesScreenData(
     };
   }
 
-  const matches = await prisma.match.findMany({
+  const competitionIds = Array.from(
+    new Set(teams.map((team) => team.competitionId).filter((id): id is bigint => id !== null)),
+  );
+
+  const [matches, opponents] = await Promise.all([prisma.match.findMany({
     where: {
       seasonId: activeSeason.id,
       deletedAt: null,
@@ -178,6 +182,7 @@ export async function getAdminMatchesScreenData(
     select: {
       id: true,
       matchday: true,
+      opponentId: true,
       opponentName: true,
       isHome: true,
       dateTime: true,
@@ -211,13 +216,29 @@ export async function getAdminMatchesScreenData(
         },
       },
     },
-  });
+  }), prisma.opponent.findMany({
+    where: {
+      competitionId: { in: competitionIds },
+      deletedAt: null,
+    },
+    orderBy: [{ competition: { name: "asc" } }, { name: "asc" }],
+    select: {
+      id: true,
+      name: true,
+      competitionId: true,
+      active: true,
+      logoMediaId: true,
+      competition: { select: { name: true } },
+      logoMedia: { select: { publicUrl: true, altText: true } },
+    },
+  })]);
 
   const mappedTeams: MatchManagementTeam[] = teams.map((team) => ({
     id: team.id.toString(),
     slug: team.publicSlug,
     name: team.publicName,
     season: team.season.name,
+    competitionId: team.competitionId?.toString(),
     competition: team.competitionName ?? "Competicion pendiente",
     isFirstTeam: team.team.isFirstTeam,
   }));
@@ -230,6 +251,7 @@ export async function getAdminMatchesScreenData(
     season: match.seasonTeam.season.name,
     competition: mapCompetitionLabel(match),
     matchday: mapMatchdayLabel(match.matchday),
+    opponentId: match.opponentId?.toString(),
     opponentName: match.opponentName,
     isHome: match.isHome,
     date: toDateInputValue(match.dateTime),
@@ -251,15 +273,33 @@ export async function getAdminMatchesScreenData(
     isFirstTeam: match.seasonTeam.team.isFirstTeam,
   }));
 
-  const opponentOptions: MatchManagementOpponent[] = Array.from(
+  const catalogOptions: MatchManagementOpponent[] = opponents.map((opponent) => ({
+    id: opponent.id.toString(),
+    name: opponent.name,
+    competitionId: opponent.competitionId.toString(),
+    competition: opponent.competition.name,
+    logoMediaId: opponent.logoMediaId?.toString(),
+    logoUrl: opponent.logoMedia?.publicUrl,
+    logoAlt: opponent.logoMedia?.altText ?? `Escudo ${opponent.name}`,
+    active: opponent.active,
+  }));
+  const catalogKeys = new Set(
+    catalogOptions.map((opponent) => `${opponent.competition}::${opponent.name}`.toLowerCase()),
+  );
+  const legacyOptions: MatchManagementOpponent[] = mappedMatches
+    .filter((match) => !catalogKeys.has(`${match.competition}::${match.opponentName}`.toLowerCase()))
+    .map((match) => ({
+      id: `legacy-${toSlugId(match.competition)}-${toSlugId(match.opponentName)}`,
+      name: match.opponentName,
+      competitionId: "",
+      competition: match.competition,
+      active: false,
+    }));
+  const opponentOptions = Array.from(
     new Map(
-      mappedMatches.map((match) => [
-        `${match.competition}::${match.opponentName}`.toLowerCase(),
-        {
-          id: `opponent-${toSlugId(match.competition)}-${toSlugId(match.opponentName)}`,
-          name: match.opponentName,
-          competition: match.competition,
-        },
+      [...catalogOptions, ...legacyOptions].map((opponent) => [
+        `${opponent.competition}::${opponent.name}`.toLowerCase(),
+        opponent,
       ]),
     ).values(),
   ).sort((left, right) => {

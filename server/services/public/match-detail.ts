@@ -180,6 +180,14 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
       venue: true,
       isHome: true,
       opponentName: true,
+      opponent: {
+        select: {
+          logoMedia: { select: { publicUrl: true, altText: true } },
+        },
+      },
+      opponentLogo: {
+        select: { publicUrl: true, altText: true },
+      },
       status: true,
       homeScore: true,
       awayScore: true,
@@ -359,9 +367,12 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
     crestLabel: buildCrestLabel(teamDisplayName),
     isClub: true,
   };
+  const opponentLogo = match.opponent?.logoMedia ?? match.opponentLogo;
   const opponentTeam = {
     name: match.opponentName,
     crestLabel: buildCrestLabel(match.opponentName),
+    crestUrl: opponentLogo?.publicUrl,
+    crestAlt: opponentLogo?.altText ?? `Escudo ${match.opponentName}`,
     muted: !isFirstTeam,
   };
   const playerPerformances = mapPlayerPerformances({

@@ -71,7 +71,7 @@ export function getAdminMediaUsageNote(usage: AdminMediaUsage) {
     case "NEWS_COVER":
       return "Imagen principal de noticias.";
     case "OPPONENT_LOGO":
-      return "Escudos de rivales para partidos.";
+      return "Escudos de rivales para partidos y clasificaciones.";
     case "OTHER":
       return "Imagen publica general sin categoria cerrada.";
   }
@@ -90,7 +90,7 @@ export function getAdminMediaUsageFolder(usage: AdminMediaUsage) {
     case "NEWS_COVER":
       return "news/covers";
     case "OPPONENT_LOGO":
-      return "matches/opponents";
+      return "opponents/logos";
     case "OTHER":
       return "general";
   }

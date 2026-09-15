@@ -393,6 +393,14 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       select: {
         id: true,
         opponentName: true,
+        opponent: {
+          select: {
+            logoMedia: { select: { publicUrl: true, altText: true } },
+          },
+        },
+        opponentLogo: {
+          select: { publicUrl: true, altText: true },
+        },
         dateTime: true,
         venue: true,
         status: true,
@@ -559,6 +567,12 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
           },
           away: {
             name: nextMatch.opponentName,
+            logoUrl:
+              nextMatch.opponent?.logoMedia?.publicUrl ?? nextMatch.opponentLogo?.publicUrl,
+            logoAlt:
+              nextMatch.opponent?.logoMedia?.altText ??
+              nextMatch.opponentLogo?.altText ??
+              `Escudo ${nextMatch.opponentName}`,
           },
           competition: buildMatchCompetitionLabel(
             nextMatch.competition?.name ?? team.competitionName,

@@ -66,6 +66,12 @@ function mapStandingRows(
     goalDifference: number;
     points: number;
     isOwnTeam: boolean;
+    opponent: {
+      logoMedia: {
+        publicUrl: string;
+        altText: string | null;
+      } | null;
+    } | null;
   }>,
   teams: StandingTeamLink[],
 ): StandingRowData[] {
@@ -76,6 +82,7 @@ function mapStandingRows(
   return sortRows(
     rows.map((row) => {
       const linkedTeam = teamByName.get(normalizeTeamName(row.teamName));
+      const opponentLogo = row.opponent?.logoMedia;
 
       return {
         position: row.position,
@@ -83,9 +90,10 @@ function mapStandingRows(
           ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
           : row.teamName,
         teamSlug: linkedTeam?.publicSlug,
-        logoUrl: linkedTeam?.logoMedia?.publicUrl,
+        logoUrl: linkedTeam?.logoMedia?.publicUrl ?? opponentLogo?.publicUrl,
         logoAlt:
           linkedTeam?.logoMedia?.altText ??
+          opponentLogo?.altText ??
           `Escudo ${
             linkedTeam
               ? getPublicTeamDisplayName(linkedTeam.publicName, linkedTeam.team.isFirstTeam)
@@ -196,6 +204,13 @@ async function buildStandingsPageContentFromDb(
           goalDifference: true,
           points: true,
           isOwnTeam: true,
+          opponent: {
+            select: {
+              logoMedia: {
+                select: { publicUrl: true, altText: true },
+              },
+            },
+          },
         },
       },
     },

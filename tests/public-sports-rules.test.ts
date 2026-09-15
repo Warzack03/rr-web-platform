@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { getVisualMatchStatus } from "@/lib/admin/match-management";
 import type { PublicPlayerStats } from "@/lib/contracts/public";
+import { formatPublicShirtNumber } from "@/lib/public/player-number";
 import {
   calculateDerivedStatsFromValues,
   formatStatValueFromStats,
@@ -9,7 +10,10 @@ import {
   getPlayerCardStats,
   getStatsColumns,
 } from "@/lib/public/team-statistics-utils";
-import { aggregatePublicPlayerStats } from "@/server/services/public/player-mappers";
+import {
+  aggregatePublicPlayerStats,
+  mapCountryLabel,
+} from "@/server/services/public/player-mappers";
 
 function stats(overrides: Partial<PublicPlayerStats> = {}): PublicPlayerStats {
   return {
@@ -31,6 +35,16 @@ function stats(overrides: Partial<PublicPlayerStats> = {}): PublicPlayerStats {
 }
 
 describe("public sports rules", () => {
+  it("shows public shirt numbers without a leading zero", () => {
+    assert.equal(formatPublicShirtNumber(1), "1");
+    assert.equal(formatPublicShirtNumber(9), "9");
+    assert.equal(formatPublicShirtNumber(10), "10");
+  });
+
+  it("labels Peru from its ISO country code", () => {
+    assert.equal(mapCountryLabel("PE"), "Perú");
+  });
+
   it("aggregates global player stats across public rows", () => {
     const aggregated = aggregatePublicPlayerStats([
       {

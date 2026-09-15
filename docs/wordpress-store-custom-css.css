@@ -1,0 +1,612 @@
+/* Rising Raimon Store - CSS depurado para tienda.risingraimon.es */
+
+:root {
+  --rr-gold: #edcb50;
+  --rr-blue: #3a68a8;
+  --rr-white: #fff;
+  --rr-dark: #111;
+  --rr-transparent: transparent;
+}
+
+/* Navegacion y estructura del tema */
+.main-navigation ul {
+  font-family: "GarageShockDef";
+}
+
+.bradcrumb,
+.bradcrumbs,
+.breadcrumbs,
+.vw-page-title,
+.woocommerce .woocommerce-breadcrumb,
+.woocommerce .woocommerce-breadcrumb a,
+#trp-floater-ls.trp-bottom-right {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .topbar .col-lg-3 {
+    flex: 0 0 auto;
+    width: 10%;
+  }
+
+  .topbar .col-lg-7 {
+    flex: 0 0 auto;
+    width: 80%;
+  }
+}
+
+@media (max-width: 1000px) {
+  .main-navigation ul li a {
+    margin: 10px 20px;
+    font-size: 40px;
+  }
+}
+
+.menu-bar-sec i {
+  color: transparent;
+}
+
+.py-3 {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Tipografia y colores generales */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--rr-gold);
+  font-weight: 700;
+}
+
+p {
+  color: var(--rr-white) !important;
+  font-size: 16px;
+}
+
+.entry-content a {
+  color: var(--rr-white);
+}
+
+.entry-content a:hover {
+  color: var(--rr-gold);
+}
+
+hr:not([size]) {
+  height: 2px;
+  color: var(--rr-gold);
+}
+
+label {
+  color: var(--rr-white);
+}
+
+label {
+  margin-top: 10px;
+}
+
+legend {
+  color: var(--rr-gold);
+}
+
+textarea {
+  min-height: 100px;
+  color: var(--rr-white);
+  background-color: var(--rr-transparent);
+  border: 1px solid var(--rr-gold);
+}
+
+.input {
+  accent-color: var(--rr-gold);
+}
+
+/* Cabecera, footer e imagenes auxiliares */
+.footer_hide,
+.feature-box {
+  display: none;
+}
+
+#footer {
+  color: var(--rr-gold) !important;
+  background-color: var(--rr-dark);
+}
+
+#footer .col-lg-3 {
+  width: 100%;
+}
+
+#footer .widget {
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+#footer ul li {
+  border-bottom: 0;
+}
+
+#footer ul li a svg {
+  width: 40px;
+  height: 40px;
+  color: #000;
+  background-color: var(--rr-gold) !important;
+  border-radius: 20%;
+}
+
+#footer ul li a svg:hover {
+  border: 1px solid var(--rr-gold);
+}
+
+.box-image img,
+.feature-box img {
+  border-radius: 10px;
+}
+
+.wp-image-869 {
+  width: 20%;
+  margin-top: 30px;
+}
+
+.wp-block-gallery.aligncenter {
+  justify-content: center;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.has-text-align-center {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--rr-gold) !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  text-align: center;
+}
+
+.wp-block-gallery.has-nested-images.is-cropped figure.wp-block-image:not(#individual-image) {
+  align-items: center;
+}
+
+.wp-block-gallery.has-nested-images.is-cropped figure.wp-block-image:not(#individual-image) img {
+  width: 40%;
+  height: 20%;
+  object-fit: contain;
+}
+
+@media (min-width: 600px) {
+  .wp-block-gallery.has-nested-images.columns-default figure.wp-block-image:not(#individual-image) {
+    width: 16%;
+  }
+}
+
+@media (max-width: 576px) {
+  .wp-image-869 {
+    width: 40%;
+  }
+
+  .wp-block-gallery.has-nested-images.is-cropped figure.wp-block-image:not(#individual-image) img {
+    width: 20%;
+  }
+}
+
+.wp-block-button__link {
+  padding: 0;
+  color: var(--rr-blue) !important;
+  background-color: var(--rr-transparent);
+  font-size: 14px;
+}
+
+.wp-block-button__link:hover {
+  color: var(--rr-gold) !important;
+  background-color: var(--rr-transparent);
+}
+
+/* Login y cuenta de cliente */
+#eael-login-form-wrapper div {
+  color: var(--rr-white);
+}
+
+#eael-login-form-wrapper div a {
+  color: var(--rr-white) !important;
+}
+
+#eael-login-form-wrapper div a:hover {
+  color: var(--rr-gold) !important;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content strong {
+  color: var(--rr-gold);
+}
+
+.woocommerce-account .woocommerce-MyAccount-content a {
+  color: var(--rr-white);
+}
+
+.woocommerce-account .woocommerce-MyAccount-content a:hover {
+  color: var(--rr-gold) !important;
+}
+
+nav.woocommerce-MyAccount-navigation ul li {
+  color: var(--rr-white);
+  background: #2264c6;
+}
+
+nav.woocommerce-MyAccount-navigation ul li:hover {
+  color: var(--rr-blue) !important;
+  background: var(--rr-gold);
+}
+
+nav.woocommerce-MyAccount-navigation ul li:hover a {
+  color: var(--rr-blue) !important;
+}
+
+.woocommerce table.my_account_orders {
+  color: var(--rr-white);
+  border: 1px solid var(--rr-gold);
+}
+
+.woocommerce table.my_account_orders .button {
+  color: var(--rr-blue) !important;
+  background-color: var(--rr-gold);
+}
+
+.woocommerce table.my_account_orders .button:hover {
+  color: var(--rr-gold) !important;
+  background-color: var(--rr-blue) !important;
+}
+
+.woocommerce-account .addresses .title .edit,
+.woocommerce-account .addresses .title h3 {
+  float: left;
+}
+
+.woocommerce-account .addresses .title h3 {
+  width: 100%;
+}
+
+header.woocommerce-Address-title.title a {
+  color: var(--rr-blue) !important;
+  background-color: var(--rr-gold) !important;
+}
+
+header.woocommerce-Address-title.title a:hover {
+  color: var(--rr-gold) !important;
+  background-color: var(--rr-blue) !important;
+}
+
+address,
+.woocommerce-MyAccount-paymentMethods {
+  color: var(--rr-white);
+}
+
+/* Mensajes, pedidos, carrito y checkout */
+.woocommerce-info {
+  color: var(--rr-white);
+  background-color: transparent;
+  border-top-color: var(--rr-gold) !important;
+}
+
+.woocommerce-info::before {
+  color: var(--rr-gold);
+}
+
+.woocommerce-order,
+.woocommerce-order-details,
+.woocommerce-order-overview,
+.woocommerce-thankyou-order-details,
+.order_details {
+  color: var(--rr-white);
+  font-size: 16px;
+}
+
+.woocommerce-table--order-downloads {
+  color: var(--rr-white) !important;
+  border: 1px solid rgb(255 255 255 / 40%);
+}
+
+.woocommerce td.product-name a {
+  color: var(--rr-white) !important;
+  text-decoration: underline !important;
+}
+
+.woocommerce td.product-name a:hover {
+  color: var(--rr-gold) !important;
+}
+
+.cart_totals table small,
+.woocommerce-cart .cart-collaterals .cart_totals table small {
+  color: var(--rr-white) !important;
+}
+
+.woocommerce form .form-row .required {
+  color: var(--rr-gold);
+}
+
+.woocommerce form .form-row input.input-text,
+.woocommerce form .form-row textarea {
+  color: #000;
+  background-color: var(--rr-white);
+}
+
+.woocommerce form .form-row input.input-text:focus,
+.woocommerce form .form-row textarea:focus {
+  background-color: #e7ce74;
+}
+
+/* Botones WooCommerce */
+.woocommerce a.button,
+.woocommerce button.button {
+  color: var(--rr-blue) !important;
+  background-color: var(--rr-gold) !important;
+}
+
+.woocommerce a.button:hover,
+.woocommerce a.button.alt:hover,
+.woocommerce button.button:hover,
+.woocommerce div.product form.cart .button:hover {
+  color: var(--rr-gold) !important;
+  background-color: var(--rr-blue) !important;
+}
+
+/* Catalogo y ficha de producto */
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+  box-shadow: 6px 6px 6px #aaa;
+}
+
+.woocommerce span.onsale {
+  min-width: 6em;
+  color: var(--rr-blue);
+  background: var(--rr-gold);
+}
+
+.woocommerce div.product p.stock {
+  display: none;
+}
+
+.woocommerce div.product div.images .woocommerce-product-gallery__trigger:hover {
+  background-color: var(--rr-gold);
+}
+
+.woocommerce .star-rating span,
+.woocommerce p.stars a {
+  color: var(--rr-gold);
+}
+
+.woocommerce-page .entry-summary a {
+  color: var(--rr-white);
+  font-size: 16px;
+}
+
+.woocommerce-page .entry-summary a:hover {
+  color: var(--rr-gold);
+}
+
+del span.woocommerce-Price-amount.amount bdi {
+  margin-right: 20px;
+  color: var(--rr-gold);
+  font-size: 24px;
+}
+
+span.woocommerce-Price-amount.amount {
+  color: var(--rr-gold);
+  font-size: 30px;
+}
+
+.woocommerce div.product form.cart .variations label {
+  margin-top: 6px !important;
+  font-size: 20px;
+}
+
+.woocommerce div.product form.cart .variations select {
+  min-width: 50%;
+  padding: 6px;
+  color: var(--rr-white);
+  background-color: transparent;
+  border: 1px solid var(--rr-gold);
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.woocommerce div.product form.cart .variations select:hover {
+  color: var(--rr-blue);
+  background-color: var(--rr-gold) !important;
+}
+
+.woocommerce div.product form.cart .variations select option {
+  padding: 6px;
+  color: var(--rr-white);
+  background-color: var(--rr-blue);
+  border: 1px solid var(--rr-gold);
+  font-size: 18px;
+}
+
+.woocommerce .quantity .qty {
+  color: var(--rr-gold);
+  background-color: transparent;
+  border-color: var(--rr-gold);
+  border-radius: 20%;
+}
+
+.woocommerce div.product .woocommerce-tabs ul.tabs li {
+  background-color: var(--rr-blue);
+  border: 1px solid var(--rr-blue);
+}
+
+.woocommerce div.product .woocommerce-tabs ul.tabs li a {
+  color: var(--rr-gold);
+}
+
+.woocommerce div.product .woocommerce-tabs ul.tabs li.active,
+.woocommerce div.product .woocommerce-tabs ul.tabs li:hover {
+  color: var(--rr-blue);
+  background: var(--rr-gold) !important;
+  border-bottom-color: var(--rr-gold);
+}
+
+.woocommerce div.product .woocommerce-tabs ul.tabs li:hover a {
+  color: var(--rr-blue) !important;
+}
+
+.woocommerce table.shop_attributes th {
+  color: var(--rr-white);
+}
+
+span.posted_in,
+span.sku_wrapper {
+  display: none;
+}
+
+.product_meta {
+  height: 300px;
+  margin-top: 30px;
+  color: transparent;
+  background-image: url("https://tienda.risingraimon.es/wp-content/uploads/2025/09/Tallas-bueno.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% auto;
+}
+
+.product_meta a {
+  color: transparent !important;
+  pointer-events: none;
+}
+
+/* Personalizaciones concretas de productos */
+#product-2321 .product_meta,
+#product-2321 .wapo-total-options,
+#product-2321 .wapo-product-price,
+#product-2319 .product_meta,
+#product-2319 .wapo-total-options {
+  display: none;
+}
+
+#product-2319 .option-description {
+  font-size: 20px;
+}
+
+/* YITH Product Add-ons */
+.yith-wapo-block div.yith-wapo-addon .options.per-row-1 {
+  display: flex !important;
+}
+
+#yith-wapo-4 {
+  margin-right: 10px;
+  padding: 10px;
+  color: var(--rr-white);
+  background-color: transparent;
+  border: 1px solid var(--rr-gold);
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#yith-wapo-4 option {
+  padding: 6px;
+  color: var(--rr-white);
+  background-color: var(--rr-blue);
+  border: 1px solid var(--rr-gold);
+  font-size: 18px;
+}
+
+.yith-wapo-block .yith-wapo-addon.yith-wapo-addon-type-text .yith-wapo-option .input-text-container input {
+  min-width: initial;
+  margin: 0;
+  color: var(--rr-white);
+  background-color: transparent;
+  border: 1px solid var(--rr-gold);
+  font-size: 20px;
+}
+
+.yith-wapo-block .yith-wapo-addon .yith-wapo-option .tooltip {
+  display: none;
+}
+
+.yith-wapo-block .yith-wapo-addon .yith-wapo-option label {
+  display: inline;
+  font-size: 20px;
+}
+
+.yith-wapo-block .yith-wapo-addon .yith-wapo-option div.label.position-above .option-container {
+  align-items: center;
+}
+
+#wapo-total-price-table {
+  margin-bottom: 20px;
+  color: var(--rr-white);
+  background: transparent;
+}
+
+.contents_f9f2ca {
+  color: var(--rr-white);
+}
+
+/* Formularios de comentarios y valoraciones de producto */
+.must-log-in a,
+.fn a,
+.comment-metadata a {
+  color: var(--rr-white);
+  text-decoration: underline;
+}
+
+.must-log-in a:hover,
+.fn a:hover,
+.comment-metadata a:hover {
+  color: var(--rr-gold);
+}
+
+div#respond {
+  margin-bottom: 18px;
+  border-top: 1px solid var(--rr-gold);
+}
+
+.comment-form-comment span {
+  color: var(--rr-gold);
+  font-size: 20px;
+}
+
+#comments ol li {
+  color: var(--rr-white);
+  background: transparent;
+  border: 1px solid var(--rr-gold);
+}
+
+#comments input[type="submit"],
+#comments a.comment-reply-link {
+  color: var(--rr-gold) !important;
+  background-color: var(--rr-blue) !important;
+}
+
+#comments input[type="submit"]:hover,
+#comments a.comment-reply-link:hover {
+  color: var(--rr-blue) !important;
+  background-color: var(--rr-gold) !important;
+}
+
+/* Pagina 404 */
+.error404 .page-content {
+  width: 40%;
+  margin: 30px 0 40px 24%;
+  text-align: center;
+  background-image: url("https://tienda.risingraimon.es/wp-content/uploads/2024/08/Pose_derrota_final.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.error404 .page-content h1,
+.error404 .page-content p,
+.error404 .page-content div {
+  padding-left: 30%;
+}
+
+.error404 .page-content .error-btn a {
+  color: var(--rr-blue) !important;
+  background: var(--rr-gold) !important;
+}
+
+.error404 .page-content .error-btn a:hover {
+  color: var(--rr-gold) !important;
+  background: var(--rr-blue) !important;
+}

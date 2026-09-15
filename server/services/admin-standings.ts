@@ -203,6 +203,11 @@ export async function getAdminStandingsScreenData(
           goalsAgainst: true,
           points: true,
           isOwnTeam: true,
+          opponent: {
+            select: {
+              logoMedia: { select: { publicUrl: true } },
+            },
+          },
         },
       },
     },
@@ -271,7 +276,7 @@ export async function getAdminStandingsScreenData(
         crestSrc:
           row.isOwnTeam
             ? matchedTeam?.logoMedia?.publicUrl ?? ownTeamCrest
-            : undefined,
+            : row.opponent?.logoMedia?.publicUrl ?? undefined,
         played: row.played,
         won: row.won,
         drawn: row.drawn,

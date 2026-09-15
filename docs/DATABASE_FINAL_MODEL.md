@@ -454,6 +454,30 @@ Rules:
 - A team normally belongs to one competition at a time.
 - External API integrations are future scope, not MVP.
 
+### Opponent
+
+Purpose: reusable external team catalog scoped to one competition.
+
+Fields:
+
+- `id`
+- `competitionId`
+- `name`
+- `slug`
+- `logoMediaId` optional
+- `active`
+- `createdAt`, `updatedAt`, `deletedAt`
+
+Constraints:
+
+- unique `(competitionId, slug)`
+
+Rules:
+
+- Rivals are not internal `SeasonTeam` records and do not appear in the club team directory.
+- One catalog logo is reused in matches, calendars, match detail and standings.
+- Historical match and standings names remain as snapshots even when linked to an opponent.
+
 ### Match
 
 Purpose: match for one internal `SeasonTeam` against an external opponent.
@@ -468,8 +492,9 @@ Fields:
 - `dateTime` optional
 - `venue` optional
 - `isHome`
+- `opponentId` optional for legacy compatibility
 - `opponentName`
-- `opponentLogoMediaId` optional
+- `opponentLogoMediaId` optional legacy per-match fallback
 - `status`
 - `homeScore` optional
 - `awayScore` optional
@@ -485,13 +510,15 @@ Indexes:
 - `(seasonTeamId, status)`
 - `(seasonTeamId, dateTime)`
 - `(seasonId, dateTime)`
+- `(opponentId)`
 
 Rules:
 
 - `PLAYED` requires result.
 - `POSTPONED` does not require result.
 - `LIVE` mainly for First Team.
-- Opponent is free text in MVP; no need for opponent team table.
+- New matches select an active opponent from the competition catalog.
+- `opponentName` remains a historical display snapshot.
 
 ### StandingTable
 
@@ -524,6 +551,7 @@ Fields:
 - `standingTableId`
 - `position`
 - `teamName`
+- `opponentId` optional
 - `played`
 - `won`
 - `drawn`
@@ -537,7 +565,7 @@ Fields:
 
 Rules:
 
-- `teamName` is text, not necessarily linked to internal teams.
+- `teamName` remains the display snapshot; external rows link to the opponent catalog when a match exists.
 - `goalDifference` can be stored for display consistency and recalculated on save.
 
 ### PlayerMatchStats

@@ -257,7 +257,7 @@ export async function getAdminPlayersScreenData(
   });
 
   const countryOptions = buildCountryOptions(players);
-  const defaultCountryCodes = ["ES", "PT", "AR", "BR", "MA"];
+  const defaultCountryCodes = ["ES", "PT", "AR", "BR", "MA", "PE"];
 
   for (const countryCode of defaultCountryCodes) {
     if (!countryOptions.some((option) => option.value === countryCode)) {

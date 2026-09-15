@@ -1,6 +1,7 @@
 import { PlayerIdentityBlock } from "@/components/public/player-identity-block";
 import { PlayerImagePanel } from "@/components/public/player-image-panel";
 import type { PublicPlayerProfile } from "@/lib/contracts/public";
+import { formatPublicShirtNumber } from "@/lib/public/player-number";
 
 type PlayerHeroProps = {
   player: PublicPlayerProfile;
@@ -25,7 +26,7 @@ export function PlayerHero({ player }: PlayerHeroProps) {
             : "absolute left-1/2 top-10 hidden -translate-x-1/2 text-[14rem] leading-none text-white/[0.03] xl:block"
         }
       >
-        <span className="rr-display">{String(player.number).padStart(2, "0")}</span>
+        <span className="rr-display">{formatPublicShirtNumber(player.number)}</span>
       </div>
 
       <div

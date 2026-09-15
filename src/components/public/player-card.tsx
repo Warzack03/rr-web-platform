@@ -11,6 +11,7 @@ import type {
   PublicTeamType,
 } from "@/lib/contracts/public";
 import { getCountryFlagEmoji } from "@/lib/public/country-flags";
+import { formatPublicShirtNumber } from "@/lib/public/player-number";
 import { getPlayerCardStats } from "@/lib/public/team-statistics-utils";
 import { cn } from "@/lib/utils";
 
@@ -172,7 +173,7 @@ function PlayerCardMediaLayer({
               : "rr-display text-[4.8rem] leading-none text-[color:var(--rr-gold)]/28 sm:text-[5.6rem]"
           }
         >
-          {String(number).padStart(2, "0")}
+          {formatPublicShirtNumber(number)}
         </span>
       </div>
     </div>
