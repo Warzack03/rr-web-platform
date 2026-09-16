@@ -192,7 +192,7 @@ export function RecentResultsStrip({
       <div
         className={cn(
           "mt-5 grid gap-3",
-          layout === "compact" ? "grid-cols-1" : "md:grid-cols-3",
+          "grid-cols-1",
         )}
       >
         {results.map((result) => {
@@ -202,37 +202,53 @@ export function RecentResultsStrip({
               : result.result === "D"
                 ? "border-[#d64045] text-[#f18386]"
                 : "border-white/18 text-[color:var(--rr-muted)]";
+          const teamsLabel =
+            result.homeTeam && result.awayTeam
+              ? `${result.homeTeam} vs ${result.awayTeam}`
+              : result.opponent;
+          const rowContent = (
+            <>
+              <div className="flex min-w-0 items-baseline gap-3">
+                {result.label ? (
+                  <span className="rr-kicker shrink-0 text-[0.72rem] text-[color:var(--rr-gold)]">
+                    {result.label}
+                  </span>
+                ) : null}
+                <span className="truncate text-[1rem] font-medium text-white/94 sm:text-[1.08rem]">
+                  {teamsLabel}
+                </span>
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <span className="rr-display text-[1.85rem] leading-none text-white">
+                  {result.score}
+                </span>
+                <span className={cn("rr-kicker inline-flex min-w-8 justify-center border px-2 py-1 text-[0.82rem]", accent)}>
+                  {result.result}
+                </span>
+              </div>
+            </>
+          );
 
           return (
             <article key={`${result.opponent}-${result.score}`}>
               {result.href ? (
                 <Link
                   href={result.href}
-                  className="flex items-center justify-between gap-3 border-l-2 border-[color:var(--rr-gold)] bg-[rgba(255,255,255,0.03)] px-4 py-4 transition hover:-translate-y-0.5 hover:bg-[rgba(255,255,255,0.05)]"
+                  className={cn(
+                    "block border-l-2 border-[color:var(--rr-gold)] bg-[rgba(255,255,255,0.03)] transition hover:bg-[rgba(255,255,255,0.05)]",
+                    layout === "compact" ? "px-4 py-3" : "px-4 py-4 sm:px-5",
+                  )}
                 >
-                  <div className="min-w-0">
-                    {result.label ? (
-                      <div className="rr-kicker mb-1 text-[0.72rem] text-[color:var(--rr-muted)]">{result.label}</div>
-                    ) : null}
-                    <span className="block truncate text-[1.12rem] text-white/94">{result.opponent}</span>
-                  </div>
-                  <span className="rr-display text-[2rem] leading-none text-white">{result.score}</span>
-                  <span className={cn("rr-kicker inline-flex border px-2 py-1 text-[0.86rem]", accent)}>
-                    {result.result}
-                  </span>
+                  {rowContent}
                 </Link>
               ) : (
-                <div className="flex items-center justify-between gap-3 border-l-2 border-[color:var(--rr-gold)] bg-[rgba(255,255,255,0.03)] px-4 py-4">
-                  <div className="min-w-0">
-                    {result.label ? (
-                      <div className="rr-kicker mb-1 text-[0.72rem] text-[color:var(--rr-muted)]">{result.label}</div>
-                    ) : null}
-                    <span className="block truncate text-[1.12rem] text-white/94">{result.opponent}</span>
-                  </div>
-                  <span className="rr-display text-[2rem] leading-none text-white">{result.score}</span>
-                  <span className={cn("rr-kicker inline-flex border px-2 py-1 text-[0.86rem]", accent)}>
-                    {result.result}
-                  </span>
+                <div
+                  className={cn(
+                    "block border-l-2 border-[color:var(--rr-gold)] bg-[rgba(255,255,255,0.03)]",
+                    layout === "compact" ? "px-4 py-3" : "px-4 py-4 sm:px-5",
+                  )}
+                >
+                  {rowContent}
                 </div>
               )}
             </article>

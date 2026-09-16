@@ -62,6 +62,8 @@ export type PublicTeamReference = {
 
 export type PublicTeamRecentResult = {
   opponent: string;
+  homeTeam?: string;
+  awayTeam?: string;
   score: string;
   result: "V" | "E" | "D";
   label?: string;

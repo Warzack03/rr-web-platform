@@ -375,7 +375,9 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
 
           return {
             opponent: match.opponentName,
-            score: `${goalsFor ?? "-"} - ${goalsAgainst ?? "-"}`,
+            homeTeam: match.isHome ? firstTeamDisplayName : match.opponentName,
+            awayTeam: match.isHome ? match.opponentName : firstTeamDisplayName,
+            score: `${match.homeScore ?? "-"} - ${match.awayScore ?? "-"}`,
             result:
               (goalsFor ?? 0) > (goalsAgainst ?? 0)
                 ? "V"

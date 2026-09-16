@@ -35,7 +35,7 @@ export default async function AdminStatsPage({
     selectedMatch?.teamSlug ??
     (requestedTeamSlug && data.teams.some((team) => team.slug === requestedTeamSlug)
       ? requestedTeamSlug
-      : data.teams[0]?.slug);
+      : data.matches[0]?.teamSlug ?? data.teams[0]?.slug);
   const initialSelectedMatchId =
     requestedMatchId &&
     data.matches.some(

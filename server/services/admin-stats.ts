@@ -15,21 +15,17 @@ import {
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 import { buildPlayerName } from "@/server/services/public/player-mappers";
+import {
+  formatMadridDateInput,
+  formatMadridTimeInput,
+} from "@/lib/date-time/madrid";
 
 function toDateInputValue(dateTime: Date | null) {
-  if (!dateTime) {
-    return "";
-  }
-
-  return dateTime.toISOString().slice(0, 10);
+  return formatMadridDateInput(dateTime);
 }
 
 function toTimeInputValue(dateTime: Date | null) {
-  if (!dateTime) {
-    return "";
-  }
-
-  return dateTime.toISOString().slice(11, 16);
+  return formatMadridTimeInput(dateTime);
 }
 
 function mapMatchdayLabel(matchday: number | null) {

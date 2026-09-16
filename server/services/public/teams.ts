@@ -609,7 +609,9 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
 
       return {
         opponent: match.opponentName,
-        score: `${goalsFor ?? "-"} - ${goalsAgainst ?? "-"}`,
+        homeTeam: match.isHome ? displayName : match.opponentName,
+        awayTeam: match.isHome ? match.opponentName : displayName,
+        score: `${match.homeScore ?? "-"} - ${match.awayScore ?? "-"}`,
         result: getResultCode(goalsFor, goalsAgainst),
         label: match.matchday ? `J${match.matchday}` : undefined,
         href: buildPublicMatchDetailHref({

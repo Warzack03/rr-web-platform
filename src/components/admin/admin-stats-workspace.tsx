@@ -520,6 +520,37 @@ export function AdminStatsWorkspace({
         />
       </div>
 
+      {screenState === "ready" && allowedTeams.length > 0 ? (
+        <AdminPanel className="p-5 sm:p-6">
+          <label className="grid max-w-xl gap-2">
+            <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+              Equipo
+            </span>
+            <select
+              value={resolvedTeamSlug}
+              onChange={(event) => {
+                setRequestedTeamSlug(event.target.value);
+                setRequestedMatchId("");
+                resetReviewContext();
+              }}
+              className="min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
+            >
+              {allowedTeams.map((team) => {
+                const playedCount = allMatches.filter(
+                  (match) => match.teamSlug === team.slug && match.status === "played",
+                ).length;
+
+                return (
+                  <option key={team.slug} value={team.slug}>
+                    {team.name} · {playedCount} {playedCount === 1 ? "jugado" : "jugados"}
+                  </option>
+                );
+              })}
+            </select>
+          </label>
+        </AdminPanel>
+      ) : null}
+
       {screenState === "loading" ? (
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -607,29 +638,7 @@ export function AdminStatsWorkspace({
                 </div>
               </div>
 
-              <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]">
-                {true ? (
-                  <label className="grid gap-2">
-                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-                      Equipo
-                    </span>
-                    <select
-                      value={resolvedTeamSlug}
-                      onChange={(event) => {
-                        setRequestedTeamSlug(event.target.value);
-                        resetReviewContext();
-                      }}
-                      className="min-h-11 rounded-[14px] border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.04)] px-3 text-white outline-none transition focus:border-[rgba(243,203,69,0.48)]"
-                    >
-                      {allowedTeams.map((team) => (
-                        <option key={team.slug} value={team.slug}>
-                          {team.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : null}
-
+              <div className="grid gap-4">
                 <label className="grid gap-2">
                   <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
                     Partido activo
