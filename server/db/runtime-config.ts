@@ -40,6 +40,17 @@ function parseConnectionLimit(value: string | undefined, fallback = 5) {
   return Math.min(parsePositiveInteger(value, fallback), 10);
 }
 
+function resolveConnectionLimit(value: string | undefined, fallback = 5) {
+  const configuredLimit = parseConnectionLimit(value, fallback);
+
+  // Next.js uses several isolated workers while prerendering. Keeping one
+  // connection per worker prevents a build from exhausting Hostinger's shared
+  // MySQL connection allowance while preserving the normal runtime pool.
+  return process.env.NEXT_PHASE === "phase-production-build"
+    ? 1
+    : configuredLimit;
+}
+
 function getDatabaseUrlFallback() {
   const databaseUrl = process.env.DATABASE_URL;
 
@@ -71,7 +82,7 @@ export function getRuntimeDatabaseConfig(): RuntimeDatabaseConfig {
     user: process.env.DB_USER ?? fallback?.user,
     password: process.env.DB_PASSWORD ?? fallback?.password ?? "",
     database: process.env.DB_NAME ?? fallback?.database,
-    connectionLimit: parseConnectionLimit(
+    connectionLimit: resolveConnectionLimit(
       process.env.DB_CONNECTION_LIMIT,
       fallback?.connectionLimit ?? 5,
     ),
@@ -89,5 +100,10 @@ export function createMariaDbAdapter() {
     password,
     database,
     connectionLimit,
+    minimumIdle: 0,
+    connectTimeout: 10_000,
+    acquireTimeout: 30_000,
+    initializationTimeout: 30_000,
+    idleTimeout: 300,
   });
 }

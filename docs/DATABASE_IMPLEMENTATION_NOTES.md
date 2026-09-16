@@ -115,6 +115,11 @@ Do not instantiate Prisma 7 runtime with an empty `new PrismaClient()` if the pr
 
 Do not pass `connectionString` to `PrismaMariaDb`; use `host`, `port`, `user`, `password`, `database`, `connectionLimit`.
 
+The production adapter keeps the normal runtime pool small, limits each Next.js
+build worker to one connection, creates connections lazily, and allows longer
+connect/acquire timeouts so a deploy does not create a large MySQL connection
+burst.
+
 Example pattern:
 
 ```ts
