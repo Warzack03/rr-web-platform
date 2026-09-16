@@ -76,19 +76,23 @@ export function mapPositionLabel(value: string | null) {
     case "PORTERO":
       return "Portero";
     case "DEFENDER":
+    case "DEF":
     case "DEFENSA":
     case "DFC":
       return "Defensa";
     case "MIDFIELDER":
+    case "MED":
     case "MCO":
     case "MC":
     case "MEDIO":
     case "MEDIOCENTRO":
       return "Mediocentro";
     case "FORWARD":
+    case "DEL":
     case "DELANTERO":
     case "DC":
       return "Delantero";
+    case "BAN":
     case "BANDA":
       return "Banda";
     default:
@@ -111,20 +115,27 @@ export function inferPlayerType(position: string | null): PublicPlayerType {
 }
 
 export function inferPlayerGroup(positionLabel: string): PublicPlayerGroup {
-  const normalizedLabel = positionLabel.toLowerCase();
+  const normalizedLabel = positionLabel.trim().toLowerCase();
 
-  if (normalizedLabel.includes("defensa") || normalizedLabel.includes("lateral")) {
+  if (
+    normalizedLabel === "def" ||
+    normalizedLabel === "dfc" ||
+    normalizedLabel.includes("defensa") ||
+    normalizedLabel.includes("lateral")
+  ) {
     return "defensas";
   }
 
   if (
+    normalizedLabel === "del" ||
+    normalizedLabel === "dc" ||
     normalizedLabel.includes("delantero") ||
     normalizedLabel.includes("extremo")
   ) {
     return "delanteros";
   }
 
-  if (normalizedLabel.includes("banda")) {
+  if (normalizedLabel === "ban" || normalizedLabel.includes("banda")) {
     return "banda";
   }
 

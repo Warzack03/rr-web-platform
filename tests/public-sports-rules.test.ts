@@ -12,7 +12,9 @@ import {
 } from "@/lib/public/team-statistics-utils";
 import {
   aggregatePublicPlayerStats,
+  inferPlayerGroup,
   mapCountryLabel,
+  mapPositionLabel,
 } from "@/server/services/public/player-mappers";
 
 function stats(overrides: Partial<PublicPlayerStats> = {}): PublicPlayerStats {
@@ -43,6 +45,22 @@ describe("public sports rules", () => {
 
   it("labels Peru from its ISO country code", () => {
     assert.equal(mapCountryLabel("PE"), "Perú");
+  });
+
+  it("maps admin position codes to their public labels and squad groups", () => {
+    const cases = [
+      ["DEF", "Defensa", "defensas"],
+      ["MED", "Mediocentro", "mediocentros"],
+      ["DEL", "Delantero", "delanteros"],
+      ["BAN", "Banda", "banda"],
+    ] as const;
+
+    for (const [position, label, group] of cases) {
+      const publicLabel = mapPositionLabel(position);
+
+      assert.equal(publicLabel, label);
+      assert.equal(inferPlayerGroup(publicLabel), group);
+    }
   });
 
   it("aggregates global player stats across public rows", () => {
