@@ -38,6 +38,7 @@ export function FeaturedFirstTeamPanel({
   name,
   logoUrl,
   logoAlt,
+  bannerUrl,
   description,
   primaryCta,
   secondaryCta,
@@ -48,7 +49,7 @@ export function FeaturedFirstTeamPanel({
 
       <article className="mt-7 overflow-hidden rounded-[0.5rem] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(33,50,78,0.98),rgba(24,37,58,0.98))] shadow-[var(--rr-shadow)]">
         <div className="grid lg:grid-cols-[1.55fr_1fr]">
-          <FeaturedVisual />
+          <FeaturedVisual bannerUrl={bannerUrl} />
 
           <div className="flex flex-col gap-6 p-6 md:p-8 lg:p-10">
             <div>
@@ -124,7 +125,15 @@ function AcademyVisualCard({ team }: { team: AcademyTeamCardContent }) {
       className="group overflow-hidden rounded-[0.5rem] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(27,46,74,0.98),rgba(23,39,63,0.98))] shadow-[var(--rr-shadow)] transition duration-200 hover:-translate-y-1 hover:border-[color:var(--rr-border-strong)]"
     >
       <div className="relative h-[15.5rem] overflow-hidden border-b border-[color:var(--rr-border)]">
-        <ClubLineupVisual figureCount={4} showPitchGlow compact className="h-full" />
+        {team.bannerUrl ? (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-[1.03]"
+            style={{ backgroundImage: `url(${team.bannerUrl})` }}
+          />
+        ) : (
+          <ClubLineupVisual figureCount={4} showPitchGlow compact className="h-full" />
+        )}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,20,36,0.18),rgba(10,20,36,0.1)_42%,rgba(12,23,39,0.92)_100%)]" />
       </div>
 
@@ -207,10 +216,18 @@ function SectionHeading({
   );
 }
 
-function FeaturedVisual() {
+function FeaturedVisual({ bannerUrl }: { bannerUrl?: string }) {
   return (
     <div className="relative min-h-[20rem] overflow-hidden border-b border-[color:var(--rr-border)] lg:min-h-[24rem] lg:border-b-0 lg:border-r">
-      <ClubLineupVisual figureCount={5} showPitchGlow className="h-full" />
+      {bannerUrl ? (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${bannerUrl})` }}
+        />
+      ) : (
+        <ClubLineupVisual figureCount={5} showPitchGlow className="h-full" />
+      )}
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,37,67,0.3)_0%,rgba(16,37,67,0)_32%,rgba(16,37,67,0.08)_62%,rgba(16,37,67,0.42)_100%),linear-gradient(180deg,rgba(10,20,36,0.08)_0%,rgba(10,20,36,0)_32%,rgba(10,20,36,0.82)_100%)]" />
     </div>
   );

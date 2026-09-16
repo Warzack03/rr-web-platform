@@ -39,6 +39,7 @@ export function PageHero({
   variant = "first-team",
 }: PageHeroProps) {
   const coachLabel = coaches.length > 1 ? "Entrenadores" : "Entrenador";
+  const coachValue = coaches.length > 0 ? coaches.join(", ") : "Cuerpo tecnico pendiente";
   const hasFourActions = actions.length >= 4;
   const hasLongAcademyTitle = variant === "academy" && title.trim().length > 20;
   const titleClassName =
@@ -101,7 +102,8 @@ export function PageHero({
             <div className="mt-4 flex items-center gap-3 text-[1.35rem] text-[color:var(--rr-text)]/94">
               <UserRound className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
               <span>
-                {coachLabel}: <span className="text-[color:var(--rr-muted)]">{coaches.join(", ")}</span>
+                {coaches.length > 0 ? `${coachLabel}: ` : ""}
+                <span className="text-[color:var(--rr-muted)]">{coachValue}</span>
               </span>
             </div>
           </div>

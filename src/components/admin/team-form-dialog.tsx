@@ -72,8 +72,7 @@ const teamFormSchema = z.object({
         roleLabel: z.enum(teamCoachRoleOptions),
         publicVisible: z.boolean(),
       }),
-    )
-    .min(1, "Anade al menos un entrenador."),
+    ),
 });
 
 const fieldClassName =
@@ -108,14 +107,7 @@ function createDefaultTeam(
       category: categories[0] ?? "Senior",
       isFirstTeam: false,
     }),
-    coaches: [
-      {
-        id: `coach-${Date.now()}`,
-        name: "",
-        roleLabel: "Entrenador principal",
-        publicVisible: true,
-      },
-    ],
+    coaches: [],
     logoMediaId: undefined,
     logoUrl: "",
     bannerMediaId: undefined,

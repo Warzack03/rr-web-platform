@@ -44,6 +44,9 @@ type DbSeasonTeam = {
     publicUrl: string;
     altText: string | null;
   } | null;
+  bannerMedia: {
+    publicUrl: string;
+  } | null;
   coaches: Array<{
     name: string;
     displayOrder: number;
@@ -196,6 +199,7 @@ function mapDirectoryTeam(team: DbSeasonTeam): AcademyTeamCardContent {
     name: getTeamsDirectoryTeamName(team.publicName, team.team.isFirstTeam),
     logoUrl: team.logoMedia?.publicUrl,
     logoAlt: team.logoMedia?.altText ?? `Escudo ${team.publicName}`,
+    bannerUrl: team.bannerMedia?.publicUrl,
     competition: team.competitionName ?? "Competicion pendiente",
     description: getTeamsDirectoryDescription(team),
     ctaLabel: "Ver equipo",
@@ -260,6 +264,11 @@ async function getActiveVisibleSeasonTeams() {
                 select: {
                   publicUrl: true,
                   altText: true,
+                },
+              },
+              bannerMedia: {
+                select: {
+                  publicUrl: true,
                 },
               },
               coaches: {
@@ -566,7 +575,7 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     competition: team.competitionName ?? "Competicion pendiente",
     season: team.season.name,
     coaches: coachNames,
-    heroImageUrl: undefined,
+    heroImageUrl: team.bannerMedia?.publicUrl,
     heroImagePosition: team.team.isFirstTeam ? "center center" : "center top",
     links,
     nextMatch: nextMatch
@@ -730,6 +739,7 @@ export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirec
       name: getTeamsDirectoryTeamName(firstTeam.publicName, firstTeam.team.isFirstTeam),
       logoUrl: firstTeam.logoMedia?.publicUrl,
       logoAlt: firstTeam.logoMedia?.altText ?? `Escudo ${firstTeam.publicName}`,
+      bannerUrl: firstTeam.bannerMedia?.publicUrl,
       description: getTeamSummaryDescription(firstTeam),
       primaryCta: {
         href: "/primer-equipo/plantilla",

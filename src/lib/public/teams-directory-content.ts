@@ -10,6 +10,7 @@ export type FeaturedFirstTeamContent = {
   name: string;
   logoUrl?: string;
   logoAlt?: string;
+  bannerUrl?: string;
   description: string;
   primaryCta: {
     href: string;
@@ -27,6 +28,7 @@ export type AcademyTeamCardContent = {
   name: string;
   logoUrl?: string;
   logoAlt?: string;
+  bannerUrl?: string;
   competition: string;
   description: string;
   ctaLabel: string;

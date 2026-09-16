@@ -26,7 +26,7 @@ export const saveTeamInputSchema = z.object({
   active: z.boolean(),
   isFirstTeam: z.boolean(),
   displayOrder: z.number().int().min(0, "El orden no puede ser negativo."),
-  coaches: z.array(coachInputSchema).min(1, "Anade al menos un entrenador."),
+  coaches: z.array(coachInputSchema),
   logoMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
   logoUrl: mediaReferenceSchema.or(z.literal("")),
   bannerMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
