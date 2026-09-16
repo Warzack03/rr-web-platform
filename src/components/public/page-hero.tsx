@@ -77,7 +77,7 @@ export function PageHero({
         className={`relative mx-auto flex min-h-[32rem] w-full max-w-[1280px] items-end px-5 pb-14 pt-24 md:px-8 md:pb-16 ${heightClassName} xl:px-16`}
       >
         <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-[38rem]">
+          <div className="min-w-0 max-w-[38rem] lg:flex-1">
             <div className="mb-5 flex flex-wrap gap-2">
               {chips.map((chip, index) => (
                 <span
@@ -111,7 +111,7 @@ export function PageHero({
           <div
             className={
               hasFourActions
-                ? "grid w-full gap-3 sm:grid-cols-2 lg:max-w-[31rem] xl:flex xl:w-auto xl:max-w-none xl:flex-row xl:flex-nowrap xl:justify-end"
+                ? "grid w-full gap-3 sm:grid-cols-2 lg:max-w-[31rem] xl:flex xl:w-auto xl:max-w-none xl:shrink-0 xl:flex-row xl:flex-nowrap xl:justify-end"
                 : "flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:flex-wrap lg:justify-end"
             }
           >
@@ -123,7 +123,7 @@ export function PageHero({
                   key={action.href}
                   href={action.href}
                   variant={action.variant ?? "primary"}
-                  className={hasFourActions ? "w-full xl:w-auto" : undefined}
+                  className={hasFourActions ? "w-full md:min-w-0 xl:w-auto xl:shrink-0" : undefined}
                 >
                   <Icon className="h-4 w-4" strokeWidth={1.9} />
                   {action.label}
