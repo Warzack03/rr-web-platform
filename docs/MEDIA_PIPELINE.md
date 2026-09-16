@@ -31,6 +31,7 @@ El `{uso}` se obtiene de `getAdminMediaUsageFolder`:
 | `PLAYER_PHOTO` | `players/photos` |
 | `PLAYER_CARD` | `players/cards` |
 | `TEAM_LOGO` | `teams/logos` |
+| `TEAM_LISTING` | `teams/listing` |
 | `TEAM_BANNER` | `teams/banners` |
 | `NEWS_COVER` | `news/covers` |
 | `OPPONENT_LOGO` | `matches/opponents` |

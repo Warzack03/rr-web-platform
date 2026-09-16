@@ -119,6 +119,12 @@ export async function getAdminTeamsScreenData(
             publicUrl: true,
           },
         },
+        listingMedia: {
+          select: {
+            id: true,
+            publicUrl: true,
+          },
+        },
         bannerMedia: {
           select: {
             id: true,
@@ -186,6 +192,8 @@ export async function getAdminTeamsScreenData(
       })),
       logoMediaId: seasonTeam.logoMedia?.id.toString(),
       logoUrl: seasonTeam.logoMedia?.publicUrl ?? "",
+      listingMediaId: seasonTeam.listingMedia?.id.toString(),
+      listingUrl: seasonTeam.listingMedia?.publicUrl ?? "",
       bannerMediaId: seasonTeam.bannerMedia?.id.toString(),
       bannerUrl: seasonTeam.bannerMedia?.publicUrl ?? "",
       playerCount: seasonTeam.assignments.length,

@@ -126,10 +126,15 @@ describe("media file policy", () => {
 
   it("keeps explicit constraints per media usage", () => {
     const bannerConstraint = getMediaUsageConstraint("TEAM_BANNER");
+    const listingConstraint = getMediaUsageConstraint("TEAM_LISTING");
     const logoConstraint = getMediaUsageConstraint("TEAM_LOGO");
 
     assert.equal(bannerConstraint.minWidth >= logoConstraint.minWidth, true);
     assert.equal((bannerConstraint.minAspectRatio ?? 0) > 1, true);
+    assert.equal(listingConstraint.minWidth, 600);
+    assert.equal(listingConstraint.minHeight, 400);
+    assert.equal((listingConstraint.minAspectRatio ?? 0) < 1.5, true);
+    assert.equal((listingConstraint.maxAspectRatio ?? 0) > 1.5, true);
     assert.equal((logoConstraint.maxAspectRatio ?? 0) <= 2, true);
   });
 

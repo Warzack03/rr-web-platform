@@ -245,12 +245,21 @@ export async function saveTeamAction(
         });
       }
 
-      const [logoMediaId, bannerMediaId] = await Promise.all([
+      const [logoMediaId, listingMediaId, bannerMediaId] = await Promise.all([
         resolveMediaAssetId(
           {
             mediaId: payload.logoMediaId,
             publicUrl: payload.logoUrl,
             usage: MediaUsage.TEAM_LOGO,
+            uploadedById: user.id,
+          },
+          tx,
+        ),
+        resolveMediaAssetId(
+          {
+            mediaId: payload.listingMediaId,
+            publicUrl: payload.listingUrl,
+            usage: MediaUsage.TEAM_LISTING,
             uploadedById: user.id,
           },
           tx,
@@ -292,6 +301,7 @@ export async function saveTeamAction(
           active: payload.active,
           displayOrder: payload.displayOrder,
           logoMediaId,
+          listingMediaId,
           bannerMediaId,
           updatedById: user.id,
         },
@@ -402,12 +412,21 @@ export async function saveTeamAction(
       });
     }
 
-    const [logoMediaId, bannerMediaId] = await Promise.all([
+    const [logoMediaId, listingMediaId, bannerMediaId] = await Promise.all([
       resolveMediaAssetId(
         {
           mediaId: payload.logoMediaId,
           publicUrl: payload.logoUrl,
           usage: MediaUsage.TEAM_LOGO,
+          uploadedById: user.id,
+        },
+        tx,
+      ),
+      resolveMediaAssetId(
+        {
+          mediaId: payload.listingMediaId,
+          publicUrl: payload.listingUrl,
+          usage: MediaUsage.TEAM_LISTING,
           uploadedById: user.id,
         },
         tx,
@@ -467,6 +486,7 @@ export async function saveTeamAction(
         active: payload.active,
         displayOrder: payload.displayOrder,
         logoMediaId,
+        listingMediaId,
         bannerMediaId,
         createdById: user.id,
         updatedById: user.id,

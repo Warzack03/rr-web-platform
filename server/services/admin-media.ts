@@ -52,6 +52,7 @@ type MediaAssetWithRelations = Prisma.MediaAssetGetPayload<{
         playerPhotos: true;
         playerPremiumCards: true;
         seasonTeamLogos: true;
+        seasonTeamListings: true;
         seasonTeamBanners: true;
         teamCoachPhotos: true;
         opponentLogos: true;
@@ -127,6 +128,14 @@ function buildReferenceSummary(counts: MediaAssetWithRelations["_count"]) {
     );
   }
 
+  if (counts.seasonTeamListings > 0) {
+    summary.push(
+      counts.seasonTeamListings === 1
+        ? "1 imagen de listado"
+        : `${counts.seasonTeamListings} imagenes de listado`,
+    );
+  }
+
   if (counts.opponentCatalogLogos > 0) {
     summary.push(
       counts.opponentCatalogLogos === 1
@@ -149,6 +158,7 @@ function getReferenceCount(counts: MediaAssetWithRelations["_count"]) {
     counts.playerPhotos +
     counts.playerPremiumCards +
     counts.seasonTeamLogos +
+    counts.seasonTeamListings +
     counts.seasonTeamBanners +
     counts.teamCoachPhotos +
     counts.opponentLogos +
@@ -264,6 +274,7 @@ async function fetchMediaAssetForMutation(id: bigint) {
           playerPhotos: true,
           playerPremiumCards: true,
           seasonTeamLogos: true,
+          seasonTeamListings: true,
           seasonTeamBanners: true,
           teamCoachPhotos: true,
           opponentLogos: true,
@@ -309,6 +320,7 @@ export async function getAdminMediaScreenData(user: AuthenticatedAdmin) {
           playerPhotos: true,
           playerPremiumCards: true,
           seasonTeamLogos: true,
+          seasonTeamListings: true,
           seasonTeamBanners: true,
           teamCoachPhotos: true,
           opponentLogos: true,
@@ -548,6 +560,7 @@ export async function storeUploadedMediaAsset(
             playerPhotos: true,
             playerPremiumCards: true,
             seasonTeamLogos: true,
+            seasonTeamListings: true,
             seasonTeamBanners: true,
             teamCoachPhotos: true,
             opponentLogos: true,
@@ -654,6 +667,7 @@ export async function updateMediaAssetMetadata(
           playerPhotos: true,
           playerPremiumCards: true,
           seasonTeamLogos: true,
+          seasonTeamListings: true,
           seasonTeamBanners: true,
           teamCoachPhotos: true,
           opponentLogos: true,

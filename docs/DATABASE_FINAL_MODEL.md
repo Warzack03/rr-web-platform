@@ -301,6 +301,7 @@ Fields:
 - `description` optional
 - `publicVisible`
 - `logoMediaId` optional
+- `listingMediaId` optional, used by the team directory card
 - `bannerMediaId` optional
 - `displayOrder`
 - `active`
@@ -667,7 +668,7 @@ Fields:
 
 - `id`
 - `type`, e.g. `IMAGE`, `VIDEO_LINK`, `DOCUMENT`
-- `usage`, e.g. `PLAYER_PHOTO`, `PLAYER_CARD`, `TEAM_LOGO`, `TEAM_BANNER`, `NEWS_COVER`, `OPPONENT_LOGO`
+- `usage`, e.g. `PLAYER_PHOTO`, `PLAYER_CARD`, `TEAM_LOGO`, `TEAM_LISTING`, `TEAM_BANNER`, `NEWS_COVER`, `OPPONENT_LOGO`
 - `storagePath` optional
 - `publicUrl`
 - `externalUrl` optional

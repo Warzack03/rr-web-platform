@@ -45,6 +45,8 @@ type TeamFormState = {
   coaches: TeamManagementCoach[];
   logoMediaId?: string;
   logoUrl: string;
+  listingMediaId?: string;
+  listingUrl: string;
   bannerMediaId?: string;
   bannerUrl: string;
   playerCount: number;
@@ -110,6 +112,8 @@ function createDefaultTeam(
     coaches: [],
     logoMediaId: undefined,
     logoUrl: "",
+    listingMediaId: undefined,
+    listingUrl: "",
     bannerMediaId: undefined,
     bannerUrl: "",
     playerCount: 0,
@@ -134,6 +138,8 @@ function toFormState(team: TeamManagementTeam): TeamFormState {
     coaches: team.coaches,
     logoMediaId: team.logoMediaId,
     logoUrl: team.logoUrl,
+    listingMediaId: team.listingMediaId,
+    listingUrl: team.listingUrl,
     bannerMediaId: team.bannerMediaId,
     bannerUrl: team.bannerUrl,
     playerCount: team.playerCount,
@@ -221,7 +227,9 @@ export function TeamFormDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugTouched, setSlugTouched] = useState(Boolean(team?.slug));
   const [orderTouched, setOrderTouched] = useState(Boolean(team));
-  const [mediaPickerField, setMediaPickerField] = useState<"logo" | "banner" | null>(null);
+  const [mediaPickerField, setMediaPickerField] = useState<
+    "logo" | "listing" | "banner" | null
+  >(null);
 
   if (!open) {
     return null;
@@ -497,9 +505,53 @@ export function TeamFormDialog({
                     </div>
                   </label>
 
-                  <label className="grid gap-2 md:col-span-2 xl:col-span-3">
+                  <label className="grid gap-2">
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-                      Banner
+                      Imagen listado (3:2)
+                    </span>
+                    <div className="grid gap-3 rounded-[16px] border border-white/10 bg-white/4 p-3">
+                      <div className="overflow-hidden rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
+                        {formState.listingUrl ? (
+                          <img
+                            src={formState.listingUrl}
+                            alt={formState.name || "Imagen de listado del equipo"}
+                            className="aspect-[3/2] w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex aspect-[3/2] items-center justify-center text-[color:var(--rr-muted)]">
+                            <ImagePlus className="h-5 w-5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setMediaPickerField("listing")}
+                          className="rr-button rr-button-secondary text-[0.78rem]"
+                        >
+                          Elegir imagen
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormState((currentValue) => ({
+                              ...currentValue,
+                              listingMediaId: undefined,
+                              listingUrl: "",
+                            }))
+                          }
+                          disabled={!formState.listingUrl}
+                          className="rr-button rr-button-secondary text-[0.78rem] disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label className="grid gap-2 md:col-span-2 xl:col-span-2">
+                    <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                      Banner hero
                     </span>
                     <div className="grid gap-3 rounded-[16px] border border-white/10 bg-white/4 p-3">
                       <div className="overflow-hidden rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
@@ -725,27 +777,54 @@ export function TeamFormDialog({
 
       <MediaPickerDialog
         open={mediaPickerField !== null}
-        title={mediaPickerField === "banner" ? "Elegir banner de equipo" : "Elegir logo de equipo"}
+        title={
+          mediaPickerField === "banner"
+            ? "Elegir banner del hero"
+            : mediaPickerField === "listing"
+              ? "Elegir imagen del listado"
+              : "Elegir logo de equipo"
+        }
         description="Selecciona un recurso ya subido en la biblioteca real de media."
         items={mediaOptions}
-        allowedUsages={mediaPickerField === "banner" ? ["TEAM_BANNER"] : ["TEAM_LOGO"]}
+        allowedUsages={
+          mediaPickerField === "banner"
+            ? ["TEAM_BANNER"]
+            : mediaPickerField === "listing"
+              ? ["TEAM_LISTING"]
+              : ["TEAM_LOGO"]
+        }
         selectedMediaId={
-          mediaPickerField === "banner" ? formState.bannerMediaId : formState.logoMediaId
+          mediaPickerField === "banner"
+            ? formState.bannerMediaId
+            : mediaPickerField === "listing"
+              ? formState.listingMediaId
+              : formState.logoMediaId
         }
         onClose={() => setMediaPickerField(null)}
         onSelect={(item) => {
-          setFormState((currentValue) => ({
-            ...currentValue,
-            ...(mediaPickerField === "banner"
-              ? {
-                  bannerMediaId: item.id,
-                  bannerUrl: item.publicUrl,
-                }
-              : {
-                  logoMediaId: item.id,
-                  logoUrl: item.publicUrl,
-                }),
-          }));
+          setFormState((currentValue) => {
+            if (mediaPickerField === "banner") {
+              return {
+                ...currentValue,
+                bannerMediaId: item.id,
+                bannerUrl: item.publicUrl,
+              };
+            }
+
+            if (mediaPickerField === "listing") {
+              return {
+                ...currentValue,
+                listingMediaId: item.id,
+                listingUrl: item.publicUrl,
+              };
+            }
+
+            return {
+              ...currentValue,
+              logoMediaId: item.id,
+              logoUrl: item.publicUrl,
+            };
+          });
           setMediaPickerField(null);
         }}
       />

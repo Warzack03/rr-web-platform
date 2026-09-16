@@ -69,6 +69,7 @@ enum MediaUsage {
   PLAYER_PHOTO
   PLAYER_CARD
   TEAM_LOGO
+  TEAM_LISTING
   TEAM_BANNER
   NEWS_COVER
   OPPONENT_LOGO
@@ -170,6 +171,7 @@ model SeasonTeam {
   description       String?  @db.Text
   publicVisible     Boolean  @default(true)
   logoMediaId       BigInt?
+  listingMediaId    BigInt?
   bannerMediaId     BigInt?
   displayOrder      Int      @default(0)
   active            Boolean  @default(true)
@@ -186,6 +188,7 @@ model SeasonTeam {
   team        Team        @relation(fields: [teamId], references: [id])
   competition Competition? @relation(fields: [competitionId], references: [id])
   logoMedia   MediaAsset? @relation("SeasonTeamLogo", fields: [logoMediaId], references: [id])
+  listingMedia MediaAsset? @relation("SeasonTeamListing", fields: [listingMediaId], references: [id])
   bannerMedia MediaAsset? @relation("SeasonTeamBanner", fields: [bannerMediaId], references: [id])
 
   assignments      TeamPlayerAssignment[]
@@ -555,6 +558,7 @@ model MediaAsset {
   playerPhotos       Player[]     @relation("PlayerPhoto")
   playerPremiumCards Player[]     @relation("PlayerPremiumCard")
   seasonTeamLogos    SeasonTeam[] @relation("SeasonTeamLogo")
+  seasonTeamListings SeasonTeam[] @relation("SeasonTeamListing")
   seasonTeamBanners  SeasonTeam[] @relation("SeasonTeamBanner")
   teamCoachPhotos    TeamCoach[]  @relation("TeamCoachPhoto")
   opponentLogos      Match[]      @relation("OpponentLogo")

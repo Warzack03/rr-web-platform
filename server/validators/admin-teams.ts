@@ -29,6 +29,8 @@ export const saveTeamInputSchema = z.object({
   coaches: z.array(coachInputSchema),
   logoMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
   logoUrl: mediaReferenceSchema.or(z.literal("")),
+  listingMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
+  listingUrl: mediaReferenceSchema.or(z.literal("")),
   bannerMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
   bannerUrl: mediaReferenceSchema.or(z.literal("")),
 });

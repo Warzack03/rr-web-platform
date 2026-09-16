@@ -107,7 +107,8 @@ Manage:
 - Active status.
 - Display order.
 - Logo.
-- Banner.
+- Image for the team directory card.
+- Hero banner for the team detail page.
 - Visible coaches.
 - Informative coach list for the team.
 

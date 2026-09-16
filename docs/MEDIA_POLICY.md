@@ -3,7 +3,8 @@
 ## Tipos de media
 
 - logo/escudo de equipo.
-- banner de equipo.
+- imagen de listado de equipo (3:2 recomendado).
+- banner hero de equipo.
 - foto de jugador.
 - cromo de jugador.
 - imagen de noticia.
@@ -18,6 +19,7 @@
 - Preferir WebP/AVIF si es viable.
 - Guardar alt text siempre que sea posible.
 - Evitar imagenes enormes sin comprimir.
+- Separar la imagen 3:2 del listado de equipos del banner panoramico del hero.
 - El Primer Equipo puede tener cromos especiales.
 - El resto de equipos usa cromos estandar.
 

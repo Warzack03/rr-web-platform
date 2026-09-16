@@ -24,7 +24,7 @@ export default async function AdminTeamsPage({
   const user = await requireAdminSectionAccess("teams");
   const [data, mediaOptions] = await Promise.all([
     getAdminTeamsScreenData(user),
-    getAdminMediaPickerOptions(["TEAM_LOGO", "TEAM_BANNER"]),
+    getAdminMediaPickerOptions(["TEAM_LOGO", "TEAM_LISTING", "TEAM_BANNER"]),
   ]);
   const resolvedSearchParams = await searchParams;
   const initialUiState = getSingleValue(resolvedSearchParams.ui) === "error" ? "error" : "ready";

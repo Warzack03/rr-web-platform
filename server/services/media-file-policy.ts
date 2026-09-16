@@ -75,6 +75,15 @@ export function getMediaUsageConstraint(usage: AdminMediaUsage): MediaUsageConst
         minAspectRatio: 0.5,
         maxAspectRatio: 2,
       };
+    case "TEAM_LISTING":
+      return {
+        minWidth: 600,
+        minHeight: 400,
+        maxWidth: 6000,
+        maxHeight: 4000,
+        minAspectRatio: 1.35,
+        maxAspectRatio: 1.8,
+      };
     case "TEAM_BANNER":
       return {
         minWidth: 800,

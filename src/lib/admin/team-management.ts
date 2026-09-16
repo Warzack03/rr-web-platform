@@ -25,6 +25,8 @@ export type TeamManagementTeam = {
   coaches: TeamManagementCoach[];
   logoMediaId?: string;
   logoUrl: string;
+  listingMediaId?: string;
+  listingUrl: string;
   bannerMediaId?: string;
   bannerUrl: string;
   playerCount: number;

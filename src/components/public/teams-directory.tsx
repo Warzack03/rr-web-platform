@@ -38,7 +38,7 @@ export function FeaturedFirstTeamPanel({
   name,
   logoUrl,
   logoAlt,
-  bannerUrl,
+  listingImageUrl,
   description,
   primaryCta,
   secondaryCta,
@@ -49,7 +49,7 @@ export function FeaturedFirstTeamPanel({
 
       <article className="mt-7 overflow-hidden rounded-[0.5rem] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(33,50,78,0.98),rgba(24,37,58,0.98))] shadow-[var(--rr-shadow)]">
         <div className="grid lg:grid-cols-[1.55fr_1fr]">
-          <FeaturedVisual bannerUrl={bannerUrl} />
+          <FeaturedVisual imageUrl={listingImageUrl} />
 
           <div className="flex flex-col gap-6 p-6 md:p-8 lg:p-10">
             <div>
@@ -124,20 +124,13 @@ function AcademyVisualCard({ team }: { team: AcademyTeamCardContent }) {
       href={`/equipos/${team.slug}`}
       className="group overflow-hidden rounded-[0.5rem] border border-[color:var(--rr-border)] bg-[linear-gradient(180deg,rgba(27,46,74,0.98),rgba(23,39,63,0.98))] shadow-[var(--rr-shadow)] transition duration-200 hover:-translate-y-1 hover:border-[color:var(--rr-border-strong)]"
     >
-      <div className="relative h-[15.5rem] overflow-hidden border-b border-[color:var(--rr-border)]">
-        {team.bannerUrl ? (
-          <>
-            <div
-              aria-hidden="true"
-              className="absolute inset-[-1rem] scale-110 bg-cover bg-center opacity-45 blur-xl"
-              style={{ backgroundImage: `url(${team.bannerUrl})` }}
-            />
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-contain bg-center bg-no-repeat transition duration-500 group-hover:brightness-110"
-              style={{ backgroundImage: `url(${team.bannerUrl})` }}
-            />
-          </>
+      <div className="relative aspect-[3/2] overflow-hidden border-b border-[color:var(--rr-border)]">
+        {team.listingImageUrl ? (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-[1.02]"
+            style={{ backgroundImage: `url(${team.listingImageUrl})` }}
+          />
         ) : (
           <ClubLineupVisual figureCount={4} showPitchGlow compact className="h-full" />
         )}
@@ -223,14 +216,14 @@ function SectionHeading({
   );
 }
 
-function FeaturedVisual({ bannerUrl }: { bannerUrl?: string }) {
+function FeaturedVisual({ imageUrl }: { imageUrl?: string }) {
   return (
     <div className="relative min-h-[20rem] overflow-hidden border-b border-[color:var(--rr-border)] lg:min-h-[24rem] lg:border-b-0 lg:border-r">
-      {bannerUrl ? (
+      {imageUrl ? (
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${bannerUrl})` }}
+          style={{ backgroundImage: `url(${imageUrl})` }}
         />
       ) : (
         <ClubLineupVisual figureCount={5} showPitchGlow className="h-full" />

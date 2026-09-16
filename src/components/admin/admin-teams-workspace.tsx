@@ -206,6 +206,8 @@ export function AdminTeamsWorkspace({
       })),
       logoMediaId: nextTeam.logoMediaId,
       logoUrl: nextTeam.logoUrl,
+      listingMediaId: nextTeam.listingMediaId,
+      listingUrl: nextTeam.listingUrl,
       bannerMediaId: nextTeam.bannerMediaId,
       bannerUrl: nextTeam.bannerUrl,
     });
