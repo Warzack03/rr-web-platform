@@ -14,6 +14,10 @@ type DbCalendarTeam = {
   publicName: string;
   publicSlug: string;
   competitionName: string | null;
+  logoMedia: {
+    publicUrl: string;
+    altText: string | null;
+  } | null;
   season: {
     name: string;
   };
@@ -163,6 +167,8 @@ function mapCalendarMatch(input: {
   const ownTeam = {
     name: displayName,
     crestLabel: buildCrestLabel(displayName),
+    crestUrl: team.logoMedia?.publicUrl,
+    crestAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
     isClub: true,
   };
   const opponentLogo = match.opponent?.logoMedia ?? match.opponentLogo;
@@ -233,6 +239,12 @@ export async function getPublicTeamCalendarContentFromDb(
                 publicName: true,
                 publicSlug: true,
                 competitionName: true,
+                logoMedia: {
+                  select: {
+                    publicUrl: true,
+                    altText: true,
+                  },
+                },
                 season: {
                   select: {
                     name: true,

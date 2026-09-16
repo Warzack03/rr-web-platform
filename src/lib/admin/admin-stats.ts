@@ -52,6 +52,8 @@ const mobilePrimaryOutfieldFieldKeys = new Set<AdminEditableStatFieldKey>([
   "redCards",
 ]);
 const mobilePrimaryGoalkeeperFieldKeys = new Set<AdminEditableStatFieldKey>([
+  "goals",
+  "assists",
   "mvp",
   "goalsConceded",
   "saves",
@@ -226,6 +228,8 @@ export function getAdminStatFields({
   if (isGoalkeeper) {
     const fields: AdminEditableStatFieldKey[] = isFirstTeam
       ? [
+          "goals",
+          "assists",
           "mvp",
           "goalsConceded",
           "saves",
@@ -235,6 +239,8 @@ export function getAdminStatFields({
           "ownGoals",
         ]
       : [
+          "goals",
+          "assists",
           "mvp",
           "goalsConceded",
           "cleanSheets",
