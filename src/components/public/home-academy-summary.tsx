@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
+import { TeamCrest } from "@/components/public/team-crest";
 import type { PublicHomePageContent } from "@/lib/public/home-content";
 
 type HomeAcademySummaryProps = {
@@ -65,17 +65,14 @@ export function HomeAcademySummary({ content }: HomeAcademySummaryProps) {
                   className="group flex items-center justify-between gap-4 border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-4 transition hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    {team.logoUrl?.startsWith("/") ? (
-                      <span className="flex h-12 w-12 shrink-0 items-center justify-center">
-                        <Image
-                          src={team.logoUrl}
-                          alt={team.logoAlt ?? `Escudo ${team.name}`}
-                          width={48}
-                          height={48}
-                          className="h-12 w-12 object-contain"
-                        />
-                      </span>
-                    ) : null}
+                    <TeamCrest
+                      name={team.name}
+                      logoUrl={team.logoUrl}
+                      logoAlt={team.logoAlt}
+                      className="h-12 w-12"
+                      imageClassName="h-11 w-11"
+                      initialsClassName="text-[1.25rem]"
+                    />
                     <div className="min-w-0">
                       <p className="rr-display text-[2rem] leading-none text-white">{team.name}</p>
                       <p className="mt-1 truncate text-[0.94rem] uppercase tracking-[0.14em] text-[color:var(--rr-muted)]/82">

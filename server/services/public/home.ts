@@ -265,6 +265,14 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
           homeScore: true,
           awayScore: true,
           opponentName: true,
+          opponent: {
+            select: {
+              logoMedia: { select: { publicUrl: true, altText: true } },
+            },
+          },
+          opponentLogo: {
+            select: { publicUrl: true, altText: true },
+          },
           matchday: true,
         },
       }),
@@ -377,6 +385,22 @@ export async function getPublicHomeDbSections(): Promise<PublicHomeDbSections | 
             opponent: match.opponentName,
             homeTeam: match.isHome ? firstTeamDisplayName : match.opponentName,
             awayTeam: match.isHome ? match.opponentName : firstTeamDisplayName,
+            homeLogoUrl: match.isHome
+              ? firstTeam.logoMedia?.publicUrl
+              : match.opponent?.logoMedia?.publicUrl ?? match.opponentLogo?.publicUrl,
+            homeLogoAlt: match.isHome
+              ? firstTeam.logoMedia?.altText ?? `Escudo ${firstTeamDisplayName}`
+              : match.opponent?.logoMedia?.altText ??
+                match.opponentLogo?.altText ??
+                `Escudo ${match.opponentName}`,
+            awayLogoUrl: match.isHome
+              ? match.opponent?.logoMedia?.publicUrl ?? match.opponentLogo?.publicUrl
+              : firstTeam.logoMedia?.publicUrl,
+            awayLogoAlt: match.isHome
+              ? match.opponent?.logoMedia?.altText ??
+                match.opponentLogo?.altText ??
+                `Escudo ${match.opponentName}`
+              : firstTeam.logoMedia?.altText ?? `Escudo ${firstTeamDisplayName}`,
             score: `${match.homeScore ?? "-"} - ${match.awayScore ?? "-"}`,
             result:
               (goalsFor ?? 0) > (goalsAgainst ?? 0)

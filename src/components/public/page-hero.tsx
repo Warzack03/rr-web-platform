@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { BarChart3, CalendarDays, ChartNoAxesColumn, UserRound, Users } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
+import { TeamCrest } from "@/components/public/team-crest";
 
 type HeroChip = {
   label: string;
@@ -17,6 +18,8 @@ type HeroAction = {
 type PageHeroProps = {
   chips: HeroChip[];
   title: string;
+  logoUrl?: string;
+  logoAlt?: string;
   coaches: string[];
   actions: HeroAction[];
   backgroundImageUrl?: string;
@@ -27,6 +30,8 @@ type PageHeroProps = {
 export function PageHero({
   chips,
   title,
+  logoUrl,
+  logoAlt,
   coaches,
   actions,
   backgroundImageUrl,
@@ -82,7 +87,17 @@ export function PageHero({
                 </span>
               ))}
             </div>
-            <h1 className={`rr-display text-balance text-white ${titleClassName}`}>{title}</h1>
+            <div className="flex items-center gap-4 sm:gap-5">
+              <TeamCrest
+                name={title}
+                logoUrl={logoUrl}
+                logoAlt={logoAlt}
+                isClub
+                className="h-16 w-16 sm:h-20 sm:w-20"
+                initialsClassName="text-[1.8rem] sm:text-[2.2rem]"
+              />
+              <h1 className={`rr-display min-w-0 text-balance text-white ${titleClassName}`}>{title}</h1>
+            </div>
             <div className="mt-4 flex items-center gap-3 text-[1.35rem] text-[color:var(--rr-text)]/94">
               <UserRound className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
               <span>

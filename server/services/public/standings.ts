@@ -17,6 +17,10 @@ type DbSeasonTeam = {
   publicSlug: string;
   competitionId: bigint | null;
   competitionName: string | null;
+  logoMedia: {
+    publicUrl: string;
+    altText: string | null;
+  } | null;
   season: {
     id: bigint;
     name: string;
@@ -139,6 +143,9 @@ async function getActiveVisibleSeasonTeamBySlug(
               publicSlug: true,
               competitionId: true,
               competitionName: true,
+              logoMedia: {
+                select: { publicUrl: true, altText: true },
+              },
               season: {
                 select: {
                   id: true,
@@ -250,6 +257,8 @@ async function buildStandingsPageContentFromDb(
     subtitle: `${teamDisplayName} - ${team.season.name}`,
     season: team.season.name,
     teamName: teamDisplayName,
+    teamLogoUrl: team.logoMedia?.publicUrl,
+    teamLogoAlt: team.logoMedia?.altText ?? `Escudo ${teamDisplayName}`,
     competition: standingTable?.competition?.name ?? team.competitionName ?? undefined,
     updatedAt:
       standingTable?.updatedLabel ??

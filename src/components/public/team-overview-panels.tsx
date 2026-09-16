@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, ChartNoAxesColumn, Clock3, MapPin, Shield, Users } from "lucide-react";
+import { CalendarDays, ChartNoAxesColumn, Clock3, MapPin, Users } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
 import { SectionLabel } from "@/components/public/section-label";
+import { TeamCrest } from "@/components/public/team-crest";
 import type {
   PublicSquadHighlight,
   PublicTeamQuickInfoItem,
@@ -129,31 +129,20 @@ export function MatchPreviewPanel({ match, compact = false }: MatchPreviewPanelP
 }
 
 function MatchTeamBadge({ team }: { team: PublicTeamReference }) {
-  const hasLogo = Boolean(team.logoUrl?.startsWith("/"));
-
   return (
     <div className="text-center">
-      <div
+      <TeamCrest
+        name={team.name}
+        logoUrl={team.logoUrl}
+        logoAlt={team.logoAlt}
+        isClub={team.highlight}
         className={cn(
-          "mx-auto flex h-20 w-20 items-center justify-center rounded-[10px] border bg-[rgba(8,17,28,0.5)] sm:h-24 sm:w-24",
+          "mx-auto h-20 w-20 rounded-[10px] bg-[rgba(8,17,28,0.5)] sm:h-24 sm:w-24",
           team.highlight ? "border-[color:var(--rr-gold)]" : "border-[color:var(--rr-border)]",
         )}
-      >
-        {hasLogo ? (
-          <Image
-            src={team.logoUrl as string}
-            alt={team.logoAlt ?? `Escudo ${team.name}`}
-            width={72}
-            height={72}
-            className="h-16 w-16 object-contain sm:h-[4.5rem] sm:w-[4.5rem]"
-          />
-        ) : (
-          <Shield
-            className={cn("h-9 w-9", team.highlight ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]")}
-            strokeWidth={1.8}
-          />
-        )}
-      </div>
+        imageClassName="h-16 w-16 sm:h-[4.5rem] sm:w-[4.5rem]"
+        initialsClassName="text-[2.25rem] sm:text-[2.7rem]"
+      />
       <div className="rr-kicker mt-3 text-[0.96rem] text-white">{team.name}</div>
     </div>
   );
@@ -206,17 +195,40 @@ export function RecentResultsStrip({
             result.homeTeam && result.awayTeam
               ? `${result.homeTeam} vs ${result.awayTeam}`
               : result.opponent;
+          const hasTeamPair = Boolean(result.homeTeam && result.awayTeam);
           const rowContent = (
             <>
-              <div className="flex min-w-0 items-baseline gap-3">
+              <div className="flex min-w-0 items-center gap-3">
                 {result.label ? (
                   <span className="rr-kicker shrink-0 text-[0.72rem] text-[color:var(--rr-gold)]">
                     {result.label}
                   </span>
                 ) : null}
-                <span className="truncate text-[1rem] font-medium text-white/94 sm:text-[1.08rem]">
-                  {teamsLabel}
-                </span>
+                {hasTeamPair ? (
+                  <div className="flex min-w-0 items-center gap-2">
+                    <TeamCrest
+                      name={result.homeTeam as string}
+                      logoUrl={result.homeLogoUrl}
+                      logoAlt={result.homeLogoAlt}
+                      className="h-8 w-8"
+                      initialsClassName="text-[0.76rem]"
+                    />
+                    <span className="truncate text-[1rem] font-medium text-white/94 sm:text-[1.08rem]">
+                      {teamsLabel}
+                    </span>
+                    <TeamCrest
+                      name={result.awayTeam as string}
+                      logoUrl={result.awayLogoUrl}
+                      logoAlt={result.awayLogoAlt}
+                      className="h-8 w-8"
+                      initialsClassName="text-[0.76rem]"
+                    />
+                  </div>
+                ) : (
+                  <span className="truncate text-[1rem] font-medium text-white/94 sm:text-[1.08rem]">
+                    {teamsLabel}
+                  </span>
+                )}
               </div>
               <div className="mt-3 flex items-center gap-3">
                 <span className="rr-display text-[1.85rem] leading-none text-white">

@@ -213,6 +213,9 @@ function buildCalendarContent(team: DbCalendarTeam, matchdays: CalendarMatchday[
   return {
     pageTitle: "Calendario de partidos",
     subtitle: `${displayName} - ${team.season.name}`,
+    teamName: displayName,
+    teamLogoUrl: team.logoMedia?.publicUrl,
+    teamLogoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
     matchdays,
   };
 }

@@ -5,6 +5,7 @@ import type { StandingRowData, TeamStandingsPageContent } from "@/lib/contracts/
 import { StandingTeamCrest } from "@/components/public/standing-team-crest";
 import { getPublicTeamHref } from "@/lib/public/team-section-links";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
+import { TeamCrest } from "@/components/public/team-crest";
 import { cn } from "@/lib/utils";
 
 type TeamStandingsPageProps = {
@@ -40,9 +41,19 @@ export function TeamStandingsPage({ content }: TeamStandingsPageProps) {
             updatedAt={content.updatedAt}
           />
 
-          <h1 className={cn("rr-display mt-6 leading-[0.9] text-white", titleClassName)}>
-            {content.title}
-          </h1>
+          <div className="mt-6 flex items-center gap-4">
+            <TeamCrest
+              name={content.teamName}
+              logoUrl={content.teamLogoUrl}
+              logoAlt={content.teamLogoAlt}
+              isClub
+              className="h-16 w-16 sm:h-20 sm:w-20"
+              initialsClassName="text-[1.8rem] sm:text-[2.2rem]"
+            />
+            <h1 className={cn("rr-display leading-[0.9] text-white", titleClassName)}>
+              {content.title}
+            </h1>
+          </div>
           <p className="mt-4 text-[1.16rem] text-[color:var(--rr-muted)] md:text-[1.32rem]">
             {content.subtitle}
           </p>
@@ -291,11 +302,12 @@ function StandingTeamIdentity({
     return (
       <div className="flex min-w-0 items-center gap-2.5">
         <StandingTeamCrest
+          teamName={row.team}
           logoUrl={row.logoUrl}
           logoAlt={row.logoAlt}
           isClub={row.isClub}
           className="h-8 w-8"
-          iconClassName="h-4 w-4"
+          initialsClassName="text-[0.82rem]"
         />
         <div className="min-w-0">
           <p className="truncate text-[0.98rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">
@@ -312,6 +324,7 @@ function StandingTeamIdentity({
   return (
     <>
       <StandingTeamCrest
+        teamName={row.team}
         logoUrl={row.logoUrl}
         logoAlt={row.logoAlt}
         isClub={row.isClub}

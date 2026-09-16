@@ -8,6 +8,8 @@ export type FeaturedFirstTeamContent = {
   sectionTitle: string;
   eyebrow: string;
   name: string;
+  logoUrl?: string;
+  logoAlt?: string;
   description: string;
   primaryCta: {
     href: string;
@@ -23,6 +25,8 @@ export type AcademyTeamCardContent = {
   slug: string;
   category: string;
   name: string;
+  logoUrl?: string;
+  logoAlt?: string;
   competition: string;
   description: string;
   ctaLabel: string;

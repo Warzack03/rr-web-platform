@@ -22,6 +22,8 @@ export function TeamOverviewPage({ content }: TeamOverviewPageProps) {
       <PageHero
         chips={buildTeamHeroChips(content)}
         title={content.name}
+        logoUrl={content.logoUrl}
+        logoAlt={content.logoAlt}
         coaches={content.coaches}
         actions={[
           {

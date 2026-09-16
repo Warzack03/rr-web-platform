@@ -62,11 +62,12 @@ function MiniStandingsRow({ row }: { row: StandingRowData }) {
 
       <div className="flex min-w-0 items-center gap-3">
         <StandingTeamCrest
+          teamName={row.team}
           logoUrl={row.logoUrl}
           logoAlt={row.logoAlt}
           isClub={row.isClub}
           className="h-9 w-9"
-          iconClassName="h-4 w-4"
+          initialsClassName="text-[0.9rem]"
         />
         <div className="min-w-0">
           <p className="truncate text-[1rem] font-semibold text-white transition group-hover:text-[color:var(--rr-gold)]">

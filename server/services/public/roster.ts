@@ -49,6 +49,9 @@ export async function getPublicRosterContentFromDb(
                 id: true,
                 publicName: true,
                 publicSlug: true,
+                logoMedia: {
+                  select: { publicUrl: true, altText: true },
+                },
                 season: {
                   select: {
                     id: true,
@@ -191,6 +194,8 @@ export async function getPublicRosterContentFromDb(
         : `Plantilla - ${teamDisplayName}`,
       teamSlug: seasonTeam.publicSlug,
       teamLabel: teamDisplayName,
+      teamLogoUrl: seasonTeam.logoMedia?.publicUrl,
+      teamLogoAlt: seasonTeam.logoMedia?.altText ?? `Escudo ${teamDisplayName}`,
       seasonLabel: seasonTeam.season.name,
       goalkeepers: allPlayers.filter((player) => player.playerType === "goalkeeper"),
       fieldPlayers: allPlayers.filter((player) => player.playerType === "field"),

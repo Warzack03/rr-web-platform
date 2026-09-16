@@ -22,6 +22,7 @@ import {
   TableProperties,
 } from "lucide-react";
 import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
+import { TeamCrest } from "@/components/public/team-crest";
 import type { PublicPlayerProfile, PublicPlayerType } from "@/lib/contracts/public";
 import {
   buildTeamStatisticsUrl,
@@ -328,9 +329,19 @@ export function TeamStatsHeader({ content }: { content: TeamStatisticsPageConten
         <span className="rr-chip text-[color:var(--rr-muted)]">{content.season}</span>
       </div>
 
-      <h1 className="rr-display mt-6 text-[4rem] leading-[0.9] text-white sm:text-[5rem] lg:text-[6.1rem]">
-        {content.title}
-      </h1>
+      <div className="mt-6 flex items-center gap-4">
+        <TeamCrest
+          name={content.teamName}
+          logoUrl={content.teamLogoUrl}
+          logoAlt={content.teamLogoAlt}
+          isClub
+          className="h-16 w-16 sm:h-20 sm:w-20"
+          initialsClassName="text-[1.8rem] sm:text-[2.2rem]"
+        />
+        <h1 className="rr-display text-[4rem] leading-[0.9] text-white sm:text-[5rem] lg:text-[6.1rem]">
+          {content.title}
+        </h1>
+      </div>
       <p className="mt-4 max-w-[42rem] text-[1.16rem] text-[color:var(--rr-muted)] md:text-[1.3rem]">
         {content.subtitle}
       </p>

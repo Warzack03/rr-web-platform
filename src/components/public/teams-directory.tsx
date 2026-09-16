@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Gem, Sparkles, Users } from "lucide-react";
 import { CTAButton } from "@/components/public/cta-button";
+import { TeamCrest } from "@/components/public/team-crest";
 import { cn } from "@/lib/utils";
 import type {
   AcademyPromoContent,
@@ -35,6 +36,8 @@ export function FeaturedFirstTeamPanel({
   sectionTitle,
   eyebrow,
   name,
+  logoUrl,
+  logoAlt,
   description,
   primaryCta,
   secondaryCta,
@@ -50,9 +53,19 @@ export function FeaturedFirstTeamPanel({
           <div className="flex flex-col gap-6 p-6 md:p-8 lg:p-10">
             <div>
               <p className="rr-kicker text-[color:var(--rr-gold)]">{eyebrow}</p>
-              <h2 className="rr-display mt-4 text-[3.4rem] leading-[0.9] text-white md:text-[4.3rem]">
-                {name}
-              </h2>
+              <div className="mt-4 flex items-center gap-4">
+                <TeamCrest
+                  name={name}
+                  logoUrl={logoUrl}
+                  logoAlt={logoAlt}
+                  isClub
+                  className="h-16 w-16 md:h-20 md:w-20"
+                  initialsClassName="text-[1.8rem] md:text-[2.2rem]"
+                />
+                <h2 className="rr-display text-[3.4rem] leading-[0.9] text-white md:text-[4.3rem]">
+                  {name}
+                </h2>
+              </div>
               <p className="mt-5 max-w-md text-[1.04rem] leading-7 text-[color:var(--rr-muted)] md:text-[1.12rem]">
                 {description}
               </p>
@@ -118,7 +131,16 @@ function AcademyVisualCard({ team }: { team: AcademyTeamCardContent }) {
       <div className="flex min-h-[15rem] flex-col p-5 md:p-6">
         <div>
             <p className="rr-kicker text-[color:var(--rr-gold)]">{team.category}</p>
-            <h3 className="rr-display mt-3 text-[2.5rem] leading-[0.9] text-white">{team.name}</h3>
+            <div className="mt-3 flex items-center gap-3">
+              <TeamCrest
+                name={team.name}
+                logoUrl={team.logoUrl}
+                logoAlt={team.logoAlt}
+                className="h-12 w-12"
+                initialsClassName="text-[1.2rem]"
+              />
+              <h3 className="rr-display text-[2.5rem] leading-[0.9] text-white">{team.name}</h3>
+            </div>
         </div>
 
         <p className="mt-2 text-[0.92rem] uppercase tracking-[0.16em] text-[color:var(--rr-muted)]/80">

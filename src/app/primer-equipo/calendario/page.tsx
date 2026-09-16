@@ -32,7 +32,13 @@ export default async function FirstTeamCalendarPage() {
         <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
 
         <section className="relative mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
-          <CalendarPageTitle title={calendar.pageTitle} subtitle={calendar.subtitle} />
+          <CalendarPageTitle
+            title={calendar.pageTitle}
+            subtitle={calendar.subtitle}
+            teamName={calendar.teamName}
+            teamLogoUrl={calendar.teamLogoUrl}
+            teamLogoAlt={calendar.teamLogoAlt}
+          />
           <TeamSectionNavigation
             links={getTeamSectionLinks({ teamType: "first-team" })}
             activeKey="calendar"

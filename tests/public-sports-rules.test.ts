@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { getVisualMatchStatus } from "@/lib/admin/match-management";
 import type { PublicPlayerStats } from "@/lib/contracts/public";
 import { formatPublicShirtNumber } from "@/lib/public/player-number";
+import { getTeamInitials } from "@/lib/public/team-initials";
 import {
   calculateDerivedStatsFromValues,
   formatStatValueFromStats,
@@ -37,6 +38,12 @@ function stats(overrides: Partial<PublicPlayerStats> = {}): PublicPlayerStats {
 }
 
 describe("public sports rules", () => {
+  it("uses team initials when a public crest is unavailable", () => {
+    assert.equal(getTeamInitials("Rising Raimon Barcelona"), "RR");
+    assert.equal(getTeamInitials("Catalonia Warriors"), "CW");
+    assert.equal(getTeamInitials(""), "--");
+  });
+
   it("shows public shirt numbers without a leading zero", () => {
     assert.equal(formatPublicShirtNumber(1), "1");
     assert.equal(formatPublicShirtNumber(9), "9");

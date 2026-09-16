@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { MatchScoreHero } from "@/components/public/match-score-hero";
 import { PlayerPerformanceGrid } from "@/components/public/player-performance-grid";
+import { TeamCrest } from "@/components/public/team-crest";
 import type { MatchDetailContent } from "@/lib/public/match-detail-content";
 
 type MatchDetailPageProps = {
@@ -19,6 +20,11 @@ export function MatchDetailPage({
     (detail.match.status === "played" ||
       (detail.match.status === "live" && detail.showLiveFeatures)) &&
     detail.playerPerformances.length > 0;
+  const clubTeam = detail.match.homeTeam.isClub
+    ? detail.match.homeTeam
+    : detail.match.awayTeam.isClub
+      ? detail.match.awayTeam
+      : undefined;
 
   return (
     <div className="relative overflow-hidden">
@@ -42,9 +48,20 @@ export function MatchDetailPage({
                   {detail.context.season}
                 </p>
                 <div>
-                  <h1 className="rr-display text-[2.9rem] leading-[0.92] text-white md:text-[3.6rem]">
-                    {detail.context.teamName}
-                  </h1>
+                  <div className="flex items-center gap-3">
+                    <TeamCrest
+                      name={detail.context.teamName}
+                      logoUrl={clubTeam?.crestUrl}
+                      logoAlt={clubTeam?.crestAlt}
+                      fallbackLabel={clubTeam?.crestLabel}
+                      isClub
+                      className="h-14 w-14 md:h-16 md:w-16"
+                      initialsClassName="text-[1.55rem] md:text-[1.8rem]"
+                    />
+                    <h1 className="rr-display text-[2.9rem] leading-[0.92] text-white md:text-[3.6rem]">
+                      {detail.context.teamName}
+                    </h1>
+                  </div>
                   <p className="mt-2 text-[1rem] text-[color:var(--rr-muted)]">
                     {detail.stageLabel}
                   </p>

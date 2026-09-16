@@ -194,6 +194,8 @@ function mapDirectoryTeam(team: DbSeasonTeam): AcademyTeamCardContent {
     slug: team.publicSlug,
     category: normalizeCategory(team.category, team.team.isFirstTeam),
     name: getTeamsDirectoryTeamName(team.publicName, team.team.isFirstTeam),
+    logoUrl: team.logoMedia?.publicUrl,
+    logoAlt: team.logoMedia?.altText ?? `Escudo ${team.publicName}`,
     competition: team.competitionName ?? "Competicion pendiente",
     description: getTeamsDirectoryDescription(team),
     ctaLabel: "Ver equipo",
@@ -429,6 +431,14 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       select: {
         id: true,
         opponentName: true,
+        opponent: {
+          select: {
+            logoMedia: { select: { publicUrl: true, altText: true } },
+          },
+        },
+        opponentLogo: {
+          select: { publicUrl: true, altText: true },
+        },
         isHome: true,
         homeScore: true,
         awayScore: true,
@@ -550,6 +560,8 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     slug: team.publicSlug,
     variant: team.team.isFirstTeam ? "first-team" : "academy",
     name: displayName,
+    logoUrl: team.logoMedia?.publicUrl,
+    logoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
     category: normalizeCategory(team.category, team.team.isFirstTeam),
     competition: team.competitionName ?? "Competicion pendiente",
     season: team.season.name,
@@ -611,6 +623,22 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
         opponent: match.opponentName,
         homeTeam: match.isHome ? displayName : match.opponentName,
         awayTeam: match.isHome ? match.opponentName : displayName,
+        homeLogoUrl: match.isHome
+          ? team.logoMedia?.publicUrl
+          : match.opponent?.logoMedia?.publicUrl ?? match.opponentLogo?.publicUrl,
+        homeLogoAlt: match.isHome
+          ? team.logoMedia?.altText ?? `Escudo ${displayName}`
+          : match.opponent?.logoMedia?.altText ??
+            match.opponentLogo?.altText ??
+            `Escudo ${match.opponentName}`,
+        awayLogoUrl: match.isHome
+          ? match.opponent?.logoMedia?.publicUrl ?? match.opponentLogo?.publicUrl
+          : team.logoMedia?.publicUrl,
+        awayLogoAlt: match.isHome
+          ? match.opponent?.logoMedia?.altText ??
+            match.opponentLogo?.altText ??
+            `Escudo ${match.opponentName}`
+          : team.logoMedia?.altText ?? `Escudo ${displayName}`,
         score: `${match.homeScore ?? "-"} - ${match.awayScore ?? "-"}`,
         result: getResultCode(goalsFor, goalsAgainst),
         label: match.matchday ? `J${match.matchday}` : undefined,
@@ -700,6 +728,8 @@ export async function getPublicTeamsDirectoryContentFromDb(): Promise<TeamsDirec
       sectionTitle: "Primer Equipo",
       eyebrow: "Plantilla profesional",
       name: getTeamsDirectoryTeamName(firstTeam.publicName, firstTeam.team.isFirstTeam),
+      logoUrl: firstTeam.logoMedia?.publicUrl,
+      logoAlt: firstTeam.logoMedia?.altText ?? `Escudo ${firstTeam.publicName}`,
       description: getTeamSummaryDescription(firstTeam),
       primaryCta: {
         href: "/primer-equipo/plantilla",

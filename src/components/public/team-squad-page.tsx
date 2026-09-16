@@ -45,7 +45,12 @@ export function TeamSquadPage({ squad, teamType, badges = [] }: TeamSquadPagePro
             : "relative mx-auto w-full max-w-[1344px] px-5 py-14 md:px-8 md:py-18 xl:px-16"
         }
       >
-        <SquadPageTitle title={squad.pageTitle} />
+        <SquadPageTitle
+          title={squad.pageTitle}
+          teamName={squad.teamLabel}
+          teamLogoUrl={squad.teamLogoUrl}
+          teamLogoAlt={squad.teamLogoAlt}
+        />
         <TeamSectionNavigation links={navLinks} activeKey="squad" className="mt-8 justify-center" />
 
         {badges.length > 0 ? (

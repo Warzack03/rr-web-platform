@@ -14,6 +14,8 @@ function buildStatisticsContentFromDb(input: {
   teamType: "first-team" | "academy";
   teamSlug: string;
   teamName: string;
+  teamLogoUrl?: string;
+  teamLogoAlt?: string;
   season: string;
   competition: string;
   category?: string;
@@ -24,6 +26,8 @@ function buildStatisticsContentFromDb(input: {
     teamType: input.teamType,
     teamSlug: input.teamSlug,
     teamName: input.teamName,
+    teamLogoUrl: input.teamLogoUrl,
+    teamLogoAlt: input.teamLogoAlt,
     season: input.season,
     competition: input.competition,
     category: input.category,
@@ -58,6 +62,8 @@ export async function getFirstTeamStatisticsPageContentFromDb(): Promise<TeamSta
       teamType: "first-team",
       teamSlug: "primer-equipo",
       teamName: teamSummary.name,
+      teamLogoUrl: teamSummary.logoUrl,
+      teamLogoAlt: teamSummary.logoAlt,
       season: teamSummary.season,
       competition: teamSummary.competition,
       category: teamSummary.category,
@@ -87,6 +93,8 @@ export async function getAcademyTeamStatisticsPageContentFromDb(
       teamType: "academy",
       teamSlug: teamSummary.slug,
       teamName: teamSummary.name,
+      teamLogoUrl: teamSummary.logoUrl,
+      teamLogoAlt: teamSummary.logoAlt,
       season: teamSummary.season,
       competition: teamSummary.competition,
       category: teamSummary.category,

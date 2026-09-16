@@ -64,6 +64,10 @@ export type PublicTeamRecentResult = {
   opponent: string;
   homeTeam?: string;
   awayTeam?: string;
+  homeLogoUrl?: string;
+  homeLogoAlt?: string;
+  awayLogoUrl?: string;
+  awayLogoAlt?: string;
   score: string;
   result: "V" | "E" | "D";
   label?: string;
@@ -93,6 +97,8 @@ export type PublicTeamPageContent = {
   slug: string;
   variant: PublicTeamType;
   name: string;
+  logoUrl?: string;
+  logoAlt?: string;
   category: string;
   competition: string;
   season: string;
@@ -188,6 +194,9 @@ export type PublicCalendarMatchday = {
 export type PublicTeamCalendarContent = {
   pageTitle: string;
   subtitle: string;
+  teamName: string;
+  teamLogoUrl?: string;
+  teamLogoAlt?: string;
   matchdays: PublicCalendarMatchday[];
 };
 
@@ -215,6 +224,8 @@ export type PublicTeamStandingsPageContent = {
   subtitle: string;
   season: string;
   teamName: string;
+  teamLogoUrl?: string;
+  teamLogoAlt?: string;
   competition?: string;
   updatedAt?: string;
   backHref: string;
@@ -276,6 +287,8 @@ export type PublicTeamStatisticsPageContent = {
   teamType: PublicTeamType;
   teamSlug: string;
   teamName: string;
+  teamLogoUrl?: string;
+  teamLogoAlt?: string;
   season: string;
   competition: string;
   category?: string;
@@ -294,6 +307,8 @@ export type PublicTeamRosterContent = {
   pageTitle: string;
   teamSlug: string;
   teamLabel: string;
+  teamLogoUrl?: string;
+  teamLogoAlt?: string;
   seasonLabel: string;
   goalkeepers: PublicRosterPlayerCard[];
   fieldPlayers: PublicRosterPlayerCard[];

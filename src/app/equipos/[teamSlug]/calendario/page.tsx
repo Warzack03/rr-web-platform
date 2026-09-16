@@ -76,6 +76,9 @@ export default async function AcademyTeamCalendarPage({
           <CalendarPageTitle
             title={calendar.pageTitle}
             subtitle={calendar.subtitle}
+            teamName={calendar.teamName}
+            teamLogoUrl={calendar.teamLogoUrl}
+            teamLogoAlt={calendar.teamLogoAlt}
             backHref={`/equipos/${teamSummary.slug}`}
             backLabel={`Volver a ${teamSummary.name}`}
           />

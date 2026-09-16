@@ -212,6 +212,9 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
           publicName: true,
           publicSlug: true,
           competitionName: true,
+          logoMedia: {
+            select: { publicUrl: true, altText: true },
+          },
           team: {
             select: {
               isFirstTeam: true,
@@ -365,6 +368,8 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
   const ownTeam = {
     name: teamDisplayName,
     crestLabel: buildCrestLabel(teamDisplayName),
+    crestUrl: match.seasonTeam.logoMedia?.publicUrl,
+    crestAlt: match.seasonTeam.logoMedia?.altText ?? `Escudo ${teamDisplayName}`,
     isClub: true,
   };
   const opponentLogo = match.opponent?.logoMedia ?? match.opponentLogo;
