@@ -126,11 +126,18 @@ function AcademyVisualCard({ team }: { team: AcademyTeamCardContent }) {
     >
       <div className="relative h-[15.5rem] overflow-hidden border-b border-[color:var(--rr-border)]">
         {team.bannerUrl ? (
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-[1.03]"
-            style={{ backgroundImage: `url(${team.bannerUrl})` }}
-          />
+          <>
+            <div
+              aria-hidden="true"
+              className="absolute inset-[-1rem] scale-110 bg-cover bg-center opacity-45 blur-xl"
+              style={{ backgroundImage: `url(${team.bannerUrl})` }}
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-contain bg-center bg-no-repeat transition duration-500 group-hover:brightness-110"
+              style={{ backgroundImage: `url(${team.bannerUrl})` }}
+            />
+          </>
         ) : (
           <ClubLineupVisual figureCount={4} showPitchGlow compact className="h-full" />
         )}
