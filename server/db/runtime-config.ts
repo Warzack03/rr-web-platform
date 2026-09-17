@@ -101,9 +101,9 @@ export function createMariaDbAdapter() {
     database,
     connectionLimit,
     minimumIdle: 0,
-    connectTimeout: 10_000,
-    acquireTimeout: 30_000,
-    initializationTimeout: 30_000,
+    connectTimeout: 5_000,
+    acquireTimeout: 10_000,
+    initializationTimeout: 10_000,
     idleTimeout: 300,
   });
 }

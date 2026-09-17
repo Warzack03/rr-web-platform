@@ -73,8 +73,8 @@ Start with `connection_limit=5` and `DB_CONNECTION_LIMIT=5`. Increase to 10 only
 
 During `next build`, the runtime adapter limits each isolated Next.js worker to
 one connection. Normal runtime keeps `DB_CONNECTION_LIMIT`. The adapter uses a
-lazy pool and longer connection/acquisition timeouts to tolerate short MySQL
-startup or network delays without creating a connection burst during deploy.
+lazy pool and bounded timeouts so a deploy neither creates a large MySQL
+connection burst nor triggers long Next.js route retries.
 
 ### Temporary database IP diagnostic
 
@@ -85,9 +85,9 @@ Hostinger environment variable and restart/redeploy the app:
 DB_IP_DIAGNOSTIC="true"
 ```
 
-Search the build or runtime logs for `[node-egress-ip-diagnostic]`. The check now
-runs when Prisma is loaded, and still also runs before a validly formatted login
-query. A successful lookup prints `status: "IP_OK"` and
+Search the runtime logs for `[node-egress-ip-diagnostic]`. The check now runs
+when Prisma is loaded outside the production build, and still also runs before
+a validly formatted login query. A successful lookup prints `status: "IP_OK"` and
 the public `sourceIp` used by Node immediately before Prisma queries MySQL. It
 does not log the submitted login, password, database credentials or database
 URL. If that IP is missing from the MySQL allowlist, add it and retry.

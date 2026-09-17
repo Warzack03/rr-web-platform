@@ -9,6 +9,7 @@ declare global {
 
 if (
   process.env.DB_IP_DIAGNOSTIC === "true" &&
+  process.env.NEXT_PHASE !== "phase-production-build" &&
   !global.__dbIpDiagnosticStarted__
 ) {
   global.__dbIpDiagnosticStarted__ = true;
@@ -16,9 +17,16 @@ if (
 }
 
 function createPrismaClient() {
+  const isProductionBuild =
+    process.env.NEXT_PHASE === "phase-production-build";
+
   return new PrismaClient({
     adapter: createMariaDbAdapter(),
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+    log: isProductionBuild
+      ? []
+      : process.env.NODE_ENV === "development"
+        ? ["error", "warn"]
+        : ["error"],
   });
 }
 

@@ -5,6 +5,11 @@ type SafeLogContextValue = string | number | bigint | boolean | null | undefined
 type SafeLogContext = Record<string, SafeLogContextValue>;
 
 const sensitiveKeyPattern = /password|token|secret|credential|cookie|authorization|database_url|db_password/i;
+const poolTimeoutPattern = /pool timeout: failed to retrieve a connection from pool/i;
+
+declare global {
+  var __buildDbPoolTimeoutLogged__: boolean | undefined;
+}
 
 function sanitizeContext(context: SafeLogContext = {}) {
   return Object.fromEntries(
@@ -51,6 +56,21 @@ export function logServerError(
   error: unknown,
   context?: SafeLogContext,
 ) {
+  if (
+    process.env.NEXT_PHASE === "phase-production-build" &&
+    error instanceof Error &&
+    poolTimeoutPattern.test(error.message)
+  ) {
+    if (!global.__buildDbPoolTimeoutLogged__) {
+      global.__buildDbPoolTimeoutLogged__ = true;
+      console.warn(
+        "[build-db] MySQL no estuvo disponible durante el prerender; se usaron los fallbacks publicos.",
+      );
+    }
+
+    return;
+  }
+
   console.error("[server-error]", {
     scope,
     ...getErrorSummary(error),
