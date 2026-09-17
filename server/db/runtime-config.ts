@@ -26,6 +26,60 @@ const runtimeDatabaseConfigSchema = z.object({
 
 export type RuntimeDatabaseConfig = z.infer<typeof runtimeDatabaseConfigSchema>;
 
+const requiredRuntimeVariableNames = [
+  "DB_HOST",
+  "DB_USER",
+  "DB_PASSWORD",
+  "DB_NAME",
+] as const;
+
+export type RuntimeDatabaseConfigSource =
+  | "DB_VARIABLES"
+  | "DATABASE_URL"
+  | "DATABASE_URL_WITH_PARTIAL_DB_VARIABLES_IGNORED"
+  | "INCOMPLETE";
+
+function getConfiguredRuntimeVariableCount() {
+  return requiredRuntimeVariableNames.filter(
+    (key) => process.env[key] !== undefined,
+  ).length;
+}
+
+export function getRuntimeDatabaseConfigSource(): RuntimeDatabaseConfigSource {
+  const configuredCount = getConfiguredRuntimeVariableCount();
+
+  if (configuredCount === requiredRuntimeVariableNames.length) {
+    return "DB_VARIABLES";
+  }
+
+  if (process.env.DATABASE_URL) {
+    return configuredCount === 0
+      ? "DATABASE_URL"
+      : "DATABASE_URL_WITH_PARTIAL_DB_VARIABLES_IGNORED";
+  }
+
+  return "INCOMPLETE";
+}
+
+function normalizeNonSecretValue(value: string | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const trimmedValue = value.trim();
+  const quote = trimmedValue[0];
+
+  if (
+    trimmedValue.length >= 2 &&
+    (quote === '"' || quote === "'") &&
+    trimmedValue.at(-1) === quote
+  ) {
+    return trimmedValue.slice(1, -1);
+  }
+
+  return trimmedValue;
+}
+
 function parsePositiveInteger(value: string | undefined, fallback: number) {
   if (!value) {
     return fallback;
@@ -75,15 +129,27 @@ function getDatabaseUrlFallback() {
 
 export function getRuntimeDatabaseConfig(): RuntimeDatabaseConfig {
   const fallback = getDatabaseUrlFallback();
+  const useSeparateVariables =
+    getRuntimeDatabaseConfigSource() === "DB_VARIABLES";
 
   return runtimeDatabaseConfigSchema.parse({
-    host: process.env.DB_HOST ?? fallback?.host,
-    port: parsePositiveInteger(process.env.DB_PORT, fallback?.port ?? 3306),
-    user: process.env.DB_USER ?? fallback?.user,
-    password: process.env.DB_PASSWORD ?? fallback?.password ?? "",
-    database: process.env.DB_NAME ?? fallback?.database,
+    host: normalizeNonSecretValue(
+      useSeparateVariables ? process.env.DB_HOST : fallback?.host,
+    ),
+    port: useSeparateVariables
+      ? parsePositiveInteger(process.env.DB_PORT, 3306)
+      : (fallback?.port ?? 3306),
+    user: normalizeNonSecretValue(
+      useSeparateVariables ? process.env.DB_USER : fallback?.user,
+    ),
+    password: useSeparateVariables
+      ? (process.env.DB_PASSWORD ?? "")
+      : (fallback?.password ?? ""),
+    database: normalizeNonSecretValue(
+      useSeparateVariables ? process.env.DB_NAME : fallback?.database,
+    ),
     connectionLimit: resolveConnectionLimit(
-      process.env.DB_CONNECTION_LIMIT,
+      useSeparateVariables ? process.env.DB_CONNECTION_LIMIT : undefined,
       fallback?.connectionLimit ?? 5,
     ),
   });

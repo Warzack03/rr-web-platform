@@ -15,6 +15,10 @@ type TeamDetailPageProps = {
 export const revalidate = 300;
 
 export async function generateStaticParams() {
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    return [];
+  }
+
   const teamSlugs = await getPublicNonFirstTeamSlugsFromDb();
 
   return teamSlugs.map((teamSlug) => ({

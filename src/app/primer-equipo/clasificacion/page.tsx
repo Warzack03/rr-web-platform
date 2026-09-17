@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { TeamStandingsPage } from "@/components/public/team-standings-page";
@@ -11,10 +12,16 @@ export const metadata: Metadata = buildPublicPageMetadata({
   path: "/primer-equipo/clasificacion",
 });
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+
+const getCachedFirstTeamStandings = unstable_cache(
+  getFirstTeamStandingsContentFromDb,
+  ["public-first-team-standings"],
+  { revalidate: 300 },
+);
 
 export default async function FirstTeamStandingPage() {
-  const content = await getFirstTeamStandingsContentFromDb();
+  const content = await getCachedFirstTeamStandings();
 
   if (!content) {
     notFound();

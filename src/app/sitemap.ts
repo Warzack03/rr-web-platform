@@ -11,6 +11,8 @@ import {
 import { getPublicNewsArticles } from "@/server/services/public/news-content";
 import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
+export const dynamic = "force-dynamic";
+
 const STATIC_PUBLIC_PATHS = [
   "/",
   "/primer-equipo",

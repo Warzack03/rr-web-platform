@@ -71,7 +71,7 @@ Key variables:
 
 Production notes:
 
-- Use Node.js 20 LTS. The project pins this with `engines.node >=20.9.0 <21` and `.nvmrc`.
+- Use Node.js 22 LTS. The project pins this with `engines.node >=22.0.0 <23` and `.nvmrc` because Prisma 7.9.1 currently installs an internal package that requires Node.js 22.
 - Set `NODE_ENV=production` in Hostinger.
 - Set `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` to the public HTTPS origin, for example `https://www.risingraimon.es`.
 - `AUTH_SECRET` must be a long random secret in production. Do not reuse the example value.

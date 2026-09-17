@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { HomeAcademySummary } from "@/components/public/home-academy-summary";
 import { HomeFirstTeamBlock } from "@/components/public/home-first-team-block";
@@ -14,10 +15,16 @@ export const metadata: Metadata = buildPublicPageMetadata({
   path: "/",
 });
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+
+const getCachedPublicHomePageContent = unstable_cache(
+  getPublicHomePageContent,
+  ["public-home-page"],
+  { revalidate: 300 },
+);
 
 export default async function HomePage() {
-  const content = await getPublicHomePageContent();
+  const content = await getCachedPublicHomePageContent();
 
   if (!content) {
     return (

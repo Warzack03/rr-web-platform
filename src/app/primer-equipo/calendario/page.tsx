@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { CalendarPageTitle } from "@/components/public/calendar-page-title";
@@ -14,10 +15,16 @@ export const metadata: Metadata = buildPublicPageMetadata({
   path: "/primer-equipo/calendario",
 });
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+
+const getCachedFirstTeamCalendar = unstable_cache(
+  () => getPublicTeamCalendarContentFromDb("primer-equipo"),
+  ["public-first-team-calendar"],
+  { revalidate: 300 },
+);
 
 export default async function FirstTeamCalendarPage() {
-  const dbCalendar = await getPublicTeamCalendarContentFromDb("primer-equipo");
+  const dbCalendar = await getCachedFirstTeamCalendar();
 
   if (!dbCalendar) {
     notFound();

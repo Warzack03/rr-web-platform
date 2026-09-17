@@ -7,7 +7,7 @@ Este documento recoge riesgos residuales y mejoras posteriores al plan de estabi
 ## Pendiente antes de producción
 
 - Completar el smoke manual de E.5 en Hostinger o staging con MySQL disponible.
-- Confirmar Node 20 real en Hostinger.
+- Confirmar Node 22 real en Hostinger.
 - Ejecutar `npm run db:migrate:status` contra la base real antes y después de migraciones.
 - Probar login, logout y protección de rutas admin en HTTPS.
 - Probar CRUD representativo de equipos, jugadores, partidos, clasificaciones, estadísticas, media y noticias.

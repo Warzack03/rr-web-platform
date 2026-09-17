@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import { NewsGrid } from "@/components/public/news-grid";
 import { NewsHero } from "@/components/public/news-hero";
@@ -12,10 +13,16 @@ export const metadata: Metadata = buildPublicPageMetadata({
   path: "/noticias",
 });
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+
+const getCachedPublicNewsArticles = unstable_cache(
+  getPublicNewsArticles,
+  ["public-news-list"],
+  { revalidate: 300 },
+);
 
 export default async function NewsPage() {
-  const articles = await getPublicNewsArticles();
+  const articles = await getCachedPublicNewsArticles();
   const featuredArticle = articles.find((article) => article.featured) ?? articles[0];
 
   if (!featuredArticle) {

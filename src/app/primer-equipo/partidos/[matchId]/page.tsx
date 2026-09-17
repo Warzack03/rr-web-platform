@@ -17,6 +17,10 @@ type FirstTeamMatchDetailPageProps = {
 };
 
 export async function generateStaticParams() {
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    return [];
+  }
+
   const dbIds = await getFirstTeamMatchDetailIdsFromDb();
 
   return dbIds.map((matchId) => ({

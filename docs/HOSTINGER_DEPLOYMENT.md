@@ -20,7 +20,7 @@ The existing Hostinger Business Web Hosting plan provides:
 - 600,000 inodes.
 
 ## Recommended runtime
-Use Node.js 20 LTS. The project declares `engines.node >=20.9.0 <21` and includes `.nvmrc` with `20`.
+Use Node.js 22 LTS. The project declares `engines.node >=22.0.0 <23` and includes `.nvmrc` with `22`. Prisma 7.9.1 currently installs an internal package that requires Node.js 22, so Node.js 20 produces an `EBADENGINE` warning during `npm install`.
 
 Recommended Hostinger commands:
 
@@ -78,8 +78,13 @@ connection burst nor triggers long Next.js route retries.
 
 ### Temporary database IP diagnostic
 
-If MySQL stops accepting the Node.js app after a redeploy, temporarily add this
-Hostinger environment variable and restart/redeploy the app:
+The public egress-IP diagnostic is only relevant when the application connects
+to an external or remote-MySQL hostname. A MySQL database in the same Hostinger
+hosting account should use `DB_HOST="localhost"` and does not need a remote-IP
+allowlist.
+
+For an external database, temporarily add this Hostinger environment variable
+and restart/redeploy the app:
 
 ```env
 DB_IP_DIAGNOSTIC="true"
@@ -94,6 +99,25 @@ URL. If that IP is missing from the MySQL allowlist, add it and retry.
 
 Set `DB_IP_DIAGNOSTIC="false"` and restart/redeploy after the check. The
 diagnostic is disabled by default and must not remain enabled permanently.
+
+### Runtime connection diagnostic
+
+When Prisma reports a runtime pool timeout with `active=0 idle=0`, the first
+failure in each Node.js process automatically launches one direct MariaDB
+connection probe. Search the runtime log for `[db-connection-diagnostic]`:
+
+- `ACCESS_DENIED`: verify the full Hostinger database username, password and
+  that the user is assigned to the database.
+- `DATABASE_NOT_FOUND`: verify the full prefixed `DB_NAME` shown in hPanel.
+- `DNS_ERROR`: `DB_HOST` is invalid; use `localhost` for a database in the same
+  Hostinger account.
+- `CONNECTION_REFUSED` or `HOST_UNREACHABLE`: verify `localhost:3306` and open a
+  Hostinger support ticket if those values are correct.
+- `DIRECT_CONNECTION_OK`: the credentials and network work outside Prisma, so
+  investigate the Prisma MariaDB adapter/pool specifically.
+
+The probe logs only classification codes, connection-source type, host type,
+port and duration. It never logs the database password, URL, username or name.
 
 ## Required production variables
 

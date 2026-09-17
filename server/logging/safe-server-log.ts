@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { logDatabaseConnectionDiagnostic } from "@/server/db/connection-diagnostic";
 
 type SafeLogContextValue = string | number | bigint | boolean | null | undefined;
 
@@ -9,6 +10,7 @@ const poolTimeoutPattern = /pool timeout: failed to retrieve a connection from p
 
 declare global {
   var __buildDbPoolTimeoutLogged__: boolean | undefined;
+  var __runtimeDbConnectionDiagnosticStarted__: boolean | undefined;
 }
 
 function sanitizeContext(context: SafeLogContext = {}) {
@@ -56,10 +58,12 @@ export function logServerError(
   error: unknown,
   context?: SafeLogContext,
 ) {
+  const isPoolTimeout =
+    error instanceof Error && poolTimeoutPattern.test(error.message);
+
   if (
     process.env.NEXT_PHASE === "phase-production-build" &&
-    error instanceof Error &&
-    poolTimeoutPattern.test(error.message)
+    isPoolTimeout
   ) {
     if (!global.__buildDbPoolTimeoutLogged__) {
       global.__buildDbPoolTimeoutLogged__ = true;
@@ -69,6 +73,11 @@ export function logServerError(
     }
 
     return;
+  }
+
+  if (isPoolTimeout && !global.__runtimeDbConnectionDiagnosticStarted__) {
+    global.__runtimeDbConnectionDiagnosticStarted__ = true;
+    void logDatabaseConnectionDiagnostic();
   }
 
   console.error("[server-error]", {

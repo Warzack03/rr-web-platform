@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
 import {
   AcademyTeamsGrid,
@@ -15,10 +16,16 @@ export const metadata: Metadata = buildPublicPageMetadata({
   path: "/equipos",
 });
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+
+const getCachedPublicTeamsDirectoryContent = unstable_cache(
+  getPublicTeamsDirectoryContentFromDb,
+  ["public-teams-directory"],
+  { revalidate: 300 },
+);
 
 export default async function TeamsPage() {
-  const dbContent = await getPublicTeamsDirectoryContentFromDb();
+  const dbContent = await getCachedPublicTeamsDirectoryContent();
 
   if (!dbContent) {
     return (
