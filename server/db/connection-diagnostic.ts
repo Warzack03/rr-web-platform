@@ -62,6 +62,7 @@ function classifyConnectionError(error: DriverError) {
 
 export async function logDatabaseConnectionDiagnostic(
   createConnection: DiagnosticConnectionFactory = mariadb.createConnection,
+  logLabel = "[db-connection-diagnostic]",
 ) {
   const startedAt = Date.now();
 
@@ -80,7 +81,7 @@ export async function logDatabaseConnectionDiagnostic(
 
     try {
       await connection.query("SELECT 1");
-      console.info("[db-connection-diagnostic]", {
+      console.info(logLabel, {
         diagnosticVersion,
         status: "DIRECT_CONNECTION_OK",
         configSource: getRuntimeDatabaseConfigSource(),
@@ -88,6 +89,8 @@ export async function logDatabaseConnectionDiagnostic(
         port: config.port,
         durationMs: Date.now() - startedAt,
       });
+
+      return true;
     } finally {
       await connection.end();
     }
@@ -95,7 +98,7 @@ export async function logDatabaseConnectionDiagnostic(
     const driverError: DriverError =
       error instanceof Error ? (error as DriverError) : new Error();
 
-    console.error("[db-connection-diagnostic]", {
+    console.error(logLabel, {
       diagnosticVersion,
       status: "DIRECT_CONNECTION_ERROR",
       reason: classifyConnectionError(driverError),
@@ -105,5 +108,7 @@ export async function logDatabaseConnectionDiagnostic(
       configSource: getRuntimeDatabaseConfigSource(),
       durationMs: Date.now() - startedAt,
     });
+
+    return false;
   }
 }

@@ -155,21 +155,24 @@ export function getRuntimeDatabaseConfig(): RuntimeDatabaseConfig {
   });
 }
 
-export function createMariaDbAdapter() {
+export function getMariaDbAdapterConfig() {
   const { host, port, user, password, database, connectionLimit } =
     getRuntimeDatabaseConfig();
 
-  return new PrismaMariaDb({
+  return {
     host,
     port,
     user,
     password,
     database,
     connectionLimit,
-    minimumIdle: 0,
     connectTimeout: 5_000,
     acquireTimeout: 10_000,
     initializationTimeout: 10_000,
     idleTimeout: 300,
-  });
+  };
+}
+
+export function createMariaDbAdapter() {
+  return new PrismaMariaDb(getMariaDbAdapterConfig());
 }

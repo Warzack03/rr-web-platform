@@ -36,6 +36,11 @@ Use `npm run db:migrate:deploy` for production migrations. Do not use `prisma mi
 
 Use `npm run db:migrate:status` before and after deploy for inspection. A pending-migration result before deploy is acceptable only when those are the migrations you are about to apply; divergent history, failed migrations or connection errors block the deploy.
 
+`npm run build` executes one non-blocking direct database probe before Next.js.
+The deployment log contains exactly one `[db-deploy-connection]` entry with
+`DIRECT_CONNECTION_OK` or a safe classified failure reason. No credentials are
+included.
+
 For the full backup, staging validation and rollback sequence, follow `docs/DATABASE_MIGRATION_RUNBOOK.md`.
 
 ## Suggested deployment structure
@@ -72,9 +77,9 @@ Keep `DATABASE_URL` for Prisma CLI/migrations. The app runtime uses the separate
 Start with `connection_limit=5` and `DB_CONNECTION_LIMIT=5`. Increase to 10 only if needed.
 
 During `next build`, the runtime adapter limits each isolated Next.js worker to
-one connection. Normal runtime keeps `DB_CONNECTION_LIMIT`. The adapter uses a
-lazy pool and bounded timeouts so a deploy neither creates a large MySQL
-connection burst nor triggers long Next.js route retries.
+one connection. Normal runtime keeps `DB_CONNECTION_LIMIT`. The adapter uses
+bounded timeouts. Do not configure `minimumIdle: 0` with the MariaDB 3.4.x pool
+bundled by Prisma 7.9.1 because it prevents the pool from creating connections.
 
 ### Temporary database IP diagnostic
 

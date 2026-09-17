@@ -3,6 +3,7 @@ import { afterEach, describe, it } from "node:test";
 import {
   getRuntimeDatabaseConfig,
   getRuntimeDatabaseConfigSource,
+  getMariaDbAdapterConfig,
 } from "@/server/db/runtime-config";
 
 const originalNextPhase = process.env.NEXT_PHASE;
@@ -105,5 +106,11 @@ describe("runtime database pool configuration", () => {
     assert.equal(config.user, "hostinger-user");
     assert.equal(config.password, "exact-password");
     assert.equal(config.database, "hostinger-db");
+  });
+
+  it("does not disable connection creation in the MariaDB 3.4 pool", () => {
+    const adapterConfig = getMariaDbAdapterConfig();
+
+    assert.equal("minimumIdle" in adapterConfig, false);
   });
 });
