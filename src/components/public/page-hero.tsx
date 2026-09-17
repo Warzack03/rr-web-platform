@@ -45,9 +45,9 @@ export function PageHero({
   const titleClassName =
     variant === "academy"
       ? hasLongAcademyTitle
-        ? "max-w-[42rem] text-[3.35rem] leading-[1] tracking-[0.035em] sm:text-[4.25rem] lg:text-[5rem]"
-        : "text-[3.8rem] leading-[0.92] sm:text-[4.8rem] lg:text-[5.7rem]"
-      : "text-[4rem] leading-[0.9] sm:text-[5rem] lg:text-[6.5rem]";
+        ? "text-[3.35rem] leading-[1] tracking-[0.035em] sm:text-[4.25rem] lg:whitespace-nowrap lg:text-[clamp(3.3rem,5vw,5rem)]"
+        : "text-[3.8rem] leading-[0.92] sm:text-[4.8rem] lg:whitespace-nowrap lg:text-[clamp(3.5rem,5.4vw,5.5rem)]"
+      : "text-[4rem] leading-[0.9] sm:text-[5rem] lg:whitespace-nowrap lg:text-[clamp(3.6rem,5.8vw,5.9rem)]";
   const heightClassName = variant === "academy" ? "lg:min-h-[34rem]" : "lg:min-h-[39rem]";
 
   return (
@@ -76,8 +76,8 @@ export function PageHero({
       <div
         className={`relative mx-auto flex min-h-[32rem] w-full max-w-[1280px] items-end px-5 pb-14 pt-24 md:px-8 md:pb-16 ${heightClassName} xl:px-16`}
       >
-        <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0 max-w-[38rem] lg:flex-1">
+        <div className="flex w-full flex-col">
+          <div className="min-w-0">
             <div className="mb-5 flex flex-wrap gap-2">
               {chips.map((chip, index) => (
                 <span
@@ -99,6 +99,9 @@ export function PageHero({
               />
               <h1 className={`rr-display min-w-0 text-balance text-white ${titleClassName}`}>{title}</h1>
             </div>
+          </div>
+
+          <div className="mt-5 flex w-full flex-col gap-5 lg:mt-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="mt-4 flex items-center gap-3 text-[1.35rem] text-[color:var(--rr-text)]/94">
               <UserRound className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
               <span>
