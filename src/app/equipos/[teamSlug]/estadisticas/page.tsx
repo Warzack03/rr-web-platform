@@ -7,7 +7,6 @@ import { getPublicTeamHeroContent } from "@/lib/public/team-page-content";
 import { getAcademyTeamStatisticsPageContent } from "@/lib/public/team-statistics-content";
 import { parseTeamStatisticsInitialState } from "@/lib/public/team-statistics-url-state";
 import { buildPublicPageMetadata } from "@/lib/seo";
-import { getPublicNonFirstTeamSlugsFromDb } from "@/server/services/public/teams";
 
 type TeamStatisticsRouteProps = {
   params: Promise<{
@@ -16,19 +15,7 @@ type TeamStatisticsRouteProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export const revalidate = 300;
-
-export async function generateStaticParams() {
-  if (process.env.NEXT_PHASE === "phase-production-build") {
-    return [];
-  }
-
-  const teamSlugs = await getPublicNonFirstTeamSlugsFromDb();
-
-  return teamSlugs.map((teamSlug) => ({
-    teamSlug,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
