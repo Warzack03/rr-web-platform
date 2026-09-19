@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
+import { PageHero } from "@/components/public/page-hero";
 import { TeamSquadPage } from "@/components/public/team-squad-page";
+import { getPublicTeamHeroContent } from "@/lib/public/team-page-content";
 import { buildPublicPageMetadata } from "@/lib/seo";
 import { getPublicRosterContentFromDb } from "@/server/services/public/roster";
 
@@ -21,14 +23,18 @@ const getCachedFirstTeamRoster = unstable_cache(
 );
 
 export default async function FirstTeamSquadPage() {
-  const dbSquad = await getCachedFirstTeamRoster();
+  const [dbSquad, heroContent] = await Promise.all([
+    getCachedFirstTeamRoster(),
+    getPublicTeamHeroContent("primer-equipo"),
+  ]);
 
-  if (!dbSquad) {
+  if (!dbSquad || !heroContent) {
     notFound();
   }
 
   return (
     <PublicSiteLayout activeNav="primer-equipo">
+      <PageHero content={heroContent} activeKey="squad" />
       <TeamSquadPage squad={dbSquad} teamType="first-team" />
     </PublicSiteLayout>
   );

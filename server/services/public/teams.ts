@@ -6,6 +6,7 @@ import type {
   TeamsDirectoryContent,
 } from "@/lib/public/teams-directory-content";
 import type {
+  PublicTeamHeroContent,
   PublicTeamPageContent,
   PublicTeamNewsItem,
   PublicTeamQuickInfoItem,
@@ -712,6 +713,79 @@ export async function getPublicTeamPageContentFromDb(
     return buildPublicTeamPageContent(team);
   } catch (error) {
     logServerError("public.teams.teamPage", error, { teamSlug });
+    return null;
+  }
+}
+
+export async function getPublicTeamHeroContentFromDb(
+  teamSlug: string,
+): Promise<PublicTeamHeroContent | null> {
+  try {
+    const siteSettings = await prisma.siteSettings.findFirst({
+      orderBy: { updatedAt: "desc" },
+      select: {
+        activeSeason: {
+          select: {
+            seasonTeams: {
+              where: {
+                publicSlug: teamSlug,
+                active: true,
+                publicVisible: true,
+                deletedAt: null,
+              },
+              take: 1,
+              select: {
+                publicName: true,
+                publicSlug: true,
+                category: true,
+                competitionName: true,
+                season: {
+                  select: { name: true },
+                },
+                team: {
+                  select: { isFirstTeam: true },
+                },
+                logoMedia: {
+                  select: { publicUrl: true, altText: true },
+                },
+                bannerMedia: {
+                  select: { publicUrl: true },
+                },
+                coaches: {
+                  where: { publicVisible: true },
+                  orderBy: [{ displayOrder: "asc" }, { id: "asc" }],
+                  select: { name: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const team = siteSettings?.activeSeason?.seasonTeams[0];
+
+    if (!team) {
+      return null;
+    }
+
+    const isFirstTeam = team.team.isFirstTeam;
+    const name = getPublicTeamDisplayName(team.publicName, isFirstTeam);
+
+    return {
+      slug: team.publicSlug,
+      variant: isFirstTeam ? "first-team" : "academy",
+      name,
+      logoUrl: team.logoMedia?.publicUrl,
+      logoAlt: team.logoMedia?.altText ?? `Escudo ${name}`,
+      category: normalizeCategory(team.category, isFirstTeam),
+      competition: team.competitionName ?? "Competicion pendiente",
+      season: team.season.name,
+      coaches: team.coaches.map((coach) => coach.name),
+      heroImageUrl: team.bannerMedia?.publicUrl,
+      heroImagePosition: isFirstTeam ? "center center" : "center top",
+    };
+  } catch (error) {
+    logServerError("public.teams.teamHero", error, { teamSlug });
     return null;
   }
 }

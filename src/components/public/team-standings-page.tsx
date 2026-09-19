@@ -1,11 +1,9 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ChevronLeft, Clock3, Trophy } from "lucide-react";
+import { Clock3, Trophy } from "lucide-react";
 import type { StandingRowData, TeamStandingsPageContent } from "@/lib/contracts/public";
 import { StandingTeamCrest } from "@/components/public/standing-team-crest";
 import { getPublicTeamHref } from "@/lib/public/team-section-links";
-import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
-import { TeamCrest } from "@/components/public/team-crest";
 import { cn } from "@/lib/utils";
 
 type TeamStandingsPageProps = {
@@ -13,56 +11,21 @@ type TeamStandingsPageProps = {
 };
 
 export function TeamStandingsPage({ content }: TeamStandingsPageProps) {
-  const titleClassName =
-    content.variant === "first-team"
-      ? "text-[4.2rem] sm:text-[5.5rem] lg:text-[6.4rem]"
-      : "text-[3.7rem] sm:text-[4.9rem] lg:text-[5.7rem]";
-
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.14),transparent_56%)]" />
       <div className="absolute inset-x-0 top-24 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(52,112,200,0.08),transparent_28%)]" />
 
-      <section className="relative mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
-        <header className="max-w-[54rem]">
-          <Link
-            href={content.backHref}
-            className="rr-kicker inline-flex items-center gap-2 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-[color:var(--rr-gold)]"
-          >
-            <ChevronLeft className="h-4 w-4" strokeWidth={1.9} />
-            <span>{content.backLabel}</span>
-          </Link>
-
-          <StandingsMetaBar
-            className="mt-6"
-            competition={content.competition}
-            season={content.season}
-            updatedAt={content.updatedAt}
-          />
-
-          <div className="mt-6 flex items-center gap-4">
-            <TeamCrest
-              name={content.teamName}
-              logoUrl={content.teamLogoUrl}
-              logoAlt={content.teamLogoAlt}
-              isClub
-              className="h-16 w-16 sm:h-20 sm:w-20"
-              initialsClassName="text-[1.8rem] sm:text-[2.2rem]"
-            />
-            <h1 className={cn("rr-display leading-[0.9] text-white", titleClassName)}>
-              {content.title}
-            </h1>
+      <section className="relative mx-auto w-full max-w-[1280px] px-5 py-10 md:px-8 md:py-14 xl:px-16">
+        {content.updatedAt ? (
+          <div className="inline-flex items-center gap-2 border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-2 text-[0.98rem] text-[color:var(--rr-muted)]">
+            <Clock3 className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
+            <span>Actualizado: {content.updatedAt}</span>
           </div>
-          <p className="mt-4 text-[1.16rem] text-[color:var(--rr-muted)] md:text-[1.32rem]">
-            {content.subtitle}
-          </p>
-          <div className="rr-bolt-divider mt-7 max-w-[21rem]" />
-        </header>
+        ) : null}
 
-        <TeamSectionNavigation links={content.navLinks} activeKey="standing" className="mt-8" />
-
-        <div className="mt-10">
+        <div className={content.updatedAt ? "mt-5" : undefined}>
           {content.rows.length > 0 ? (
             <>
               <StandingsTable rows={content.rows} />
@@ -73,37 +36,6 @@ export function TeamStandingsPage({ content }: TeamStandingsPageProps) {
           )}
         </div>
       </section>
-    </div>
-  );
-}
-
-type StandingsMetaBarProps = {
-  competition?: string;
-  season: string;
-  updatedAt?: string;
-  className?: string;
-};
-
-export function StandingsMetaBar({
-  competition,
-  season,
-  updatedAt,
-  className,
-}: StandingsMetaBarProps) {
-  return (
-    <div className={cn("flex flex-wrap items-center gap-3", className)}>
-      {competition ? (
-        <span className="rr-chip border-[color:var(--rr-border-strong)] text-[color:var(--rr-gold)]">
-          {competition}
-        </span>
-      ) : null}
-      <span className="rr-chip text-[color:var(--rr-muted)]">{season}</span>
-      {updatedAt ? (
-        <div className="inline-flex items-center gap-2 border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-2 text-[0.98rem] text-[color:var(--rr-muted)]">
-          <Clock3 className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
-          <span>Actualizado: {updatedAt}</span>
-        </div>
-      ) : null}
     </div>
   );
 }

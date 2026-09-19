@@ -170,6 +170,10 @@ export function getMariaDbAdapterConfig() {
     acquireTimeout: 10_000,
     initializationTimeout: 10_000,
     idleTimeout: 300,
+    // Local MySQL 8 commonly uses caching_sha2_password. The local connector
+    // needs this opt-in to retrieve its public key when TLS is not configured.
+    // Production keeps its existing authentication/TLS behaviour unchanged.
+    allowPublicKeyRetrieval: process.env.NODE_ENV === "development",
   };
 }
 

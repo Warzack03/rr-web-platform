@@ -1,24 +1,17 @@
 import type { ReactNode } from "react";
 import { PlayerCard } from "@/components/public/player-card";
-import { SquadPageTitle } from "@/components/public/squad-page-title";
 import { SquadSection } from "@/components/public/squad-section";
-import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
 import type { PublicTeamRosterContent, PublicTeamType } from "@/lib/contracts/public";
 import { getGlobalPlayerHref } from "@/lib/public/player-routes";
-import {
-  getPublicRosterNavLinks,
-  groupPublicRosterFieldPlayers,
-} from "@/lib/public/team-roster";
+import { groupPublicRosterFieldPlayers } from "@/lib/public/team-roster";
 
 type TeamSquadPageProps = {
   squad: PublicTeamRosterContent;
   teamType: PublicTeamType;
-  badges?: string[];
 };
 
-export function TeamSquadPage({ squad, teamType, badges = [] }: TeamSquadPageProps) {
+export function TeamSquadPage({ squad, teamType }: TeamSquadPageProps) {
   const fieldGroups = groupPublicRosterFieldPlayers(squad.fieldPlayers);
-  const navLinks = getPublicRosterNavLinks({ teamType, teamSlug: squad.teamSlug });
   const isFirstTeam = teamType === "first-team";
 
   return (
@@ -45,28 +38,7 @@ export function TeamSquadPage({ squad, teamType, badges = [] }: TeamSquadPagePro
             : "relative mx-auto w-full max-w-[1344px] px-5 py-14 md:px-8 md:py-18 xl:px-16"
         }
       >
-        <SquadPageTitle
-          title={squad.pageTitle}
-          teamName={squad.teamLabel}
-          teamLogoUrl={squad.teamLogoUrl}
-          teamLogoAlt={squad.teamLogoAlt}
-        />
-        <TeamSectionNavigation links={navLinks} activeKey="squad" className="mt-8 justify-center" />
-
-        {badges.length > 0 ? (
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            {badges.map((badge) => (
-              <span
-                key={badge}
-                className="rr-kicker border border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] px-3 py-2 text-[0.76rem] text-[color:var(--rr-muted)]"
-              >
-                {badge}
-              </span>
-            ))}
-          </div>
-        ) : null}
-
-        <div className={isFirstTeam ? "mt-16 space-y-[4.5rem] md:mt-20 md:space-y-24" : "mt-14 space-y-[4rem] md:mt-18 md:space-y-20"}>
+        <div className={isFirstTeam ? "space-y-[4.5rem] md:space-y-24" : "space-y-[4rem] md:space-y-20"}>
           {squad.goalkeepers.length ? (
             <SquadSection title="Porteros">
               <PlayerCardGrid>

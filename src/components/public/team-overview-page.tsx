@@ -1,5 +1,5 @@
 import { NewsCard } from "@/components/public/news-card";
-import { PageHero, PageHeroIcons } from "@/components/public/page-hero";
+import { PageHero } from "@/components/public/page-hero";
 import {
   MatchPreviewPanel,
   MetricTile,
@@ -20,39 +20,8 @@ export function TeamOverviewPage({ content }: TeamOverviewPageProps) {
   return (
     <>
       <PageHero
-        chips={buildTeamHeroChips(content)}
-        title={content.name}
-        logoUrl={content.logoUrl}
-        logoAlt={content.logoAlt}
-        coaches={content.coaches}
-        actions={[
-          {
-            href: content.links.squad,
-            label: "Plantilla",
-            icon: PageHeroIcons.squad,
-          },
-          {
-            href: content.links.calendar,
-            label: "Calendario",
-            icon: PageHeroIcons.calendar,
-            variant: "secondary",
-          },
-          {
-            href: content.links.standing,
-            label: "Clasificacion",
-            icon: PageHeroIcons.standing,
-            variant: "secondary",
-          },
-          {
-            href: content.links.statistics,
-            label: "Estadisticas",
-            icon: PageHeroIcons.statistics,
-            variant: "secondary",
-          },
-        ]}
-        backgroundImageUrl={content.heroImageUrl}
-        backgroundPosition={content.heroImagePosition}
-        variant={content.variant}
+        content={content}
+        activeKey="overview"
       />
 
       <section className="mx-auto w-full max-w-[1280px] px-5 py-10 md:px-8 md:py-14 xl:px-16">
@@ -97,19 +66,4 @@ export function TeamOverviewPage({ content }: TeamOverviewPageProps) {
       </section>
     </>
   );
-}
-
-function buildTeamHeroChips(content: PublicTeamPageContent) {
-  if (content.variant === "first-team") {
-    return [
-      { label: content.competition, tone: "accent" as const },
-      { label: content.season },
-    ];
-  }
-
-  return [
-    { label: content.category, tone: "accent" as const },
-    { label: content.season },
-    { label: content.competition },
-  ];
 }

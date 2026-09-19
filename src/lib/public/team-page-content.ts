@@ -1,14 +1,24 @@
-import { getPublicTeamPageContentFromDb } from "@/server/services/public/teams";
-import type { PublicTeamPageContent } from "@/lib/contracts/public";
+import {
+  getPublicTeamHeroContentFromDb,
+  getPublicTeamPageContentFromDb,
+} from "@/server/services/public/teams";
+import type { PublicTeamHeroContent, PublicTeamPageContent } from "@/lib/contracts/public";
 
 export type {
   PublicSquadHighlight,
+  PublicTeamHeroContent,
   PublicTeamNewsItem,
   PublicTeamPageContent,
   PublicTeamQuickInfoItem,
   PublicTeamRecentResult,
   PublicTeamReference,
 } from "@/lib/contracts/public";
+
+export async function getPublicTeamHeroContent(
+  teamSlug: string,
+): Promise<PublicTeamHeroContent | null> {
+  return getPublicTeamHeroContentFromDb(teamSlug);
+}
 
 export async function getPublicTeamPageContent(
   teamSlug: string,

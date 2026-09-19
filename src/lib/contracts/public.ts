@@ -93,7 +93,7 @@ export type PublicSquadHighlight = {
   href?: string;
 };
 
-export type PublicTeamPageContent = {
+export type PublicTeamHeroContent = {
   slug: string;
   variant: PublicTeamType;
   name: string;
@@ -105,6 +105,9 @@ export type PublicTeamPageContent = {
   coaches: string[];
   heroImageUrl?: string;
   heroImagePosition?: string;
+};
+
+export type PublicTeamPageContent = PublicTeamHeroContent & {
   links: {
     squad: string;
     calendar: string;

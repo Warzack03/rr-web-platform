@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
+import { PageHero } from "@/components/public/page-hero";
 import { TeamStatisticsPage } from "@/components/public/team-statistics-page";
+import { getPublicTeamHeroContent } from "@/lib/public/team-page-content";
 import { getAcademyTeamStatisticsPageContent } from "@/lib/public/team-statistics-content";
 import { parseTeamStatisticsInitialState } from "@/lib/public/team-statistics-url-state";
 import { buildPublicPageMetadata } from "@/lib/seo";
@@ -55,14 +57,18 @@ export default async function AcademyTeamStatisticsRoute({
 }: TeamStatisticsRouteProps) {
   const { teamSlug } = await params;
   const resolvedSearchParams = await searchParams;
-  const content = await getAcademyTeamStatisticsPageContent(teamSlug);
+  const [content, heroContent] = await Promise.all([
+    getAcademyTeamStatisticsPageContent(teamSlug),
+    getPublicTeamHeroContent(teamSlug),
+  ]);
 
-  if (!content) {
+  if (!content || !heroContent || heroContent.variant !== "academy") {
     notFound();
   }
 
   return (
     <PublicSiteLayout activeNav="equipos">
+      <PageHero content={heroContent} activeKey="statistics" />
       <TeamStatisticsPage
         content={content}
         initialState={parseTeamStatisticsInitialState(resolvedSearchParams, content.teamType)}

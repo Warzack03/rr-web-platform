@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicSiteLayout } from "@/components/layout/public-site-layout";
+import { PageHero } from "@/components/public/page-hero";
 import { TeamSquadPage } from "@/components/public/team-squad-page";
 import { getPublicAcademyTeamPageContent } from "@/lib/public/team-page-content";
 import { buildPublicPageMetadata } from "@/lib/seo";
@@ -66,11 +67,8 @@ export default async function AcademyTeamSquadRoute({
 
   return (
     <PublicSiteLayout activeNav="equipos">
-      <TeamSquadPage
-        squad={dbSquad}
-        teamType="academy"
-        badges={[teamSummary.competition, teamSummary.season]}
-      />
+      <PageHero content={teamSummary} activeKey="squad" />
+      <TeamSquadPage squad={dbSquad} teamType="academy" />
     </PublicSiteLayout>
   );
 }

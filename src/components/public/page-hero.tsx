@@ -1,46 +1,39 @@
-import type { LucideIcon } from "lucide-react";
-import { BarChart3, CalendarDays, ChartNoAxesColumn, UserRound, Users } from "lucide-react";
-import { CTAButton } from "@/components/public/cta-button";
+import { UserRound } from "lucide-react";
 import { TeamCrest } from "@/components/public/team-crest";
+import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
+import type { PublicTeamHeroContent } from "@/lib/contracts/public";
+import type { TeamSectionKey } from "@/lib/public/team-section-links";
+import { getTeamSectionLinks } from "@/lib/public/team-section-links";
 
 type HeroChip = {
   label: string;
   tone?: "accent" | "muted";
 };
 
-type HeroAction = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  variant?: "primary" | "secondary";
-};
-
 type PageHeroProps = {
-  chips: HeroChip[];
-  title: string;
-  logoUrl?: string;
-  logoAlt?: string;
-  coaches: string[];
-  actions: HeroAction[];
-  backgroundImageUrl?: string;
-  backgroundPosition?: string;
-  variant?: "first-team" | "academy";
+  content: PublicTeamHeroContent;
+  activeKey: TeamSectionKey;
 };
 
 export function PageHero({
-  chips,
-  title,
-  logoUrl,
-  logoAlt,
-  coaches,
-  actions,
-  backgroundImageUrl,
-  backgroundPosition = "center center",
-  variant = "first-team",
+  content,
+  activeKey,
 }: PageHeroProps) {
+  const {
+    title,
+    chips,
+    navigationLinks,
+  } = buildPageHeroViewModel(content);
+  const {
+    logoUrl,
+    logoAlt,
+    coaches,
+    heroImageUrl: backgroundImageUrl,
+    heroImagePosition: backgroundPosition = "center center",
+    variant,
+  } = content;
   const coachLabel = coaches.length > 1 ? "Entrenadores" : "Entrenador";
   const coachValue = coaches.length > 0 ? coaches.join(", ") : "Cuerpo tecnico pendiente";
-  const hasFourActions = actions.length >= 4;
   const hasLongAcademyTitle = variant === "academy" && title.trim().length > 20;
   const titleClassName =
     variant === "academy"
@@ -101,7 +94,7 @@ export function PageHero({
             </div>
           </div>
 
-          <div className="mt-5 flex w-full flex-col gap-5 lg:mt-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="mt-5 flex w-full flex-col gap-6 lg:mt-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="mt-4 flex items-center gap-3 text-[1.35rem] text-[color:var(--rr-text)]/94">
               <UserRound className="h-5 w-5 text-[color:var(--rr-gold)]" strokeWidth={1.9} />
               <span>
@@ -109,30 +102,11 @@ export function PageHero({
                 <span className="text-[color:var(--rr-muted)]">{coachValue}</span>
               </span>
             </div>
-          </div>
-
-          <div
-            className={
-              hasFourActions
-                ? "grid w-full gap-3 sm:grid-cols-2 lg:max-w-[31rem] xl:flex xl:w-auto xl:max-w-none xl:shrink-0 xl:flex-row xl:flex-nowrap xl:justify-end"
-                : "flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:flex-wrap lg:justify-end"
-            }
-          >
-            {actions.map((action) => {
-              const Icon = action.icon;
-
-              return (
-                <CTAButton
-                  key={action.href}
-                  href={action.href}
-                  variant={action.variant ?? "primary"}
-                  className={hasFourActions ? "w-full md:min-w-0 xl:w-auto xl:shrink-0" : undefined}
-                >
-                  <Icon className="h-4 w-4" strokeWidth={1.9} />
-                  {action.label}
-                </CTAButton>
-              );
-            })}
+            <TeamSectionNavigation
+              links={navigationLinks}
+              activeKey={activeKey}
+              className="w-full lg:w-auto lg:shrink-0 lg:justify-end"
+            />
           </div>
         </div>
       </div>
@@ -140,9 +114,29 @@ export function PageHero({
   );
 }
 
-export const PageHeroIcons = {
-  squad: Users,
-  calendar: CalendarDays,
-  standing: ChartNoAxesColumn,
-  statistics: BarChart3,
-};
+function buildPageHeroViewModel(content: PublicTeamHeroContent): {
+  title: string;
+  chips: HeroChip[];
+  navigationLinks: ReturnType<typeof getTeamSectionLinks>;
+} {
+  const chips =
+    content.variant === "first-team"
+      ? [
+          { label: content.competition, tone: "accent" as const },
+          { label: content.season },
+        ]
+      : [
+          { label: content.category, tone: "accent" as const },
+          { label: content.season },
+          { label: content.competition },
+        ];
+
+  return {
+    title: content.name,
+    chips,
+    navigationLinks:
+      content.variant === "first-team"
+        ? getTeamSectionLinks({ teamType: "first-team" })
+        : getTeamSectionLinks({ teamType: "academy", teamSlug: content.slug }),
+  };
+}

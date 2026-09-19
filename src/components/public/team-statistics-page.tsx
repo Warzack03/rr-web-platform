@@ -16,13 +16,10 @@ import {
   ArrowUpDown,
   BarChart3,
   ChevronDown,
-  ChevronLeft,
   RotateCcw,
   Search,
   TableProperties,
 } from "lucide-react";
-import { TeamSectionNavigation } from "@/components/public/team-section-navigation";
-import { TeamCrest } from "@/components/public/team-crest";
 import type { PublicPlayerProfile, PublicPlayerType } from "@/lib/contracts/public";
 import {
   buildTeamStatisticsUrl,
@@ -221,9 +218,7 @@ export function TeamStatisticsPage({
         className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(52,112,200,0.08),transparent_28%)]"
       />
 
-      <section className="relative z-10 mx-auto w-full max-w-[1280px] px-5 py-16 md:px-8 md:py-20 xl:px-16">
-        <TeamStatsHeader content={content} />
-
+      <section className="relative z-10 mx-auto w-full max-w-[1280px] px-5 py-10 md:px-8 md:py-14 xl:px-16">
         <form
           method="get"
           action={pagePath}
@@ -302,60 +297,6 @@ export function TeamStatisticsPage({
   );
 }
 
-export function TeamStatsHeader({ content }: { content: TeamStatisticsPageContent }) {
-  return (
-    <header className="max-w-[58rem]">
-      <Link
-        href={content.backHref}
-        className="rr-kicker inline-flex items-center gap-2 text-[0.82rem] text-[color:var(--rr-muted)] transition hover:text-[color:var(--rr-gold)]"
-      >
-        <ChevronLeft className="h-4 w-4" strokeWidth={1.9} />
-        <span>{content.backLabel}</span>
-      </Link>
-
-      <p className="rr-kicker mt-6 text-[0.82rem] text-[color:var(--rr-gold)]">
-        Estadisticas
-      </p>
-
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        {content.category ? (
-          <span className="rr-chip border-[color:var(--rr-border-strong)] text-[color:var(--rr-gold)]">
-            {content.category}
-          </span>
-        ) : null}
-        <span className="rr-chip border-[color:var(--rr-border-strong)] text-[color:var(--rr-gold)]">
-          {content.competition}
-        </span>
-        <span className="rr-chip text-[color:var(--rr-muted)]">{content.season}</span>
-      </div>
-
-      <div className="mt-6 flex items-center gap-4">
-        <TeamCrest
-          name={content.teamName}
-          logoUrl={content.teamLogoUrl}
-          logoAlt={content.teamLogoAlt}
-          isClub
-          className="h-16 w-16 sm:h-20 sm:w-20"
-          initialsClassName="text-[1.8rem] sm:text-[2.2rem]"
-        />
-        <h1 className="rr-display text-[4rem] leading-[0.9] text-white sm:text-[5rem] lg:text-[6.1rem]">
-          {content.title}
-        </h1>
-      </div>
-      <p className="mt-4 max-w-[42rem] text-[1.16rem] text-[color:var(--rr-muted)] md:text-[1.3rem]">
-        {content.subtitle}
-      </p>
-      <div className="rr-bolt-divider mt-7 max-w-[20rem]" />
-
-      <TeamSectionNavigation
-        links={content.navLinks}
-        activeKey="statistics"
-        className="mt-8"
-      />
-    </header>
-  );
-}
-
 type TeamStatsControlsProps = {
   searchValue: string;
   activeSection: PublicPlayerType;
@@ -378,7 +319,7 @@ export function TeamStatsControls({
   onSearchChange,
 }: TeamStatsControlsProps) {
   return (
-    <section className="rr-panel mt-10 px-5 py-5 md:px-6 md:py-6">
+    <section className="rr-panel px-5 py-5 md:px-6 md:py-6">
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-end">
         <div className="space-y-5">
           <label className="block">

@@ -34,23 +34,23 @@ export function TeamSectionNavigation({
             href={link.href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "inline-flex min-h-11 items-center gap-2 border px-4 py-3 text-[1rem] transition",
+              "inline-flex min-h-11 items-center justify-center gap-2 border px-4 py-3 text-[1rem] transition",
               isActive
-                ? "border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.1)] text-white"
+                ? "border-[color:var(--rr-gold)] bg-[color:var(--rr-gold)] text-[color:var(--rr-bg-alt)]"
                 : "border-[color:var(--rr-border)] bg-[rgba(255,255,255,0.03)] text-white hover:-translate-y-0.5 hover:border-[color:var(--rr-border-strong)] hover:bg-[rgba(255,255,255,0.05)]",
             )}
           >
             <Icon
               className={cn(
                 "h-4 w-4",
-                isActive ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-gold)]",
+                isActive ? "text-[color:var(--rr-bg-alt)]" : "text-[color:var(--rr-gold)]",
               )}
               strokeWidth={1.9}
             />
             <span
               className={cn(
                 "rr-kicker text-[0.84rem]",
-                isActive ? "text-[color:var(--rr-gold)]" : "text-[color:var(--rr-muted)]",
+                isActive ? "text-[color:var(--rr-bg-alt)]" : "text-[color:var(--rr-muted)]",
               )}
             >
               {link.label}
