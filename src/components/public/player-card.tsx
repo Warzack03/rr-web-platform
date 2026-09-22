@@ -165,12 +165,12 @@ function PlayerCardMediaLayer({
         </div>
       )}
       <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent_0%,rgba(12,24,40,0.35)_28%,rgba(14,26,44,1)_100%)]" />
-      <div className="absolute left-0 right-0 top-0 flex justify-end p-6">
+      <div className="absolute right-4 top-6">
         <span
           className={
             variant === "standard"
-              ? "rr-display text-[3.8rem] leading-none text-[color:var(--rr-gold)]/22 sm:text-[4.6rem]"
-              : "rr-display text-[4.8rem] leading-none text-[color:var(--rr-gold)]/28 sm:text-[5.6rem]"
+              ? "rr-display text-[3.6rem] leading-none text-[color:var(--rr-gold)]/22 sm:text-[4.3rem]"
+              : "rr-display text-[4.5rem] leading-none text-[color:var(--rr-gold)]/28 sm:text-[5.2rem]"
           }
         >
           {formatPublicShirtNumber(number)}
