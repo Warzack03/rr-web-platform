@@ -432,7 +432,7 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
           </div>
         </AdminPanel>
 
-        <div className="space-y-4 xl:sticky xl:top-[7.5rem] xl:self-start">
+        <div className="order-first space-y-4 xl:order-last xl:sticky xl:top-[5.5rem] xl:max-h-[calc(100dvh-7rem)] xl:self-start xl:overflow-y-auto xl:overscroll-contain xl:pr-1">
           <AdminPanel className="p-5">
             {selectedItem ? (
               <div className="space-y-5">
@@ -533,7 +533,7 @@ export function AdminMediaWorkspace({ initialItems }: AdminMediaWorkspaceProps) 
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2 xl:sticky xl:bottom-0 xl:z-10 xl:-mx-5 xl:-mb-5 xl:border-t xl:border-white/10 xl:bg-[rgba(13,32,55,0.96)] xl:px-5 xl:py-4 xl:backdrop-blur-md">
                   <button
                     type="button"
                     onClick={handleSaveMetadata}

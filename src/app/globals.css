@@ -309,6 +309,20 @@ select {
   letter-spacing: 0;
 }
 
+.rr-admin select {
+  color-scheme: dark;
+}
+
+.rr-admin select option,
+.rr-admin select optgroup {
+  background-color: var(--rr-surface-muted);
+  color: var(--rr-text);
+}
+
+.rr-admin select option:disabled {
+  color: var(--rr-muted);
+}
+
 .rr-admin input:focus,
 .rr-admin textarea:focus,
 .rr-admin select:focus {
