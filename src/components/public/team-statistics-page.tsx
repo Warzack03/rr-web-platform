@@ -717,9 +717,9 @@ export function PlayerIdentityCell({
               : "border-white/10",
           )}
         >
-          {player.imageUrl ? (
+          {player.statsImageUrl ? (
             <Image
-              src={player.imageUrl}
+              src={player.statsImageUrl}
               alt={player.name}
               fill
               sizes="48px"
@@ -811,9 +811,9 @@ export function PlayerStatsCard({
           href={href}
           className="relative flex h-24 w-20 shrink-0 items-center justify-center overflow-hidden border border-[color:var(--rr-border-strong)] bg-[rgba(253,203,88,0.08)] shadow-[inset_0_0_22px_rgba(253,203,88,0.08)]"
         >
-          {player.imageUrl ? (
+          {player.statsImageUrl ? (
             <Image
-              src={player.imageUrl}
+              src={player.statsImageUrl}
               alt={player.name}
               fill
               sizes="80px"

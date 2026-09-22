@@ -42,7 +42,7 @@ export function TeamOverviewPage({ content }: TeamOverviewPageProps) {
             />
           </div>
 
-          <div className="order-4 grid gap-4 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-2">
+          <div className="order-4 grid self-start gap-4 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-2">
             <MetricTile label="Goles a Favor" value={content.metrics.goalsFor} />
             <MetricTile label="Goles en Contra" value={content.metrics.goalsAgainst} />
           </div>

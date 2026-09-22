@@ -86,7 +86,12 @@ export async function getPublicRosterContentFromDb(
                         publicName: true,
                         countryCode: true,
                         preferredFoot: true,
-                        photoMedia: {
+                        premiumCardMedia: {
+                          select: {
+                            publicUrl: true,
+                          },
+                        },
+                        statsMedia: {
                           select: {
                             publicUrl: true,
                           },
@@ -175,7 +180,8 @@ export async function getPublicRosterContentFromDb(
         countryFlag: assignment.player.countryCode ?? undefined,
         position: positionLabel,
         dominantFoot: mapDominantFoot(assignment.player.preferredFoot),
-        imageUrl: assignment.player.photoMedia?.publicUrl ?? undefined,
+        imageUrl: assignment.player.premiumCardMedia?.publicUrl ?? undefined,
+        statsImageUrl: assignment.player.statsMedia?.publicUrl ?? undefined,
         playerType,
         group: playerType === "field" ? inferPlayerGroup(positionLabel) : undefined,
         teamType: seasonTeam.team.isFirstTeam ? "first-team" : "academy",

@@ -164,7 +164,7 @@ Manage public-safe player data only:
 - Country/flag.
 - Public visibility.
 - Active status.
-- Photo managed by superadmin/manager.
+- Three independent images managed by the internal admin: player detail, generated card and statistics portrait.
 
 Do not store/import sensitive data such as NIF, address, contact, notes, finance or documents.
 

@@ -336,6 +336,7 @@ Fields:
 - `publicVisible`
 - `photoMediaId` optional
 - `premiumCardMediaId` optional, mostly First Team
+- `statsMediaId` optional, compact face-and-chest portrait for statistics tables
 - import trace fields: `sourceSystem`, `sourceExternalId`, `lastImportBatchId`
 - audit fields: `createdById`, `updatedById`, `createdAt`, `updatedAt`, `deletedAt`
 
@@ -668,7 +669,7 @@ Fields:
 
 - `id`
 - `type`, e.g. `IMAGE`, `VIDEO_LINK`, `DOCUMENT`
-- `usage`, e.g. `PLAYER_PHOTO`, `PLAYER_CARD`, `TEAM_LOGO`, `TEAM_LISTING`, `TEAM_BANNER`, `NEWS_COVER`, `OPPONENT_LOGO`
+- `usage`, e.g. `PLAYER_PHOTO`, `PLAYER_CARD`, `PLAYER_STATS`, `TEAM_LOGO`, `TEAM_LISTING`, `TEAM_BANNER`, `NEWS_COVER`, `OPPONENT_LOGO`
 - `storagePath` optional
 - `publicUrl`
 - `externalUrl` optional

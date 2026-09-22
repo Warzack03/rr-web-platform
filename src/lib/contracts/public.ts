@@ -37,6 +37,7 @@ export type PublicPlayerProfile = {
   position: string;
   dominantFoot?: DominantFoot;
   imageUrl?: string;
+  statsImageUrl?: string;
   playerType: PublicPlayerType;
   group?: PublicPlayerGroup;
   teamType: PublicTeamType;

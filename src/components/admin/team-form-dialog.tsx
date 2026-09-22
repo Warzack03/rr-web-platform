@@ -507,7 +507,7 @@ export function TeamFormDialog({
 
                   <label className="grid gap-2">
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-                      Imagen listado (3:2)
+                      Imagen listado equipo (3:2)
                     </span>
                     <div className="grid gap-3 rounded-[16px] border border-white/10 bg-white/4 p-3">
                       <div className="overflow-hidden rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)]">

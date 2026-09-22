@@ -25,7 +25,7 @@ export default async function AdminPlayersPage({
   const user = await requireAdminSectionAccess("players");
   const [data, mediaOptions] = await Promise.all([
     getAdminPlayersScreenData(user),
-    getAdminMediaPickerOptions(["PLAYER_PHOTO"]),
+    getAdminMediaPickerOptions(["PLAYER_PHOTO", "PLAYER_CARD", "PLAYER_STATS"]),
   ]);
   const resolvedSearchParams = await searchParams;
   const requestedPlayerId = getSingleValue(resolvedSearchParams.player);

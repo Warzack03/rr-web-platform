@@ -48,6 +48,14 @@ type ScopedAssignment = {
       id: bigint;
       publicUrl: string;
     } | null;
+    premiumCardMedia: {
+      id: bigint;
+      publicUrl: string;
+    } | null;
+    statsMedia: {
+      id: bigint;
+      publicUrl: string;
+    } | null;
   };
 };
 
@@ -164,6 +172,18 @@ export async function getAdminPlayersScreenData(
               publicUrl: true,
             },
           },
+          premiumCardMedia: {
+            select: {
+              id: true,
+              publicUrl: true,
+            },
+          },
+          statsMedia: {
+            select: {
+              id: true,
+              publicUrl: true,
+            },
+          },
         },
       },
     },
@@ -232,6 +252,10 @@ export async function getAdminPlayersScreenData(
       active: assignment.player.active,
       photoMediaId: assignment.player.photoMedia?.id.toString(),
       photoUrl: assignment.player.photoMedia?.publicUrl ?? undefined,
+      premiumCardMediaId: assignment.player.premiumCardMedia?.id.toString(),
+      premiumCardUrl: assignment.player.premiumCardMedia?.publicUrl ?? undefined,
+      statsMediaId: assignment.player.statsMedia?.id.toString(),
+      statsUrl: assignment.player.statsMedia?.publicUrl ?? undefined,
       teamSlug: assignment.seasonTeam.publicSlug,
       teamName: assignment.seasonTeam.publicName,
       teamType: assignment.seasonTeam.team.isFirstTeam ? "first-team" : "academy",

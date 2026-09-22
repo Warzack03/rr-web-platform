@@ -46,6 +46,10 @@ export type AdminManagedPlayer = {
   active: boolean;
   photoMediaId?: string;
   photoUrl?: string;
+  premiumCardMediaId?: string;
+  premiumCardUrl?: string;
+  statsMediaId?: string;
+  statsUrl?: string;
   teamSlug: string;
   teamName: string;
   teamType: "first-team" | "academy";

@@ -55,7 +55,11 @@ function labelClassName() {
 }
 
 function getMediaIcon(usage: AdminMediaUsage) {
-  if (usage === "PLAYER_PHOTO" || usage === "PLAYER_CARD") {
+  if (
+    usage === "PLAYER_PHOTO" ||
+    usage === "PLAYER_CARD" ||
+    usage === "PLAYER_STATS"
+  ) {
     return UserRound;
   }
 

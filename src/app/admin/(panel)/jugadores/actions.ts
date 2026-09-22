@@ -39,9 +39,11 @@ function revalidatePlayerPaths(teamSlugs: string[], previousSlug: string, nextSl
     if (teamSlug === "primer-equipo") {
       revalidatePath("/primer-equipo");
       revalidatePath("/primer-equipo/plantilla");
+      revalidatePath("/primer-equipo/estadisticas");
     } else {
       revalidatePath(`/equipos/${teamSlug}`);
       revalidatePath(`/equipos/${teamSlug}/plantilla`);
+      revalidatePath(`/equipos/${teamSlug}/estadisticas`);
     }
 
     for (const slug of slugs) {
@@ -148,6 +150,24 @@ export async function savePlayerProfileAction(
         },
         tx,
       );
+      const premiumCardMediaId = await resolveMediaAssetId(
+        {
+          mediaId: payload.premiumCardMediaId,
+          publicUrl: payload.premiumCardUrl,
+          usage: MediaUsage.PLAYER_CARD,
+          uploadedById: user.id,
+        },
+        tx,
+      );
+      const statsMediaId = await resolveMediaAssetId(
+        {
+          mediaId: payload.statsMediaId,
+          publicUrl: payload.statsUrl,
+          usage: MediaUsage.PLAYER_STATS,
+          uploadedById: user.id,
+        },
+        tx,
+      );
 
       await tx.player.update({
         where: {
@@ -161,6 +181,8 @@ export async function savePlayerProfileAction(
           publicVisible: payload.visible,
           active: payload.active,
           photoMediaId,
+          premiumCardMediaId,
+          statsMediaId,
           updatedById: user.id,
         },
       });

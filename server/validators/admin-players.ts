@@ -17,6 +17,10 @@ export const savePlayerProfileInputSchema = z.object({
   active: z.boolean(),
   photoMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
   photoUrl: mediaReferenceSchema.or(z.literal("")),
+  premiumCardMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
+  premiumCardUrl: mediaReferenceSchema.or(z.literal("")),
+  statsMediaId: z.string().trim().regex(/^\d+$/).optional().or(z.literal("")),
+  statsUrl: mediaReferenceSchema.or(z.literal("")),
 });
 
 export type SavePlayerProfileInput = z.infer<typeof savePlayerProfileInputSchema>;

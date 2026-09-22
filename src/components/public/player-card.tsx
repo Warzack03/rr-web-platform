@@ -152,7 +152,7 @@ function PlayerCardMediaLayer({
           alt={`${name} - ${position}`}
           fill
           sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 25vw"
-          className="object-cover object-top grayscale contrast-125 brightness-95 saturate-0 transition duration-500 group-hover:scale-[1.02] group-hover:grayscale-0 group-hover:brightness-100"
+          className="object-cover object-top transition duration-500 group-hover:scale-[1.02]"
         />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[linear-gradient(180deg,rgba(20,31,48,0.4),rgba(10,18,30,0.88))]">

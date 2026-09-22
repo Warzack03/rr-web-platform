@@ -1,6 +1,7 @@
 export const adminMediaUsageValues = [
   "PLAYER_PHOTO",
   "PLAYER_CARD",
+  "PLAYER_STATS",
   "TEAM_LOGO",
   "TEAM_LISTING",
   "TEAM_BANNER",
@@ -45,11 +46,13 @@ export function getAdminMediaUsageLabel(usage: AdminMediaUsage) {
     case "PLAYER_PHOTO":
       return "Foto jugador";
     case "PLAYER_CARD":
-      return "Cromo";
+      return "Cromo jugador";
+    case "PLAYER_STATS":
+      return "Jugador estadística";
     case "TEAM_LOGO":
       return "Logo equipo";
     case "TEAM_LISTING":
-      return "Imagen listado";
+      return "Imagen listado equipo";
     case "TEAM_BANNER":
       return "Banner equipo";
     case "NEWS_COVER":
@@ -64,9 +67,11 @@ export function getAdminMediaUsageLabel(usage: AdminMediaUsage) {
 export function getAdminMediaUsageNote(usage: AdminMediaUsage) {
   switch (usage) {
     case "PLAYER_PHOTO":
-      return "Base visual para ficha publica y cromo.";
+      return "Imagen principal del detalle publico del jugador.";
     case "PLAYER_CARD":
-      return "Recursos premium o composiciones de cromo.";
+      return "Imagen del jugador usada solo en su cromo.";
+    case "PLAYER_STATS":
+      return "Retrato de cara y pecho para las tablas de estadisticas.";
     case "TEAM_LOGO":
       return "Escudos y marcas de equipo.";
     case "TEAM_LISTING":
@@ -88,6 +93,8 @@ export function getAdminMediaUsageFolder(usage: AdminMediaUsage) {
       return "players/photos";
     case "PLAYER_CARD":
       return "players/cards";
+    case "PLAYER_STATS":
+      return "players/stats";
     case "TEAM_LOGO":
       return "teams/logos";
     case "TEAM_LISTING":

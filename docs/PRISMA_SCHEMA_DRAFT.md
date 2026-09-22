@@ -68,6 +68,7 @@ enum MediaType {
 enum MediaUsage {
   PLAYER_PHOTO
   PLAYER_CARD
+  PLAYER_STATS
   TEAM_LOGO
   TEAM_LISTING
   TEAM_BANNER
@@ -219,6 +220,7 @@ model Player {
   publicVisible     Boolean  @default(true)
   photoMediaId      BigInt?
   premiumCardMediaId BigInt?
+  statsMediaId      BigInt?
   sourceSystem      String?  @db.VarChar(80)
   sourceExternalId  String?  @db.VarChar(80)
   lastImportBatchId BigInt?
@@ -230,6 +232,7 @@ model Player {
 
   photoMedia       MediaAsset? @relation("PlayerPhoto", fields: [photoMediaId], references: [id])
   premiumCardMedia MediaAsset? @relation("PlayerPremiumCard", fields: [premiumCardMediaId], references: [id])
+  statsMedia       MediaAsset? @relation("PlayerStatsPhoto", fields: [statsMediaId], references: [id])
   seasonProfiles   PlayerSeasonProfile[]
   assignments      TeamPlayerAssignment[]
   stats            PlayerMatchStats[]

@@ -65,6 +65,15 @@ export function getMediaUsageConstraint(usage: AdminMediaUsage): MediaUsageConst
         minAspectRatio: 0.42,
         maxAspectRatio: 1.2,
       };
+    case "PLAYER_STATS":
+      return {
+        minWidth: 240,
+        minHeight: 240,
+        maxWidth: 4000,
+        maxHeight: 5000,
+        minAspectRatio: 0.55,
+        maxAspectRatio: 1.25,
+      };
     case "TEAM_LOGO":
     case "OPPONENT_LOGO":
       return {

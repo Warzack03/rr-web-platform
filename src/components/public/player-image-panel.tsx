@@ -32,7 +32,7 @@ export function PlayerImagePanel({ player }: PlayerImagePanelProps) {
           alt={`${player.name} - ${player.position}`}
           fill
           sizes="(max-width: 1279px) 100vw, 42vw"
-          className="object-cover object-top grayscale contrast-125 brightness-95"
+          className="object-cover object-top"
         />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[linear-gradient(180deg,rgba(18,30,48,0.5),rgba(11,20,34,0.9))]">

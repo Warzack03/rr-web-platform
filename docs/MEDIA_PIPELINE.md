@@ -30,6 +30,7 @@ El `{uso}` se obtiene de `getAdminMediaUsageFolder`:
 |---|---|
 | `PLAYER_PHOTO` | `players/photos` |
 | `PLAYER_CARD` | `players/cards` |
+| `PLAYER_STATS` | `players/stats` |
 | `TEAM_LOGO` | `teams/logos` |
 | `TEAM_LISTING` | `teams/listing` |
 | `TEAM_BANNER` | `teams/banners` |

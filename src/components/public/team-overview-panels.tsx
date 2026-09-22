@@ -163,6 +163,8 @@ export function RecentResultsStrip({
   ctaLabel,
   layout = "default",
 }: RecentResultsStripProps) {
+  const visibleResults = results.slice(0, 3);
+
   return (
     <section className="rr-panel-dark p-5 md:p-6">
       <div className="flex items-center justify-between gap-4">
@@ -184,7 +186,7 @@ export function RecentResultsStrip({
           "grid-cols-1",
         )}
       >
-        {results.map((result) => {
+        {visibleResults.map((result) => {
           const accent =
             result.result === "V"
               ? "border-[color:var(--rr-gold)] text-[color:var(--rr-gold)]"

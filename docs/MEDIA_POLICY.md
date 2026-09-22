@@ -7,6 +7,7 @@
 - banner hero de equipo.
 - foto de jugador.
 - cromo de jugador.
+- retrato de jugador para estadisticas (cara y pecho).
 - imagen de noticia.
 - videoUrl externo.
 
@@ -22,6 +23,7 @@
 - Separar la imagen 3:2 del listado de equipos del banner panoramico del hero.
 - El Primer Equipo puede tener cromos especiales.
 - El resto de equipos usa cromos estandar.
+- La foto de detalle, la imagen del cromo y el retrato de estadisticas son recursos independientes.
 
 ## Primer Equipo
 

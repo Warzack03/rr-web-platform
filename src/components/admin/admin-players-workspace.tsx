@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 
 type PlayerVisibilityFilter = "all" | "visible" | "hidden";
 type PlayerPositionFilter = "all" | AdminPlayer["position"];
+type PlayerMediaPickerTarget = "detail" | "card" | "stats";
 type AdminPlayersFeedback = {
   message: string;
   tone: "success" | "danger";
@@ -82,7 +83,7 @@ function getCardReadiness(player: AdminManagedPlayer) {
     { label: "Posicion", ready: Boolean(player.position) },
     { label: "Pais", ready: Boolean(player.country) },
     { label: "Pie", ready: Boolean(player.foot) },
-    { label: "Foto", ready: Boolean(player.photoUrl) },
+    { label: "Foto cromo", ready: Boolean(player.premiumCardUrl) },
   ];
 
   return {
@@ -100,6 +101,63 @@ function inputClassName(className?: string) {
 
 function labelClassName() {
   return "rr-kicker text-[0.7rem] text-[color:var(--rr-muted)]";
+}
+
+type PlayerMediaFieldProps = {
+  label: string;
+  imageUrl?: string;
+  playerName: string;
+  disabled: boolean;
+  onChoose: () => void;
+  onRemove: () => void;
+};
+
+function PlayerMediaField({
+  label,
+  imageUrl,
+  playerName,
+  disabled,
+  onChoose,
+  onRemove,
+}: PlayerMediaFieldProps) {
+  return (
+    <div className="grid gap-2">
+      <span className={labelClassName()}>{label}</span>
+      <div className="grid gap-3 rounded-[16px] border border-white/10 bg-white/4 p-3">
+        <div className="overflow-hidden rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={`${label} de ${playerName}`}
+              className="h-32 w-full object-cover object-top"
+            />
+          ) : (
+            <div className="flex h-32 items-center justify-center text-[color:var(--rr-muted)]">
+              <ImagePlus className="h-5 w-5" />
+            </div>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onChoose}
+            disabled={disabled}
+            className="rr-button rr-button-secondary text-[0.76rem]"
+          >
+            Elegir
+          </button>
+          <button
+            type="button"
+            onClick={onRemove}
+            disabled={disabled || !imageUrl}
+            className="rr-button rr-button-secondary text-[0.76rem] disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            Quitar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function AdminPlayersWorkspace({
@@ -121,7 +179,8 @@ export function AdminPlayersWorkspace({
   const [visibilityFilter, setVisibilityFilter] = useState<PlayerVisibilityFilter>("all");
   const [feedback, setFeedback] = useState<AdminPlayersFeedback | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [photoPickerOpen, setPhotoPickerOpen] = useState(false);
+  const [mediaPickerTarget, setMediaPickerTarget] =
+    useState<PlayerMediaPickerTarget | null>(null);
 
   const canManageProfiles = true;
   const hasUnsavedChanges = JSON.stringify(players) !== JSON.stringify(savedPlayers);
@@ -189,6 +248,10 @@ export function AdminPlayersWorkspace({
       active: selectedPlayer.active,
       photoMediaId: selectedPlayer.photoMediaId ?? "",
       photoUrl: selectedPlayer.photoUrl ?? "",
+      premiumCardMediaId: selectedPlayer.premiumCardMediaId ?? "",
+      premiumCardUrl: selectedPlayer.premiumCardUrl ?? "",
+      statsMediaId: selectedPlayer.statsMediaId ?? "",
+      statsUrl: selectedPlayer.statsUrl ?? "",
     });
     setIsSaving(false);
 
@@ -216,6 +279,24 @@ export function AdminPlayersWorkspace({
   const selectedCountryLabel =
     countryOptions.find((option) => option.value === selectedPlayer.country)?.label ??
     selectedPlayer.country;
+  const mediaPickerConfig =
+    mediaPickerTarget === "card"
+      ? {
+          title: "Elegir cromo de jugador",
+          usage: "PLAYER_CARD" as const,
+          selectedMediaId: selectedPlayer.premiumCardMediaId,
+        }
+      : mediaPickerTarget === "stats"
+        ? {
+            title: "Elegir imagen de estadísticas",
+            usage: "PLAYER_STATS" as const,
+            selectedMediaId: selectedPlayer.statsMediaId,
+          }
+        : {
+            title: "Elegir foto de jugador",
+            usage: "PLAYER_PHOTO" as const,
+            selectedMediaId: selectedPlayer.photoMediaId,
+          };
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -496,59 +577,50 @@ export function AdminPlayersWorkspace({
                   </select>
                 </label>
 
-                <label className="grid gap-2 lg:col-span-2">
-                  <span className={labelClassName()}>Foto/base</span>
-                  <div className="grid gap-3 rounded-[16px] border border-white/10 bg-white/4 p-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
-                    <div className="overflow-hidden rounded-[16px] border border-white/10 bg-[rgba(255,255,255,0.04)]">
-                      {selectedPlayer.photoUrl ? (
-                        <img
-                          src={selectedPlayer.photoUrl}
-                          alt={selectedPlayer.publicName}
-                          className="h-28 w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-28 items-center justify-center text-[color:var(--rr-muted)]">
-                          <ImagePlus className="h-5 w-5" />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="rounded-[14px] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 py-3 text-[0.9rem] text-white">
-                        {selectedPlayer.photoUrl
-                          ? "Recurso conectado desde biblioteca"
-                          : "Sin foto asignada"}
-                      </div>
-
-                      {canManageProfiles ? (
-                        <div className="flex flex-wrap gap-3">
-                          <button
-                            type="button"
-                            onClick={() => setPhotoPickerOpen(true)}
-                            disabled={isSaving}
-                            className="rr-button rr-button-secondary text-[0.8rem]"
-                          >
-                            Elegir de media
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateSelectedPlayer((player) => ({
-                                ...player,
-                                photoMediaId: undefined,
-                                photoUrl: undefined,
-                              }))
-                            }
-                            disabled={isSaving || !selectedPlayer.photoUrl}
-                            className="rr-button rr-button-secondary text-[0.8rem] disabled:cursor-not-allowed disabled:opacity-45"
-                          >
-                            Quitar foto
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                </label>
+                <div className="grid gap-4 lg:col-span-2 xl:grid-cols-3">
+                  <PlayerMediaField
+                    label="Foto jugador (detalle)"
+                    imageUrl={selectedPlayer.photoUrl}
+                    playerName={selectedPlayer.publicName}
+                    disabled={!canManageProfiles || isSaving}
+                    onChoose={() => setMediaPickerTarget("detail")}
+                    onRemove={() =>
+                      updateSelectedPlayer((player) => ({
+                        ...player,
+                        photoMediaId: undefined,
+                        photoUrl: undefined,
+                      }))
+                    }
+                  />
+                  <PlayerMediaField
+                    label="Cromo jugador"
+                    imageUrl={selectedPlayer.premiumCardUrl}
+                    playerName={selectedPlayer.publicName}
+                    disabled={!canManageProfiles || isSaving}
+                    onChoose={() => setMediaPickerTarget("card")}
+                    onRemove={() =>
+                      updateSelectedPlayer((player) => ({
+                        ...player,
+                        premiumCardMediaId: undefined,
+                        premiumCardUrl: undefined,
+                      }))
+                    }
+                  />
+                  <PlayerMediaField
+                    label="Jugador estadística"
+                    imageUrl={selectedPlayer.statsUrl}
+                    playerName={selectedPlayer.publicName}
+                    disabled={!canManageProfiles || isSaving}
+                    onChoose={() => setMediaPickerTarget("stats")}
+                    onRemove={() =>
+                      updateSelectedPlayer((player) => ({
+                        ...player,
+                        statsMediaId: undefined,
+                        statsUrl: undefined,
+                      }))
+                    }
+                  />
+                </div>
               </div>
 
               {canManageProfiles ? (
@@ -641,7 +713,7 @@ export function AdminPlayersWorkspace({
                     countryFlag={selectedPlayer.country}
                     position={mapPositionLabel(selectedPlayer.position)}
                     dominantFoot={mapFootToDominantFoot(selectedPlayer.foot)}
-                    imageUrl={selectedPlayer.photoUrl}
+                    imageUrl={selectedPlayer.premiumCardUrl}
                     playerType={getPlayerType(selectedPlayer)}
                     teamType={selectedPlayer.teamType}
                     stats={{
@@ -695,16 +767,16 @@ export function AdminPlayersWorkspace({
                     ))}
                   </div>
 
-                  {!selectedPlayer.photoUrl ? (
+                  {!selectedPlayer.premiumCardUrl ? (
                     <div className="rounded-[16px] border border-[rgba(243,203,69,0.22)] bg-[rgba(243,203,69,0.08)] px-4 py-3">
                       <div className="flex items-center gap-3">
                         <ImagePlus className="h-4.5 w-4.5 text-[color:var(--rr-gold)]" />
                         <p className="text-[0.9rem] font-semibold text-white">
-                          Falta foto/base
+                          Falta cromo de jugador
                         </p>
                       </div>
                       <p className="mt-2 text-[0.84rem] leading-5 text-[color:var(--rr-muted)]">
-                        Puedes guardar la ficha sin foto, pero una imagen cuidada mejora mucho la presentacion.
+                        Puedes guardar la ficha sin cromo, pero esa imagen es la que se mostrara en la plantilla.
                       </p>
                     </div>
                   ) : null}
@@ -716,20 +788,38 @@ export function AdminPlayersWorkspace({
       </div>
 
       <MediaPickerDialog
-        open={photoPickerOpen}
-        title="Elegir foto de jugador"
+        open={Boolean(mediaPickerTarget)}
+        title={mediaPickerConfig.title}
         description="Selecciona una imagen ya subida en la biblioteca real."
         items={mediaOptions}
-        allowedUsages={["PLAYER_PHOTO"]}
-        selectedMediaId={selectedPlayer.photoMediaId}
-        onClose={() => setPhotoPickerOpen(false)}
+        allowedUsages={[mediaPickerConfig.usage]}
+        selectedMediaId={mediaPickerConfig.selectedMediaId}
+        onClose={() => setMediaPickerTarget(null)}
         onSelect={(item) => {
-          updateSelectedPlayer((player) => ({
-            ...player,
-            photoMediaId: item.id,
-            photoUrl: item.publicUrl,
-          }));
-          setPhotoPickerOpen(false);
+          updateSelectedPlayer((player) => {
+            if (mediaPickerTarget === "card") {
+              return {
+                ...player,
+                premiumCardMediaId: item.id,
+                premiumCardUrl: item.publicUrl,
+              };
+            }
+
+            if (mediaPickerTarget === "stats") {
+              return {
+                ...player,
+                statsMediaId: item.id,
+                statsUrl: item.publicUrl,
+              };
+            }
+
+            return {
+              ...player,
+              photoMediaId: item.id,
+              photoUrl: item.publicUrl,
+            };
+          });
+          setMediaPickerTarget(null);
         }}
       />
     </div>

@@ -51,6 +51,7 @@ type MediaAssetWithRelations = Prisma.MediaAssetGetPayload<{
       select: {
         playerPhotos: true;
         playerPremiumCards: true;
+        playerStatsPhotos: true;
         seasonTeamLogos: true;
         seasonTeamListings: true;
         seasonTeamBanners: true;
@@ -128,6 +129,14 @@ function buildReferenceSummary(counts: MediaAssetWithRelations["_count"]) {
     );
   }
 
+  if (counts.playerStatsPhotos > 0) {
+    summary.push(
+      counts.playerStatsPhotos === 1
+        ? "1 foto de estadisticas"
+        : `${counts.playerStatsPhotos} fotos de estadisticas`,
+    );
+  }
+
   if (counts.seasonTeamListings > 0) {
     summary.push(
       counts.seasonTeamListings === 1
@@ -157,6 +166,7 @@ function getReferenceCount(counts: MediaAssetWithRelations["_count"]) {
   return (
     counts.playerPhotos +
     counts.playerPremiumCards +
+    counts.playerStatsPhotos +
     counts.seasonTeamLogos +
     counts.seasonTeamListings +
     counts.seasonTeamBanners +
@@ -273,6 +283,7 @@ async function fetchMediaAssetForMutation(id: bigint) {
         select: {
           playerPhotos: true,
           playerPremiumCards: true,
+          playerStatsPhotos: true,
           seasonTeamLogos: true,
           seasonTeamListings: true,
           seasonTeamBanners: true,
@@ -319,6 +330,7 @@ export async function getAdminMediaScreenData(user: AuthenticatedAdmin) {
         select: {
           playerPhotos: true,
           playerPremiumCards: true,
+          playerStatsPhotos: true,
           seasonTeamLogos: true,
           seasonTeamListings: true,
           seasonTeamBanners: true,
@@ -559,6 +571,7 @@ export async function storeUploadedMediaAsset(
           select: {
             playerPhotos: true,
             playerPremiumCards: true,
+            playerStatsPhotos: true,
             seasonTeamLogos: true,
             seasonTeamListings: true,
             seasonTeamBanners: true,
@@ -666,6 +679,7 @@ export async function updateMediaAssetMetadata(
         select: {
           playerPhotos: true,
           playerPremiumCards: true,
+          playerStatsPhotos: true,
           seasonTeamLogos: true,
           seasonTeamListings: true,
           seasonTeamBanners: true,
