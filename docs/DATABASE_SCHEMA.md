@@ -14,7 +14,7 @@ The detailed accepted model is now documented in:
 - Use MySQL on Hostinger Business.
 - Use Prisma.
 - Use `BigInt` IDs.
-- Keep a low MySQL connection pool, starting with `connection_limit=5`.
+- Keep a low MySQL connection pool, starting with `connection_limit=2` on shared hosting.
 - Model stable `Team` separately from `SeasonTeam`.
 - Model stable `Player` separately from `PlayerSeasonProfile`.
 - Store stats by `player + match + seasonTeam + season`.

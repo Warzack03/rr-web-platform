@@ -32,6 +32,7 @@ function createPrismaClient() {
 
 export const prisma = global.__prisma__ ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
-  global.__prisma__ = prisma;
-}
+// Next.js can evaluate the database module from more than one server bundle.
+// Reuse one client per Node.js process in every environment so each evaluation
+// does not create another MariaDB pool.
+global.__prisma__ = prisma;

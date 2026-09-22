@@ -156,7 +156,7 @@ No continuar si:
 
 ## Notas para Hostinger
 
-- Mantener `DB_CONNECTION_LIMIT=5` inicialmente.
+- Mantener `DB_CONNECTION_LIMIT=2` inicialmente en Hostinger compartido.
 - Mantener `prisma` como dependency de producción, no solo devDependency, para poder ejecutar `prisma migrate deploy` en Hostinger.
 - No mezclar tablas con WordPress/WooCommerce.
 - No ejecutar migraciones contra la base de `rr-management`.

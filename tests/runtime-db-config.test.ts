@@ -52,6 +52,17 @@ afterEach(() => {
 });
 
 describe("runtime database pool configuration", () => {
+  it("defaults to two connections on shared hosting", () => {
+    delete process.env.NEXT_PHASE;
+    delete process.env.DB_CONNECTION_LIMIT;
+    process.env.DB_HOST = "localhost";
+    process.env.DB_USER = "hostinger-user";
+    process.env.DB_PASSWORD = "exact-password";
+    process.env.DB_NAME = "hostinger-db";
+
+    assert.equal(getRuntimeDatabaseConfig().connectionLimit, 2);
+  });
+
   it("keeps the configured pool limit during normal runtime", () => {
     delete process.env.NEXT_PHASE;
     process.env.DB_CONNECTION_LIMIT = "5";
@@ -112,5 +123,8 @@ describe("runtime database pool configuration", () => {
     const adapterConfig = getMariaDbAdapterConfig();
 
     assert.equal("minimumIdle" in adapterConfig, false);
+    assert.ok(
+      adapterConfig.initializationTimeout < adapterConfig.acquireTimeout,
+    );
   });
 });

@@ -14,7 +14,7 @@ Este documento recoge riesgos residuales y mejoras posteriores al plan de estabi
 - Probar subida de imagen, reinicio de app y redeploy controlado conservando la misma URL `/media/...`.
 - Confirmar cookies `Secure` en HTTPS.
 - Confirmar headers de seguridad y `Cache-Control: no-store` en `/admin` y `/api`.
-- Revisar logs de MySQL/pool con `DB_CONNECTION_LIMIT=5`.
+- Revisar logs de MySQL/pool con `DB_CONNECTION_LIMIT=2`.
 - Identificar backup descargable de base de datos y archivos antes de migraciones/imports.
 
 ## Pendientes de la Fase D

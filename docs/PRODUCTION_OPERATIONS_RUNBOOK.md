@@ -61,13 +61,13 @@ Configurar en hPanel Environment Variables:
 
 ```env
 NODE_ENV="production"
-DATABASE_URL="mysql://user:password@host:3306/database_name?connection_limit=5"
+DATABASE_URL="mysql://user:password@host:3306/database_name?connection_limit=2"
 DB_HOST="host"
 DB_PORT="3306"
 DB_USER="user"
 DB_PASSWORD="change-me"
 DB_NAME="database_name"
-DB_CONNECTION_LIMIT="5"
+DB_CONNECTION_LIMIT="2"
 AUTH_SECRET="long-random-secret"
 NEXTAUTH_URL="https://www.risingraimon.es"
 NEXT_PUBLIC_SITE_URL="https://www.risingraimon.es"
@@ -89,7 +89,7 @@ Reglas:
 
 - `AUTH_SECRET` debe ser largo, aleatorio y no reutilizado.
 - `NEXTAUTH_URL` y `NEXT_PUBLIC_SITE_URL` deben usar HTTPS público.
-- `DB_CONNECTION_LIMIT=5` inicialmente. No subir por encima de 10 sin medir.
+- `DB_CONNECTION_LIMIT=2` inicialmente. Subirlo solo tras medir el pico total de todos los procesos Node.js.
 - No copiar `.env` real al repositorio.
 - No usar credenciales de WordPress ni `rr-management`.
 
@@ -269,7 +269,7 @@ Seguridad:
 
 DB/pool:
 
-1. Ejecutar o revisar `DB_CONNECTION_LIMIT=5`.
+1. Ejecutar o revisar `DB_CONNECTION_LIMIT=2`.
 2. Abrir varias rutas públicas y admin.
 3. Revisar logs por timeouts de pool.
 4. No subir pool sin evidencia.

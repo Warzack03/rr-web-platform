@@ -63,18 +63,19 @@ Use a dedicated MySQL database for the new platform. Do not mix tables with Word
 Recommended connection URL:
 
 ```env
-DATABASE_URL="mysql://user:password@localhost:3306/database_name?connection_limit=5"
+DATABASE_URL="mysql://user:password@localhost:3306/database_name?connection_limit=2"
 DB_HOST="localhost"
 DB_PORT="3306"
 DB_USER="user"
 DB_PASSWORD="change-me"
 DB_NAME="database_name"
-DB_CONNECTION_LIMIT="5"
+DB_CONNECTION_LIMIT="2"
 ```
 
 Keep `DATABASE_URL` for Prisma CLI/migrations. The app runtime uses the separate `DB_*` variables through the Prisma MariaDB adapter.
 
-Start with `connection_limit=5` and `DB_CONNECTION_LIMIT=5`. Increase to 10 only if needed.
+Start with `connection_limit=2` and `DB_CONNECTION_LIMIT=2`. Increase only after
+measuring the combined peak from the live app, build workers and rolling deployments.
 
 During `next build`, the runtime adapter limits each isolated Next.js worker to
 one connection. Normal runtime keeps `DB_CONNECTION_LIMIT`. The adapter uses
@@ -113,6 +114,10 @@ connection probe. Search the runtime log for `[db-connection-diagnostic]`:
 
 - `ACCESS_DENIED`: verify the full Hostinger database username, password and
   that the user is assigned to the database.
+- `USER_CONNECTION_LIMIT`: the MySQL user reached its concurrent-connection
+  allowance; keep `DB_CONNECTION_LIMIT=2`, restart the app and inspect peak usage.
+- `SERVER_CONNECTION_LIMIT`: the MySQL server reached its global connection
+  allowance; contact Hostinger if it persists with the application pool at 2.
 - `DATABASE_NOT_FOUND`: verify the full prefixed `DB_NAME` shown in hPanel.
 - `DNS_ERROR`: `DB_HOST` is invalid; use `localhost` for a database in the same
   Hostinger account.

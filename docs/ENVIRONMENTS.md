@@ -77,7 +77,7 @@ Production notes:
 - `AUTH_SECRET` must be a long random secret in production. Do not reuse the example value.
 - Keep `DATABASE_URL` for Prisma CLI and migrations.
 - Use `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` and `DB_CONNECTION_LIMIT` for runtime through the MariaDB adapter.
-- Keep `DB_CONNECTION_LIMIT=5` initially; do not exceed `10` on Hostinger without measuring.
+- Keep `DB_CONNECTION_LIMIT=2` initially on Hostinger shared hosting; raise it only after measuring total peak usage across all Node.js processes.
 - Keep `UPLOAD_DIR="./public/media"` unless the Hostinger redeploy smoke test proves that runtime uploads need an absolute persistent directory.
 - If `UPLOAD_DIR` changes, keep the public URL contract `/media/...`; do not rewrite existing `MediaAsset.publicUrl` values.
 - Run production/staging schema changes with `npm run db:predeploy` and `npm run db:migrate:deploy`; never with `prisma migrate dev`.

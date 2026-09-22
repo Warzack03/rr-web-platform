@@ -27,10 +27,11 @@ Recommended DTO policy:
 Hostinger has a 75 simultaneous connection limit. Start with:
 
 ```env
-DATABASE_URL="mysql://user:password@localhost:3306/database_name?connection_limit=5"
+DATABASE_URL="mysql://user:password@localhost:3306/database_name?connection_limit=2"
 ```
 
-Only raise to 10 if needed.
+This project uses 2 by default on shared hosting. Raise it only after measuring
+the total connections across every Node.js process and deployment worker.
 
 ## Active season enforcement
 
@@ -108,7 +109,7 @@ DB_PORT="3306"
 DB_USER="root"
 DB_PASSWORD="password-without-url-escaping"
 DB_NAME="rr_web_platform_db"
-DB_CONNECTION_LIMIT="5"
+DB_CONNECTION_LIMIT="2"
 ```
 
 Do not instantiate Prisma 7 runtime with an empty `new PrismaClient()` if the project requires an adapter.
@@ -132,10 +133,11 @@ const adapter = new PrismaMariaDb({
   user: process.env.DB_USER ?? "root",
   password: process.env.DB_PASSWORD ?? "",
   database: process.env.DB_NAME ?? "rr_web_platform_db",
-  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT ?? "5"),
+  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT ?? "2"),
 });
 
 export const prisma = new PrismaClient({ adapter });
 ```
 
-Use a singleton global in development to avoid creating multiple pools.
+Use a singleton global in every environment to avoid creating multiple pools
+when Next.js evaluates the database module from different server bundles.

@@ -62,7 +62,7 @@ Debe revalidarse lo necesario:
 Configurar Prisma/MySQL con limite bajo:
 
 ```env
-DATABASE_URL="mysql://USER:PASSWORD@HOST:3306/DB?connection_limit=5"
+DATABASE_URL="mysql://USER:PASSWORD@HOST:3306/DB?connection_limit=2"
 ```
 
 No subir a 20/50 conexiones sin necesidad.

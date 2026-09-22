@@ -50,4 +50,23 @@ describe("database connection diagnostic", () => {
     assert.equal(result.driverCode, "ER_ACCESS_DENIED_ERROR");
     assert.doesNotMatch(JSON.stringify(entries), /secret-user|secret-value/);
   });
+
+  it("classifies a Hostinger user connection limit", async () => {
+    const entries: unknown[][] = [];
+    console.error = (...args: unknown[]) => entries.push(args);
+    const connectionLimitError = Object.assign(new Error("hidden driver detail"), {
+      code: "ER_USER_LIMIT_REACHED",
+      errno: 1226,
+      sqlState: "42000",
+    });
+
+    await logDatabaseConnectionDiagnostic(async () => {
+      throw connectionLimitError;
+    });
+
+    const result = entries[0]?.[1] as Record<string, unknown>;
+    assert.equal(result.reason, "USER_CONNECTION_LIMIT");
+    assert.equal(result.driverErrno, 1226);
+    assert.doesNotMatch(JSON.stringify(entries), /hidden driver detail/);
+  });
 });

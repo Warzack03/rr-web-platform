@@ -2,7 +2,7 @@ import "dotenv/config";
 import { isIP } from "node:net";
 import * as mariadb from "mariadb";
 
-const diagnosticVersion = 1;
+const diagnosticVersion = 2;
 const timeoutMs = 5_000;
 const requiredDbVariables = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"];
 
@@ -74,6 +74,9 @@ function getHostKind(host) {
 
 function classifyError(error) {
   if (error.code === "CONFIG_INVALID") return "CONFIG_INVALID";
+  if (error.errno === 1226 || error.code === "ER_USER_LIMIT_REACHED") return "USER_CONNECTION_LIMIT";
+  if (error.errno === 1203 || error.code === "ER_TOO_MANY_USER_CONNECTIONS") return "USER_CONNECTION_LIMIT";
+  if (error.errno === 1040 || error.code === "ER_CON_COUNT_ERROR") return "SERVER_CONNECTION_LIMIT";
   if (error.errno === 1045 || error.code === "ER_ACCESS_DENIED_ERROR") return "ACCESS_DENIED";
   if (error.errno === 1049 || error.code === "ER_BAD_DB_ERROR") return "DATABASE_NOT_FOUND";
   if (error.code === "ENOTFOUND" || error.code === "EAI_AGAIN") return "DNS_ERROR";

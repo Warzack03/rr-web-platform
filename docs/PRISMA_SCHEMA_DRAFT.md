@@ -621,4 +621,4 @@ model ImportBatchItem {
 - MySQL `Json` fields are acceptable for import logs and summaries.
 - Do not implement destructive import behavior.
 - Do not store binary media in MySQL.
-- Keep `DATABASE_URL` connection pool low, for example `connection_limit=5`.
+- Keep `DATABASE_URL` connection pool low, for example `connection_limit=2` on shared hosting.

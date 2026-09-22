@@ -20,7 +20,7 @@ type DriverError = Error & {
   sqlState?: string;
 };
 
-const diagnosticVersion = 1;
+const diagnosticVersion = 2;
 const diagnosticTimeoutMs = 5_000;
 
 function getHostKind(host: string) {
@@ -36,6 +36,21 @@ function getHostKind(host: string) {
 }
 
 function classifyConnectionError(error: DriverError) {
+  if (error.errno === 1226 || error.code === "ER_USER_LIMIT_REACHED") {
+    return "USER_CONNECTION_LIMIT" as const;
+  }
+
+  if (
+    error.errno === 1203 ||
+    error.code === "ER_TOO_MANY_USER_CONNECTIONS"
+  ) {
+    return "USER_CONNECTION_LIMIT" as const;
+  }
+
+  if (error.errno === 1040 || error.code === "ER_CON_COUNT_ERROR") {
+    return "SERVER_CONNECTION_LIMIT" as const;
+  }
+
   if (error.errno === 1045 || error.code === "ER_ACCESS_DENIED_ERROR") {
     return "ACCESS_DENIED" as const;
   }

@@ -11,6 +11,8 @@ const databaseUrlFallbackSchema = z.object({
   connectionLimit: z.number().int().positive(),
 });
 
+const defaultConnectionLimit = 2;
+
 const runtimeDatabaseConfigSchema = z.object({
   host: z.string().min(1, "DB_HOST es obligatorio."),
   port: z.number().int().positive("DB_PORT debe ser un entero positivo."),
@@ -90,11 +92,17 @@ function parsePositiveInteger(value: string | undefined, fallback: number) {
   return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : fallback;
 }
 
-function parseConnectionLimit(value: string | undefined, fallback = 5) {
+function parseConnectionLimit(
+  value: string | undefined,
+  fallback = defaultConnectionLimit,
+) {
   return Math.min(parsePositiveInteger(value, fallback), 10);
 }
 
-function resolveConnectionLimit(value: string | undefined, fallback = 5) {
+function resolveConnectionLimit(
+  value: string | undefined,
+  fallback = defaultConnectionLimit,
+) {
   const configuredLimit = parseConnectionLimit(value, fallback);
 
   // Next.js uses several isolated workers while prerendering. Keeping one
@@ -122,7 +130,7 @@ function getDatabaseUrlFallback() {
     database: parsedUrl.pathname.replace(/^\//, ""),
     connectionLimit: parseConnectionLimit(
       parsedUrl.searchParams.get("connection_limit") ?? undefined,
-      5,
+      defaultConnectionLimit,
     ),
   });
 }
@@ -150,7 +158,9 @@ export function getRuntimeDatabaseConfig(): RuntimeDatabaseConfig {
     ),
     connectionLimit: resolveConnectionLimit(
       useSeparateVariables ? process.env.DB_CONNECTION_LIMIT : undefined,
-      fallback?.connectionLimit ?? 5,
+      useSeparateVariables
+        ? defaultConnectionLimit
+        : (fallback?.connectionLimit ?? defaultConnectionLimit),
     ),
   });
 }
@@ -168,7 +178,9 @@ export function getMariaDbAdapterConfig() {
     connectionLimit,
     connectTimeout: 5_000,
     acquireTimeout: 10_000,
-    initializationTimeout: 10_000,
+    // Finish pool initialization first so its concrete driver error is not
+    // hidden by the later generic acquire timeout.
+    initializationTimeout: 8_000,
     idleTimeout: 300,
     // Local MySQL 8 commonly uses caching_sha2_password. The local connector
     // needs this opt-in to retrieve its public key when TLS is not configured.
