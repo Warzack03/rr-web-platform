@@ -8,9 +8,11 @@ A futuro se podra estudiar integracion con fuentes externas, pero no forma parte
 
 ## Competiciones
 
-- Cada equipo estara en una sola competicion a la vez.
-- No se reflejaran torneos en la web durante el MVP.
-- No se necesita contemplar multiples competiciones simultaneas por equipo en la primera version.
+- Un equipo puede participar en varias competiciones dentro de la misma temporada.
+- Apertura y Clausura son competiciones independientes cuando cambian participantes o se reinician los puntos.
+- Copas y competiciones tipo Champions pueden convivir con las ligas del equipo.
+- Cada partido pertenece a una sola competicion y el calendario del equipo agrega todas.
+- Las estadisticas de temporada agregan los partidos de todas las competiciones del equipo.
 
 ## Partidos
 
@@ -39,7 +41,8 @@ Notas:
 
 - Las clasificaciones se editan manualmente.
 - No se calculan automaticamente desde todos los resultados de la liga, porque no se registran todos los partidos de rivales.
-- Cada equipo puede tener su tabla de clasificacion asociada a temporada/competicion.
+- Cada competicion mantiene su propia tabla asociada a temporada/competicion.
+- Un equipo con varias competiciones puede consultar y gestionar varias clasificaciones independientes.
 
 Campos recomendados de clasificacion:
 
@@ -158,7 +161,7 @@ No implementar en MVP:
 
 - calculo automatico completo de clasificacion desde todos los partidos de liga.
 - integracion con RFFM/Municipal.
-- torneos.
+- calculo automatico de cuadros eliminatorios.
 - minuto a minuto.
 
 

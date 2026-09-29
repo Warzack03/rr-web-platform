@@ -8,6 +8,7 @@ import {
   Layers3,
   Plus,
   ShieldCheck,
+  Trophy,
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminFeedbackBanner } from "@/components/admin/admin-feedback-banner";
@@ -15,10 +16,12 @@ import { AdminMetricCard } from "@/components/admin/admin-metric-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import {
+  createCompetitionAction,
   saveTeamAction,
   toggleTeamActiveAction,
   toggleTeamVisibilityAction,
 } from "@/app/admin/(panel)/equipos/actions";
+import { CompetitionFormDialog } from "@/components/admin/competition-form-dialog";
 import {
   TeamFilters,
   type TeamFiltersValue,
@@ -75,6 +78,8 @@ export function AdminTeamsWorkspace({
   const [teams, setTeams] = useState(() => sortTeams(initialTeams));
   const [filters, setFilters] = useState<TeamFiltersValue>(initialFilters);
   const [dialogState, setDialogState] = useState<DialogState>(null);
+  const [competitionDialogOpen, setCompetitionDialogOpen] = useState(false);
+  const [availableCompetitionOptions, setAvailableCompetitionOptions] = useState(competitionOptions);
   const [feedback, setFeedback] = useState<AdminTeamsFeedback | null>(null);
   const [isPersisting, setIsPersisting] = useState(false);
   const [screenState, setScreenState] = useState<"loading" | "ready" | "error">(
@@ -134,6 +139,7 @@ export function AdminTeamsWorkspace({
         team.slug,
         team.category,
         team.competition,
+        team.competitions.map((competition) => competition.name).join(" "),
         team.season,
         team.visibleCoaches.join(" "),
       ]
@@ -149,7 +155,10 @@ export function AdminTeamsWorkspace({
   );
   const branches = Array.from(new Set(teams.map((team) => team.branch)));
   const resolvedCompetitionOptions = Array.from(
-    new Set([...competitionOptions, ...teams.map((team) => team.competition).filter(Boolean)]),
+    new Set([
+      ...availableCompetitionOptions,
+      ...teams.flatMap((team) => team.competitions.map((competition) => competition.name)),
+    ]),
   ).sort((left, right) => left.localeCompare(right, "es"));
   const totalTeams = teams.length;
   const visibleTeams = teams.filter((team) => team.publicVisible).length;
@@ -193,6 +202,9 @@ export function AdminTeamsWorkspace({
       slug: nextTeam.slug,
       category: nextTeam.category,
       competition: nextTeam.competition,
+      competitions: nextTeam.competitions
+        .filter((competition) => competition.active)
+        .map((competition) => competition.name),
       season: nextTeam.season,
       publicVisible: nextTeam.publicVisible,
       active: nextTeam.active,
@@ -220,6 +232,7 @@ export function AdminTeamsWorkspace({
     }
 
     setTeams(sortTeams(result.data.teams));
+    setAvailableCompetitionOptions(result.data.competitionOptions);
     setDialogState(null);
     pushBanner(result.message);
   }
@@ -235,6 +248,22 @@ export function AdminTeamsWorkspace({
     }
 
     setTeams(sortTeams(result.data.teams));
+    pushBanner(result.message);
+  }
+
+  async function createCompetition(input: { season: string; name: string }) {
+    setIsPersisting(true);
+    const result = await createCompetitionAction(input);
+    setIsPersisting(false);
+
+    if (!result.ok) {
+      pushBanner(result.message, "danger");
+      return;
+    }
+
+    setTeams(sortTeams(result.data.teams));
+    setAvailableCompetitionOptions(result.data.competitionOptions);
+    setCompetitionDialogOpen(false);
     pushBanner(result.message);
   }
 
@@ -259,7 +288,16 @@ export function AdminTeamsWorkspace({
         title="Equipos"
         description="Controla visibilidad, entrenadores y contexto deportivo."
         actions={
-          (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setCompetitionDialogOpen(true)}
+              disabled={isPersisting || seasons.length === 0}
+              className="rr-button rr-button-secondary text-[0.84rem]"
+            >
+              <Trophy className="h-4 w-4" />
+              Nueva competicion
+            </button>
             <button
               type="button"
               onClick={openCreateDialog}
@@ -269,7 +307,7 @@ export function AdminTeamsWorkspace({
               <Plus className="h-4 w-4" />
               Crear equipo
             </button>
-          )
+          </div>
         }
       />
 
@@ -428,6 +466,14 @@ export function AdminTeamsWorkspace({
         mediaOptions={mediaOptions}
         onClose={() => setDialogState(null)}
         onSave={saveTeam}
+      />
+      <CompetitionFormDialog
+        key={competitionDialogOpen ? "competition-dialog-open" : "competition-dialog-closed"}
+        open={competitionDialogOpen}
+        seasons={seasons}
+        isSaving={isPersisting}
+        onClose={() => setCompetitionDialogOpen(false)}
+        onSave={createCompetition}
       />
     </div>
   );

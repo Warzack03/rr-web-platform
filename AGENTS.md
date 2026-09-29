@@ -139,8 +139,11 @@ If the project uses Prisma 7+ with MySQL, `PrismaClient` may require `@prisma/ad
 
 - Standings are manual in the MVP.
 - Not all rival results are registered.
-- A team competes in one competition at a time in MVP.
-- No public tournaments in MVP.
+- A team may participate in several independent competitions during the same season.
+- Apertura/Clausura phases with reset points are modeled as separate competitions.
+- Team calendars and player statistics aggregate matches from every assigned competition.
+- Public standings stay independent per competition and are selected from the team standings page.
+- Cups and Champions-style competitions may be public when assigned to a team.
 - Match statuses: scheduled/pending, live, played, postponed.
 - The `live` state is mainly relevant to the First Team, but can exist technically for all teams.
 - The First Team has advanced stats and premium cards built in the web by layers/components.

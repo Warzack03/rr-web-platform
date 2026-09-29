@@ -9,6 +9,9 @@
 - La clasificacion del Primer Equipo se puede destacar en home.
 - En backoffice, la tabla activa debe elegirse por equipo o por competicion, no por mezcla de ambos criterios a la vez.
 - Una misma competicion puede corresponder a una sola tabla con varios equipos del club dentro si comparten clasificacion real.
+- Un equipo puede tener varias tablas durante la temporada, una por cada competicion asignada.
+- Apertura y Clausura se guardan como competiciones/tablas distintas; cerrar una no reinicia ni sobrescribe la otra.
+- La ruta publica del equipo conserva `/clasificacion` y muestra selector cuando existe mas de una tabla.
 
 ## Campos por fila
 

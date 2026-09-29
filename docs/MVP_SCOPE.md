@@ -14,6 +14,7 @@ Create the first serious version of the Rising Raimon public sports website and 
 - Assign players to teams per season.
 - Manage player public fields: display name, slug, photo, position, dorsal, visibility.
 - Competitions management.
+- Multiple competition assignments per team and season.
 - Matches management.
 - Results management.
 - Standings management, initially manual.
@@ -32,6 +33,7 @@ Create the first serious version of the Rising Raimon public sports website and 
 - Matches/results page.
 - Standings page.
 - Basic statistics display.
+- Independent standings per competition with unified team calendars and season statistics.
 - Link to WooCommerce shop.
 - Responsive mobile-first design.
 - SEO-friendly public URLs.

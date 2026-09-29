@@ -155,7 +155,18 @@ export async function getAdminStatsScope(_user: AuthenticatedAdmin) {
       id: true,
       publicSlug: true,
       publicName: true,
+      competitionId: true,
       competitionName: true,
+      competitions: {
+        where: { active: true },
+        orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { id: "asc" }],
+        select: {
+          competitionId: true,
+          isPrimary: true,
+          active: true,
+          competition: { select: { name: true } },
+        },
+      },
       season: {
         select: {
           name: true,
@@ -206,6 +217,7 @@ export async function getAdminStatsScreenData(
     orderBy: [{ dateTime: "desc" }, { id: "desc" }],
     select: {
       id: true,
+      competitionId: true,
       matchday: true,
       opponentName: true,
       isHome: true,
@@ -368,14 +380,37 @@ export async function getAdminStatsScreenData(
     },
   });
 
-  const mappedTeams: MatchManagementTeam[] = teams.map((team) => ({
-    id: team.id.toString(),
-    slug: team.publicSlug,
-    name: team.publicName,
-    season: team.season.name,
-    competition: team.competitionName ?? "Competicion pendiente",
-    isFirstTeam: team.team.isFirstTeam,
-  }));
+  const mappedTeams: MatchManagementTeam[] = teams.map((team) => {
+    const competitions =
+      team.competitions.length > 0
+        ? team.competitions.map((participation) => ({
+            id: participation.competitionId.toString(),
+            name: participation.competition.name,
+            isPrimary: participation.isPrimary,
+            active: participation.active,
+          }))
+        : team.competitionId
+          ? [{
+              id: team.competitionId.toString(),
+              name: team.competitionName ?? "Competicion pendiente",
+              isPrimary: true,
+              active: true,
+            }]
+          : [];
+    const primaryCompetition =
+      competitions.find((competition) => competition.isPrimary) ?? competitions[0];
+
+    return {
+      id: team.id.toString(),
+      slug: team.publicSlug,
+      name: team.publicName,
+      season: team.season.name,
+      competitionId: primaryCompetition?.id,
+      competition: primaryCompetition?.name ?? "Competicion pendiente",
+      competitions,
+      isFirstTeam: team.team.isFirstTeam,
+    };
+  });
 
   const playerCatalog: AdminStatsCatalogPlayer[] = catalogRows.map((player) => {
     const originAssignment = player.assignments[0];
@@ -503,6 +538,7 @@ export async function getAdminStatsScreenData(
     teamSlug: match.seasonTeam.publicSlug,
     teamName: match.seasonTeam.publicName,
     season: match.seasonTeam.season.name,
+    competitionId: match.competitionId?.toString() ?? "",
     competition: match.competition?.name ?? match.seasonTeam.competitionName ?? "Competicion pendiente",
     matchday: mapMatchdayLabel(match.matchday),
     opponentName: match.opponentName,

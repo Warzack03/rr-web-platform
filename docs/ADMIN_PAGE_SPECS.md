@@ -100,7 +100,8 @@ Manage:
 - Name.
 - Slug.
 - Category.
-- Competition.
+- Primary competition.
+- Multiple competitions assigned to the team for the season.
 - Season.
 - First Team flag.
 - Public visibility.
@@ -227,7 +228,8 @@ Manage:
 
 Current UX/product rules:
 
-- Competition is filled automatically from the team in normal match creation.
+- Competition is selected from the competitions assigned to the team.
+- Rival, venue and matchday suggestion are scoped to the selected competition.
 - Matchday is suggested as last existing matchday + 1, but remains editable.
 - Pending matches show `PDTE` instead of `VS` in admin result cells.
 - Match list uses pagination and a compact desktop table to avoid redundant data.

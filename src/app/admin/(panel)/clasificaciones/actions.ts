@@ -135,7 +135,14 @@ function findCompetitionTeams(
   teams: AdminScopedStandingTeam[],
   competition: string,
 ) {
-  return teams.filter((team) => (team.competitionName ?? "Competicion pendiente") === competition);
+  return teams.filter(
+    (team) =>
+      team.competitions.some(
+        (participation) => participation.active && participation.competition.name === competition,
+      ) ||
+      (team.competitions.length === 0 &&
+        (team.competitionName ?? "Competicion pendiente") === competition),
+  );
 }
 
 export async function saveStandingAction(
@@ -286,28 +293,41 @@ export async function createStandingAction(
     };
   }
 
+  const selectedTeam =
+    parsed.data.selectionMode === "team"
+      ? teams.find((team) => team.publicSlug === parsed.data.teamSlug)
+      : undefined;
+  const selectedParticipation =
+    selectedTeam?.competitions.find((participation) => participation.isPrimary) ??
+    selectedTeam?.competitions[0] ??
+    teams
+      .flatMap((team) => team.competitions)
+      .find(
+        (participation) =>
+          participation.active &&
+          participation.competition.name === parsed.data.competition,
+      );
+  const targetCompetitionId =
+    selectedParticipation?.competitionId ?? selectedTeam?.competitionId ?? null;
+  const competitionLabel =
+    selectedParticipation?.competition.name ??
+    selectedTeam?.competitionName ??
+    parsed.data.competition ??
+    "Competicion pendiente";
   const currentTeams =
     parsed.data.selectionMode === "team"
-      ? (() => {
-          const selectedTeam = teams.find((team) => team.publicSlug === parsed.data.teamSlug);
-
-          if (!selectedTeam) {
-            return [];
-          }
-
-          if (selectedTeam.competitionId) {
-            return teams.filter((team) => team.competitionId === selectedTeam.competitionId);
-          }
-
-          if (selectedTeam.competitionName) {
-            return teams.filter(
-              (team) => team.competitionName === selectedTeam.competitionName,
-            );
-          }
-
-          return [selectedTeam];
-        })()
-      : findCompetitionTeams(teams, parsed.data.competition ?? "");
+      ? targetCompetitionId
+        ? teams.filter((team) =>
+            team.competitions.some(
+              (participation) =>
+                participation.active && participation.competitionId === targetCompetitionId,
+            ) ||
+            (team.competitions.length === 0 && team.competitionId === targetCompetitionId),
+          )
+        : selectedTeam
+          ? [selectedTeam]
+          : []
+      : findCompetitionTeams(teams, competitionLabel);
 
   if (currentTeams.length === 0) {
     return {
@@ -316,13 +336,14 @@ export async function createStandingAction(
     };
   }
 
-  const competitionLabel =
-    parsed.data.selectionMode === "team"
-      ? currentTeams[0]?.competitionName ?? "Competicion pendiente"
-      : parsed.data.competition ?? "Competicion pendiente";
-
   const existingStanding = await prisma.standingTable.findFirst({
-    where: buildStandingTableScopeWhere(activeSeason.id, currentTeams),
+    where: {
+      seasonId: activeSeason.id,
+      deletedAt: null,
+      ...(targetCompetitionId
+        ? { competitionId: targetCompetitionId }
+        : buildStandingTableScopeWhere(activeSeason.id, currentTeams)),
+    },
     orderBy: [
       {
         seasonTeam: {
@@ -355,7 +376,7 @@ export async function createStandingAction(
     data: {
       seasonId: activeSeason.id,
       seasonTeamId: primaryTeam.id,
-      competitionId: primaryTeam.competitionId,
+      competitionId: targetCompetitionId ?? primaryTeam.competitionId,
       title: `Clasificacion ${competitionLabel}`,
       sourceLabel: "Creada en backoffice",
       publicVisible: false,

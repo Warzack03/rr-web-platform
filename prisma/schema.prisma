@@ -154,36 +154,36 @@ model Team {
 }
 
 model SeasonTeam {
-  id                BigInt                 @id @default(autoincrement())
+  id                BigInt                  @id @default(autoincrement())
   seasonId          BigInt
   teamId            BigInt
   competitionId     BigInt?
-  publicName        String                 @db.VarChar(150)
-  publicSlug        String                 @db.VarChar(160)
-  category          String?                @db.VarChar(100)
-  competitionName   String?                @db.VarChar(150)
-  description       String?                @db.Text
-  publicVisible     Boolean                @default(true)
+  publicName        String                  @db.VarChar(150)
+  publicSlug        String                  @db.VarChar(160)
+  category          String?                 @db.VarChar(100)
+  competitionName   String?                 @db.VarChar(150)
+  description       String?                 @db.Text
+  publicVisible     Boolean                 @default(true)
   logoMediaId       BigInt?
   listingMediaId    BigInt?
   bannerMediaId     BigInt?
-  displayOrder      Int                    @default(0)
-  active            Boolean                @default(true)
-  sourceSystem      String?                @db.VarChar(80)
-  sourceExternalId  String?                @db.VarChar(80)
+  displayOrder      Int                     @default(0)
+  active            Boolean                 @default(true)
+  sourceSystem      String?                 @db.VarChar(80)
+  sourceExternalId  String?                 @db.VarChar(80)
   lastImportBatchId BigInt?
   createdById       BigInt?
   updatedById       BigInt?
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
   deletedAt         DateTime?
-  season            Season                 @relation(fields: [seasonId], references: [id])
-  team              Team                   @relation(fields: [teamId], references: [id])
-  competition       Competition?           @relation(fields: [competitionId], references: [id], onDelete: SetNull)
-  logoMedia         MediaAsset?            @relation("SeasonTeamLogo", fields: [logoMediaId], references: [id], onDelete: SetNull)
-  listingMedia      MediaAsset?            @relation("SeasonTeamListing", fields: [listingMediaId], references: [id], onDelete: SetNull)
-  bannerMedia       MediaAsset?            @relation("SeasonTeamBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
-  lastImportBatch   ImportBatch?           @relation("SeasonTeamLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+  season            Season                  @relation(fields: [seasonId], references: [id])
+  team              Team                    @relation(fields: [teamId], references: [id])
+  competition       Competition?            @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  logoMedia         MediaAsset?             @relation("SeasonTeamLogo", fields: [logoMediaId], references: [id], onDelete: SetNull)
+  listingMedia      MediaAsset?             @relation("SeasonTeamListing", fields: [listingMediaId], references: [id], onDelete: SetNull)
+  bannerMedia       MediaAsset?             @relation("SeasonTeamBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
+  lastImportBatch   ImportBatch?            @relation("SeasonTeamLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
   assignments       TeamPlayerAssignment[]
   coaches           TeamCoach[]
   matches           Match[]
@@ -191,6 +191,7 @@ model SeasonTeam {
   stats             PlayerMatchStats[]
   coachPermissions  CoachTeamPermission[]
   newsLinks         NewsPostTeam[]
+  competitions      SeasonTeamCompetition[]
 
   @@unique([seasonId, teamId])
   @@unique([seasonId, publicSlug])
@@ -327,24 +328,46 @@ model CoachTeamPermission {
 }
 
 model Competition {
-  id          BigInt          @id @default(autoincrement())
-  seasonId    BigInt
-  name        String          @db.VarChar(150)
-  slug        String          @db.VarChar(160)
-  organizer   String?         @db.VarChar(100)
-  groupName   String?         @db.VarChar(100)
-  active      Boolean         @default(true)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  season      Season          @relation(fields: [seasonId], references: [id])
-  seasonTeams SeasonTeam[]
-  matches     Match[]
-  standings   StandingTable[]
-  opponents   Opponent[]
-  venues      Venue[]
+  id               BigInt                  @id @default(autoincrement())
+  seasonId         BigInt
+  name             String                  @db.VarChar(150)
+  slug             String                  @db.VarChar(160)
+  organizer        String?                 @db.VarChar(100)
+  groupName        String?                 @db.VarChar(100)
+  active           Boolean                 @default(true)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  season           Season                  @relation(fields: [seasonId], references: [id])
+  seasonTeams      SeasonTeam[]
+  matches          Match[]
+  standings        StandingTable[]
+  opponents        Opponent[]
+  venues           Venue[]
+  seasonTeamsLinks SeasonTeamCompetition[]
 
   @@unique([seasonId, slug])
   @@map("competitions")
+}
+
+model SeasonTeamCompetition {
+  id            BigInt      @id @default(autoincrement())
+  seasonTeamId  BigInt
+  competitionId BigInt
+  isPrimary     Boolean     @default(false)
+  active        Boolean     @default(true)
+  publicVisible Boolean     @default(true)
+  displayOrder  Int         @default(0)
+  startDate     DateTime?   @db.Date
+  endDate       DateTime?   @db.Date
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  seasonTeam    SeasonTeam  @relation(fields: [seasonTeamId], references: [id], onDelete: Cascade, map: "stc_season_team_fk")
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Restrict, map: "stc_competition_fk")
+
+  @@unique([seasonTeamId, competitionId], map: "stc_team_competition_uq")
+  @@index([competitionId, active], map: "stc_competition_active_idx")
+  @@index([seasonTeamId, publicVisible, displayOrder], map: "stc_team_public_order_idx")
+  @@map("season_team_competitions")
 }
 
 model Opponent {

@@ -9,6 +9,12 @@ export type MatchManagementTeam = {
   season: string;
   competitionId?: string;
   competition: string;
+  competitions: Array<{
+    id: string;
+    name: string;
+    isPrimary: boolean;
+    active: boolean;
+  }>;
   isFirstTeam: boolean;
 };
 
@@ -39,6 +45,7 @@ export type MatchManagementMatch = {
   teamName: string;
   season: string;
   competition: string;
+  competitionId: string;
   matchday: string;
   opponentId?: string;
   opponentName: string;
@@ -60,11 +67,16 @@ const weekdayLabels = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
 const monthLabels = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
 export function getNextMatchdaySuggestion(
-  matches: Array<Pick<MatchManagementMatch, "teamSlug" | "matchday">>,
+  matches: Array<Pick<MatchManagementMatch, "teamSlug" | "matchday" | "competitionId">>,
   teamSlug: string,
+  competitionId?: string,
 ) {
   const lastMatchday = matches
-    .filter((match) => match.teamSlug === teamSlug)
+    .filter(
+      (match) =>
+        match.teamSlug === teamSlug &&
+        (!competitionId || match.competitionId === competitionId),
+    )
     .map((match) => match.matchday.match(/\d+/)?.[0])
     .filter((value): value is string => Boolean(value))
     .map(Number)

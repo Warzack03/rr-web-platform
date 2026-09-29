@@ -84,7 +84,7 @@ export function AdminStandingsWorkspace({
     allowedTeams[0]?.slug ??
     "";
   const competitions = Array.from(
-    new Set(allowedTeams.map((team) => team.competition)),
+    new Set(allowedTeams.flatMap((team) => team.competitions.map((competition) => competition.name))),
   );
   const defaultCompetition = competitions[0] ?? "";
   const canSelectByTeam = allowedTeams.length > 1;

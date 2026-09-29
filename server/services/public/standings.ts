@@ -17,6 +17,14 @@ type DbSeasonTeam = {
   publicSlug: string;
   competitionId: bigint | null;
   competitionName: string | null;
+  competitions: Array<{
+    competitionId: bigint;
+    isPrimary: boolean;
+    active: boolean;
+    publicVisible: boolean;
+    displayOrder: number;
+    competition: { name: string };
+  }>;
   logoMedia: {
     publicUrl: string;
     altText: string | null;
@@ -143,6 +151,18 @@ async function getActiveVisibleSeasonTeamBySlug(
               publicSlug: true,
               competitionId: true,
               competitionName: true,
+              competitions: {
+                where: { active: true, publicVisible: true },
+                orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { id: "asc" }],
+                select: {
+                  competitionId: true,
+                  isPrimary: true,
+                  active: true,
+                  publicVisible: true,
+                  displayOrder: true,
+                  competition: { select: { name: true } },
+                },
+              },
               logoMedia: {
                 select: { publicUrl: true, altText: true },
               },
@@ -182,6 +202,7 @@ async function buildStandingsPageContentFromDb(
     }),
     orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
     select: {
+      id: true,
       seasonTeamId: true,
       competitionId: true,
       seasonTeam: {
@@ -245,7 +266,37 @@ async function buildStandingsPageContentFromDb(
       },
     },
   });
-  const standingTable = pickBestStandingTableForTeam(standingTables, team);
+  const primaryCompetitionId =
+    team.competitions.find((participation) => participation.isPrimary)?.competitionId ??
+    team.competitions[0]?.competitionId ??
+    team.competitionId;
+  const standingTable =
+    standingTables.find((table) => table.competitionId === primaryCompetitionId) ??
+    pickBestStandingTableForTeam(standingTables, team);
+  const participationOrder = new Map(
+    team.competitions.map((participation, index) => [
+      participation.competitionId.toString(),
+      participation.isPrimary ? -1 : participation.displayOrder || index,
+    ]),
+  );
+  const tables = standingTables
+    .filter((table) => table.rows.length > 0)
+    .sort((left, right) => {
+      const leftOrder = left.competitionId
+        ? participationOrder.get(left.competitionId.toString()) ?? Number.MAX_SAFE_INTEGER
+        : Number.MAX_SAFE_INTEGER;
+      const rightOrder = right.competitionId
+        ? participationOrder.get(right.competitionId.toString()) ?? Number.MAX_SAFE_INTEGER
+        : Number.MAX_SAFE_INTEGER;
+      return leftOrder - rightOrder;
+    })
+    .map((table) => ({
+      id: table.id.toString(),
+      competition:
+        table.competition?.name ?? table.seasonTeam.competitionName ?? "Competicion pendiente",
+      updatedAt: table.updatedLabel ?? formatUpdatedLabel(table.updatedAt),
+      rows: mapStandingRows(table.rows, visibleTeams),
+    }));
 
   const isFirstTeam = team.team.isFirstTeam;
   const teamDisplayName = getPublicTeamDisplayName(team.publicName, isFirstTeam);
@@ -268,12 +319,15 @@ async function buildStandingsPageContentFromDb(
     navLinks: isFirstTeam
       ? getTeamSectionLinks({
           teamType: "first-team",
+          hasMultipleStandings: tables.length > 1,
         })
       : getTeamSectionLinks({
           teamType: "academy",
           teamSlug: team.publicSlug,
+          hasMultipleStandings: tables.length > 1,
         }),
     rows: mapStandingRows(standingTable?.rows ?? [], visibleTeams),
+    tables,
   };
 }
 

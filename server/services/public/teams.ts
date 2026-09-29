@@ -33,6 +33,13 @@ type DbSeasonTeam = {
   competitionId: bigint | null;
   category: string | null;
   competitionName: string | null;
+  competitions: Array<{
+    competitionId: bigint;
+    isPrimary: boolean;
+    active: boolean;
+    publicVisible: boolean;
+    competition: { name: string };
+  }>;
   season: {
     id: bigint;
     name: string;
@@ -252,6 +259,17 @@ async function getActiveVisibleSeasonTeams() {
               competitionId: true,
               category: true,
               competitionName: true,
+              competitions: {
+                where: { active: true, publicVisible: true },
+                orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { id: "asc" }],
+                select: {
+                  competitionId: true,
+                  isPrimary: true,
+                  active: true,
+                  publicVisible: true,
+                  competition: { select: { name: true } },
+                },
+              },
               season: {
                 select: {
                   id: true,
@@ -532,7 +550,13 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     }),
     getTeamNewsItems(team.publicName, team.team.isFirstTeam),
   ]);
-  const standingTable = pickBestStandingTableForTeam(standingTables, team);
+  const primaryCompetitionId =
+    team.competitions.find((participation) => participation.isPrimary)?.competitionId ??
+    team.competitions[0]?.competitionId ??
+    team.competitionId;
+  const standingTable =
+    standingTables.find((table) => table.competitionId === primaryCompetitionId) ??
+    pickBestStandingTableForTeam(standingTables, team);
 
   const totalGoalsFor = playedMatches.reduce(
     (total, match) => total + (match.isHome ? match.homeScore ?? 0 : match.awayScore ?? 0),
@@ -581,7 +605,12 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     logoUrl: team.logoMedia?.publicUrl,
     logoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
     category: normalizeCategory(team.category, team.team.isFirstTeam),
-    competition: team.competitionName ?? "Competicion pendiente",
+    competition:
+      team.competitions.find((participation) => participation.isPrimary)?.competition.name ??
+      team.competitions[0]?.competition.name ??
+      team.competitionName ??
+      "Competicion pendiente",
+    competitions: team.competitions.map((participation) => participation.competition.name),
     season: team.season.name,
     coaches: coachNames,
     heroImageUrl: team.bannerMedia?.publicUrl,
@@ -739,6 +768,14 @@ export async function getPublicTeamHeroContentFromDb(
                 publicSlug: true,
                 category: true,
                 competitionName: true,
+                competitions: {
+                  where: { active: true, publicVisible: true },
+                  orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { id: "asc" }],
+                  select: {
+                    isPrimary: true,
+                    competition: { select: { name: true } },
+                  },
+                },
                 season: {
                   select: { name: true },
                 },
@@ -778,7 +815,12 @@ export async function getPublicTeamHeroContentFromDb(
       logoUrl: team.logoMedia?.publicUrl,
       logoAlt: team.logoMedia?.altText ?? `Escudo ${name}`,
       category: normalizeCategory(team.category, isFirstTeam),
-      competition: team.competitionName ?? "Competicion pendiente",
+      competition:
+        team.competitions.find((participation) => participation.isPrimary)?.competition.name ??
+        team.competitions[0]?.competition.name ??
+        team.competitionName ??
+        "Competicion pendiente",
+      competitions: team.competitions.map((participation) => participation.competition.name),
       season: team.season.name,
       coaches: team.coaches.map((coach) => coach.name),
       heroImageUrl: team.bannerMedia?.publicUrl,

@@ -98,6 +98,7 @@ No incluir plantilla completa, calendario completo ni clasificacion completa.
 ## Calendario cantera `/equipos/[teamSlug]/calendario`
 
 - Filtros: Todos, Jugados, Pendientes.
+- Si el equipo tiene varias competiciones, mostrar tambien filtro por competicion y agregar todos los partidos.
 - No mostrar En vivo ni Aplazados.
 - Aplazados se tratan como Pendientes.
 - Acciones enlazan a `/equipos/[teamSlug]/partidos/[matchId]`.
@@ -109,6 +110,8 @@ No incluir plantilla completa, calendario completo ni clasificacion completa.
 - Equipo propio destacado.
 - Sin resumen superior.
 - Mobile en cards.
+- Mostrar selector de competicion cuando el equipo tenga varias clasificaciones.
+- Mantener Apertura, Clausura y copas como tablas independientes.
 
 ## Detalle partido cantera `/equipos/[teamSlug]/partidos/[matchId]`
 

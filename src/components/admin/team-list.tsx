@@ -141,7 +141,15 @@ export function TeamList({
         <p className="text-[0.88rem] text-[color:var(--rr-muted)]">{team.category}</p>
       </div>
     ),
-    context: <p>{team.competition}</p>,
+    context: (
+      <div className="space-y-1">
+        {team.competitions.filter((competition) => competition.active).map((competition) => (
+          <p key={competition.id}>
+            {competition.name}{competition.isPrimary ? " · Principal" : ""}
+          </p>
+        ))}
+      </div>
+    ),
     players: <p>{team.playerCount}</p>,
     state: (
       <div className="flex min-w-fit flex-nowrap gap-1.5">
@@ -177,7 +185,7 @@ export function TeamList({
             key={team.id}
             eyebrow={team.category}
             title={team.name}
-            description={team.competition}
+            description={`${team.competitions.filter((competition) => competition.active).length} competicion${team.competitions.filter((competition) => competition.active).length === 1 ? "" : "es"}`}
             meta={
               <>
                 <TeamVisibilityBadge publicVisible={team.publicVisible} />
@@ -194,7 +202,12 @@ export function TeamList({
             footer={
               <div className="space-y-4">
                 <div className="rounded-[16px] border border-white/8 bg-white/4 p-3 text-[0.9rem] text-[color:var(--rr-muted)]">
-                  <p className="text-white">{team.competition}</p>
+                  <p className="text-white">
+                    {team.competitions
+                      .filter((competition) => competition.active)
+                      .map((competition) => competition.name)
+                      .join(" · ")}
+                  </p>
                   <p className="mt-1">{team.playerCount} jugadores</p>
                   {team.visibleCoaches.length > 0 ? (
                     <p className="mt-2">{team.visibleCoaches.join(" - ")}</p>

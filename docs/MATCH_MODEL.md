@@ -14,7 +14,9 @@
 - Un partido `played` debe poder tener resultado.
 - Un partido `postponed` puede no tener nueva fecha.
 - No implementar minuto a minuto en MVP.
-- No hay torneos reflejados en la web durante MVP.
+- Un equipo puede tener partidos de varias competiciones en la misma temporada.
+- Cada partido debe usar una competicion asignada al equipo.
+- La numeracion de jornadas es independiente por competicion.
 
 ## Campos recomendados
 

@@ -10,12 +10,21 @@ export type TeamManagementCoach = {
   publicVisible: boolean;
 };
 
+export type TeamManagementCompetition = {
+  id: string;
+  name: string;
+  isPrimary: boolean;
+  active: boolean;
+  publicVisible: boolean;
+};
+
 export type TeamManagementTeam = {
   id: string;
   slug: string;
   name: string;
   category: string;
   competition: string;
+  competitions: TeamManagementCompetition[];
   season: string;
   branch: string;
   publicVisible: boolean;

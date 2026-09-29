@@ -5,6 +5,7 @@ export const saveMatchInputSchema = z.object({
   matchId: z.string().trim().optional(),
   teamSlug: z.string().trim().min(1, "Selecciona un equipo."),
   season: z.string().trim().min(1, "Selecciona una temporada."),
+  competitionId: z.string().trim().regex(/^\d+$/, "Selecciona una competicion."),
   competition: z.string().trim().min(1, "Selecciona una competicion."),
   matchday: z.string().trim().min(1, "Introduce la jornada."),
   opponentId: z.string().trim().regex(/^\d+$/, "Selecciona un rival del catalogo."),

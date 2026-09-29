@@ -102,6 +102,7 @@ export type PublicTeamHeroContent = {
   logoAlt?: string;
   category: string;
   competition: string;
+  competitions?: string[];
   season: string;
   coaches: string[];
   heroImageUrl?: string;
@@ -236,6 +237,12 @@ export type PublicTeamStandingsPageContent = {
   backLabel: string;
   navLinks: TeamSectionNavLink[];
   rows: PublicStandingRow[];
+  tables: Array<{
+    id: string;
+    competition: string;
+    updatedAt?: string;
+    rows: PublicStandingRow[];
+  }>;
 };
 
 export type PublicStatSortKey =

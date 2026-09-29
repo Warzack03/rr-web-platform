@@ -17,12 +17,18 @@ export type AdminStandingsScreenData = {
   tables: StandingManagementTable[];
 };
 
-export type AdminScopedStandingTeam = StandingScopeTeamRef & {
+export type AdminScopedStandingTeam = Omit<StandingScopeTeamRef, "competitions"> & {
   id: bigint;
   publicSlug: string;
   publicName: string;
   category: string | null;
   publicVisible: boolean;
+  competitions: Array<{
+    competitionId: bigint;
+    isPrimary: boolean;
+    active: boolean;
+    competition: { name: string };
+  }>;
   season: {
     name: string;
   };
@@ -114,6 +120,16 @@ export async function getAdminStandingsScope(
       category: true,
       competitionId: true,
       competitionName: true,
+      competitions: {
+        where: { active: true },
+        orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { id: "asc" }],
+        select: {
+          competitionId: true,
+          isPrimary: true,
+          active: true,
+          competition: { select: { name: true } },
+        },
+      },
       publicVisible: true,
       season: {
         select: {
@@ -280,16 +296,37 @@ export async function getAdminStandingsScreenData(
     teams.map((team) => [team.publicName.trim().toLowerCase(), team]),
   );
 
-  const mappedTeams: StandingManagementTeam[] = teams.map((team) => ({
-    id: team.id.toString(),
-    slug: team.publicSlug,
-    name: team.publicName,
-    season: team.season.name,
-    competition: team.competitionName ?? "Competicion pendiente",
-    category: team.category ?? (team.team.isFirstTeam ? "Senior" : "Cantera"),
-    isFirstTeam: team.team.isFirstTeam,
-    crestSrc: team.logoMedia?.publicUrl ?? undefined,
-  }));
+  const mappedTeams: StandingManagementTeam[] = teams.map((team) => {
+    const teamCompetitions = team.competitions ?? [];
+    const competitions =
+      teamCompetitions.length > 0
+        ? teamCompetitions.map((participation) => ({
+            id: participation.competitionId.toString(),
+            name: participation.competition.name,
+            isPrimary: participation.isPrimary,
+          }))
+        : team.competitionId
+          ? [{
+              id: team.competitionId.toString(),
+              name: team.competitionName ?? "Competicion pendiente",
+              isPrimary: true,
+            }]
+          : [];
+    const primaryCompetition =
+      competitions.find((competition) => competition.isPrimary) ?? competitions[0];
+
+    return {
+      id: team.id.toString(),
+      slug: team.publicSlug,
+      name: team.publicName,
+      season: team.season.name,
+      competition: primaryCompetition?.name ?? "Competicion pendiente",
+      competitions,
+      category: team.category ?? (team.team.isFirstTeam ? "Senior" : "Cantera"),
+      isFirstTeam: team.team.isFirstTeam,
+      crestSrc: team.logoMedia?.publicUrl ?? undefined,
+    };
+  });
 
   const mappedTables: StandingManagementTable[] = standings.map((standing) => {
     const ownTeam = teamMap.get(standing.seasonTeam.id.toString());

@@ -8,8 +8,10 @@ import { getAdminTeamsScreenData } from "@/server/services/admin-teams";
 import { requireAdminSectionAccess } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 import {
+  createCompetitionInputSchema,
   saveTeamInputSchema,
   toggleTeamInputSchema,
+  type CreateCompetitionInput,
   type SaveTeamInput,
   type ToggleTeamInput,
 } from "@/server/validators/admin-teams";
@@ -28,6 +30,69 @@ type AdminTeamsActionResult =
 
 function isNumericId(value: string) {
   return /^\d+$/.test(value);
+}
+
+function slugifyCompetition(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export async function createCompetitionAction(
+  input: CreateCompetitionInput,
+): Promise<AdminTeamsActionResult> {
+  const user = await assertTeamWriteRole();
+  const parsed = createCompetitionInputSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: parsed.error.issues[0]?.message ?? "No hemos podido validar la competicion.",
+    };
+  }
+
+  const season = await prisma.season.findFirst({
+    where: { name: parsed.data.season, deletedAt: null },
+    select: { id: true },
+  });
+
+  if (!season) {
+    return { ok: false, message: "La temporada seleccionada ya no esta disponible." };
+  }
+
+  const slugBase = slugifyCompetition(parsed.data.name) || "competicion";
+  const existing = await prisma.competition.findFirst({
+    where: {
+      seasonId: season.id,
+      OR: [{ name: parsed.data.name }, { slug: slugBase }],
+    },
+    select: { id: true },
+  });
+
+  if (existing) {
+    return { ok: false, message: "Ya existe esa competicion en la temporada." };
+  }
+
+  await prisma.competition.create({
+    data: {
+      seasonId: season.id,
+      name: parsed.data.name,
+      slug: slugBase,
+      active: true,
+    },
+  });
+
+  revalidatePath("/admin/equipos");
+
+  return {
+    ok: true,
+    data: await getAdminTeamsScreenData(user),
+    message: "Competicion creada. Ya puedes asignarla a uno o varios equipos.",
+  };
 }
 
 async function ensureUniqueTeamSlug(
@@ -170,6 +235,9 @@ export async function saveTeamAction(
   const payload = {
     ...parsed.data,
     slug: parsed.data.isFirstTeam ? "primer-equipo" : parsed.data.slug,
+    competitions: Array.from(
+      new Set([parsed.data.competition, ...parsed.data.competitions]),
+    ),
   };
   const season = await prisma.season.findFirst({
     where: {
@@ -189,15 +257,30 @@ export async function saveTeamAction(
     };
   }
 
-  const competition = await prisma.competition.findFirst({
+  const selectedCompetitions = await prisma.competition.findMany({
     where: {
       seasonId: season.id,
-      name: payload.competition,
+      name: { in: payload.competitions },
     },
     select: {
       id: true,
+      name: true,
     },
   });
+  const competitionByName = new Map(
+    selectedCompetitions.map((competition) => [competition.name, competition]),
+  );
+  const primaryCompetition = competitionByName.get(payload.competition);
+
+  if (
+    !primaryCompetition ||
+    payload.competitions.some((name) => !competitionByName.has(name))
+  ) {
+    return {
+      ok: false,
+      message: "Alguna de las competiciones seleccionadas no pertenece a esta temporada.",
+    };
+  }
 
   if (payload.seasonTeamId && isNumericId(payload.seasonTeamId)) {
     const existing = await getScopedSeasonTeamForWrite(BigInt(payload.seasonTeamId));
@@ -295,7 +378,7 @@ export async function saveTeamAction(
           publicName: payload.name,
           publicSlug: payload.slug,
           category: payload.category,
-          competitionId: competition?.id ?? null,
+          competitionId: primaryCompetition.id,
           competitionName: payload.competition,
           publicVisible: payload.publicVisible,
           active: payload.active,
@@ -306,6 +389,43 @@ export async function saveTeamAction(
           updatedById: user.id,
         },
       });
+
+      await tx.seasonTeamCompetition.updateMany({
+        where: { seasonTeamId: existing.id },
+        data: { isPrimary: false },
+      });
+      await tx.seasonTeamCompetition.updateMany({
+        where: {
+          seasonTeamId: existing.id,
+          competitionId: { notIn: selectedCompetitions.map((item) => item.id) },
+        },
+        data: { active: false, publicVisible: false },
+      });
+
+      for (const [index, selectedCompetition] of selectedCompetitions.entries()) {
+        await tx.seasonTeamCompetition.upsert({
+          where: {
+            seasonTeamId_competitionId: {
+              seasonTeamId: existing.id,
+              competitionId: selectedCompetition.id,
+            },
+          },
+          update: {
+            isPrimary: selectedCompetition.id === primaryCompetition.id,
+            active: true,
+            publicVisible: true,
+            displayOrder: index,
+          },
+          create: {
+            seasonTeamId: existing.id,
+            competitionId: selectedCompetition.id,
+            isPrimary: selectedCompetition.id === primaryCompetition.id,
+            active: true,
+            publicVisible: true,
+            displayOrder: index,
+          },
+        });
+      }
 
       const existingCoachIds = new Set(existing.coaches.map((coach) => coach.id.toString()));
       const incomingCoachIds = new Set(
@@ -477,7 +597,7 @@ export async function saveTeamAction(
       data: {
         seasonId: season.id,
         teamId: baseTeam.id,
-        competitionId: competition?.id ?? null,
+        competitionId: primaryCompetition.id,
         publicName: payload.name,
         publicSlug: payload.slug,
         category: payload.category,
@@ -494,6 +614,17 @@ export async function saveTeamAction(
       select: {
         id: true,
       },
+    });
+
+    await tx.seasonTeamCompetition.createMany({
+      data: selectedCompetitions.map((selectedCompetition, index) => ({
+        seasonTeamId: seasonTeam.id,
+        competitionId: selectedCompetition.id,
+        isPrimary: selectedCompetition.id === primaryCompetition.id,
+        active: true,
+        publicVisible: true,
+        displayOrder: index,
+      })),
     });
 
     await tx.teamCoach.createMany({

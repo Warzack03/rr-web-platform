@@ -52,23 +52,20 @@ Campos esperados en el flujo actual:
 
 ### 2. Competicion
 
-- Cada equipo juega una sola competicion activa en MVP.
-- Al elegir equipo, la competicion se rellena automaticamente desde ese equipo.
-- La competicion no se edita manualmente en el alta normal.
-- Visualmente no debe parecer un `select` deshabilitado.
-- Debe mostrarse como un campo de solo lectura, mas apagado, sin flecha y con
-  apariencia de valor asignado automaticamente.
+- Cada equipo puede tener varias competiciones asignadas en la temporada.
+- Al elegir equipo, la competicion se selecciona entre sus asignaciones activas.
+- Rivales y campos se filtran por la competicion elegida.
+- La competicion principal aparece seleccionada por defecto.
 
 Implicacion para logica futura:
 
-- la fuente de verdad de `competition` en creacion normal sera el equipo
-- solo deberia existir override manual si en el futuro se abre expresamente esa
-  capacidad
+- la fuente de verdad es `SeasonTeamCompetition`
+- no se permite seleccionar una competicion que no este asignada al equipo
 
 ### 3. Jornada
 
 - Al crear un partido, la jornada sugerida debe ser la ultima jornada existente
-  del equipo + 1.
+  del equipo en esa competicion + 1.
 - La jornada sigue siendo editable.
 - Mientras sigamos con mocks puede resolverse desde etiquetas tipo
   `Jornada N`.

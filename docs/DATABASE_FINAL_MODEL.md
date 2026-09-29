@@ -317,6 +317,36 @@ Rules:
 
 - The public team detail page renders `SeasonTeam` for the active season.
 - Public route: `/equipos/[publicSlug]`.
+- `competitionId` and `competitionName` represent the primary competition only
+  while compatibility fields remain in use.
+
+### SeasonTeamCompetition
+
+Purpose: assign one or more competitions to a team inside the same season.
+
+Fields:
+
+- `id`
+- `seasonTeamId`
+- `competitionId`
+- `isPrimary`
+- `active`
+- `publicVisible`
+- `displayOrder`
+- `startDate` optional
+- `endDate` optional
+- `createdAt`
+- `updatedAt`
+
+Constraints:
+
+- unique `(seasonTeamId, competitionId)`
+
+Rules:
+
+- One active participation is primary for compatibility and default display.
+- Historical participations are inactivated rather than deleted.
+- Apertura and Clausura use different `Competition` records when points reset.
 
 ### Player
 
@@ -453,7 +483,7 @@ Constraints:
 
 Rules:
 
-- A team normally belongs to one competition at a time.
+- A team can belong to several competitions through `SeasonTeamCompetition`.
 - External API integrations are future scope, not MVP.
 
 ### Opponent

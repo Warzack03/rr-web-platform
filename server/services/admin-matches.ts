@@ -26,6 +26,12 @@ type ScopedSeasonTeam = {
   publicName: string;
   competitionId: bigint | null;
   competitionName: string | null;
+  competitions: Array<{
+    competitionId: bigint;
+    isPrimary: boolean;
+    active: boolean;
+    competition: { name: string };
+  }>;
   season: {
     name: string;
   };
@@ -120,6 +126,16 @@ export async function getAdminMatchesScope(
       publicName: true,
       competitionId: true,
       competitionName: true,
+      competitions: {
+        where: { active: true },
+        orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { id: "asc" }],
+        select: {
+          competitionId: true,
+          isPrimary: true,
+          active: true,
+          competition: { select: { name: true } },
+        },
+      },
       season: {
         select: {
           name: true,
@@ -155,7 +171,15 @@ export async function getAdminMatchesScreenData(
   }
 
   const competitionIds = Array.from(
-    new Set(teams.map((team) => team.competitionId).filter((id): id is bigint => id !== null)),
+    new Set(
+      teams.flatMap((team) =>
+        team.competitions.length > 0
+          ? team.competitions.map((participation) => participation.competitionId)
+          : team.competitionId
+            ? [team.competitionId]
+            : [],
+      ),
+    ),
   );
 
   const [matches, opponents, venues] = await Promise.all([prisma.match.findMany({
@@ -169,6 +193,7 @@ export async function getAdminMatchesScreenData(
     orderBy: [{ dateTime: "asc" }, { id: "asc" }],
     select: {
       id: true,
+      competitionId: true,
       matchday: true,
       opponentId: true,
       opponentName: true,
@@ -236,15 +261,37 @@ export async function getAdminMatchesScreenData(
     },
   })]);
 
-  const mappedTeams: MatchManagementTeam[] = teams.map((team) => ({
-    id: team.id.toString(),
-    slug: team.publicSlug,
-    name: team.publicName,
-    season: team.season.name,
-    competitionId: team.competitionId?.toString(),
-    competition: team.competitionName ?? "Competicion pendiente",
-    isFirstTeam: team.team.isFirstTeam,
-  }));
+  const mappedTeams: MatchManagementTeam[] = teams.map((team) => {
+    const competitions =
+      team.competitions.length > 0
+        ? team.competitions.map((participation) => ({
+            id: participation.competitionId.toString(),
+            name: participation.competition.name,
+            isPrimary: participation.isPrimary,
+            active: participation.active,
+          }))
+        : team.competitionId
+          ? [{
+              id: team.competitionId.toString(),
+              name: team.competitionName ?? "Competicion pendiente",
+              isPrimary: true,
+              active: true,
+            }]
+          : [];
+    const primaryCompetition =
+      competitions.find((competition) => competition.isPrimary) ?? competitions[0];
+
+    return {
+      id: team.id.toString(),
+      slug: team.publicSlug,
+      name: team.publicName,
+      season: team.season.name,
+      competitionId: primaryCompetition?.id,
+      competition: primaryCompetition?.name ?? "Competicion pendiente",
+      competitions,
+      isFirstTeam: team.team.isFirstTeam,
+    };
+  });
 
   const mappedMatches: MatchManagementMatch[] = matches.map((match) => ({
     id: match.id.toString(),
@@ -252,6 +299,7 @@ export async function getAdminMatchesScreenData(
     teamSlug: match.seasonTeam.publicSlug,
     teamName: match.seasonTeam.publicName,
     season: match.seasonTeam.season.name,
+    competitionId: match.competitionId?.toString() ?? "",
     competition: mapCompetitionLabel(match),
     matchday: mapMatchdayLabel(match.matchday),
     opponentId: match.opponentId?.toString(),

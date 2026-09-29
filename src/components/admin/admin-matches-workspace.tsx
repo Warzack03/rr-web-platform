@@ -181,6 +181,7 @@ export function AdminMatchesWorkspace({
       matchId: dialogState && "matchId" in dialogState ? dialogState.matchId : undefined,
       teamSlug: nextMatchValue.teamSlug,
       season: nextMatchValue.season,
+      competitionId: nextMatchValue.competitionId,
       competition: nextMatchValue.competition,
       matchday: nextMatchValue.matchday,
       opponentId: nextMatchValue.opponentId ?? "",

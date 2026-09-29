@@ -21,6 +21,9 @@ export const saveTeamInputSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Usa minusculas, numeros y guiones."),
   category: z.string().trim().min(1, "Selecciona una categoria."),
   competition: z.string().trim().min(1, "Selecciona una competicion."),
+  competitions: z
+    .array(z.string().trim().min(1))
+    .min(1, "Selecciona al menos una competicion."),
   season: z.string().trim().min(1, "Selecciona una temporada."),
   publicVisible: z.boolean(),
   active: z.boolean(),
@@ -39,5 +42,11 @@ export const toggleTeamInputSchema = z.object({
   seasonTeamId: z.string().trim().min(1),
 });
 
+export const createCompetitionInputSchema = z.object({
+  season: z.string().trim().min(1, "Selecciona una temporada."),
+  name: z.string().trim().min(2, "Introduce el nombre de la competicion.").max(150),
+});
+
 export type SaveTeamInput = z.infer<typeof saveTeamInputSchema>;
 export type ToggleTeamInput = z.infer<typeof toggleTeamInputSchema>;
+export type CreateCompetitionInput = z.infer<typeof createCompetitionInputSchema>;

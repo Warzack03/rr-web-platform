@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Clock3, Trophy } from "lucide-react";
 import type { StandingRowData, TeamStandingsPageContent } from "@/lib/contracts/public";
@@ -11,6 +13,12 @@ type TeamStandingsPageProps = {
 };
 
 export function TeamStandingsPage({ content }: TeamStandingsPageProps) {
+  const [selectedTableId, setSelectedTableId] = useState(content.tables[0]?.id ?? "");
+  const activeTable =
+    content.tables.find((table) => table.id === selectedTableId) ?? content.tables[0];
+  const rows = activeTable?.rows ?? content.rows;
+  const updatedAt = activeTable?.updatedAt ?? content.updatedAt;
+
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(253,203,88,0.14),transparent_56%)]" />
@@ -18,18 +26,38 @@ export function TeamStandingsPage({ content }: TeamStandingsPageProps) {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(52,112,200,0.08),transparent_28%)]" />
 
       <section className="relative mx-auto w-full max-w-[1280px] px-5 py-10 md:px-8 md:py-14 xl:px-16">
-        {content.updatedAt ? (
-          <div className="inline-flex items-center gap-2 border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-2 text-[0.98rem] text-[color:var(--rr-muted)]">
-            <Clock3 className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
-            <span>Actualizado: {content.updatedAt}</span>
+        {content.tables.length > 1 ? (
+          <div className="mb-6 flex flex-wrap gap-2" aria-label="Seleccionar clasificacion">
+            {content.tables.map((table) => (
+              <button
+                key={table.id}
+                type="button"
+                onClick={() => setSelectedTableId(table.id)}
+                className={cn(
+                  "min-h-11 border px-4 py-3 text-[0.84rem] font-semibold uppercase tracking-[0.08em] transition",
+                  table.id === activeTable?.id
+                    ? "border-[color:var(--rr-gold)] bg-[color:var(--rr-gold)] text-[color:var(--rr-bg-alt)]"
+                    : "border-white/12 bg-white/4 text-[color:var(--rr-muted)] hover:border-[color:var(--rr-border-strong)] hover:text-white",
+                )}
+              >
+                {table.competition}
+              </button>
+            ))}
           </div>
         ) : null}
 
-        <div className={content.updatedAt ? "mt-5" : undefined}>
-          {content.rows.length > 0 ? (
+        {updatedAt ? (
+          <div className="inline-flex items-center gap-2 border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-2 text-[0.98rem] text-[color:var(--rr-muted)]">
+            <Clock3 className="h-4 w-4 text-[color:var(--rr-gold)]" strokeWidth={1.8} />
+            <span>Actualizado: {updatedAt}</span>
+          </div>
+        ) : null}
+
+        <div className={updatedAt ? "mt-5" : undefined}>
+          {rows.length > 0 ? (
             <>
-              <StandingsTable rows={content.rows} />
-              <StandingsMobileTable rows={content.rows} />
+              <StandingsTable rows={rows} />
+              <StandingsMobileTable rows={rows} />
             </>
           ) : (
             <StandingsEmptyState />

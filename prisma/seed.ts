@@ -272,6 +272,14 @@ async function main() {
       }),
     ]);
 
+    await tx.seasonTeamCompetition.createMany({
+      data: [
+        { seasonTeamId: primerSeasonTeam.id, competitionId: competitionPrimer.id, isPrimary: true },
+        { seasonTeamId: juvenilSeasonTeam.id, competitionId: competitionJuvenil.id, isPrimary: true },
+        { seasonTeamId: cadeteSeasonTeam.id, competitionId: competitionCadete.id, isPrimary: true },
+      ],
+    });
+
     await tx.teamCoach.createMany({
       data: [
         {

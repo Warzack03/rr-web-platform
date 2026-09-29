@@ -6,6 +6,7 @@ export type StandingManagementTeam = {
   name: string;
   season: string;
   competition: string;
+  competitions: Array<{ id: string; name: string; isPrimary: boolean }>;
   category: string;
   isFirstTeam: boolean;
   crestSrc?: string;

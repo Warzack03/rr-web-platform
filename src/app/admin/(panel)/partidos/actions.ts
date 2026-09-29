@@ -68,6 +68,26 @@ function buildDateTime(date: string, time: string) {
   return buildMadridDateTime(date, time || "12:00");
 }
 
+function getTeamCompetitionIds(team: {
+  competitionId: bigint | null;
+  competitions: Array<{ competitionId: bigint; active: boolean }>;
+}) {
+  return team.competitions.length > 0
+    ? team.competitions
+        .filter((participation) => participation.active)
+        .map((participation) => participation.competitionId)
+    : team.competitionId
+      ? [team.competitionId]
+      : [];
+}
+
+function teamHasCompetition(
+  team: Parameters<typeof getTeamCompetitionIds>[0],
+  competitionId: bigint,
+) {
+  return getTeamCompetitionIds(team).some((id) => id === competitionId);
+}
+
 function buildDateTimeKeepingTime(date: string, currentDateTime: Date | null) {
   if (!date) {
     return currentDateTime;
@@ -158,7 +178,7 @@ export async function saveOpponentAction(
   const payload = parsed.data;
   const competitionId = BigInt(payload.competitionId);
   const scopedCompetitionIds = new Set(
-    teams.map((team) => team.competitionId?.toString()).filter(Boolean),
+    teams.flatMap(getTeamCompetitionIds).map((id) => id.toString()),
   );
 
   if (!scopedCompetitionIds.has(payload.competitionId)) {
@@ -254,7 +274,7 @@ export async function saveOpponentAction(
     return saved;
   });
 
-  for (const team of teams.filter((item) => item.competitionId === competitionId)) {
+  for (const team of teams.filter((item) => teamHasCompetition(item, competitionId))) {
     revalidateMatchPaths(team.publicSlug);
     revalidatePath(
       team.team.isFirstTeam
@@ -293,7 +313,7 @@ export async function saveVenueAction(
   const payload = parsed.data;
   const competitionId = BigInt(payload.competitionId);
   const scopedCompetitionIds = new Set(
-    teams.map((team) => team.competitionId?.toString()).filter(Boolean),
+    teams.flatMap(getTeamCompetitionIds).map((id) => id.toString()),
   );
 
   if (!scopedCompetitionIds.has(payload.competitionId)) {
@@ -361,7 +381,7 @@ export async function saveVenueAction(
     });
   });
 
-  for (const team of teams.filter((item) => item.competitionId === competitionId)) {
+  for (const team of teams.filter((item) => teamHasCompetition(item, competitionId))) {
     revalidateMatchPaths(team.publicSlug);
   }
 
@@ -413,6 +433,15 @@ export async function saveMatchAction(
     };
   }
 
+  const competitionId = BigInt(payload.competitionId);
+
+  if (!teamHasCompetition(targetTeam, competitionId)) {
+    return {
+      ok: false,
+      message: "La competicion seleccionada no esta asignada a este equipo.",
+    };
+  }
+
   if (payload.status === "live" && !targetTeam.team.isFirstTeam) {
     return {
       ok: false,
@@ -442,7 +471,7 @@ export async function saveMatchAction(
     prisma.opponent.findFirst({
       where: {
         id: BigInt(payload.opponentId),
-        competitionId: targetTeam.competitionId ?? undefined,
+        competitionId,
         active: true,
         deletedAt: null,
       },
@@ -451,7 +480,7 @@ export async function saveMatchAction(
     prisma.venue.findFirst({
       where: {
         id: BigInt(payload.venueId),
-        competitionId: targetTeam.competitionId ?? undefined,
+        competitionId,
         active: true,
         deletedAt: null,
       },
@@ -459,7 +488,7 @@ export async function saveMatchAction(
     }),
   ]);
 
-  if (!opponent || !targetTeam.competitionId) {
+  if (!opponent) {
     return {
       ok: false,
       message: "Selecciona un rival activo de la competicion del equipo.",
@@ -506,7 +535,7 @@ export async function saveMatchAction(
       },
       data: {
         seasonTeamId: targetTeam.id,
-        competitionId: targetTeam.competitionId,
+        competitionId,
         matchday: matchdayNumber,
         dateTime,
         venueId: venue.id,
@@ -541,7 +570,7 @@ export async function saveMatchAction(
     data: {
       seasonId: activeSeason.id,
       seasonTeamId: targetTeam.id,
-      competitionId: targetTeam.competitionId,
+      competitionId,
       matchday: matchdayNumber,
       dateTime,
       venueId: venue.id,

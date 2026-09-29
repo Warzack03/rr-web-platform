@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { getVisualMatchStatus } from "@/lib/admin/match-management";
+import {
+  getNextMatchdaySuggestion,
+  getVisualMatchStatus,
+} from "@/lib/admin/match-management";
 import type { PublicPlayerStats } from "@/lib/contracts/public";
 import { formatPublicShirtNumber } from "@/lib/public/player-number";
 import { getTeamInitials } from "@/lib/public/team-initials";
@@ -17,6 +20,7 @@ import {
   mapCountryLabel,
   mapPositionLabel,
 } from "@/server/services/public/player-mappers";
+import { standingTableCoversTeam } from "@/server/services/standing-table-sharing";
 
 function stats(overrides: Partial<PublicPlayerStats> = {}): PublicPlayerStats {
   return {
@@ -149,5 +153,40 @@ describe("public sports rules", () => {
     assert.equal(getVisualMatchStatus("postponed"), "pending");
     assert.equal(getVisualMatchStatus("live"), "live");
     assert.equal(getVisualMatchStatus("played"), "played");
+  });
+
+  it("keeps matchday suggestions independent per competition", () => {
+    const matches = [
+      { teamSlug: "senior-tarragona", competitionId: "10", matchday: "Jornada 4" },
+      { teamSlug: "senior-tarragona", competitionId: "20", matchday: "Jornada 2" },
+    ];
+
+    assert.equal(getNextMatchdaySuggestion(matches, "senior-tarragona", "10"), "Jornada 5");
+    assert.equal(getNextMatchdaySuggestion(matches, "senior-tarragona", "20"), "Jornada 3");
+  });
+
+  it("covers a team standings table through any active competition assignment", () => {
+    const team = {
+      id: BigInt(1),
+      publicName: "Senior Barcelona",
+      competitionId: BigInt(10),
+      competitionName: "Liga Apertura",
+      competitions: [
+        { competitionId: BigInt(10), active: false },
+        { competitionId: BigInt(20), active: true },
+      ],
+    };
+
+    assert.equal(
+      standingTableCoversTeam(
+        {
+          seasonTeamId: BigInt(2),
+          competitionId: BigInt(20),
+          seasonTeam: { competitionName: "Liga Clausura" },
+        },
+        team,
+      ),
+      true,
+    );
   });
 });

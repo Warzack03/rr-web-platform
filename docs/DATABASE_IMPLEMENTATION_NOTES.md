@@ -84,6 +84,13 @@ Possible future optimization:
 - recalculate via cron after match stats update;
 - still keep `PlayerMatchStats` as source of truth.
 
+## Multiple competitions per team
+
+- `SeasonTeamCompetition` is the source of truth for team competition participation.
+- `SeasonTeam.competitionId` and `competitionName` remain temporarily as primary-competition compatibility fields.
+- Removing a participation from the admin UI inactivates it; it does not delete historical matches or standings.
+- Matches keep their own `competitionId`, so calendars and player statistics can aggregate safely across competitions.
+
 
 ## Prisma 7+ MySQL adapter note
 

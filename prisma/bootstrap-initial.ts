@@ -905,6 +905,29 @@ async function main() {
         },
       });
 
+      await tx.seasonTeamCompetition.upsert({
+        where: {
+          seasonTeamId_competitionId: {
+            seasonTeamId: seasonTeam.id,
+            competitionId: competition.id,
+          },
+        },
+        update: {
+          isPrimary: true,
+          active: true,
+          publicVisible: true,
+          displayOrder: 0,
+        },
+        create: {
+          seasonTeamId: seasonTeam.id,
+          competitionId: competition.id,
+          isPrimary: true,
+          active: true,
+          publicVisible: true,
+          displayOrder: 0,
+        },
+      });
+
       seasonTeamMap.set(teamConfig.key, {
         id: seasonTeam.id,
         publicName: seasonTeam.publicName,

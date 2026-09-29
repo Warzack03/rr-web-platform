@@ -5,6 +5,11 @@ export type StandingScopeTeamRef = {
   publicName: string;
   competitionId: bigint | null;
   competitionName: string | null;
+  competitions?: Array<{
+    competitionId: bigint;
+    active?: boolean;
+    publicVisible?: boolean;
+  }>;
 };
 
 type StandingTableCoverageCandidate = {
@@ -31,7 +36,13 @@ export function buildStandingTableScopeWhere(
   const competitionIds = Array.from(
     new Set(
       teams
-        .map((team) => team.competitionId)
+        .flatMap((team) =>
+          team.competitions && team.competitions.length > 0
+            ? team.competitions
+                .filter((participation) => participation.active !== false)
+                .map((participation) => participation.competitionId)
+            : [team.competitionId],
+        )
         .filter((competitionId): competitionId is bigint => competitionId !== null),
     ),
   );
@@ -99,7 +110,19 @@ export function standingTableCoversTeam(
   }
 
   if (table.competitionId && team.competitionId) {
-    return table.competitionId === team.competitionId;
+    if (table.competitionId === team.competitionId) {
+      return true;
+    }
+  }
+
+  if (
+    table.competitionId &&
+    team.competitions?.some(
+      (participation) =>
+        participation.active !== false && participation.competitionId === table.competitionId,
+    )
+  ) {
+    return true;
   }
 
   const tableCompetitionName = table.seasonTeam.competitionName?.trim().toLowerCase();

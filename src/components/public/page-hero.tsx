@@ -119,16 +119,21 @@ function buildPageHeroViewModel(content: PublicTeamHeroContent): {
   chips: HeroChip[];
   navigationLinks: ReturnType<typeof getTeamSectionLinks>;
 } {
+  const competitionLabels =
+    content.competitions && content.competitions.length > 0
+      ? content.competitions
+      : [content.competition];
+  const competitionChips = competitionLabels.map((competition, index) => ({
+    label: competition,
+    tone: index === 0 ? ("accent" as const) : ("muted" as const),
+  }));
   const chips =
     content.variant === "first-team"
-      ? [
-          { label: content.competition, tone: "accent" as const },
-          { label: content.season },
-        ]
+      ? [...competitionChips, { label: content.season }]
       : [
           { label: content.category, tone: "accent" as const },
           { label: content.season },
-          { label: content.competition },
+          ...competitionChips,
         ];
 
   return {
@@ -136,7 +141,14 @@ function buildPageHeroViewModel(content: PublicTeamHeroContent): {
     chips,
     navigationLinks:
       content.variant === "first-team"
-        ? getTeamSectionLinks({ teamType: "first-team" })
-        : getTeamSectionLinks({ teamType: "academy", teamSlug: content.slug }),
+        ? getTeamSectionLinks({
+            teamType: "first-team",
+            hasMultipleStandings: competitionLabels.length > 1,
+          })
+        : getTeamSectionLinks({
+            teamType: "academy",
+            teamSlug: content.slug,
+            hasMultipleStandings: competitionLabels.length > 1,
+          }),
   };
 }

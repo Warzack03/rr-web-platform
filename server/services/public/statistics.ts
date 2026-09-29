@@ -65,7 +65,10 @@ export async function getFirstTeamStatisticsPageContentFromDb(): Promise<TeamSta
       teamLogoUrl: teamSummary.logoUrl,
       teamLogoAlt: teamSummary.logoAlt,
       season: teamSummary.season,
-      competition: teamSummary.competition,
+      competition:
+        (teamSummary.competitions?.length ?? 0) > 1
+          ? "Todas las competiciones"
+          : teamSummary.competition,
       category: teamSummary.category,
       fieldPlayers: roster.fieldPlayers,
       goalkeepers: roster.goalkeepers,
@@ -96,7 +99,10 @@ export async function getAcademyTeamStatisticsPageContentFromDb(
       teamLogoUrl: teamSummary.logoUrl,
       teamLogoAlt: teamSummary.logoAlt,
       season: teamSummary.season,
-      competition: teamSummary.competition,
+      competition:
+        (teamSummary.competitions?.length ?? 0) > 1
+          ? "Todas las competiciones"
+          : teamSummary.competition,
       category: teamSummary.category,
       fieldPlayers: roster.fieldPlayers,
       goalkeepers: roster.goalkeepers,

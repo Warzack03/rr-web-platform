@@ -33,6 +33,7 @@ type MatchFormDialogProps = {
 type MatchFormState = {
   teamSlug: string;
   season: string;
+  competitionId: string;
   competition: string;
   matchday: string;
   opponentId: string;
@@ -51,6 +52,7 @@ type MatchFormState = {
 const matchFormSchema = z.object({
   teamSlug: z.string().min(1, "Selecciona un equipo."),
   season: z.string().trim().min(1, "Selecciona una temporada."),
+  competitionId: z.string().trim().min(1, "Selecciona una competicion."),
   competition: z.string().trim().min(1, "Introduce una competicion."),
   matchday: z.string().trim().min(1, "Introduce la jornada."),
   opponentId: z.string().trim().min(1, "Selecciona un rival del catalogo."),
@@ -75,16 +77,20 @@ function createDefaultState(
   venueOptions: MatchManagementVenue[],
 ): MatchFormState {
   const defaultTeam = availableTeams[0];
+  const defaultCompetition =
+    defaultTeam?.competitions.find((competition) => competition.isPrimary) ??
+    defaultTeam?.competitions[0];
   const defaultVenue = venueOptions.find(
-    (venue) => venue.competitionId === defaultTeam?.competitionId && venue.active,
+    (venue) => venue.competitionId === defaultCompetition?.id && venue.active,
   );
 
   return {
     teamSlug: defaultTeam?.slug ?? "",
     season: defaultTeam?.season ?? "",
-    competition: defaultTeam?.competition ?? "",
+    competitionId: defaultCompetition?.id ?? defaultTeam?.competitionId ?? "",
+    competition: defaultCompetition?.name ?? defaultTeam?.competition ?? "",
     matchday: defaultTeam
-      ? getNextMatchdaySuggestion(existingMatches, defaultTeam.slug)
+      ? getNextMatchdaySuggestion(existingMatches, defaultTeam.slug, defaultCompetition?.id)
       : "Jornada 1",
     opponentId: "",
     opponentName: "",
@@ -116,6 +122,7 @@ function createStateFromMatch(
   return {
     teamSlug: match.teamSlug,
     season: match.season,
+    competitionId: match.competitionId,
     competition: match.competition,
     matchday: match.matchday,
     opponentId: match.opponentId ?? linkedOpponent?.id ?? "",
@@ -176,12 +183,12 @@ export function MatchFormDialog({
   const lockTeam = availableTeams.length <= 1;
   const filteredOpponentOptions = opponentOptions.filter(
     (opponent) =>
-      opponent.competitionId === selectedTeam?.competitionId &&
+      opponent.competitionId === formState.competitionId &&
       (opponent.active || opponent.id === formState.opponentId),
   );
   const filteredVenueOptions = venueOptions.filter(
     (venue) =>
-      venue.competitionId === selectedTeam?.competitionId &&
+      venue.competitionId === formState.competitionId &&
       (venue.active || venue.id === formState.venueId),
   );
 
@@ -197,22 +204,25 @@ export function MatchFormDialog({
 
   function handleTeamChange(nextTeamSlug: string) {
     const nextTeam = availableTeams.find((team) => team.slug === nextTeamSlug);
-    const nextCompetition = nextTeam?.competition ?? "";
+    const nextCompetition =
+      nextTeam?.competitions.find((competition) => competition.isPrimary) ??
+      nextTeam?.competitions[0];
     const nextOpponents = opponentOptions.filter(
-      (opponent) => opponent.competitionId === nextTeam?.competitionId && opponent.active,
+      (opponent) => opponent.competitionId === nextCompetition?.id && opponent.active,
     );
     const nextVenues = venueOptions.filter(
-      (venue) => venue.competitionId === nextTeam?.competitionId && venue.active,
+      (venue) => venue.competitionId === nextCompetition?.id && venue.active,
     );
 
     setFormState((currentValue) => ({
       ...currentValue,
       teamSlug: nextTeamSlug,
       season: nextTeam?.season ?? currentValue.season,
-      competition: nextCompetition || currentValue.competition,
+      competitionId: nextCompetition?.id ?? "",
+      competition: nextCompetition?.name ?? "",
       matchday:
         mode === "create"
-          ? getNextMatchdaySuggestion(existingMatches, nextTeamSlug)
+          ? getNextMatchdaySuggestion(existingMatches, nextTeamSlug, nextCompetition?.id)
           : currentValue.matchday,
       opponentId: nextOpponents.some((opponent) => opponent.id === currentValue.opponentId)
         ? currentValue.opponentId
@@ -231,12 +241,34 @@ export function MatchFormDialog({
     }));
   }
 
+  function handleCompetitionChange(competitionId: string) {
+    const competition = selectedTeam?.competitions.find((item) => item.id === competitionId);
+    const nextVenues = venueOptions.filter(
+      (venue) => venue.competitionId === competitionId && venue.active,
+    );
+
+    setFormState((current) => ({
+      ...current,
+      competitionId,
+      competition: competition?.name ?? "",
+      matchday:
+        mode === "create"
+          ? getNextMatchdaySuggestion(existingMatches, current.teamSlug, competitionId)
+          : current.matchday,
+      opponentId: "",
+      opponentName: "",
+      venueId: nextVenues[0]?.id ?? "",
+      venue: nextVenues[0]?.name ?? "",
+    }));
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const parsedValue = matchFormSchema.safeParse({
       ...formState,
       season: formState.season.trim(),
+      competitionId: formState.competitionId,
       competition: formState.competition.trim(),
       matchday: formState.matchday.trim(),
       opponentId: formState.opponentId,
@@ -306,6 +338,7 @@ export function MatchFormDialog({
       teamSlug: selectedTeam?.slug ?? "",
       teamName: selectedTeam?.name ?? "",
       season: parsedValue.data.season,
+      competitionId: parsedValue.data.competitionId,
       competition: parsedValue.data.competition,
       matchday: parsedValue.data.matchday,
       opponentId: parsedValue.data.opponentId,
@@ -403,18 +436,26 @@ export function MatchFormDialog({
               </select>
             </label>
 
-            <div className="grid gap-2">
+            <label className="grid gap-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Competicion</span>
-              <div
-                className="flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.04] px-3 text-[color:var(--rr-muted)] opacity-80"
-                aria-label="Competicion asignada automaticamente"
+              <select
+                value={formState.competitionId}
+                onChange={(event) => handleCompetitionChange(event.target.value)}
+                disabled={isSaving}
+                className={fieldClassName}
               >
-                {formState.competition}
-              </div>
+                {selectedTeam?.competitions
+                  .filter((competition) => competition.active)
+                  .map((competition) => (
+                    <option key={competition.id} value={competition.id}>
+                      {competition.name}
+                    </option>
+                  ))}
+              </select>
               {errors.competition ? (
                 <span className="text-[0.82rem] text-[#ff8d8d]">{errors.competition}</span>
               ) : null}
-            </div>
+            </label>
 
             <label className="grid gap-2">
               <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">Jornada</span>

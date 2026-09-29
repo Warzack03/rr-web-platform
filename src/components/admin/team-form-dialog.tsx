@@ -36,6 +36,7 @@ type TeamFormState = {
   slug: string;
   category: string;
   competition: string;
+  competitions: string[];
   season: string;
   branch: string;
   publicVisible: boolean;
@@ -63,6 +64,7 @@ const teamFormSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Usa minusculas, numeros y guiones."),
   category: z.string().trim().min(1, "Selecciona una categoria."),
   competition: z.string().trim().min(1, "Selecciona una competicion."),
+  competitions: z.array(z.string().trim().min(1)).min(1, "Selecciona al menos una competicion."),
   season: z.string().trim().min(1, "Selecciona una temporada."),
   branch: z.string().trim().min(1, "Define el bloque del equipo."),
   displayOrder: z.number().int().min(0, "El orden no puede ser negativo."),
@@ -100,6 +102,7 @@ function createDefaultTeam(
     slug: "",
     category: categories[0] ?? "Senior",
     competition: "",
+    competitions: [],
     season: seasons[0] ?? "",
     branch: "Cantera",
     publicVisible: true,
@@ -129,6 +132,9 @@ function toFormState(team: TeamManagementTeam): TeamFormState {
     slug: team.slug,
     category: team.category,
     competition: team.competition,
+    competitions: team.competitions
+      .filter((competition) => competition.active)
+      .map((competition) => competition.name),
     season: team.season,
     branch: team.isFirstTeam ? "Primer equipo" : "Cantera",
     publicVisible: team.publicVisible,
@@ -331,6 +337,19 @@ export function TeamFormDialog({
         slug: formState.isFirstTeam ? "primer-equipo" : parsedValue.data.slug,
         category: parsedValue.data.category,
         competition: parsedValue.data.competition,
+        competitions: parsedValue.data.competitions.map((competitionName) => {
+          const existingCompetition = team?.competitions.find(
+            (competition) => competition.name === competitionName,
+          );
+
+          return {
+            id: existingCompetition?.id ?? competitionName,
+            name: competitionName,
+            isPrimary: competitionName === parsedValue.data.competition,
+            active: true,
+            publicVisible: true,
+          };
+        }),
         season: parsedValue.data.season,
         branch: parsedValue.data.branch,
         coaches: parsedValue.data.coaches,
@@ -627,13 +646,20 @@ export function TeamFormDialog({
 
                   <label className="grid gap-2 md:col-span-2 xl:col-span-1">
                     <span className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
-                      Competicion
+                      Competicion principal
                     </span>
                     <select
                       value={formState.competition}
-                      onChange={(event) =>
-                        updateFormState("competition", event.target.value)
-                      }
+                      onChange={(event) => {
+                        const competition = event.target.value;
+                        setFormState((current) => ({
+                          ...current,
+                          competition,
+                          competitions: competition
+                            ? Array.from(new Set([...current.competitions, competition]))
+                            : current.competitions,
+                        }));
+                      }}
                       className={fieldClassName}
                     >
                       <option value="">Selecciona competicion</option>
@@ -670,6 +696,49 @@ export function TeamFormDialog({
                     </select>
                   </label>
                 </div>
+
+                <fieldset className="space-y-3">
+                  <legend className="rr-kicker text-[0.74rem] text-[color:var(--rr-muted)]">
+                    Competiciones del equipo
+                  </legend>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {competitionOptions.map((competition) => {
+                      const checked = formState.competitions.includes(competition);
+                      const isPrimary = formState.competition === competition;
+
+                      return (
+                        <label
+                          key={competition}
+                          className="flex min-h-11 items-center gap-3 rounded-[14px] border border-white/10 bg-white/4 px-3 text-[0.9rem] text-white"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            disabled={isSaving || isPrimary}
+                            onChange={(event) => {
+                              setFormState((current) => ({
+                                ...current,
+                                competitions: event.target.checked
+                                  ? Array.from(new Set([...current.competitions, competition]))
+                                  : current.competitions.filter((item) => item !== competition),
+                              }));
+                            }}
+                            className="h-4 w-4 accent-[color:var(--rr-gold)]"
+                          />
+                          <span>{competition}</span>
+                          {isPrimary ? (
+                            <span className="ml-auto text-[0.7rem] uppercase tracking-[0.12em] text-[color:var(--rr-gold)]">
+                              Principal
+                            </span>
+                          ) : null}
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {errors.competitions ? (
+                    <span className="text-[0.82rem] text-[#ff8d8d]">{errors.competitions}</span>
+                  ) : null}
+                </fieldset>
               </div>
             </AdminPanel>
           ) : null}

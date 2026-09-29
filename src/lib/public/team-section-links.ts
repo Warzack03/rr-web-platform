@@ -13,10 +13,12 @@ export function getPublicTeamHref(teamSlug: string): string {
 type TeamSectionLinksInput =
   | {
       teamType: "first-team";
+      hasMultipleStandings?: boolean;
     }
   | {
       teamType: "academy";
       teamSlug: string;
+      hasMultipleStandings?: boolean;
     };
 
 export function getTeamSectionLinks(input: TeamSectionLinksInput): TeamSectionNavLink[] {
@@ -25,7 +27,11 @@ export function getTeamSectionLinks(input: TeamSectionLinksInput): TeamSectionNa
       { key: "overview", label: "Equipo", href: "/primer-equipo" },
       { key: "squad", label: "Plantilla", href: "/primer-equipo/plantilla" },
       { key: "calendar", label: "Calendario", href: "/primer-equipo/calendario" },
-      { key: "standing", label: "Clasificacion", href: "/primer-equipo/clasificacion" },
+      {
+        key: "standing",
+        label: input.hasMultipleStandings ? "Clasificaciones" : "Clasificacion",
+        href: "/primer-equipo/clasificacion",
+      },
       { key: "statistics", label: "Estadisticas", href: "/primer-equipo/estadisticas" },
     ];
   }
@@ -36,7 +42,11 @@ export function getTeamSectionLinks(input: TeamSectionLinksInput): TeamSectionNa
     { key: "overview", label: "Equipo", href: baseHref },
     { key: "squad", label: "Plantilla", href: `${baseHref}/plantilla` },
     { key: "calendar", label: "Calendario", href: `${baseHref}/calendario` },
-    { key: "standing", label: "Clasificacion", href: `${baseHref}/clasificacion` },
+    {
+      key: "standing",
+      label: input.hasMultipleStandings ? "Clasificaciones" : "Clasificacion",
+      href: `${baseHref}/clasificacion`,
+    },
     { key: "statistics", label: "Estadisticas", href: `${baseHref}/estadisticas` },
   ];
 }

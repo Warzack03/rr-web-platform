@@ -127,8 +127,9 @@ function buildActionFields(input: {
   };
 }
 
-function buildMatchdayTitle(matchday: number | null) {
-  return typeof matchday === "number" ? `Jornada ${matchday}` : "Sin jornada";
+function buildMatchdayTitle(competition: string, matchday: number | null) {
+  const round = typeof matchday === "number" ? `Jornada ${matchday}` : "Sin jornada";
+  return `${competition} · ${round}`;
 }
 
 function mapCalendarMatch(input: {
@@ -277,7 +278,7 @@ export async function getPublicTeamCalendarContentFromDb(
         deletedAt: null,
         publicVisible: true,
       },
-      orderBy: [{ matchday: "asc" }, { dateTime: "asc" }, { id: "asc" }],
+      orderBy: [{ dateTime: "asc" }, { id: "asc" }],
       select: {
         id: true,
         matchday: true,
@@ -310,7 +311,11 @@ export async function getPublicTeamCalendarContentFromDb(
     const grouped = new Map<string, CalendarMatchday>();
 
     for (const match of matches) {
-      const key = typeof match.matchday === "number" ? `matchday:${match.matchday}` : `match:${match.id.toString()}`;
+      const competition = match.competition?.name ?? team.competitionName ?? "Competicion pendiente";
+      const key =
+        typeof match.matchday === "number"
+          ? `competition:${competition}:matchday:${match.matchday}`
+          : `competition:${competition}:match:${match.id.toString()}`;
       const existing = grouped.get(key);
 
       if (existing) {
@@ -320,7 +325,7 @@ export async function getPublicTeamCalendarContentFromDb(
 
       grouped.set(key, {
         id: key,
-        title: buildMatchdayTitle(match.matchday),
+        title: buildMatchdayTitle(competition, match.matchday),
         matches: [mapCalendarMatch({ match, team })],
       });
     }

@@ -46,10 +46,11 @@ export function OpponentCatalogDialog({
       Array.from(
         new Map(
           teams
-            .filter((team) => team.competitionId)
-            .map((team) => [team.competitionId as string, {
-              id: team.competitionId as string,
-              name: team.competition,
+            .flatMap((team) => team.competitions)
+            .filter((competition) => competition.active)
+            .map((competition) => [competition.id, {
+              id: competition.id,
+              name: competition.name,
             }]),
         ).values(),
       ),

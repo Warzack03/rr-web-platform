@@ -128,3 +128,16 @@ Consequences:
 - Imported rr-management assignment is normally the primary assignment.
 - Manual exceptional assignments can be created in the web platform.
 - Import must not remove manual exceptional assignments unless explicitly confirmed.
+
+## D012 - Allow multiple competitions per team and season
+Status: accepted
+
+A season team may participate in several independent competitions. Apertura and
+Clausura are separate competitions when points reset. Cups and Champions-style
+competitions may run alongside them.
+
+Consequences:
+- Use `SeasonTeamCompetition` for participation and keep one primary competition for compatibility/display.
+- Every match belongs to one assigned competition.
+- Standings remain independent per competition.
+- Calendars and season player statistics aggregate all competition matches by default.

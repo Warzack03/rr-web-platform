@@ -99,7 +99,22 @@ export async function getAdminTeamsScreenData(
         publicSlug: true,
         publicName: true,
         category: true,
+        competitionId: true,
         competitionName: true,
+        competitions: {
+          orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { id: "asc" }],
+          select: {
+            competitionId: true,
+            isPrimary: true,
+            active: true,
+            publicVisible: true,
+            competition: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
         publicVisible: true,
         active: true,
         displayOrder: true,
@@ -168,13 +183,36 @@ export async function getAdminTeamsScreenData(
     }),
   ]);
 
-  const mappedTeams = seasonTeams.map((seasonTeam) =>
-    normalizeTeamManagementTeam({
+  const mappedTeams = seasonTeams.map((seasonTeam) => {
+    const competitions =
+      seasonTeam.competitions.length > 0
+        ? seasonTeam.competitions.map((participation) => ({
+            id: participation.competitionId.toString(),
+            name: participation.competition.name,
+            isPrimary: participation.isPrimary,
+            active: participation.active,
+            publicVisible: participation.publicVisible,
+          }))
+        : seasonTeam.competitionId && seasonTeam.competitionName
+          ? [{
+              id: seasonTeam.competitionId.toString(),
+              name: seasonTeam.competitionName,
+              isPrimary: true,
+              active: true,
+              publicVisible: true,
+            }]
+          : [];
+    const primaryCompetition =
+      competitions.find((competition) => competition.isPrimary) ?? competitions[0];
+
+    return normalizeTeamManagementTeam({
       id: seasonTeam.id.toString(),
       slug: seasonTeam.publicSlug,
       name: seasonTeam.publicName,
       category: seasonTeam.category ?? (seasonTeam.team.isFirstTeam ? "Senior" : "Cantera"),
-      competition: seasonTeam.competitionName ?? "Competicion pendiente",
+      competition:
+        primaryCompetition?.name ?? seasonTeam.competitionName ?? "Competicion pendiente",
+      competitions,
       season: seasonTeam.season.name,
       branch: seasonTeam.team.isFirstTeam ? "Primer equipo" : "Cantera",
       publicVisible: seasonTeam.publicVisible,
@@ -201,8 +239,8 @@ export async function getAdminTeamsScreenData(
       accent: getTeamAccent(seasonTeam.team.isFirstTeam),
       primaryCoach: "",
       visibleCoaches: [],
-    }),
-  );
+    });
+  });
 
   const seasonOptions = seasons.map((season) => season.name);
   const categoryOptions = Array.from(
@@ -214,7 +252,7 @@ export async function getAdminTeamsScreenData(
   const competitionOptions = Array.from(
     new Set([
       ...competitions.map((competition) => competition.name),
-      ...mappedTeams.map((team) => team.competition).filter(Boolean),
+      ...mappedTeams.flatMap((team) => team.competitions.map((competition) => competition.name)),
     ]),
   ).sort((left, right) => left.localeCompare(right, "es"));
 
