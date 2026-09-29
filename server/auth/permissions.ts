@@ -1,6 +1,7 @@
 export type AdminSectionKey =
   | "dashboard"
   | "seasons"
+  | "competitions"
   | "teams"
   | "players"
   | "assignments"
@@ -25,6 +26,7 @@ export const adminNavigation: AdminNavItem[] = [
   { href: "/admin/partidos", label: "Jornada", section: "matches", status: "active" },
   { href: "/admin/clasificaciones", label: "Clasificaciones", section: "standings", status: "active" },
   { href: "/admin/estadisticas", label: "Estadisticas", section: "stats", status: "active" },
+  { href: "/admin/competiciones", label: "Competiciones", section: "competitions", status: "active" },
   { href: "/admin/equipos", label: "Equipos", section: "teams", status: "active" },
   { href: "/admin/asignaciones", label: "Plantilla", section: "assignments", status: "active" },
   { href: "/admin/jugadores", label: "Fichas y cromos", section: "players", status: "active" },

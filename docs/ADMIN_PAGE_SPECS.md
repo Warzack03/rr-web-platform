@@ -136,6 +136,19 @@ Current UX/product rules:
 - Competition should be selected from existing competition options, not entered
   as free text.
 
+## Competitions `/admin/competiciones`
+
+Manage the competition catalog independently from teams:
+
+- View competitions grouped or filtered by season.
+- Create a league, cup or tournament inside a season.
+- Edit its public name, organizer and group label.
+- Activate or deactivate it without deleting historical relationships.
+- Show linked team, match and standings counts before changing its status.
+- A competition season cannot be changed after creation; create a new competition
+  in the target season instead.
+- Renaming a competition must preserve its stable slug and related historical data.
+
 ## Team coaches
 
 A team can display multiple public coaches. They are managed as informative team data, not as linked backoffice accounts.

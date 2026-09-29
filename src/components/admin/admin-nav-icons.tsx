@@ -18,6 +18,7 @@ import type { AdminSectionKey } from "@/server/auth/permissions";
 const iconBySection: Record<AdminSectionKey, LucideIcon> = {
   dashboard: LayoutDashboard,
   seasons: CalendarRange,
+  competitions: Trophy,
   teams: ShieldCheck,
   players: UsersRound,
   assignments: Users,

@@ -28,7 +28,7 @@ Operational content role.
 
 Can:
 
-- Manage seasons, teams, players, assignments, matches, standings, stats, news and media.
+- Manage seasons, competitions, teams, players, assignments, matches, standings, stats, news and media.
 - Assign existing coach users to teams if the user already exists.
 - Upload images/cards/logos/banners/news media.
 

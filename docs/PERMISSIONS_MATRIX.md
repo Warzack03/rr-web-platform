@@ -33,6 +33,8 @@ The MVP now uses one internal manager/admin account. The matrix below is retaine
 | View import history | Yes | No | No |
 | Create/edit seasons | Yes | Yes | No |
 | Activate season | Yes | Yes | No |
+| Create/edit competitions | Yes | Yes | No |
+| Activate/deactivate competitions | Yes | Yes | No |
 | Create/edit teams | Yes | Yes | No |
 | Set First Team flag | Yes | Yes | No |
 | Set team public visibility | Yes | Yes | No |
