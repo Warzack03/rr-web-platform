@@ -65,6 +65,9 @@ export function OpponentCatalogDialog({
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const selectedLogo = mediaItems.find((item) => item.id === form.logoMediaId);
+  const catalogOpponents = opponents.filter(
+    (opponent) => opponent.competitionId && !opponent.clubSeasonTeamId,
+  );
 
   if (!open) return null;
 
@@ -116,7 +119,7 @@ export function OpponentCatalogDialog({
 
           <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_23rem]">
             <div className="grid content-start gap-3 sm:grid-cols-2">
-              {opponents.filter((opponent) => opponent.competitionId).map((opponent) => (
+              {catalogOpponents.map((opponent) => (
                 <button
                   key={opponent.id}
                   type="button"
@@ -141,7 +144,7 @@ export function OpponentCatalogDialog({
                 </button>
               ))}
 
-              {opponents.every((opponent) => !opponent.competitionId) ? (
+              {catalogOpponents.length === 0 ? (
                 <div className="rounded-[17px] border border-dashed border-white/15 px-5 py-8 text-center sm:col-span-2">
                   <Shield className="mx-auto h-7 w-7 text-[color:var(--rr-gold)]" />
                   <p className="mt-3 font-semibold text-white">Aun no hay rivales</p>

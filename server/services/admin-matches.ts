@@ -5,6 +5,7 @@ import type {
   MatchManagementTeam,
   MatchManagementVenue,
 } from "@/lib/admin/match-management";
+import { buildClubTeamOpponentId } from "@/lib/admin/match-management";
 import type { AuthenticatedAdmin } from "@/server/auth/session";
 import { prisma } from "@/server/db/prisma";
 import {
@@ -26,6 +27,11 @@ type ScopedSeasonTeam = {
   publicName: string;
   competitionId: bigint | null;
   competitionName: string | null;
+  logoMediaId: bigint | null;
+  logoMedia: {
+    publicUrl: string;
+    altText: string | null;
+  } | null;
   competitions: Array<{
     competitionId: bigint;
     isPrimary: boolean;
@@ -126,6 +132,13 @@ export async function getAdminMatchesScope(
       publicName: true,
       competitionId: true,
       competitionName: true,
+      logoMediaId: true,
+      logoMedia: {
+        select: {
+          publicUrl: true,
+          altText: true,
+        },
+      },
       competitions: {
         where: { active: true },
         orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { id: "asc" }],
@@ -186,13 +199,15 @@ export async function getAdminMatchesScreenData(
     where: {
       seasonId: activeSeason.id,
       deletedAt: null,
-      seasonTeamId: {
-        in: teams.map((team) => team.id),
-      },
+      OR: [
+        { seasonTeamId: { in: teams.map((team) => team.id) } },
+        { clubOpponentSeasonTeamId: { in: teams.map((team) => team.id) } },
+      ],
     },
     orderBy: [{ dateTime: "asc" }, { id: "asc" }],
     select: {
       id: true,
+      clubOpponentSeasonTeamId: true,
       competitionId: true,
       matchday: true,
       opponentId: true,
@@ -227,6 +242,11 @@ export async function getAdminMatchesScreenData(
       competition: {
         select: {
           name: true,
+        },
+      },
+      clubOpponentSeasonTeam: {
+        select: {
+          publicSlug: true,
         },
       },
     },
@@ -298,11 +318,16 @@ export async function getAdminMatchesScreenData(
     teamId: match.seasonTeam.id.toString(),
     teamSlug: match.seasonTeam.publicSlug,
     teamName: match.seasonTeam.publicName,
+    relatedTeamSlugs: match.clubOpponentSeasonTeam
+      ? [match.seasonTeam.publicSlug, match.clubOpponentSeasonTeam.publicSlug]
+      : [match.seasonTeam.publicSlug],
     season: match.seasonTeam.season.name,
     competitionId: match.competitionId?.toString() ?? "",
     competition: mapCompetitionLabel(match),
     matchday: mapMatchdayLabel(match.matchday),
-    opponentId: match.opponentId?.toString(),
+    opponentId: match.clubOpponentSeasonTeamId
+      ? buildClubTeamOpponentId(match.clubOpponentSeasonTeamId.toString())
+      : match.opponentId?.toString(),
     opponentName: match.opponentName,
     isHome: match.isHome,
     date: formatMadridDateInput(match.dateTime),
@@ -335,11 +360,41 @@ export async function getAdminMatchesScreenData(
     logoAlt: opponent.logoMedia?.altText ?? `Escudo ${opponent.name}`,
     active: opponent.active,
   }));
-  const catalogKeys = new Set(
-    catalogOptions.map((opponent) => `${opponent.competition}::${opponent.name}`.toLowerCase()),
+  const clubTeamOptions: MatchManagementOpponent[] = teams.flatMap((team) => {
+    const competitions =
+      team.competitions.length > 0
+        ? team.competitions.map((participation) => ({
+            id: participation.competitionId.toString(),
+            name: participation.competition.name,
+          }))
+        : team.competitionId
+          ? [{
+              id: team.competitionId.toString(),
+              name: team.competitionName ?? "Competicion pendiente",
+            }]
+          : [];
+
+    return competitions.map((competition) => ({
+      id: buildClubTeamOpponentId(team.id.toString()),
+      name: team.publicName,
+      competitionId: competition.id,
+      competition: competition.name,
+      clubSeasonTeamId: team.id.toString(),
+      logoMediaId: team.logoMediaId?.toString(),
+      logoUrl: team.logoMedia?.publicUrl,
+      logoAlt: team.logoMedia?.altText ?? `Escudo ${team.publicName}`,
+      active: true,
+    }));
+  });
+  const selectableKeys = new Set(
+    [...catalogOptions, ...clubTeamOptions].map(
+      (opponent) => `${opponent.competition}::${opponent.name}`.toLowerCase(),
+    ),
   );
   const legacyOptions: MatchManagementOpponent[] = mappedMatches
-    .filter((match) => !catalogKeys.has(`${match.competition}::${match.opponentName}`.toLowerCase()))
+    .filter((match) =>
+      !selectableKeys.has(`${match.competition}::${match.opponentName}`.toLowerCase()),
+    )
     .map((match) => ({
       id: `legacy-${toSlugId(match.competition)}-${toSlugId(match.opponentName)}`,
       name: match.opponentName,
@@ -349,7 +404,7 @@ export async function getAdminMatchesScreenData(
     }));
   const opponentOptions = Array.from(
     new Map(
-      [...catalogOptions, ...legacyOptions].map((opponent) => [
+      [...catalogOptions, ...clubTeamOptions, ...legacyOptions].map((opponent) => [
         `${opponent.competition}::${opponent.name}`.toLowerCase(),
         opponent,
       ]),

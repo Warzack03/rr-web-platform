@@ -264,6 +264,7 @@ export function AdminStatsWorkspace({
 
     const result = await saveAdminStatsAction({
       matchId: selectedMatch.id,
+      teamSlug: selectedMatch.teamSlug,
       rows: visiblePlayerSeeds.map((player) => {
         const entry = getMatchEntryForPlayer(statsState, selectedMatch.id, player.id);
         const isGoalkeeper = isGoalkeeperPlayer(player);

@@ -186,7 +186,8 @@ model SeasonTeam {
   lastImportBatch   ImportBatch?            @relation("SeasonTeamLastImportBatch", fields: [lastImportBatchId], references: [id], onDelete: SetNull)
   assignments       TeamPlayerAssignment[]
   coaches           TeamCoach[]
-  matches           Match[]
+  matches           Match[]                 @relation("ManagedTeamMatches")
+  opponentMatches   Match[]                 @relation("ClubOpponentMatches")
   standingTables    StandingTable[]
   stats             PlayerMatchStats[]
   coachPermissions  CoachTeamPermission[]
@@ -412,6 +413,7 @@ model Match {
   id                  BigInt             @id @default(autoincrement())
   seasonId            BigInt
   seasonTeamId        BigInt
+  clubOpponentSeasonTeamId BigInt?
   competitionId       BigInt?
   matchday            Int?
   dateTime            DateTime?
@@ -435,7 +437,8 @@ model Match {
   updatedAt           DateTime           @updatedAt
   deletedAt           DateTime?
   season              Season             @relation(fields: [seasonId], references: [id])
-  seasonTeam          SeasonTeam         @relation(fields: [seasonTeamId], references: [id])
+  seasonTeam          SeasonTeam         @relation("ManagedTeamMatches", fields: [seasonTeamId], references: [id])
+  clubOpponentSeasonTeam SeasonTeam?      @relation("ClubOpponentMatches", fields: [clubOpponentSeasonTeamId], references: [id], onDelete: SetNull)
   competition         Competition?       @relation(fields: [competitionId], references: [id], onDelete: SetNull)
   venueRef            Venue?             @relation(fields: [venueId], references: [id], onDelete: SetNull)
   opponent            Opponent?          @relation(fields: [opponentId], references: [id], onDelete: SetNull)
@@ -443,6 +446,7 @@ model Match {
   stats               PlayerMatchStats[]
 
   @@index([seasonTeamId, status])
+  @@index([clubOpponentSeasonTeamId, status])
   @@index([seasonTeamId, dateTime])
   @@index([seasonId, dateTime])
   @@index([opponentId])

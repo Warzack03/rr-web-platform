@@ -184,6 +184,7 @@ export function MatchFormDialog({
   const filteredOpponentOptions = opponentOptions.filter(
     (opponent) =>
       opponent.competitionId === formState.competitionId &&
+      opponent.clubSeasonTeamId !== selectedTeam?.id &&
       (opponent.active || opponent.id === formState.opponentId),
   );
   const filteredVenueOptions = venueOptions.filter(
@@ -208,7 +209,10 @@ export function MatchFormDialog({
       nextTeam?.competitions.find((competition) => competition.isPrimary) ??
       nextTeam?.competitions[0];
     const nextOpponents = opponentOptions.filter(
-      (opponent) => opponent.competitionId === nextCompetition?.id && opponent.active,
+      (opponent) =>
+        opponent.competitionId === nextCompetition?.id &&
+        opponent.clubSeasonTeamId !== nextTeam?.id &&
+        opponent.active,
     );
     const nextVenues = venueOptions.filter(
       (venue) => venue.competitionId === nextCompetition?.id && venue.active,

@@ -125,6 +125,13 @@ function buildMatchCompetitionLabel(competitionName: string | null, matchday: nu
   return "Partido oficial";
 }
 
+function isMatchHomeForTeam(
+  match: { isHome: boolean; clubOpponentSeasonTeamId: bigint | null },
+  teamId: bigint,
+) {
+  return match.clubOpponentSeasonTeamId === teamId ? !match.isHome : match.isHome;
+}
+
 function getResultCode(
   goalsFor: number | null,
   goalsAgainst: number | null,
@@ -420,7 +427,10 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
   const [nextMatch, recentResults, standingTables, playedMatches, playerStats, news] = await Promise.all([
     prisma.match.findFirst({
       where: {
-        seasonTeamId: team.id,
+        OR: [
+          { seasonTeamId: team.id },
+          { clubOpponentSeasonTeamId: team.id },
+        ],
         deletedAt: null,
         publicVisible: true,
         status: {
@@ -430,6 +440,8 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       orderBy: [{ dateTime: "asc" }, { id: "asc" }],
       select: {
         id: true,
+        clubOpponentSeasonTeamId: true,
+        isHome: true,
         opponentName: true,
         opponent: {
           select: {
@@ -451,13 +463,18 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
         seasonTeam: {
           select: {
             publicName: true,
+            logoMedia: { select: { publicUrl: true, altText: true } },
+            team: { select: { isFirstTeam: true } },
           },
         },
       },
     }),
     prisma.match.findMany({
       where: {
-        seasonTeamId: team.id,
+        OR: [
+          { seasonTeamId: team.id },
+          { clubOpponentSeasonTeamId: team.id },
+        ],
         deletedAt: null,
         publicVisible: true,
         status: MatchStatus.PLAYED,
@@ -466,6 +483,8 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       take: 3,
       select: {
         id: true,
+        clubOpponentSeasonTeamId: true,
+        isHome: true,
         opponentName: true,
         opponent: {
           select: {
@@ -475,10 +494,16 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
         opponentLogo: {
           select: { publicUrl: true, altText: true },
         },
-        isHome: true,
         homeScore: true,
         awayScore: true,
         matchday: true,
+        seasonTeam: {
+          select: {
+            publicName: true,
+            logoMedia: { select: { publicUrl: true, altText: true } },
+            team: { select: { isFirstTeam: true } },
+          },
+        },
       },
     }),
     prisma.standingTable.findMany({
@@ -511,12 +536,16 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     }),
     prisma.match.findMany({
       where: {
-        seasonTeamId: team.id,
+        OR: [
+          { seasonTeamId: team.id },
+          { clubOpponentSeasonTeamId: team.id },
+        ],
         deletedAt: null,
         publicVisible: true,
         status: MatchStatus.PLAYED,
       },
       select: {
+        clubOpponentSeasonTeamId: true,
         isHome: true,
         homeScore: true,
         awayScore: true,
@@ -559,11 +588,13 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     pickBestStandingTableForTeam(standingTables, team);
 
   const totalGoalsFor = playedMatches.reduce(
-    (total, match) => total + (match.isHome ? match.homeScore ?? 0 : match.awayScore ?? 0),
+    (total, match) =>
+      total + (isMatchHomeForTeam(match, team.id) ? match.homeScore ?? 0 : match.awayScore ?? 0),
     0,
   );
   const totalGoalsAgainst = playedMatches.reduce(
-    (total, match) => total + (match.isHome ? match.awayScore ?? 0 : match.homeScore ?? 0),
+    (total, match) =>
+      total + (isMatchHomeForTeam(match, team.id) ? match.awayScore ?? 0 : match.homeScore ?? 0),
     0,
   );
 
@@ -597,6 +628,32 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
   const ownStandingRow = standingTable
     ? findOwnStandingRowForTeam(standingTable.rows, team.publicName)
     : null;
+  const ownTeamMatchSide = {
+    name: displayName,
+    highlight: true,
+    logoUrl: team.logoMedia?.publicUrl,
+    logoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
+  };
+  const nextMatchIsHome = nextMatch ? isMatchHomeForTeam(nextMatch, team.id) : true;
+  const nextMatchFromClubOpponent = nextMatch?.clubOpponentSeasonTeamId === team.id;
+  const nextMatchOpponentName = nextMatch
+    ? nextMatchFromClubOpponent
+      ? getPublicTeamDisplayName(
+          nextMatch.seasonTeam.publicName,
+          nextMatch.seasonTeam.team.isFirstTeam,
+        )
+      : nextMatch.opponentName
+    : "Rival pendiente";
+  const nextMatchOpponentLogo = nextMatch
+    ? nextMatchFromClubOpponent
+      ? nextMatch.seasonTeam.logoMedia
+      : nextMatch.opponent?.logoMedia ?? nextMatch.opponentLogo
+    : null;
+  const nextMatchOpponentSide = {
+    name: nextMatchOpponentName,
+    logoUrl: nextMatchOpponentLogo?.publicUrl,
+    logoAlt: nextMatchOpponentLogo?.altText ?? `Escudo ${nextMatchOpponentName}`,
+  };
 
   return {
     slug: team.publicSlug,
@@ -618,21 +675,8 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
     links,
     nextMatch: nextMatch
       ? {
-          home: {
-            name: displayName,
-            highlight: true,
-            logoUrl: team.logoMedia?.publicUrl,
-            logoAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
-          },
-          away: {
-            name: nextMatch.opponentName,
-            logoUrl:
-              nextMatch.opponent?.logoMedia?.publicUrl ?? nextMatch.opponentLogo?.publicUrl,
-            logoAlt:
-              nextMatch.opponent?.logoMedia?.altText ??
-              nextMatch.opponentLogo?.altText ??
-              `Escudo ${nextMatch.opponentName}`,
-          },
+          home: nextMatchIsHome ? ownTeamMatchSide : nextMatchOpponentSide,
+          away: nextMatchIsHome ? nextMatchOpponentSide : ownTeamMatchSide,
           competition: buildMatchCompetitionLabel(
             nextMatch.competition?.name ?? team.competitionName,
             nextMatch.matchday,
@@ -663,28 +707,35 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
           href: undefined,
         },
     recentResults: recentResults.map((match) => {
-      const goalsFor = match.isHome ? match.homeScore : match.awayScore;
-      const goalsAgainst = match.isHome ? match.awayScore : match.homeScore;
+      const isTeamHome = isMatchHomeForTeam(match, team.id);
+      const fromClubOpponent = match.clubOpponentSeasonTeamId === team.id;
+      const opponentName = fromClubOpponent
+        ? getPublicTeamDisplayName(
+            match.seasonTeam.publicName,
+            match.seasonTeam.team.isFirstTeam,
+          )
+        : match.opponentName;
+      const opponentLogo = fromClubOpponent
+        ? match.seasonTeam.logoMedia
+        : match.opponent?.logoMedia ?? match.opponentLogo;
+      const goalsFor = isTeamHome ? match.homeScore : match.awayScore;
+      const goalsAgainst = isTeamHome ? match.awayScore : match.homeScore;
 
       return {
-        opponent: match.opponentName,
-        homeTeam: match.isHome ? displayName : match.opponentName,
-        awayTeam: match.isHome ? match.opponentName : displayName,
-        homeLogoUrl: match.isHome
+        opponent: opponentName,
+        homeTeam: isTeamHome ? displayName : opponentName,
+        awayTeam: isTeamHome ? opponentName : displayName,
+        homeLogoUrl: isTeamHome
           ? team.logoMedia?.publicUrl
-          : match.opponent?.logoMedia?.publicUrl ?? match.opponentLogo?.publicUrl,
-        homeLogoAlt: match.isHome
+          : opponentLogo?.publicUrl,
+        homeLogoAlt: isTeamHome
           ? team.logoMedia?.altText ?? `Escudo ${displayName}`
-          : match.opponent?.logoMedia?.altText ??
-            match.opponentLogo?.altText ??
-            `Escudo ${match.opponentName}`,
-        awayLogoUrl: match.isHome
-          ? match.opponent?.logoMedia?.publicUrl ?? match.opponentLogo?.publicUrl
+          : opponentLogo?.altText ?? `Escudo ${opponentName}`,
+        awayLogoUrl: isTeamHome
+          ? opponentLogo?.publicUrl
           : team.logoMedia?.publicUrl,
-        awayLogoAlt: match.isHome
-          ? match.opponent?.logoMedia?.altText ??
-            match.opponentLogo?.altText ??
-            `Escudo ${match.opponentName}`
+        awayLogoAlt: isTeamHome
+          ? opponentLogo?.altText ?? `Escudo ${opponentName}`
           : team.logoMedia?.altText ?? `Escudo ${displayName}`,
         score: `${match.homeScore ?? "-"} - ${match.awayScore ?? "-"}`,
         result: getResultCode(goalsFor, goalsAgainst),
@@ -702,8 +753,9 @@ async function buildPublicTeamPageContent(team: DbSeasonTeam): Promise<PublicTea
       points: ownStandingRow?.points ?? 0,
       played: ownStandingRow?.played ?? playedMatches.length,
       won: ownStandingRow?.won ?? recentResults.filter((match) => {
-        const goalsFor = match.isHome ? match.homeScore : match.awayScore;
-        const goalsAgainst = match.isHome ? match.awayScore : match.homeScore;
+        const isTeamHome = isMatchHomeForTeam(match, team.id);
+        const goalsFor = isTeamHome ? match.homeScore : match.awayScore;
+        const goalsAgainst = isTeamHome ? match.awayScore : match.homeScore;
 
         return (goalsFor ?? 0) > (goalsAgainst ?? 0);
       }).length,

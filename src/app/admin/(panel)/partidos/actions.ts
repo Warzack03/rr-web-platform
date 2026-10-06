@@ -12,6 +12,9 @@ import { prisma } from "@/server/db/prisma";
 import { buildOpponentSlug } from "@/lib/admin/opponent-management";
 import { buildVenueSlug } from "@/lib/admin/venue-management";
 import {
+  parseClubTeamOpponentId,
+} from "@/lib/admin/match-management";
+import {
   buildMadridDateTime,
   formatMadridTimeInput,
 } from "@/lib/date-time/madrid";
@@ -467,16 +470,27 @@ export async function saveMatchAction(
   const dateTime = buildDateTime(payload.date, payload.time);
   const matchdayNumber = parseMatchdayNumber(payload.matchday);
   const { homeScore, awayScore } = buildHomeAwayScores(payload);
-  const [opponent, venue] = await Promise.all([
-    prisma.opponent.findFirst({
-      where: {
-        id: BigInt(payload.opponentId),
-        competitionId,
-        active: true,
-        deletedAt: null,
-      },
-      select: { id: true, name: true },
-    }),
+  const clubOpponentTeamId = parseClubTeamOpponentId(payload.opponentId);
+  const clubOpponentTeam = clubOpponentTeamId
+    ? teams.find(
+        (team) =>
+          team.id.toString() === clubOpponentTeamId &&
+          team.id !== targetTeam.id &&
+          teamHasCompetition(team, competitionId),
+      )
+    : null;
+  const [catalogOpponent, venue] = await Promise.all([
+    clubOpponentTeamId
+      ? Promise.resolve(null)
+      : prisma.opponent.findFirst({
+          where: {
+            id: BigInt(payload.opponentId),
+            competitionId,
+            active: true,
+            deletedAt: null,
+          },
+          select: { id: true, name: true, logoMediaId: true },
+        }),
     prisma.venue.findFirst({
       where: {
         id: BigInt(payload.venueId),
@@ -487,11 +501,18 @@ export async function saveMatchAction(
       select: { id: true, name: true },
     }),
   ]);
+  const opponent = clubOpponentTeam
+    ? {
+        id: null,
+        name: clubOpponentTeam.publicName,
+        logoMediaId: clubOpponentTeam.logoMediaId,
+      }
+    : catalogOpponent;
 
   if (!opponent) {
     return {
       ok: false,
-      message: "Selecciona un rival activo de la competicion del equipo.",
+      message: "Selecciona un rival activo de la competicion distinto del propio equipo.",
     };
   }
 
@@ -502,18 +523,53 @@ export async function saveMatchAction(
     };
   }
 
+  if (clubOpponentTeam && matchdayNumber !== null) {
+    const duplicateSharedMatch = await prisma.match.findFirst({
+      where: {
+        competitionId,
+        matchday: matchdayNumber,
+        deletedAt: null,
+        ...(payload.matchId ? { id: { not: BigInt(payload.matchId) } } : {}),
+        OR: [
+          {
+            seasonTeamId: targetTeam.id,
+            clubOpponentSeasonTeamId: clubOpponentTeam.id,
+          },
+          {
+            seasonTeamId: clubOpponentTeam.id,
+            clubOpponentSeasonTeamId: targetTeam.id,
+          },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (duplicateSharedMatch) {
+      return {
+        ok: false,
+        message: "Este partido entre los dos equipos ya esta registrado en la jornada.",
+      };
+    }
+  }
+
   if (payload.matchId) {
     const existing = await prisma.match.findFirst({
       where: {
         id: BigInt(payload.matchId),
         seasonId: activeSeason.id,
         deletedAt: null,
-        seasonTeamId: {
-          in: teams.map((team) => team.id),
-        },
+        OR: [
+          { seasonTeamId: { in: teams.map((team) => team.id) } },
+          { clubOpponentSeasonTeamId: { in: teams.map((team) => team.id) } },
+        ],
       },
       select: {
         id: true,
+        clubOpponentSeasonTeam: {
+          select: {
+            publicSlug: true,
+          },
+        },
         seasonTeam: {
           select: {
             publicSlug: true,
@@ -535,6 +591,7 @@ export async function saveMatchAction(
       },
       data: {
         seasonTeamId: targetTeam.id,
+        clubOpponentSeasonTeamId: clubOpponentTeam?.id ?? null,
         competitionId,
         matchday: matchdayNumber,
         dateTime,
@@ -543,6 +600,7 @@ export async function saveMatchAction(
         isHome: payload.isHome,
         opponentId: opponent.id,
         opponentName: opponent.name,
+        opponentLogoMediaId: opponent.logoMediaId,
         status: nextStatus,
         homeScore,
         awayScore,
@@ -558,6 +616,14 @@ export async function saveMatchAction(
       revalidateMatchPaths(targetTeam.publicSlug, existing.id.toString());
     }
 
+    if (existing.clubOpponentSeasonTeam) {
+      revalidateMatchPaths(existing.clubOpponentSeasonTeam.publicSlug, existing.id.toString());
+    }
+
+    if (clubOpponentTeam) {
+      revalidateMatchPaths(clubOpponentTeam.publicSlug, existing.id.toString());
+    }
+
     return {
       ok: true,
       data: await getAdminMatchesScreenData(user),
@@ -570,6 +636,7 @@ export async function saveMatchAction(
     data: {
       seasonId: activeSeason.id,
       seasonTeamId: targetTeam.id,
+      clubOpponentSeasonTeamId: clubOpponentTeam?.id ?? null,
       competitionId,
       matchday: matchdayNumber,
       dateTime,
@@ -578,6 +645,7 @@ export async function saveMatchAction(
       isHome: payload.isHome,
       opponentId: opponent.id,
       opponentName: opponent.name,
+      opponentLogoMediaId: opponent.logoMediaId,
       status: nextStatus,
       homeScore,
       awayScore,
@@ -593,6 +661,9 @@ export async function saveMatchAction(
   });
 
   revalidateMatchPaths(targetTeam.publicSlug, created.id.toString());
+  if (clubOpponentTeam) {
+    revalidateMatchPaths(clubOpponentTeam.publicSlug, created.id.toString());
+  }
 
   return {
     ok: true,
@@ -625,18 +696,24 @@ export async function saveQuickResultAction(
   }
 
   const existing = await prisma.match.findFirst({
-    where: {
-      id: BigInt(parsed.data.matchId),
-      seasonId: activeSeason.id,
-      deletedAt: null,
-      seasonTeamId: {
-        in: teams.map((team) => team.id),
-      },
+      where: {
+        id: BigInt(parsed.data.matchId),
+        seasonId: activeSeason.id,
+        deletedAt: null,
+        OR: [
+          { seasonTeamId: { in: teams.map((team) => team.id) } },
+          { clubOpponentSeasonTeamId: { in: teams.map((team) => team.id) } },
+        ],
     },
     select: {
       id: true,
       isHome: true,
       dateTime: true,
+      clubOpponentSeasonTeam: {
+        select: {
+          publicSlug: true,
+        },
+      },
       seasonTeam: {
         select: {
           publicSlug: true,
@@ -672,6 +749,9 @@ export async function saveQuickResultAction(
   });
 
   revalidateMatchPaths(existing.seasonTeam.publicSlug, existing.id.toString());
+  if (existing.clubOpponentSeasonTeam) {
+    revalidateMatchPaths(existing.clubOpponentSeasonTeam.publicSlug, existing.id.toString());
+  }
 
   return {
     ok: true,

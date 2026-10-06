@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buildClubTeamOpponentId,
   getNextMatchdaySuggestion,
+  parseClubTeamOpponentId,
   getVisualMatchStatus,
 } from "@/lib/admin/match-management";
 import type { PublicPlayerStats } from "@/lib/contracts/public";

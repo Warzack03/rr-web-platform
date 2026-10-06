@@ -95,7 +95,11 @@ export function filterAdminMatches(input: {
         return false;
       }
 
-      if (input.filters.team !== "all" && match.teamSlug !== input.filters.team) {
+      if (
+        input.filters.team !== "all" &&
+        match.teamSlug !== input.filters.team &&
+        !match.relatedTeamSlugs?.includes(input.filters.team)
+      ) {
         return false;
       }
 

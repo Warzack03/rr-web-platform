@@ -135,6 +135,8 @@ function buildMatchdayTitle(competition: string, matchday: number | null) {
 function mapCalendarMatch(input: {
   match: {
     id: bigint;
+    seasonTeamId: bigint;
+    clubOpponentSeasonTeamId: bigint | null;
     matchday: number | null;
     dateTime: Date | null;
     venue: string | null;
@@ -149,6 +151,16 @@ function mapCalendarMatch(input: {
     competition: {
       name: string;
     } | null;
+    seasonTeam: {
+      publicName: string;
+      logoMedia: {
+        publicUrl: string;
+        altText: string | null;
+      } | null;
+      team: {
+        isFirstTeam: boolean;
+      };
+    };
     opponent: {
       logoMedia: {
         publicUrl: string;
@@ -163,6 +175,8 @@ function mapCalendarMatch(input: {
   team: DbCalendarTeam;
 }): CalendarMatch {
   const { match, team } = input;
+  const isClubOpponentPerspective = match.clubOpponentSeasonTeamId === team.id;
+  const isOwnTeamHome = isClubOpponentPerspective ? !match.isHome : match.isHome;
   const status = mapCalendarMatchStatus(match.status, team.team.isFirstTeam);
   const displayName = getPublicTeamDisplayName(team.publicName, team.team.isFirstTeam);
   const ownTeam = {
@@ -172,12 +186,20 @@ function mapCalendarMatch(input: {
     crestAlt: team.logoMedia?.altText ?? `Escudo ${displayName}`,
     isClub: true,
   };
-  const opponentLogo = match.opponent?.logoMedia ?? match.opponentLogo;
+  const opponentName = isClubOpponentPerspective
+    ? getPublicTeamDisplayName(
+        match.seasonTeam.publicName,
+        match.seasonTeam.team.isFirstTeam,
+      )
+    : match.opponentName;
+  const opponentLogo = isClubOpponentPerspective
+    ? match.seasonTeam.logoMedia
+    : match.opponent?.logoMedia ?? match.opponentLogo;
   const opponentTeam = {
-    name: match.opponentName,
-    crestLabel: buildCrestLabel(match.opponentName),
+    name: opponentName,
+    crestLabel: buildCrestLabel(opponentName),
     crestUrl: opponentLogo?.publicUrl,
-    crestAlt: opponentLogo?.altText ?? `Escudo ${match.opponentName}`,
+    crestAlt: opponentLogo?.altText ?? `Escudo ${opponentName}`,
     muted: !team.team.isFirstTeam,
   };
   const actionFields = buildActionFields({
@@ -195,8 +217,8 @@ function mapCalendarMatch(input: {
     dateLabel: formatDateLabel(match.dateTime),
     kickoffLabel: formatKickoffLabel(match.dateTime),
     venue: match.venue?.trim() || "Campo por confirmar",
-    homeTeam: match.isHome ? ownTeam : opponentTeam,
-    awayTeam: match.isHome ? opponentTeam : ownTeam,
+    homeTeam: isOwnTeamHome ? ownTeam : opponentTeam,
+    awayTeam: isOwnTeamHome ? opponentTeam : ownTeam,
     homeScore: typeof match.homeScore === "number" ? match.homeScore : undefined,
     awayScore: typeof match.awayScore === "number" ? match.awayScore : undefined,
     detailHref: buildPublicMatchDetailHref({
@@ -274,13 +296,18 @@ export async function getPublicTeamCalendarContentFromDb(
 
     const matches = await prisma.match.findMany({
       where: {
-        seasonTeamId: team.id,
+        OR: [
+          { seasonTeamId: team.id },
+          { clubOpponentSeasonTeamId: team.id },
+        ],
         deletedAt: null,
         publicVisible: true,
       },
       orderBy: [{ dateTime: "asc" }, { id: "asc" }],
       select: {
         id: true,
+        seasonTeamId: true,
+        clubOpponentSeasonTeamId: true,
         matchday: true,
         dateTime: true,
         venue: true,
@@ -303,6 +330,17 @@ export async function getPublicTeamCalendarContentFromDb(
         competition: {
           select: {
             name: true,
+          },
+        },
+        seasonTeam: {
+          select: {
+            publicName: true,
+            logoMedia: {
+              select: { publicUrl: true, altText: true },
+            },
+            team: {
+              select: { isFirstTeam: true },
+            },
           },
         },
       },

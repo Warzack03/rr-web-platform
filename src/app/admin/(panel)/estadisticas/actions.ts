@@ -94,15 +94,22 @@ export async function saveAdminStatsAction(
       id: BigInt(parsed.data.matchId),
       seasonId: activeSeason.id,
       deletedAt: null,
-      seasonTeamId: {
-        in: teams.map((team) => team.id),
-      },
+      OR: [
+        { seasonTeam: { publicSlug: parsed.data.teamSlug } },
+        { clubOpponentSeasonTeam: { publicSlug: parsed.data.teamSlug } },
+      ],
     },
     select: {
       id: true,
       seasonId: true,
       seasonTeamId: true,
+      clubOpponentSeasonTeamId: true,
       seasonTeam: {
+        select: {
+          publicSlug: true,
+        },
+      },
+      clubOpponentSeasonTeam: {
         select: {
           publicSlug: true,
         },
@@ -114,6 +121,18 @@ export async function saveAdminStatsAction(
     return {
       ok: false,
       message: "El partido ya no esta disponible para cargar estadisticas.",
+    };
+  }
+
+  const statsTeam = teams.find((team) => team.publicSlug === parsed.data.teamSlug);
+
+  if (
+    !statsTeam ||
+    (match.seasonTeamId !== statsTeam.id && match.clubOpponentSeasonTeamId !== statsTeam.id)
+  ) {
+    return {
+      ok: false,
+      message: "El equipo no participa en el partido seleccionado.",
     };
   }
 
@@ -194,7 +213,7 @@ export async function saveAdminStatsAction(
         create: {
           matchId: match.id,
           seasonId: match.seasonId,
-          seasonTeamId: match.seasonTeamId,
+          seasonTeamId: statsTeam.id,
           playerId,
           statRole: row.isGoalkeeper ? PlayerStatRole.GOALKEEPER : PlayerStatRole.FIELD_PLAYER,
           played: row.played,
@@ -229,7 +248,7 @@ export async function saveAdminStatsAction(
   });
 
   revalidateStatsPaths(
-    match.seasonTeam.publicSlug,
+    statsTeam.publicSlug,
     touchedPlayers.map((player) => player.slug),
   );
 

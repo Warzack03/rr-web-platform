@@ -21,6 +21,7 @@ const statRowSchema = z.object({
 
 export const saveAdminStatsInputSchema = z.object({
   matchId: z.string().trim().min(1),
+  teamSlug: z.string().trim().min(1),
   rows: z.array(statRowSchema).min(1),
 });
 

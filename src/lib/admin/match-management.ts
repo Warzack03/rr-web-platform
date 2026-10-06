@@ -23,11 +23,23 @@ export type MatchManagementOpponent = {
   name: string;
   competitionId: string;
   competition: string;
+  clubSeasonTeamId?: string;
   logoMediaId?: string;
   logoUrl?: string;
   logoAlt?: string;
   active: boolean;
 };
+
+const clubTeamOpponentPrefix = "club-team-";
+
+export function buildClubTeamOpponentId(seasonTeamId: string) {
+  return `${clubTeamOpponentPrefix}${seasonTeamId}`;
+}
+
+export function parseClubTeamOpponentId(opponentId: string) {
+  const match = opponentId.match(/^club-team-(\d+)$/);
+  return match?.[1] ?? null;
+}
 
 export type MatchManagementVenue = {
   id: string;
@@ -43,6 +55,7 @@ export type MatchManagementMatch = {
   teamId: string;
   teamSlug: string;
   teamName: string;
+  relatedTeamSlugs?: string[];
   season: string;
   competition: string;
   competitionId: string;

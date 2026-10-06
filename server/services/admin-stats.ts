@@ -210,13 +210,15 @@ export async function getAdminStatsScreenData(
       seasonId: activeSeason.id,
       deletedAt: null,
       status: MatchStatus.PLAYED,
-      seasonTeamId: {
-        in: teams.map((team) => team.id),
-      },
+      OR: [
+        { seasonTeamId: { in: teams.map((team) => team.id) } },
+        { clubOpponentSeasonTeamId: { in: teams.map((team) => team.id) } },
+      ],
     },
     orderBy: [{ dateTime: "desc" }, { id: "desc" }],
     select: {
       id: true,
+      clubOpponentSeasonTeamId: true,
       competitionId: true,
       matchday: true,
       opponentName: true,
@@ -229,6 +231,24 @@ export async function getAdminStatsScreenData(
       videoUrl: true,
       publicVisible: true,
       seasonTeam: {
+        select: {
+          id: true,
+          publicSlug: true,
+          publicName: true,
+          competitionName: true,
+          season: {
+            select: {
+              name: true,
+            },
+          },
+          team: {
+            select: {
+              isFirstTeam: true,
+            },
+          },
+        },
+      },
+      clubOpponentSeasonTeam: {
         select: {
           id: true,
           publicSlug: true,
@@ -532,28 +552,65 @@ export async function getAdminStatsScreenData(
     statsState.matchEntriesByMatchId[matchId] = currentEntries;
   }
 
-  const mappedMatches: MatchManagementMatch[] = playedMatches.map((match) => ({
-    id: match.id.toString(),
-    teamId: match.seasonTeam.id.toString(),
-    teamSlug: match.seasonTeam.publicSlug,
-    teamName: match.seasonTeam.publicName,
-    season: match.seasonTeam.season.name,
-    competitionId: match.competitionId?.toString() ?? "",
-    competition: match.competition?.name ?? match.seasonTeam.competitionName ?? "Competicion pendiente",
-    matchday: mapMatchdayLabel(match.matchday),
-    opponentName: match.opponentName,
-    isHome: match.isHome,
-    date: toDateInputValue(match.dateTime),
-    time: toTimeInputValue(match.dateTime),
-    venue: match.venue ?? "Campo pendiente",
-    status: "played",
-    ownScore: mapOwnScore(match),
-    opponentScore: mapOpponentScore(match),
-    highlightsUrl: match.videoUrl ?? undefined,
-    detailAvailable: match.publicVisible,
-    previewAvailable: true,
-    isFirstTeam: match.seasonTeam.team.isFirstTeam,
-  }));
+  function mapStatsMatch(
+    match: (typeof playedMatches)[number],
+    teamContext: (typeof playedMatches)[number]["seasonTeam"],
+    opponentName: string,
+    isHome: boolean,
+  ): MatchManagementMatch {
+    const perspectiveMatch = {
+      isHome,
+      homeScore: match.homeScore,
+      awayScore: match.awayScore,
+    };
+
+    return {
+      id: match.id.toString(),
+      teamId: teamContext.id.toString(),
+      teamSlug: teamContext.publicSlug,
+      teamName: teamContext.publicName,
+      season: teamContext.season.name,
+      competitionId: match.competitionId?.toString() ?? "",
+      competition:
+        match.competition?.name ?? teamContext.competitionName ?? "Competicion pendiente",
+      matchday: mapMatchdayLabel(match.matchday),
+      opponentName,
+      isHome,
+      date: toDateInputValue(match.dateTime),
+      time: toTimeInputValue(match.dateTime),
+      venue: match.venue ?? "Campo pendiente",
+      status: "played",
+      ownScore: mapOwnScore(perspectiveMatch),
+      opponentScore: mapOpponentScore(perspectiveMatch),
+      highlightsUrl: match.videoUrl ?? undefined,
+      detailAvailable: match.publicVisible,
+      previewAvailable: true,
+      isFirstTeam: teamContext.team.isFirstTeam,
+    };
+  }
+
+  const mappedMatches: MatchManagementMatch[] = playedMatches.flatMap((match) => {
+    const ownerMatch = mapStatsMatch(
+      match,
+      match.seasonTeam,
+      match.opponentName,
+      match.isHome,
+    );
+
+    if (!match.clubOpponentSeasonTeam) {
+      return [ownerMatch];
+    }
+
+    return [
+      ownerMatch,
+      mapStatsMatch(
+        match,
+        match.clubOpponentSeasonTeam,
+        match.seasonTeam.publicName,
+        !match.isHome,
+      ),
+    ];
+  });
 
   const players = Array.from(playerContexts.values()).sort((left, right) => {
     if (left.teamSlug !== right.teamSlug) {
