@@ -76,6 +76,10 @@ Implicacion para logica futura:
 - El rival ya no debe ser texto libre.
 - Debe seleccionarse desde un catalogo de rivales dados de alta.
 - El catalogo debe filtrarse por competicion cuando sea posible.
+- Los equipos del propio club asignados a la misma competicion aparecen
+  automaticamente como rivales, sin duplicarlos en el catalogo externo.
+- Un partido entre dos equipos del club se guarda una sola vez y se muestra en
+  el calendario y las estadisticas de ambos.
 - Esto se hace pensando en consistencia futura, logos, clasificaciones y evitar
   duplicados por escritura manual.
 

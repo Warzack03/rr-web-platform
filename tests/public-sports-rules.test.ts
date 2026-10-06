@@ -44,6 +44,14 @@ function stats(overrides: Partial<PublicPlayerStats> = {}): PublicPlayerStats {
 }
 
 describe("public sports rules", () => {
+  it("uses a distinct stable id for club teams offered as internal opponents", () => {
+    const opponentId = buildClubTeamOpponentId("42");
+
+    assert.equal(opponentId, "club-team-42");
+    assert.equal(parseClubTeamOpponentId(opponentId), "42");
+    assert.equal(parseClubTeamOpponentId("123"), null);
+  });
+
   it("uses team initials when a public crest is unavailable", () => {
     assert.equal(getTeamInitials("Rising Raimon Barcelona"), "RR");
     assert.equal(getTeamInitials("Catalonia Warriors"), "CW");

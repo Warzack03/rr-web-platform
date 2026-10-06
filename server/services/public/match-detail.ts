@@ -166,12 +166,45 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
       id: BigInt(matchId),
       deletedAt: null,
       publicVisible: true,
-      seasonTeam: {
-        active: true,
-        publicVisible: true,
-        deletedAt: null,
-        ...(teamSlug ? { publicSlug: teamSlug } : {}),
-      },
+      ...(teamSlug
+        ? {
+            OR: [
+              {
+                seasonTeam: {
+                  active: true,
+                  publicVisible: true,
+                  deletedAt: null,
+                  publicSlug: teamSlug,
+                },
+              },
+              {
+                clubOpponentSeasonTeam: {
+                  active: true,
+                  publicVisible: true,
+                  deletedAt: null,
+                  publicSlug: teamSlug,
+                },
+              },
+            ],
+          }
+        : {
+            OR: [
+              {
+                seasonTeam: {
+                  active: true,
+                  publicVisible: true,
+                  deletedAt: null,
+                },
+              },
+              {
+                clubOpponentSeasonTeam: {
+                  active: true,
+                  publicVisible: true,
+                  deletedAt: null,
+                },
+              },
+            ],
+          }),
     },
     select: {
       id: true,
@@ -196,6 +229,7 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
       liveUrl: true,
       seasonId: true,
       seasonTeamId: true,
+      clubOpponentSeasonTeamId: true,
       competition: {
         select: {
           name: true,
@@ -222,6 +256,22 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
           },
         },
       },
+      clubOpponentSeasonTeam: {
+        select: {
+          id: true,
+          publicName: true,
+          publicSlug: true,
+          competitionName: true,
+          logoMedia: {
+            select: { publicUrl: true, altText: true },
+          },
+          team: {
+            select: {
+              isFirstTeam: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -229,13 +279,31 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
     return null;
   }
 
+  const viewAsClubOpponent = teamSlug
+    ? match.clubOpponentSeasonTeam?.publicSlug === teamSlug
+    : !match.seasonTeam.team.isFirstTeam &&
+      Boolean(match.clubOpponentSeasonTeam?.team.isFirstTeam);
+  const viewingTeam = viewAsClubOpponent && match.clubOpponentSeasonTeam
+    ? match.clubOpponentSeasonTeam
+    : match.seasonTeam;
+  const viewingTeamIsHome = viewAsClubOpponent ? !match.isHome : match.isHome;
+  const viewingOpponentName = viewAsClubOpponent
+    ? getPublicTeamDisplayName(
+        match.seasonTeam.publicName,
+        match.seasonTeam.team.isFirstTeam,
+      )
+    : match.opponentName;
+  const viewingOpponentLogo = viewAsClubOpponent
+    ? match.seasonTeam.logoMedia
+    : match.opponent?.logoMedia ?? match.opponentLogo;
+
   const statRows =
     match.status === MatchStatus.PLAYED
       ? await prisma.playerMatchStats.findMany({
           where: {
             matchId: match.id,
             seasonId: match.seasonId,
-            seasonTeamId: match.seasonTeamId,
+            seasonTeamId: viewingTeam.id,
             played: true,
             player: {
               active: true,
@@ -273,7 +341,7 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
     playerIds.length > 0
       ? await prisma.teamPlayerAssignment.findMany({
           where: {
-            seasonTeamId: match.seasonTeamId,
+            seasonTeamId: viewingTeam.id,
             seasonId: match.seasonId,
             active: true,
             deletedAt: null,
@@ -294,6 +362,10 @@ async function getDbMatchDetailBase(matchId: string, teamSlug?: string) {
     match,
     statRows,
     assignments,
+    viewingTeam,
+    viewingTeamIsHome,
+    viewingOpponentName,
+    viewingOpponentLogo,
   };
 }
 
@@ -361,29 +433,36 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
     return null;
   }
 
-  const { match, statRows, assignments } = input;
-  const isFirstTeam = match.seasonTeam.team.isFirstTeam;
+  const {
+    match,
+    statRows,
+    assignments,
+    viewingTeam,
+    viewingTeamIsHome,
+    viewingOpponentName,
+    viewingOpponentLogo,
+  } = input;
+  const isFirstTeam = viewingTeam.team.isFirstTeam;
   const status = mapPublicMatchStatus(match.status, isFirstTeam);
-  const teamDisplayName = getPublicTeamDisplayName(match.seasonTeam.publicName, isFirstTeam);
+  const teamDisplayName = getPublicTeamDisplayName(viewingTeam.publicName, isFirstTeam);
   const ownTeam = {
     name: teamDisplayName,
     crestLabel: buildCrestLabel(teamDisplayName),
-    crestUrl: match.seasonTeam.logoMedia?.publicUrl,
-    crestAlt: match.seasonTeam.logoMedia?.altText ?? `Escudo ${teamDisplayName}`,
+    crestUrl: viewingTeam.logoMedia?.publicUrl,
+    crestAlt: viewingTeam.logoMedia?.altText ?? `Escudo ${teamDisplayName}`,
     isClub: true,
   };
-  const opponentLogo = match.opponent?.logoMedia ?? match.opponentLogo;
   const opponentTeam = {
-    name: match.opponentName,
-    crestLabel: buildCrestLabel(match.opponentName),
-    crestUrl: opponentLogo?.publicUrl,
-    crestAlt: opponentLogo?.altText ?? `Escudo ${match.opponentName}`,
+    name: viewingOpponentName,
+    crestLabel: buildCrestLabel(viewingOpponentName),
+    crestUrl: viewingOpponentLogo?.publicUrl,
+    crestAlt: viewingOpponentLogo?.altText ?? `Escudo ${viewingOpponentName}`,
     muted: !isFirstTeam,
   };
   const playerPerformances = mapPlayerPerformances({
     statRows,
     assignments,
-    teamSlug: match.seasonTeam.publicSlug,
+    teamSlug: viewingTeam.publicSlug,
     isFirstTeam,
   });
   const scorers = buildOwnScorers({
@@ -391,7 +470,7 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
       name: player.name,
       goals: player.goals ?? 0,
     })),
-    ownTeamIsHome: match.isHome,
+    ownTeamIsHome: viewingTeamIsHome,
   });
 
   return {
@@ -399,12 +478,12 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
     match: {
       id: match.id.toString(),
       status,
-      competition: match.competition?.name ?? match.seasonTeam.competitionName ?? "Competicion pendiente",
+      competition: match.competition?.name ?? viewingTeam.competitionName ?? "Competicion pendiente",
       dateLabel: formatDateLabel(match.dateTime),
       kickoffLabel: formatKickoffLabel(match.dateTime),
       venue: match.venue?.trim() || "Campo por confirmar",
-      homeTeam: match.isHome ? ownTeam : opponentTeam,
-      awayTeam: match.isHome ? opponentTeam : ownTeam,
+      homeTeam: viewingTeamIsHome ? ownTeam : opponentTeam,
+      awayTeam: viewingTeamIsHome ? opponentTeam : ownTeam,
       homeScore: typeof match.homeScore === "number" ? match.homeScore : undefined,
       awayScore: typeof match.awayScore === "number" ? match.awayScore : undefined,
       actionLabel:
@@ -415,13 +494,13 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
           : "Vista previa",
       actionHint: match.summary?.trim() || undefined,
       detailHref: buildPublicMatchDetailHref({
-        teamSlug: match.seasonTeam.publicSlug,
+        teamSlug: viewingTeam.publicSlug,
         isFirstTeam,
         matchId: match.id.toString(),
       }),
     },
     stageLabel: buildStageLabel(
-      match.competition?.name ?? match.seasonTeam.competitionName ?? null,
+      match.competition?.name ?? viewingTeam.competitionName ?? null,
       match.matchday,
     ),
     highlightsUrl:
@@ -437,9 +516,9 @@ function buildDbMatchDetailContent(input: Awaited<ReturnType<typeof getDbMatchDe
       : {
           teamName: teamDisplayName,
           season: match.season.name,
-          backToCalendarHref: `/equipos/${match.seasonTeam.publicSlug}/calendario`,
+          backToCalendarHref: `/equipos/${viewingTeam.publicSlug}/calendario`,
           backToCalendarLabel: "Volver al calendario",
-          backToTeamHref: `/equipos/${match.seasonTeam.publicSlug}`,
+          backToTeamHref: `/equipos/${viewingTeam.publicSlug}`,
           backToTeamLabel: `Volver a ${teamDisplayName}`,
         },
     previewNote: buildPreviewNote({

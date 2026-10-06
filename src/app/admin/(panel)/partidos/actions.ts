@@ -479,6 +479,18 @@ export async function saveMatchAction(
           teamHasCompetition(team, competitionId),
       )
     : null;
+  const storeFromClubOpponent = Boolean(
+    clubOpponentTeam?.team.isFirstTeam && !targetTeam.team.isFirstTeam,
+  );
+  const storedTeam = storeFromClubOpponent && clubOpponentTeam
+    ? clubOpponentTeam
+    : targetTeam;
+  const storedClubOpponentTeam = clubOpponentTeam
+    ? storeFromClubOpponent
+      ? targetTeam
+      : clubOpponentTeam
+    : null;
+  const storedIsHome = storeFromClubOpponent ? !payload.isHome : payload.isHome;
   const [catalogOpponent, venue] = await Promise.all([
     clubOpponentTeamId
       ? Promise.resolve(null)
@@ -501,11 +513,11 @@ export async function saveMatchAction(
       select: { id: true, name: true },
     }),
   ]);
-  const opponent = clubOpponentTeam
+  const opponent = storedClubOpponentTeam
     ? {
         id: null,
-        name: clubOpponentTeam.publicName,
-        logoMediaId: clubOpponentTeam.logoMediaId,
+        name: storedClubOpponentTeam.publicName,
+        logoMediaId: storedClubOpponentTeam.logoMediaId,
       }
     : catalogOpponent;
 
@@ -527,17 +539,26 @@ export async function saveMatchAction(
     const duplicateSharedMatch = await prisma.match.findFirst({
       where: {
         competitionId,
-        matchday: matchdayNumber,
         deletedAt: null,
         ...(payload.matchId ? { id: { not: BigInt(payload.matchId) } } : {}),
-        OR: [
+        AND: [
           {
-            seasonTeamId: targetTeam.id,
-            clubOpponentSeasonTeamId: clubOpponentTeam.id,
+            OR: [
+              {
+                seasonTeamId: targetTeam.id,
+                clubOpponentSeasonTeamId: clubOpponentTeam.id,
+              },
+              {
+                seasonTeamId: clubOpponentTeam.id,
+                clubOpponentSeasonTeamId: targetTeam.id,
+              },
+            ],
           },
           {
-            seasonTeamId: clubOpponentTeam.id,
-            clubOpponentSeasonTeamId: targetTeam.id,
+            OR: [
+              { matchday: matchdayNumber },
+              ...(dateTime ? [{ dateTime }] : []),
+            ],
           },
         ],
       },
@@ -547,7 +568,7 @@ export async function saveMatchAction(
     if (duplicateSharedMatch) {
       return {
         ok: false,
-        message: "Este partido entre los dos equipos ya esta registrado en la jornada.",
+        message: "Este partido entre los dos equipos ya esta registrado en esa jornada o fecha.",
       };
     }
   }
@@ -590,14 +611,14 @@ export async function saveMatchAction(
         id: existing.id,
       },
       data: {
-        seasonTeamId: targetTeam.id,
-        clubOpponentSeasonTeamId: clubOpponentTeam?.id ?? null,
+        seasonTeamId: storedTeam.id,
+        clubOpponentSeasonTeamId: storedClubOpponentTeam?.id ?? null,
         competitionId,
         matchday: matchdayNumber,
         dateTime,
         venueId: venue.id,
         venue: venue.name,
-        isHome: payload.isHome,
+        isHome: storedIsHome,
         opponentId: opponent.id,
         opponentName: opponent.name,
         opponentLogoMediaId: opponent.logoMediaId,
@@ -635,14 +656,14 @@ export async function saveMatchAction(
   const created = await prisma.match.create({
     data: {
       seasonId: activeSeason.id,
-      seasonTeamId: targetTeam.id,
-      clubOpponentSeasonTeamId: clubOpponentTeam?.id ?? null,
+      seasonTeamId: storedTeam.id,
+      clubOpponentSeasonTeamId: storedClubOpponentTeam?.id ?? null,
       competitionId,
       matchday: matchdayNumber,
       dateTime,
       venueId: venue.id,
       venue: venue.name,
-      isHome: payload.isHome,
+      isHome: storedIsHome,
       opponentId: opponent.id,
       opponentName: opponent.name,
       opponentLogoMediaId: opponent.logoMediaId,

@@ -17,6 +17,11 @@
 - Un equipo puede tener partidos de varias competiciones en la misma temporada.
 - Cada partido debe usar una competicion asignada al equipo.
 - La numeracion de jornadas es independiente por competicion.
+- Si dos equipos del club compiten entre si, el encuentro se guarda una sola vez.
+- El segundo equipo se vincula mediante `clubOpponentSeasonTeamId`; calendario, detalle y
+  estadisticas proyectan el mismo partido desde la perspectiva de cada equipo.
+- No se crean dos filas invertidas para la ida o la vuelta. La localia y el marcador se
+  interpretan desde cada equipo sin duplicar el encuentro.
 
 ## Campos recomendados
 

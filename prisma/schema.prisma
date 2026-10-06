@@ -410,40 +410,40 @@ model Venue {
 }
 
 model Match {
-  id                  BigInt             @id @default(autoincrement())
-  seasonId            BigInt
-  seasonTeamId        BigInt
+  id                       BigInt             @id @default(autoincrement())
+  seasonId                 BigInt
+  seasonTeamId             BigInt
   clubOpponentSeasonTeamId BigInt?
-  competitionId       BigInt?
-  matchday            Int?
-  dateTime            DateTime?
-  venueId             BigInt?
-  venue               String?            @db.VarChar(180)
-  isHome              Boolean            @default(true)
-  opponentId          BigInt?
-  opponentName        String             @db.VarChar(150)
-  opponentLogoMediaId BigInt?
-  status              MatchStatus        @default(SCHEDULED)
-  homeScore           Int?
-  awayScore           Int?
-  summary             String?            @db.Text
-  videoUrl            String?            @db.VarChar(500)
-  videoLabel          String?            @db.VarChar(120)
-  liveUrl             String?            @db.VarChar(500)
-  publicVisible       Boolean            @default(true)
-  createdById         BigInt?
-  updatedById         BigInt?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  deletedAt           DateTime?
-  season              Season             @relation(fields: [seasonId], references: [id])
-  seasonTeam          SeasonTeam         @relation("ManagedTeamMatches", fields: [seasonTeamId], references: [id])
-  clubOpponentSeasonTeam SeasonTeam?      @relation("ClubOpponentMatches", fields: [clubOpponentSeasonTeamId], references: [id], onDelete: SetNull)
-  competition         Competition?       @relation(fields: [competitionId], references: [id], onDelete: SetNull)
-  venueRef            Venue?             @relation(fields: [venueId], references: [id], onDelete: SetNull)
-  opponent            Opponent?          @relation(fields: [opponentId], references: [id], onDelete: SetNull)
-  opponentLogo        MediaAsset?        @relation("OpponentLogo", fields: [opponentLogoMediaId], references: [id], onDelete: SetNull)
-  stats               PlayerMatchStats[]
+  competitionId            BigInt?
+  matchday                 Int?
+  dateTime                 DateTime?
+  venueId                  BigInt?
+  venue                    String?            @db.VarChar(180)
+  isHome                   Boolean            @default(true)
+  opponentId               BigInt?
+  opponentName             String             @db.VarChar(150)
+  opponentLogoMediaId      BigInt?
+  status                   MatchStatus        @default(SCHEDULED)
+  homeScore                Int?
+  awayScore                Int?
+  summary                  String?            @db.Text
+  videoUrl                 String?            @db.VarChar(500)
+  videoLabel               String?            @db.VarChar(120)
+  liveUrl                  String?            @db.VarChar(500)
+  publicVisible            Boolean            @default(true)
+  createdById              BigInt?
+  updatedById              BigInt?
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  deletedAt                DateTime?
+  season                   Season             @relation(fields: [seasonId], references: [id])
+  seasonTeam               SeasonTeam         @relation("ManagedTeamMatches", fields: [seasonTeamId], references: [id])
+  clubOpponentSeasonTeam   SeasonTeam?        @relation("ClubOpponentMatches", fields: [clubOpponentSeasonTeamId], references: [id], onDelete: SetNull)
+  competition              Competition?       @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  venueRef                 Venue?             @relation(fields: [venueId], references: [id], onDelete: SetNull)
+  opponent                 Opponent?          @relation(fields: [opponentId], references: [id], onDelete: SetNull)
+  opponentLogo             MediaAsset?        @relation("OpponentLogo", fields: [opponentLogoMediaId], references: [id], onDelete: SetNull)
+  stats                    PlayerMatchStats[]
 
   @@index([seasonTeamId, status])
   @@index([clubOpponentSeasonTeamId, status])
