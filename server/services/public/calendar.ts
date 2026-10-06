@@ -6,6 +6,7 @@ import type {
   TeamCalendarContent,
 } from "@/lib/contracts/public";
 import { getPublicTeamDisplayName } from "@/lib/public/team-display-name";
+import { requiresSecondKitForAwayMatch } from "@/lib/public/kit-requirements";
 import { prisma } from "@/server/db/prisma";
 import { logServerError } from "@/server/logging/safe-server-log";
 
@@ -226,6 +227,12 @@ function mapCalendarMatch(input: {
       isFirstTeam: team.team.isFirstTeam,
       matchId: match.id.toString(),
     }),
+    kitRequirement: requiresSecondKitForAwayMatch({
+      isOwnTeamHome,
+      opponentName,
+    })
+      ? "second"
+      : undefined,
     ...actionFields,
   };
 }

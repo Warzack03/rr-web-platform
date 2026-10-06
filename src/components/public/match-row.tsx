@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, CirclePlay, Clock3, MapPin, Radio } from "lucide-react";
+import { CalendarClock, CirclePlay, Clock3, MapPin, Radio, Shirt } from "lucide-react";
 import { MatchScore } from "@/components/public/match-score";
 import { MatchStatusBadge } from "@/components/public/match-status-badge";
 import { TeamBadge } from "@/components/public/team-badge";
@@ -111,7 +111,15 @@ export function MatchRow({
     >
       <div className="flex flex-col gap-5 lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1.2fr)_minmax(12rem,0.8fr)] lg:items-center">
         <div className="flex min-w-0 flex-col gap-4">
-          <MatchStatusBadge status={match.status} teamType={teamType} />
+          <div className="flex flex-wrap items-center gap-2">
+            <MatchStatusBadge status={match.status} teamType={teamType} />
+            {match.kitRequirement === "second" ? (
+              <span className="rr-kicker inline-flex min-h-8 items-center gap-2 border border-[rgba(116,176,255,0.32)] bg-[rgba(52,112,200,0.16)] px-3 py-1.5 text-[0.74rem] text-[#c9e0ff]">
+                <Shirt className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                2ª equipación
+              </span>
+            ) : null}
+          </div>
 
           <div className="grid gap-2 text-[color:var(--rr-muted)]">
             <p className="rr-kicker text-[0.82rem] text-white">{match.competition}</p>

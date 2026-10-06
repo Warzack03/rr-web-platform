@@ -32,7 +32,6 @@ SET
   canonical.updatedAt = CURRENT_TIMESTAMP(3)
 WHERE
   canonical.deletedAt IS NULL
-  AND canonical.dateTime IS NOT NULL
   AND canonical_team.isFirstTeam = TRUE
   AND duplicate.opponentName = canonical_st.publicName
   AND NOT EXISTS (
@@ -56,7 +55,6 @@ SET
   duplicate.updatedAt = CURRENT_TIMESTAMP(3)
 WHERE
   duplicate.deletedAt IS NULL
-  AND duplicate.dateTime IS NOT NULL
   AND duplicate.id <> canonical.id
   AND duplicate.opponentName = canonical_st.publicName
   AND NOT EXISTS (

@@ -188,6 +188,7 @@ export type PublicCalendarMatch = {
   actionHint?: string;
   postponementReason?: string;
   detailHref?: string;
+  kitRequirement?: "second";
 };
 
 export type PublicCalendarMatchday = {
